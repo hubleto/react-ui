@@ -1,0 +1,23 @@
+{
+  "name": "react-ui",
+  "version": "1.0.0",
+  "description": "A React-based UI for Hubleto framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hubleto/react-ui.git"
+  },
+  "keywords": [
+    "react",
+    "hubleto"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hubleto/react-ui/issues"
+  },
+  "homepage": "https://github.com/hubleto/react-ui#readme"
+}
