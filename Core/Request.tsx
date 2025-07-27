@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import axios, { AxiosError, AxiosResponse } from "axios";
-import Swal, {SweetAlertOptions} from "sweetalert2";
 
 interface ApiResponse<T> {
   data: T;
@@ -14,7 +13,7 @@ class Request {
 
   getRootUrl(): string {
     if (!globalThis.app.config.rootUrl) {
-      console.warn('ADIOS.Request: rootUrl is not set. Your AJAX requests might not work. To suppress this warning, set rootUrl to empty value.')
+      console.warn('HubletoReactUi.Request: rootUrl is not set. Your AJAX requests might not work. To suppress this warning, set rootUrl to empty value.')
       console.warn('To set the value add a script tag in HTML head section and set window.configEnv.rootUrl..')
       console.warn('To suppress this warning, set may set rootUrl to an empty value.')
     };
@@ -128,11 +127,11 @@ class Request {
         this.fatalErrorNotification(err.response.data);
       } else {
         this.fatalErrorNotification(err.response.data);
-        console.error('ADIOS: ' + err.code, err.config?.url, err.config?.params, err.response.data);
+        console.error('HubletoReactUi: ' + err.code, err.config?.url, err.config?.params, err.response.data);
         if (errorCallback) errorCallback(err.response);
       }
     } else {
-      console.error('ADIOS: Request @ ' + url + ' unknown error.');
+      console.error('HubletoReactUi: Request @ ' + url + ' unknown error.');
       console.error(err);
       // this.fatalErrorNotification("Unknown error");
     }

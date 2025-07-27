@@ -5,7 +5,7 @@ import * as uuid from 'uuid';
 import {isValidJson, kebabToPascal, camelToKebab, deepObjectMerge} from './Helper';
 import Dialog from "./Dialog";
 
-export class ADIOS {
+export class HubletoReactUi {
   config: object = {};
 
   reactComponents: any = {};
@@ -373,5 +373,3 @@ export class ADIOS {
 
   }
 }
-
-// export const adios = new ADIOS();

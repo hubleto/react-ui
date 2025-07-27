@@ -5,7 +5,7 @@ import * as uuid from 'uuid';
 import { Input, InputProps, InputState } from '../Input'
 import Swal from "sweetalert2";
 import request from "../Request";
-import { adiosError } from "../Helper";
+import { errorJsx } from "../Helper";
 
 interface FileUploadInputProps extends InputProps {
   uid: string,
@@ -44,7 +44,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
 
     if (props.value && props.multiselect !== false) {
       if (Array.isArray(props.value)) files = props.value;
-      else adiosError("Multiselect value must be type of Array");
+      else errorJsx("Multiselect value must be type of Array");
     } else if (props.value) files.push(props.value);
 
     this.state = {

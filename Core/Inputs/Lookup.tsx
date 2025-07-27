@@ -193,7 +193,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
           placeholder={this.props.description?.placeholder}
           className="adios-lookup"
           // allowCreateWhileLoading={false}
-          // formatCreateLabel={(inputValue: string) => <span className="create-new">{this.translate('Create', 'ADIOS\\Core\\Loader::Components\\Inputs\\Lookup') + ': ' + inputValue}</span>}
+          // formatCreateLabel={(inputValue: string) => <span className="create-new">{this.translate('Create', 'Hubleto\\Core\\Loader::Components\\Inputs\\Lookup') + ': ' + inputValue}</span>}
           // getNewOptionData={(value, label) => { return { id: {_isNew_: true, _LOOKUP: label}, _LOOKUP: label }; }}
           styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
           menuPosition="fixed"

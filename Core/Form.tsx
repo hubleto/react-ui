@@ -5,7 +5,7 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Tooltip } from 'primereact/tooltip';
 import request from "./Request";
 
-import { adiosError, deepObjectMerge } from "./Helper";
+import { deepObjectMerge } from "./Helper";
 
 import TranslatedComponent from "./TranslatedComponent";
 import { InputProps } from "./Input";
@@ -677,13 +677,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           ? <>
             <span className="icon"><i className="fas fa-save"></i></span>
             <span className="text">
-              {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'ADIOS\\Core\\Loader::Components\\Form')}
+              {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Core\\Loader::Components\\Form')}
             </span>
             {this.state.recordChanged ? <span className="text">*</span> : null}
           </> : <>
             <span className="icon"><i className="fas fa-plus"></i></span>
             <span className="text">
-              {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}
+              {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Core\\Loader::Components\\Form')}
             </span>
             {this.state.recordChanged ? <span className="text">*</span> : null}
           </>
@@ -701,7 +701,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         className={"btn btn-transparent"}
       >
         <span className="icon"><i className="fas fa-save"></i></span>
-        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy", 'ADIOS\\Core\\Loader::Components\\Form')}</span>
+        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy", 'Hubleto\\Core\\Loader::Components\\Form')}</span>
       </button> : null}
     </>;
   }
@@ -727,8 +727,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         <span className="icon"><i className="fas fa-trash-alt"></i></span>
         <span className="text text-nowrap">
           {this.state.deletingRecord ?
-            this.translate("Confirm delete", 'ADIOS\\Core\\Loader::Components\\Form')
-            : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete", 'ADIOS\\Core\\Loader::Components\\Form')
+            this.translate("Confirm delete", 'Hubleto\\Core\\Loader::Components\\Form')
+            : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete", 'Hubleto\\Core\\Loader::Components\\Form')
           }
         </span>
       </button> : null}
@@ -776,7 +776,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         className="btn btn-edit"
       >
         <span className="icon"><i className="fas fa-pencil-alt"></i></span>
-        <span className="text">{this.translate('Edit', 'ADIOS\\Core\\Loader::Components\\Form')}</span>
+        <span className="text">{this.translate('Edit', 'Hubleto\\Core\\Loader::Components\\Form')}</span>
       </button> : null}
     </>;
   }
@@ -834,8 +834,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderTitle(): null|JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
-        ? this.translate('Record', 'ADIOS\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
-        : this.translate('New record', 'ADIOS\\Core\\Loader::Components\\Form')
+        ? this.translate('Record', 'Hubleto\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
+        : this.translate('New record', 'Hubleto\\Core\\Loader::Components\\Form')
       )
     ;
 
