@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import request from '@hubleto/ui/core/Request';
+import request from '@hubleto/react-ui/core/Request';
 import HubletoTable, { HubletoTableProps, HubletoTableState } from './HubletoTable';
 
 export interface HubletoTableColumnsCustomizeProps {

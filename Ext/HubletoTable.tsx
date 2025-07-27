@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import Table, { TableProps, TableState } from '@hubleto/ui/core/Table';
+import Table, { TableProps, TableState } from '@hubleto/react-ui/core/Table';
 import HubletoForm, { HubletoFormProps, HubletoFormState } from './HubletoForm';
 import HubletoTableExportCsvForm from './HubletoTableExportCsvForm';
 import HubletoTableImportCsvForm from './HubletoTableImportCsvForm';
-import { getUrlParam } from '@hubleto/ui/core/Helper';
-import ModalForm from "@hubleto/ui/core/ModalForm";
+import { getUrlParam } from '@hubleto/react-ui/core/Helper';
+import ModalForm from "@hubleto/react-ui/core/ModalForm";
 import HubletoTableColumnsCustomize from './HubletoTableColumnsCustomize';
 
 export interface HubletoTableProps extends TableProps {

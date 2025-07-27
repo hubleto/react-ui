@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Form, { FormDescription, FormProps, FormState } from "@hubleto/ui/core/Form";
+import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/core/Form";
 
 export interface HubletoFormProps extends FormProps {}
 export interface HubletoFormState extends FormState {}
