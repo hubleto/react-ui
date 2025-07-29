@@ -85,11 +85,11 @@ export default class SwalButton extends Component<SwalButtonProps> {
   render() {
     return (
       <div
-        id={"adios-button-" + this.props.uid}
-        className="adios component button"
+        id={"hubleto-button-" + this.props.uid}
+        className="hubleto component button"
       >
         <button
-          className={"adios ui Button btn " + this.state.css + " btn-icon-split"}
+          className={"hubleto ui Button btn " + this.state.css + " btn-icon-split"}
           onClick={() => this.onClick()}
         >
           <span className="icon">

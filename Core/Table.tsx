@@ -1094,7 +1094,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         showFilterMenu={false}
         filterElement={columnSearchInput ? (
           <div className="column-search input-wrapper">
-            <div className="input-body"><div className="adios component input">
+            <div className="input-body"><div className="hubleto component input">
               <div className="input-element">
                 {columnSearchInput}
               </div>
@@ -1137,9 +1137,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       {this.state.isUsedAsInput ? null : this.renderDeleteConfirmModal()}
 
       <div
-        id={"adios-table-" + this.props.uid}
+        id={"hubleto-table-" + this.props.uid}
         className={
-          "adios component table" + (this.props.className ? " " + this.props.className : "") + (this.state.loadingData ? " loading" : "")
+          "hubleto component table" + (this.props.className ? " " + this.props.className : "") + (this.state.loadingData ? " loading" : "")
         }
       >
         {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
@@ -1150,7 +1150,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
           </div>
 
-          <div className="table-body grow" id={"adios-table-body-" + this.props.uid}>
+          <div className="table-body grow" id={"hubleto-table-body-" + this.props.uid}>
             <DataTable {...this.getTableProps()}>
               {this.renderColumns()}
             </DataTable>

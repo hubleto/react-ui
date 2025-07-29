@@ -901,7 +901,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         </>;
       } else {
         return <>
-          <div id={"adios-form-" + this.props.uid} className="adios component form">
+          <div id={"hubleto-form-" + this.props.uid} className="hubleto component form">
             <div className="form-header">
               <div className="form-header-left">{headerLeft}</div>
               <div className="form-header-title">{formTitle}</div>

@@ -15,8 +15,8 @@ export default class Card extends Component<CardProps> {
   render() {
     return (
       <div 
-        id={"adios-card-" + this.props.uid}
-        className="adios component card"
+        id={"hubleto-card-" + this.props.uid}
+        className="hubleto component card"
       >
         {this.props.title ? (
           <div className="card-header py-3">

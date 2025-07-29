@@ -72,7 +72,7 @@ export default class ExportButton extends Component<ExportButtonProps> {
       return;
     }
 
-    $('#adios-export-overlay-' + this.props.uid).fadeIn(180, () => {
+    $('#hubleto-export-overlay-' + this.props.uid).fadeIn(180, () => {
       $(imgElement).addClass('export-img');
       let infoNotification: NotyfNotification = Notification.custom({
         type: "info",
@@ -94,7 +94,7 @@ export default class ExportButton extends Component<ExportButtonProps> {
             });
 
             $(imgElement).removeClass('export-img');
-            $('#adios-export-overlay-' + this.props.uid).fadeOut();
+            $('#hubleto-export-overlay-' + this.props.uid).fadeOut();
           break;
           case 'pdf':
             html2canvas(imgElement).then((canvas: any) => {
@@ -110,7 +110,7 @@ export default class ExportButton extends Component<ExportButtonProps> {
             });
 
             $(imgElement).removeClass('export-img');
-            $('#adios-export-overlay-' + this.props.uid).fadeOut();
+            $('#hubleto-export-overlay-' + this.props.uid).fadeOut();
           break;
           default:
             Notification.error('export-type must be pdf or image');
@@ -125,7 +125,7 @@ export default class ExportButton extends Component<ExportButtonProps> {
     return (
       <>
         <div
-          id={"adios-export-overlay-" + this.props.uid}
+          id={"hubleto-export-overlay-" + this.props.uid}
           style={{ position: 'fixed', left: '0', top: '0', width: '100vw', height: '100vh', background: 'white', zIndex: '1000', display: 'none' }}
         >
           <div className='alert alert-success' role='alert'>
@@ -134,8 +134,8 @@ export default class ExportButton extends Component<ExportButtonProps> {
           </div>
         </div>
         <button
-          id={"adios-export-button-" + this.props.uid}
-          className={this.props.customCssClass ? this.props.customCssClass : ("adios ui Button btn " + this.state.cssClass + " btn-icon-split")}
+          id={"hubleto-export-button-" + this.props.uid}
+          className={this.props.customCssClass ? this.props.customCssClass : ("hubleto ui Button btn " + this.state.cssClass + " btn-icon-split")}
           style={this.state.cssStyle}
           onClick={() => this.export()}
         >

@@ -93,11 +93,11 @@ class Dispatch {
         this.fatalErrorNotification(err.response.data);
       } else {
         this.fatalErrorNotification(err.response.data);
-        console.error('ADIOS: ' + err.code, err.config?.url, err.config?.params, err.response.data);
+        console.error('Hubleto: ' + err.code, err.config?.url, err.config?.params, err.response.data);
         if (errorCallback) errorCallback(err.response);
       }
     } else {
-      console.error('ADIOS: Dispatch @ ' + url + ' unknown error.');
+      console.error('Hubleto: Dispatch @ ' + url + ' unknown error.');
       console.error(err);
       this.fatalErrorNotification("Unknown error");
     }

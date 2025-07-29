@@ -56,11 +56,11 @@ export default class Button extends Component<ButtonProps> {
   render() {
     return (
       <div
-        id={"adios-button-" + this.props.uid}
-        className="adios component button"
+        id={"hubleto-button-" + this.props.uid}
+        className="hubleto component button"
       >
         <a 
-          className={"adios ui Button btn " + this.state.cssClass + (this.props.icon && this.props.text ? " btn-icon-split" : "")}
+          className={"hubleto ui Button btn " + this.state.cssClass + (this.props.icon && this.props.text ? " btn-icon-split" : "")}
           style={this.state.cssStyle}
           href={
             this.props.href ? (

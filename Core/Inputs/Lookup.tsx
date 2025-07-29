@@ -191,7 +191,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
           getOptionValue={(option: any) => { return option.id }}
           onChange={(item: any) => { this.onChange(item?.id ?? 0); }}
           placeholder={this.props.description?.placeholder}
-          className="adios-lookup"
+          className="hubleto-lookup"
           // allowCreateWhileLoading={false}
           // formatCreateLabel={(inputValue: string) => <span className="create-new">{this.translate('Create', 'Hubleto\\Core\\Loader::Components\\Inputs\\Lookup') + ': ' + inputValue}</span>}
           // getNewOptionData={(value, label) => { return { id: {_isNew_: true, _LOOKUP: label}, _LOOKUP: label }; }}

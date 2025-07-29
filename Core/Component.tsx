@@ -1,3 +1,3 @@
-export interface AdiosComponentProps {
+export interface HubletoComponentProps {
   uid: string,
 }

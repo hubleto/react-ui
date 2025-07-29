@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Dialog as PrimereactDialog, DialogProps as PrimereactDialogProps, DialogState as PrimereactDialogState } from 'primereact/dialog';
-import { AdiosComponentProps } from './Component';
+import { HubletoComponentProps } from './Component';
 
 export default class Dialog extends Component {
-  props: PrimereactDialogProps & AdiosComponentProps;
+  props: PrimereactDialogProps & HubletoComponentProps;
   state: PrimereactDialogState;
 
   constructor(props) {

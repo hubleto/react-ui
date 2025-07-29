@@ -50,9 +50,9 @@ export default class FormCardButton extends Component<FormCardButtonProps> {
         </Modal>
 
         <button
-          id={"adios-card-button-" + this.props.uid}
+          id={"hubleto-card-button-" + this.props.uid}
           //@ts-ignore
-          onClick={() => ADIOS.modalToggle(this.props.uid)}
+          onClick={() => HubletoReactUi.modalToggle(this.props.uid)}
           className={"btn " + this.state.cssClass + " shadow-sm mb-1 p-4"}
           style={{width: '14em'}}
         >

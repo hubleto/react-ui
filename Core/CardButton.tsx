@@ -19,7 +19,7 @@ export default class CardButton extends Component<CardButtonProps> {
   render() {
     return (
       <a 
-        id={"adios-card-button-" + this.props.uid}
+        id={"hubleto-card-button-" + this.props.uid}
         href={
           this.props.href ? (
             this.props.href.startsWith('/')

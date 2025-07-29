@@ -13,7 +13,7 @@ export default class ModalForm extends Modal {
       return <>
         <div
           key={this.props.uid}
-          id={"adios-modal-" + this.props.uid}
+          id={"hubleto-modal-" + this.props.uid}
           className={"modal " + this.props.type}
         >
           <div className="modal-inner">

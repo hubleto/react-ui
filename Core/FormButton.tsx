@@ -42,12 +42,12 @@ export default class FormButton extends Component<FormButtonProps> {
           />
         </Modal>
         <div
-          id={"adios-button-" + this.props.uid}
-          className="adios component button"
+          id={"hubleto-button-" + this.props.uid}
+          className="hubleto component button"
         >
           <button
             onClick={() => HubletoReactUi.modalToggle(this.props.uid)}
-            className={"adios ui Button btn " + this.state.css + " btn-icon-split"}
+            className={"hubleto ui Button btn " + this.state.css + " btn-icon-split"}
           >
             <span className="icon">
               <i className={this.state.icon}></i>

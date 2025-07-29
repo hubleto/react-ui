@@ -202,7 +202,7 @@ export class HubletoReactUi {
   }
 
   /**
-   * Get specific ADIOS component with destructed params
+   * Get specific hubleto component with destructed params
    */
   renderReactElement(componentName: string, props: Object, children: any) {
     if (!componentName) return null;
@@ -210,7 +210,7 @@ export class HubletoReactUi {
     let componentNamePascalCase = kebabToPascal(componentName);
 
     if (!this.reactComponents[componentNamePascalCase]) {
-      console.error('ADIOS: renderReactElement(' + componentNamePascalCase + '). Component does not exist. Use `adios.registerReactComponent()` in your project\'s index.tsx file.');
+      console.error('Hubleto: renderReactElement(' + componentNamePascalCase + '). Component does not exist. Use `hubleto.registerReactComponent()` in your project\'s index.tsx file.');
       return null;
     } else {
       return React.createElement(
@@ -234,7 +234,7 @@ export class HubletoReactUi {
   // }
 
   convertDomToReact(domElement) {
-    let isAdiosComponent = false;
+    let isHubletoComponent = false;
     let component: string = '';
     let componentProps: Object = {};
 
@@ -245,12 +245,12 @@ export class HubletoReactUi {
         component = domElement.tagName.toLowerCase();
       } else {
         component = domElement.tagName.substring(4).toLowerCase();
-        isAdiosComponent = true;
+        isHubletoComponent = true;
       }
 
       let attributesDoNotConvert: Array<string> = [];
       for (let i in domElement.attributes) {
-        if (domElement.attributes[i].name == 'adios-do-not-convert') {
+        if (domElement.attributes[i].name == 'hubleto-do-not-convert') {
           attributesDoNotConvert = domElement.attributes[i].value.split(',');
         }
       }
@@ -305,7 +305,7 @@ export class HubletoReactUi {
 
       let reactElement: any = null;
 
-      if (isAdiosComponent) {
+      if (isHubletoComponent) {
         if (componentProps['uid'] == undefined) {
           componentProps['uid'] = '_' + uuid.v4().replace('-', '_');
         }
@@ -316,7 +316,7 @@ export class HubletoReactUi {
           children
         );
 
-        domElement.setAttribute('adios-react-rendered', 'true');
+        domElement.setAttribute('hubleto-react-rendered', 'true');
       } else {
         reactElement = React.createElement(
           component,
@@ -339,7 +339,7 @@ export class HubletoReactUi {
     rootElement.querySelectorAll('*').forEach((element, _index) => {
 
       if (element.tagName.substring(0, 4) != 'APP-') return;
-      if (element.attributes['adios-react-rendered']) return;
+      if (element.attributes['hubleto-react-rendered']) return;
 
       //@ts-ignore
       $(rootElement).addClass('react-elements-rendering');

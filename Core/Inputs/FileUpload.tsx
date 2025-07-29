@@ -206,8 +206,8 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
   renderInputElement() {
     return (
       <div 
-        id={"adios-title-" + this.props.uid}
-        className="adios component file-upload"
+        id={"hubleto-title-" + this.props.uid}
+        className="hubleto component file-upload"
       >
         {this.state.files.length > 0 && (
           <div className="d-flex flex-wrap">

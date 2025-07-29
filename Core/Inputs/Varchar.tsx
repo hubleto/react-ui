@@ -93,7 +93,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
         getOptionValue: (option: any) => { return option.value },
         onChange: (item: any) => { this.onChange(item?.value ?? ''); },
         placeholder: this.props.description?.placeholder,
-        className: 'adios-lookup',
+        className: 'hubleto-lookup',
         styles: { menuPortal: (base) => ({ ...base, zIndex: 9999 }) },
         // menuPosition: 'fixed',
         menuPortalTarget: document.body,

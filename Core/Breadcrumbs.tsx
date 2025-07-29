@@ -27,7 +27,7 @@ export default class Breadcrumbs extends Component<BreadcrumbsProps> {
 
   render() {
     // TODO: ak this.state.items nie je pole (napr.
-    // syntax error v JSON v <adios-breadcrumbs>),
+    // syntax error v JSON v <hubleto-breadcrumbs>),
     // tak by malo vypisat dajaku error hlasku
 
     let html: any;
@@ -51,8 +51,8 @@ export default class Breadcrumbs extends Component<BreadcrumbsProps> {
 
     return (
       <div
-        id={"adios-breadcrumbs-" + this.props.uid}
-        className="adios component breadcrumbs"
+        id={"hubleto-breadcrumbs-" + this.props.uid}
+        className="hubleto component breadcrumbs"
       >
         <nav
           aria-label="breadcrumb"
