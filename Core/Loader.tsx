@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { createRoot } from "react-dom/client";
 import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
