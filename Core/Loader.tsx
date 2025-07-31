@@ -33,7 +33,7 @@ export class HubletoReactUi {
 
   constructor(config: object) {
     this.config = config;
-    globalThis.app = this;
+    globalThis.main = this;
   }
 
   translate(orig: string, context?: string): string {

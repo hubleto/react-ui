@@ -79,7 +79,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     this.refValueElement = React.createRef();
     this.refInput = React.createRef();
 
-    globalThis.app.reactElements[this.props.uid] = this;
+    globalThis.main.reactElements[this.props.uid] = this;
 
     const isInitialized: boolean = props.isInitialized ?? false;
     const isInlineEditing: boolean = props.isInlineEditing ?? true;
@@ -161,7 +161,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   }
 
   translate(orig: string, context?: string): string {
-    return globalThis.app.translate(orig, context ?? this.translationContext);
+    return globalThis.main.translate(orig, context ?? this.translationContext);
   }
 
   getClassName() {
@@ -251,7 +251,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     if (!this.state.isInitialized) return this.renderLoadingInfo();
 
     try {
-      globalThis.app.setTranslationContext(this.translationContext);
+      globalThis.main.setTranslationContext(this.translationContext);
 
       return (
         <div ref={this.refInputWrapper} className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">

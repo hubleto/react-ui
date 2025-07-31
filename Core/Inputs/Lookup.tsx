@@ -38,7 +38,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
           ? props.endpoint
           : (props.description && props.description.endpoint
             ? props.description.endpoint
-            : (globalThis.app.config.defaultLookupEndpoint ?? 'api/record/lookup')
+            : (globalThis.main.config.defaultLookupEndpoint ?? 'api/record/lookup')
           )
       ,
       model: props.model ? props.model : (props.description && props.description.model ? props.description.model : ''),
@@ -127,7 +127,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
         >
           <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
         </a>
-        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.rootUrl + "/" + urlDetail}>
+        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.main.config.projectUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
       </>;
@@ -199,10 +199,10 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
           menuPosition="fixed"
           menuPortalTarget={document.body}
         />
-        {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.app.config.rootUrl + "/" + urlDetail}>
+        {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.main.config.projectUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
-        {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.rootUrl + "/" + this.props.urlAdd}>
+        {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.main.config.projectUrl + "/" + this.props.urlAdd}>
           <span className="icon"><i className="fas fa-plus"></i></span>
         </a> : null}
       </>;

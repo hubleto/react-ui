@@ -159,7 +159,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     super(props);
 
     if (this.props.uid) {
-      globalThis.app.reactElements[this.props.uid] = this;
+      globalThis.main.reactElements[this.props.uid] = this;
     }
 
     this.state = this.getStateFromProps(props);
@@ -169,7 +169,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const isCreatingRecord: boolean = props.id ? props.id == -1 : false;
     return {
       isInitialized: false,
-      endpoint: props.endpoint ? props.endpoint : (globalThis.app.config.defaultFormEndpoint ?? {
+      endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultFormEndpoint ?? {
         describeForm: 'api/form/describe',
         saveRecord: 'api/record/save',
         deleteRecord: 'api/record/delete',
@@ -875,7 +875,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   render() {
     try {
-      globalThis.app.setTranslationContext(this.translationContext);
+      globalThis.main.setTranslationContext(this.translationContext);
 
       const warningsOrErrors = this.renderWarningsOrErrors();
 

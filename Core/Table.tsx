@@ -189,7 +189,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   constructor(props: TableProps) {
     super(props);
 
-    globalThis.app.reactElements[this.props.uid] = this;
+    globalThis.main.reactElements[this.props.uid] = this;
 
     this.refFulltextSearchInput = React.createRef();
 
@@ -200,13 +200,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   getStateFromProps(props: TableProps): TableState {
     let state: any = {
-      endpoint: props.endpoint ? props.endpoint : (globalThis.app.config.defaultTableEndpoint ?? {
+      endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultTableEndpoint ?? {
         describeTable: 'api/table/describe',
         getRecords: 'api/record/get-list',
         deleteRecord: 'api/record/delete',
       }),
       recordId: props.recordId,
-      formEndpoint: props.formEndpoint ? props.formEndpoint : (globalThis.app.config.defaultFormEndpoint ?? null),
+      formEndpoint: props.formEndpoint ? props.formEndpoint : (globalThis.main.config.defaultFormEndpoint ?? null),
       formProps: {
         model: this.model,
         uid: props.uid,
@@ -266,7 +266,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   translate(orig: string, context?: string): string {
-    return globalThis.app.translate(orig, context ?? this.translationContext);
+    return globalThis.main.translate(orig, context ?? this.translationContext);
   }
 
   onAfterLoadTableDescription(description: any): any {
@@ -816,7 +816,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderForm(): JSX.Element {
     if (this.props.formReactComponent) {
-      return globalThis.app.renderReactElement(this.props.formReactComponent, this.getFormProps()) ?? <></>;
+      return globalThis.main.renderReactElement(this.props.formReactComponent, this.getFormProps()) ?? <></>;
     } else {
       return <Form {...this.getFormProps()} />;
     }
@@ -849,7 +849,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (typeof column.cellRenderer == 'function') {
       return column.cellRenderer(this, data, options);
     } else if (typeof column.tableCellRenderer === 'string' && column.tableCellRenderer !== '') {
-      return globalThis.app.renderReactElement(column.tableCellRenderer, cellProps) ?? <></>;
+      return globalThis.main.renderReactElement(column.tableCellRenderer, cellProps) ?? <></>;
     } else {
 
       let cellValueElement: JSX.Element|null = null;
@@ -883,7 +883,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             else {
               cellValueElement = <img
                 style={{ width: '30px', height: '30px' }}
-                src={globalThis.app.config.uploadUrl + "/" + cellContent}
+                src={globalThis.main.config.uploadUrl + "/" + cellContent}
                 className="rounded"
               />;
             }
@@ -892,7 +892,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             if (!cellContent) cellValueElement = <i className="fas fa-image" style={{color: '#e3e6f0'}}></i>
             else {
               cellValueElement = <a
-                href={globalThis.app.config.uploadUrl + "/" + cellContent}
+                href={globalThis.main.config.uploadUrl + "/" + cellContent}
                 target='_blank'
                 onClick={(e) => { e.stopPropagation(); }}
                 className='btn btn-primary-outline btn-small'
@@ -1162,7 +1162,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   render() {
     try {
-      globalThis.app.setTranslationContext(this.translationContext);
+      globalThis.main.setTranslationContext(this.translationContext);
 
       if (!this.state.data) {
         return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;

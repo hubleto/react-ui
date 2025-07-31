@@ -105,9 +105,9 @@ class Dispatch {
 
   private fatalErrorNotification(error: any) {
     if (typeof error == 'string') {
-      globalThis.app.showDialogDanger(error);
+      globalThis.main.showDialogDanger(error);
     } else {
-      globalThis.app.showDialogDanger(globalThis.app.makeErrorResultReadable(error));
+      globalThis.main.showDialogDanger(globalThis.main.makeErrorResultReadable(error));
     }
   }
 

@@ -29,7 +29,7 @@ export function InputFactory(inputProps: any): JSX.Element {
       inputToRender = <InputEnumValues {...inputProps} enumValues={description.enumValues} enumCssClasses={description.enumCssClasses}/>
     } else {
       if (typeof description.reactComponent === 'string' && description.reactComponent !== '') {
-        inputToRender = globalThis.app.renderReactElement(description.reactComponent, inputProps) ?? <></>;
+        inputToRender = globalThis.main.renderReactElement(description.reactComponent, inputProps) ?? <></>;
       } else {
         switch (description.type ?? '') {
           case 'varchar': inputToRender = <InputVarchar {...inputProps} />; break;

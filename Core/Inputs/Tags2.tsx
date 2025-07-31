@@ -42,7 +42,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
           ? props.endpoint
           : (props.params && props.params.endpoint
             ? props.params.endpoint
-            : (globalThis.app.config.defaultLookupEndpoint ?? 'api/record/lookup')
+            : (globalThis.main.config.defaultLookupEndpoint ?? 'api/record/lookup')
           )
       ,
       model: props.model ? props.model : (props.params && props.params.model ? props.params.model : ''),

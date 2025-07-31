@@ -11,18 +11,18 @@ interface ApiError {
 
 class Request {
 
-  getRootUrl(): string {
-    if (!globalThis.app.config.rootUrl) {
-      console.warn('HubletoReactUi.Request: rootUrl is not set. Your AJAX requests might not work. To suppress this warning, set rootUrl to empty value.')
-      console.warn('To set the value add a script tag in HTML head section and set window.configEnv.rootUrl..')
-      console.warn('To suppress this warning, set may set rootUrl to an empty value.')
+  getProjectUrl(): string {
+    if (!globalThis.main.config.projectUrl) {
+      console.warn('HubletoReactUi.Request: projectUrl is not set. Your AJAX requests might not work. To suppress this warning, set projectUrl to empty value.')
+      console.warn('To set the value add a script tag in HTML head section and set window.configEnv.projectUrl.')
+      console.warn('To suppress this warning, set may set projectUrl to an empty value.')
     };
 
-    return globalThis.app.config.rootUrl + '/';
+    return globalThis.main.config.projectUrl + '/';
   }
 
   alertOnError(responseData: any) {
-    globalThis.app.showDialogWarning(responseData.errorHtml);
+    globalThis.main.showDialogWarning(responseData.errorHtml);
   }
 
   public get<T>(
@@ -32,7 +32,7 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     document.body.classList.add("ajax-loading");
-    axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, {
+    axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -52,7 +52,7 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     document.body.classList.add("ajax-loading");
-    axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, postData, {
+    axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, postData, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -71,7 +71,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, putData, {
+    axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, putData, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -89,7 +89,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, patchData, {
+    axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, patchData, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -106,7 +106,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.delete<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, {
+    axios.delete<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -139,9 +139,9 @@ class Request {
 
   private fatalErrorNotification(error: any) {
     if (typeof error == 'string') {
-      globalThis.app.showDialogDanger(error);
+      globalThis.main.showDialogDanger(error);
     } else {
-      globalThis.app.showDialogDanger(globalThis.app.makeErrorResultReadable(error));
+      globalThis.main.showDialogDanger(globalThis.main.makeErrorResultReadable(error));
     }
   }
 
