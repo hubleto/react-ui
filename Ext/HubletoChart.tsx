@@ -147,7 +147,7 @@ export default class HubletoChart<P, S> extends Component<HubletoChartProps,Hubl
           data={{
             datasets: [
               {
-                type: 'line',
+                type: 'bar',
                 label: 'Goals',
                 backgroundColor: "#ffb12b",
                 borderColor: "#a87316",

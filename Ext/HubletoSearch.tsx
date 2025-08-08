@@ -1,0 +1,79 @@
+import React, { Component } from "react";
+import request from "@hubleto/react-ui/core/Request";
+import AsyncSelect from 'react-select/async'
+import { components } from "react-select";
+
+export interface HubletoSearchProps {
+  endpoint: string,
+  endpointParams?: any,
+}
+
+export interface HubletoSearchState {
+  query?: any,
+  results?: any
+}
+
+const Option = (innerProps, isDisabled) => {
+  return (
+    <components.Option {...innerProps}>
+      <div>{innerProps.data.label}</div>
+      <small>{innerProps.data.url}</small>
+    </components.Option>
+  )
+}
+
+export default class HubletoSearch<P, S> extends Component<HubletoSearchProps,HubletoSearchState> {
+  props: HubletoSearchProps;
+  state: HubletoSearchState;
+
+  constructor(props: HubletoSearchProps) {
+    super(props);
+
+    this.state = {
+      query: '',
+      results: null,
+    }
+  }
+
+  loadOptions(inputValue: string|null = null, callback: ((option: Array<any>) => void)|null = null) {
+    request.post(
+      this.props.endpoint,
+      {...this.props.endpointParams, query: inputValue},
+      {},
+      (results: any) => {
+        this.setState({
+          results: results
+        });
+
+        if (callback) callback(Object.values(results ?? {}));
+      }
+    );
+  }
+
+  onChange(item: any) {
+    console.log(item);
+    location.href = globalThis.main.config.projectUrl + '/' + item.url;
+  }
+
+  render(): JSX.Element {
+    return <>
+      <AsyncSelect
+        value={{
+          id: 0,
+          label: ''
+        }}
+        isClearable={true}
+        loadOptions={(inputValue: string, callback: any) => this.loadOptions(inputValue, callback)}
+        getOptionLabel={(option: any) => { return option.label }}
+        getOptionValue={(option: any) => { return option.id }}
+        onChange={(item: any) => { this.onChange(item); }}
+        components={{ Option }}
+        placeholder='Search in Hubleto...'
+        className="hubleto-lookup"
+        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+        menuPosition="fixed"
+        menuPortalTarget={document.body}
+      />
+    </>;
+  }
+}
