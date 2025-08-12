@@ -17,7 +17,8 @@ const Option = (innerProps, isDisabled) => {
   return (
     <components.Option {...innerProps}>
       <div>{innerProps.data.label}</div>
-      <small>{innerProps.data.url}</small>
+      <div className="text-xs">{innerProps.data.description}</div>
+      <div className="text-xs text-gray-300">{innerProps.data.APP_NAMESPACE}</div>
     </components.Option>
   )
 }
