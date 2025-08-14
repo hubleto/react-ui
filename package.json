@@ -64,7 +64,7 @@
     "react-flatpickr": "^3.0",
     "react-images-uploading": "^3.0",
     "react-querybuilder": "^8.7.1",
-    "react-quill": "^2.0",
+    "react-quill": "^2.0.0",
     "react-redux": "^9.2.0",
     "react-select": "^5.0",
     "react-tag-input": "^6.0",
