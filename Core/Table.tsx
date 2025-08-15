@@ -1218,6 +1218,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     // to be overriden
   }
 
+  setRecordFormUrl(id: number) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!this.props.parentForm) urlParams.set('recordId', id.toString());
+    window.history.pushState({}, "", '?' + urlParams.toString());
+  }
+
   openForm(id: any) {
     let prevId: any = null;
     let nextId: any = null;
@@ -1242,11 +1248,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       window[this.props.externalCallbacks.openForm](this, id);
     } else {
       if (!this.props.parentForm) {
-        const urlParams = new URLSearchParams(window.location.search);
-        // const recordTitle = this.findRecordById(id)._LOOKUP ?? null;
-        if (!this.props.parentForm) urlParams.set('recordId', id);
-        // if (recordTitle) urlParams.set('recordTitle', recordTitle);
-        window.history.pushState({}, "", '?' + urlParams.toString());
+        this.setRecordFormUrl(id);
       }
 
       this.setState({ recordId: null }, () => {

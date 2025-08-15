@@ -465,18 +465,23 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
+  renderTabTitle(tabName: string): JSX.Element {
+    return <>{this.state.tabs[tabName].title ?? tabName}</>;
+  }
+
   renderTopMenu(): null|JSX.Element {
     if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
       const tabs = this.state.tabs ?? {};
       const activeTab = this.state.activeTab ?? 'default';
       return <>{Object.keys(tabs).map((i: any) => {
+        const tabTitle = this.renderTabTitle(i);
         return <button
           key={i}
           className={"btn " + (activeTab == i ? "btn-primary" : "btn-transparent")}
           onClick={() => { this.setState({activeTab: i}); }}
         >
           {tabs[i].icon ? <span className="icon"><i className={tabs[i].icon}></i></span> : null}
-          <span className="text">{tabs[i].title}</span>
+          <span className="text">{tabTitle}</span>
         </button>;
       })}</>;
     } else {
@@ -888,7 +893,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
       if (this.props.showInModal) {
         return <>
-          <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
+          <div className={"modal-header " + this.state.description?.ui?.headerClassName}>
             <div className="modal-header-left">{headerLeft}</div>
             <div className="modal-header-title">{formTitle}</div>
             <div className="modal-header-right">{headerRight}</div>
