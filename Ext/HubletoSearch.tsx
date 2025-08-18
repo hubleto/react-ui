@@ -27,8 +27,13 @@ export default class HubletoSearch<P, S> extends Component<HubletoSearchProps,Hu
   props: HubletoSearchProps;
   state: HubletoSearchState;
 
+  searchRef: any;
+
   constructor(props: HubletoSearchProps) {
     super(props);
+
+    this.searchRef = React.createRef();
+    globalThis.main.reactElements['global-fulltext-search'] = this;
 
     this.state = {
       query: '',
@@ -61,8 +66,9 @@ export default class HubletoSearch<P, S> extends Component<HubletoSearchProps,Hu
       <AsyncSelect
         value={{
           id: 0,
-          label: ''
+          label: this.state.query
         }}
+        ref={this.searchRef}
         isClearable={true}
         loadOptions={(inputValue: string, callback: any) => this.loadOptions(inputValue, callback)}
         getOptionLabel={(option: any) => { return option.label }}

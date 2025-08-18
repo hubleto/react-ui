@@ -101,7 +101,7 @@ export class HubletoReactUi {
   }
 
   showDialog(content: JSX.Element, props?: any) {
-    const root = ReactDOM.createRoot(document.getElementById('app-dialogs'));
+    const root = createRoot(document.getElementById('app-dialogs'));
 
     this.lastShownDialogRef = React.createRef();
 
@@ -178,11 +178,11 @@ export class HubletoReactUi {
       header: "Confirm",
       footer: <>
         <div className={"flex w-full justify-between"}>
-          <button className={"btn " + props.yesButtonClass ?? "btn-success"} onClick={() => { this.lastShownDialogRef.current.hide(); props.onYes(); }} >
+          <button className={"btn " + props.yesButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); props.onYes(); }} >
             <span className="icon"><i className="fas fa-check"></i></span>
             <span className="text">{props.yesText}</span>
           </button>
-          <button className={"btn " + props.noButtonClass ?? "btn-cancel"} onClick={() => { this.lastShownDialogRef.current.hide(); props.onNo(); }} >
+          <button className={"btn " + props.noButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); props.onNo(); }} >
             <span className="icon"><i className="fas fa-xmark"></i></span>
             <span className="text">{props.noText}</span>
           </button>
@@ -349,6 +349,10 @@ export class HubletoReactUi {
       this.reactElementsWaitingForRender++;
       const reactElement = this.convertDomToReact(element)
       elementRoot.render(reactElement);
+
+      // if (reactElement.props['uid']) {
+      //   this.reactElements[reactElement.props['uid']] = reactElement;
+      // }
 
 
       // https://stackoverflow.com/questions/75388021/migrate-reactdom-render-with-async-callback-to-createroot

@@ -56,14 +56,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
       {form: this}
     );
 
-    if (dynamicMenu) {
-      return <div className="flex gap-2 flex-col md:flex-row">
-        <div className="flex flex-row gap-2 p-2">{topMenu}</div>
-        <div className="flex flex-row gap-2 p-2">{dynamicMenu}</div>
-      </div>;
-    } else {
-      return topMenu;
-    }
+    return <>{topMenu} {dynamicMenu}</>;
   }
 
 }
