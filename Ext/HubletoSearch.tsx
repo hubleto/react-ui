@@ -9,7 +9,7 @@ export interface HubletoSearchProps {
 }
 
 export interface HubletoSearchState {
-  query?: any,
+  // query?: any,
   results?: any
 }
 
@@ -36,7 +36,7 @@ export default class HubletoSearch<P, S> extends Component<HubletoSearchProps,Hu
     globalThis.main.reactElements['global-fulltext-search'] = this;
 
     this.state = {
-      query: '',
+      // query: '',
       results: null,
     }
   }
@@ -57,25 +57,39 @@ export default class HubletoSearch<P, S> extends Component<HubletoSearchProps,Hu
   }
 
   onChange(item: any) {
-    console.log(item);
-    location.href = globalThis.main.config.projectUrl + '/' + item.url;
+    // let query = this.state.query;
+    if (item) {
+      if (item.url) {
+        location.href = globalThis.main.config.projectUrl + '/' + item.url;
+      }
+      // if (item.autocomplete) {
+      //   console.log('setva', {id: 0, label: item.autocomplete});
+      //   this.searchRef.current.setValue({id: 0, label: item.autocomplete});
+      //   this.searchRef.current
+      // }
+    }
+    // this.setState({query: query});
   }
 
   render(): JSX.Element {
+    // console.log('q', this.state.query);
     return <>
       <AsyncSelect
-        value={{
-          id: 0,
-          label: this.state.query
-        }}
+        // value={{
+        //   id: 0,
+        //   label: this.state.query
+        // }}
         ref={this.searchRef}
         isClearable={true}
+        // inputValue={this.state.query}
+        // defaultInputValue="Type Ctrl+K to start searching..."
         loadOptions={(inputValue: string, callback: any) => this.loadOptions(inputValue, callback)}
         getOptionLabel={(option: any) => { return option.label }}
         getOptionValue={(option: any) => { return option.id }}
+        // onKeyDown={(e: any) => { console.log(this.searchRef.current.getValue()); }}
         onChange={(item: any) => { this.onChange(item); }}
         components={{ Option }}
-        placeholder='Search in Hubleto...'
+        placeholder='[Ctrl+K] Search in Hubleto...'
         className="hubleto-lookup"
         styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
         menuPosition="fixed"
