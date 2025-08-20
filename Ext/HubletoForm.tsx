@@ -85,7 +85,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
             {headerButtons.map((button, key) => {
               return <button
                 className='btn btn-transparent w-full'
-                onClick={button.onClick}
+                onClick={() => { button.onClick(this); }}
               >
                 <span className='text'>{button.title}</span>
               </button>;
