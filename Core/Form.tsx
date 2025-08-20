@@ -68,6 +68,7 @@ export interface FormTab {
   title: string,
   icon?: string,
   showCountFor?: string,
+  onRender?: (form: any) => JSX.Element,
 }
 
 export interface FormProps {
@@ -578,8 +579,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
    * Render content
    */
   renderContent(): null|JSX.Element {
-    const tab = (this.state.tabs ? this.state.tabs[this.state.activeTab]?.uid ?? 'default' : 'default');
-    return this.renderTab(tab);
+    const tab = this.state.tabs ? this.state.tabs[this.state.activeTab] : null;
+    const tabUid = (tab ? tab.uid : 'default');
+    if (tab && tab.onRender) return tab.onRender(this);
+    else return this.renderTab(tabUid);
   }
 
   getInputProps(inputName: string, customInputProps?: any): InputProps {

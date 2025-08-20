@@ -1,3 +1,5 @@
+import { FormTab } from '@hubleto/react-ui/core/Form';
+
 export type HubletoAppType = 'community' | 'external' | 'custom';
 
 export default class HubletoApp {
@@ -5,6 +7,7 @@ export default class HubletoApp {
   namespace: string;
 
   formHeaderButtons: Array<any> = [];
+  formTabs: Array<FormTab> = [];
 
   constructor() {
   }
@@ -21,6 +24,16 @@ export default class HubletoApp {
   getFormHeaderButtons()
   {
     return this.formHeaderButtons;
+  }
+
+  addFormTab(tab: FormTab)
+  {
+    this.formTabs.push(tab);
+  }
+
+  getFormTabs()
+  {
+    return this.formTabs;
   }
 
 }
