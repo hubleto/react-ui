@@ -110,7 +110,7 @@ export default class Image extends Input<InputProps, ImageInputState> {
                     {...dragProps}
                   >
                     <span className="icon"><i className="fas fa-image"></i></span>
-                    <span className="text">{this.translate("Choose image", 'Hubleto\\Core\\Loader::Components\\Inputs\\Image')}</span>
+                    <span className="text">{this.translate("Choose image", 'HubletoMain\\Loader::Components\\Inputs\\Image')}</span>
                   </button>
                 {/* )
               } */}

@@ -121,7 +121,7 @@ export default class File extends Input<FileInputProps, FileInputState> {
                 {...dragProps}
               >
                 <span className="icon"><i className="fas fa-cloud-arrow-up"></i></span>
-                <span className="text">{this.props.uploadButtonText ?? this.translate("Upload file", 'Hubleto\\Core\\Loader::Components\\Inputs\\File')}</span>
+                <span className="text">{this.props.uploadButtonText ?? this.translate("Upload file", 'HubletoMain\\Loader::Components\\Inputs\\File')}</span>
               </button>
             </div>
           )}
