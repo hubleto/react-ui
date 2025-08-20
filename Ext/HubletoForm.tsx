@@ -75,7 +75,6 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
 
   renderHeaderLeft(): null|JSX.Element {
     const headerButtons = this.getFormHeaderButtons();
-    console.log('headerButtons', this.parentApp);
     return <>
       {super.renderHeaderLeft()}
       {headerButtons && headerButtons.length > 0 ? <button className='btn btn-transparent btn-dropdown'>

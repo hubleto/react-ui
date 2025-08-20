@@ -67,6 +67,7 @@ export interface FormTab {
   uid: string,
   title: string,
   icon?: string,
+  showCountFor?: string,
 }
 
 export interface FormProps {
@@ -467,7 +468,19 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   renderTabTitle(tabIndex: number): JSX.Element {
-    return <>{this.state.tabs[tabIndex].title ?? tabIndex}</>;
+    const tab = this.state.tabs[tabIndex];
+    if (tab) {
+      const R = this.state.record;
+      const title = tab.title ?? tabIndex;
+      if (tab.showCountFor) {
+        const count = tab.showCountFor && R[tab.showCountFor] ? R[tab.showCountFor].length : 0;
+        return <>{title} ({count})</>;
+      } else {
+        return <>{title}</>;
+      }
+    } else {
+      return <>?</>;
+    }
   }
 
   renderTopMenu(): null|JSX.Element {
