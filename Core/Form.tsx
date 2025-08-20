@@ -65,7 +65,7 @@ export interface FormDescription {
 
 export interface FormTab {
   uid: string,
-  title: string,
+  title: string|JSX.Element,
   icon?: string,
   showCountFor?: string,
   onRender?: (form: any) => JSX.Element,
