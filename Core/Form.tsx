@@ -148,7 +148,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   model: string;
   components: Array<React.JSX.Element> = [];
-  translationContext: string = 'form';
+  translationContext: string = '';
 
   // DEPRECATED
   jsxContentRendered: boolean = false;
@@ -565,7 +565,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
    * Render content
    */
   renderContent(): null|JSX.Element {
-    const tab = this.state.tabs[this.state.activeTab]?.uid ?? 'default';
+    const tab = (this.state.tabs ? this.state.tabs[this.state.activeTab]?.uid ?? 'default' : 'default');
     return this.renderTab(tab);
   }
 

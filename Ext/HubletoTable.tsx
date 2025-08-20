@@ -8,6 +8,12 @@ import ModalForm from "@hubleto/react-ui/core/ModalForm";
 import HubletoTableColumnsCustomize from './HubletoTableColumnsCustomize';
 
 export interface HubletoTableProps extends TableProps {
+  junctionTitle?: string,
+  junctionModel?: string,
+  junctionSourceColumn?: string,
+  junctionDestinationColumn?: string,
+  junctionSourceRecordId?: number,
+  junctionSaveEndpoint?: string,
 }
 
 export interface HubletoTableState extends TableState {
@@ -34,6 +40,30 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
       showImportCsvScreen: false,
       showColumnConfigScreen: false,
     };
+  }
+
+  getEndpointParams(): any {
+    return {
+      ...super.getEndpointParams(),
+      junctionTitle: this.props.junctionTitle,
+      junctionModel: this.props.junctionModel,
+      junctionSourceColumn: this.props.junctionSourceColumn,
+      junctionDestinationColumn: this.props.junctionDestinationColumn,
+      junctionSourceRecordId: this.props.junctionSourceRecordId,
+      junctionSaveEndpoint: this.props.junctionSaveEndpoint ?? 'api/record/save-junction',
+    }
+  }
+
+  getFormProps(): any {
+    return {
+      ...super.getFormProps(),
+      junctionTitle: this.props.junctionTitle,
+      junctionModel: this.props.junctionModel,
+      junctionSourceColumn: this.props.junctionSourceColumn,
+      junctionDestinationColumn: this.props.junctionDestinationColumn,
+      junctionSourceRecordId: this.props.junctionSourceRecordId,
+      junctionSaveEndpoint: this.props.junctionSaveEndpoint ?? 'api/record/save-junction',
+    }
   }
 
   getFormModalProps() {
