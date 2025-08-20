@@ -78,7 +78,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
     console.log('headerButtons', this.parentApp);
     return <>
       {super.renderHeaderLeft()}
-      {headerButtons ? <button className='btn btn-transparent btn-dropdown'>
+      {headerButtons && headerButtons.length > 0 ? <button className='btn btn-transparent btn-dropdown'>
         <span className='icon'><i className='fas fa-chevron-down'></i></span>
         <div className='menu'>
           <div className="list mr-2">

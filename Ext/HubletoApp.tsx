@@ -9,6 +9,10 @@ export default class HubletoApp {
   constructor() {
   }
 
+  init() {
+    //
+  }
+
   addFormHeaderButton(title: string, onClick: any)
   {
     this.formHeaderButtons.push({ title: title, onClick: onClick });
