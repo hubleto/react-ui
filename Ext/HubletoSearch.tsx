@@ -23,7 +23,7 @@ const Option = (innerProps, isDisabled) => {
   )
 }
 
-export default class HubletoSearch<P, S> extends Component<HubletoSearchProps,HubletoSearchState> {
+export default class HubletoSearch<P, S> extends Component<HubletoSearchProps, HubletoSearchState> {
   props: HubletoSearchProps;
   state: HubletoSearchState;
 

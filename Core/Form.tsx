@@ -63,9 +63,10 @@ export interface FormDescription {
   includeRelations?: Array<string>,
 }
 
-export interface FormTabs {
+export interface FormTab {
+  uid: string,
   title: string,
-  icon: string,
+  icon?: string,
 }
 
 export interface FormProps {
@@ -84,8 +85,8 @@ export interface FormProps {
   isInlineEditing?: boolean,
   customEndpointParams?: any,
 
-  tabs?: FormTabs,
-  activeTab?: string,
+  tabs?: Array<FormTab>,
+  activeTab?: number,
 
   tag?: string,
   context?: any,
@@ -110,8 +111,8 @@ export interface FormState {
   readonly?: boolean,
   content?: Content,
 
-  tabs?: FormTabs,
-  activeTab?: string,
+  tabs?: Array<FormTab>,
+  activeTab?: number,
 
   description: FormDescription,
   record: FormRecord,
@@ -465,22 +466,22 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderTabTitle(tabName: string): JSX.Element {
-    return <>{this.state.tabs[tabName].title ?? tabName}</>;
+  renderTabTitle(tabIndex: number): JSX.Element {
+    return <>{this.state.tabs[tabIndex].title ?? tabIndex}</>;
   }
 
   renderTopMenu(): null|JSX.Element {
     if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
-      const tabs = this.state.tabs ?? {};
-      const activeTab = this.state.activeTab ?? 'default';
-      return <>{Object.keys(tabs).map((i: any) => {
-        const tabTitle = this.renderTabTitle(i);
+      const tabs = this.state.tabs ?? [];
+      const activeTab = this.state.activeTab ?? 0;
+      return <>{tabs.map((item: any, index: number) => {
+        const tabTitle = this.renderTabTitle(index);
         return <button
-          key={i}
-          className={"btn " + (activeTab == i ? "btn-primary" : "btn-transparent")}
-          onClick={() => { this.setState({activeTab: i}); }}
+          key={index}
+          className={"btn " + (activeTab == index ? "btn-primary" : "btn-transparent")}
+          onClick={() => { this.setState({activeTab: index}); }}
         >
-          {tabs[i].icon ? <span className="icon"><i className={tabs[i].icon}></i></span> : null}
+          {tabs[index].icon ? <span className="icon"><i className={tabs[index].icon}></i></span> : null}
           <span className="text">{tabTitle}</span>
         </button>;
       })}</>;
@@ -564,7 +565,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
    * Render content
    */
   renderContent(): null|JSX.Element {
-    return this.renderTab(this.state.activeTab ?? 'default');
+    const tab = this.state.tabs[this.state.activeTab]?.uid ?? 'default';
+    return this.renderTab(tab);
   }
 
   getInputProps(inputName: string, customInputProps?: any): InputProps {
