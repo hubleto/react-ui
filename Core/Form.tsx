@@ -484,21 +484,40 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
+  renderTopMenuButton(index: number) {
+    const tabs = this.state.tabs ?? [];
+    const activeTab = this.state.activeTab ?? 0;
+    const tabTitle = this.renderTabTitle(index);
+
+    return <button
+      key={index}
+      className={"btn " + (activeTab == index ? "btn-primary" : "btn-transparent")}
+      onClick={() => { this.setState({activeTab: index}); }}
+    >
+      {tabs[index].icon ? <span className="icon"><i className={tabs[index].icon}></i></span> : null}
+      <span className="text">{tabTitle}</span>
+    </button>    
+  }
+
   renderTopMenu(): null|JSX.Element {
     if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
       const tabs = this.state.tabs ?? [];
-      const activeTab = this.state.activeTab ?? 0;
-      return <>{tabs.map((item: any, index: number) => {
-        const tabTitle = this.renderTabTitle(index);
-        return <button
-          key={index}
-          className={"btn " + (activeTab == index ? "btn-primary" : "btn-transparent")}
-          onClick={() => { this.setState({activeTab: index}); }}
-        >
-          {tabs[index].icon ? <span className="icon"><i className={tabs[index].icon}></i></span> : null}
-          <span className="text">{tabTitle}</span>
-        </button>;
-      })}</>;
+      return <>
+        <div>
+          {tabs.map((item: any, index: number) => {
+            if (item.position != 'right') {
+              return this.renderTopMenuButton(index);
+            }
+          })}
+        </div>
+        <div>
+          {tabs.map((item: any, index: number) => {
+            if (item.position == 'right') {
+              return this.renderTopMenuButton(index);
+            }
+          })}
+        </div>
+      </>;
     } else {
       return null;
     }
