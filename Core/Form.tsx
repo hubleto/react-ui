@@ -65,7 +65,7 @@ export interface FormDescription {
 
 export interface FormTab {
   uid: string,
-  title: string|JSX.Element,
+  title?: string|JSX.Element,
   icon?: string,
   showCountFor?: string,
   onRender?: (form: any) => JSX.Element,
@@ -472,12 +472,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const tab = this.state.tabs[tabIndex];
     if (tab) {
       const R = this.state.record;
-      const title = tab.title ?? tabIndex;
+      const title = tab.title;
+
       if (tab.showCountFor) {
         const count = tab.showCountFor && R[tab.showCountFor] ? R[tab.showCountFor].length : 0;
         return <>{title} ({count})</>;
       } else {
-        return <>{title}</>;
+        return title ? <>{title}</> : null;
       }
     } else {
       return <>?</>;
@@ -495,7 +496,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       onClick={() => { this.setState({activeTab: index}); }}
     >
       {tabs[index].icon ? <span className="icon"><i className={tabs[index].icon}></i></span> : null}
-      <span className="text">{tabTitle}</span>
+      {tabTitle ? <span className="text">{tabTitle}</span> : null}
     </button>    
   }
 

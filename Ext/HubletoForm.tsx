@@ -83,9 +83,10 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
           <div className="list mr-2">
             {headerButtons.map((button, key) => {
               return <button
-                className='btn btn-transparent w-full'
+                className='btn btn-transparent btn-list-item'
                 onClick={() => { button.onClick(this); }}
               >
+                <span className='icon'><i className='fas fa-grip-lines'></i></span>
                 <span className='text'>{button.title}</span>
               </button>;
             })}

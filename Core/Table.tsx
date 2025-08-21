@@ -9,6 +9,7 @@ import Notification from "./Notification";
 import TranslatedComponent from "./TranslatedComponent";
 import Flatpickr from "react-flatpickr";
 import { TriStateCheckbox } from 'primereact/tristatecheckbox';
+import { SelectButton } from 'primereact/selectbutton';
 
 import {
   DataTable,
@@ -114,10 +115,12 @@ export interface TableProps {
   isInlineEditing?: boolean,
   isUsedAsInput?: boolean,
   selectionMode?: 'single' | 'multiple' | undefined,
+  selection?: Array<any>,
   onChange?: (table: Table<TableProps, TableState>) => void,
   onRowClick?: (table: Table<TableProps, TableState>, row: any) => void,
   onDeleteRecord?: (table: Table<TableProps, TableState>) => void,
   onDeleteSelectionChange?: (table: Table<TableProps, TableState>) => void,
+  onSelectionChange?: (table: Table<TableProps, TableState>) => void,
   data?: TableData,
   async?: boolean,
   readonly?: boolean,
@@ -164,7 +167,7 @@ export interface TableState {
   inlineEditingEnabled: boolean,
   isInlineEditing: boolean,
   isUsedAsInput: boolean,
-  selection: any,
+  selection: Array<any>,
   async: boolean,
   readonly: boolean,
   customEndpointParams: any,
@@ -218,7 +221,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       inlineEditingEnabled: props.inlineEditingEnabled ? props.inlineEditingEnabled : false,
       isInlineEditing: props.isInlineEditing ? props.isInlineEditing : false,
       isUsedAsInput: props.isUsedAsInput ? props.isUsedAsInput : false,
-      selection: [],
+      selection: props.selection ?? [],
       async: props.async ?? true,
       readonly: props.readonly ?? false,
       customEndpointParams: this.props.customEndpointParams ?? {},
@@ -301,8 +304,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     let tableProps: any = {
       ref: this.dt,
       value: this.state.data?.data,
-      // editMode: 'row',
-      compareSelectionBy: 'equals',
       dataKey: "id",
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
@@ -325,19 +326,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       //globalFilter={globalFilter}
       //header={header}
       emptyMessage: this.props.description?.ui?.emptyMessage || <>
-        <div className="p-2">{this.translate('No data.', 'HubletoMain\\Loader::Components\\Table')}</div>{this.state.description?.ui?.showNoDataAddButton ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}
+        <div className="p-2">{this.translate('No data.', 'HubletoMain\\Loader::Components\\Table')}</div>
       </>,
-      dragSelection: true,
       selectAll: true,
-      metaKeySelection: true,
       selection: this.state.selection,
       selectionMode: (this.props.selectionMode == 'single' ? 'radiobutton': (this.props.selectionMode == 'multiple' ? 'checkbox' : null)),
       onSelectionChange: (event: any) => {
         this.setState(
           {selection: event.value} as TableState,
-          function() {
-            this.onSelectionChange(event);
-          }
+          () => { this.onSelectionChange(); }
         )
       },
     };
@@ -1026,7 +1023,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   setColumnSearch(columnName: string, value: any)
   {
-    console.log('setColumnSearch', columnName, value);
     let columnSearch: any = this.state.columnSearch;
 
     if (value === null) delete columnSearch[columnName];
@@ -1061,18 +1057,38 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             />
           break;
           case 'boolean':
-            columnSearchInput = <TriStateCheckbox
+            // columnSearchInput = <TriStateCheckbox
+            //   value={columnSearchValue}
+            //   onChange={(event) => {
+            //     let next:any = null;
+
+            //     if (columnSearchValue === null) next = true;
+            //     else if (columnSearchValue === true) next = false;
+            //     else next = null;
+
+            //     this.setColumnSearch(columnName, next);
+            //   }}
+            // />
+            columnSearchInput = <SelectButton
               value={columnSearchValue}
               onChange={(event) => {
-                let next:any = null;
+                // let next:any = null;
 
-                if (columnSearchValue === null) next = true;
-                else if (columnSearchValue === true) next = false;
-                else next = null;
+                // if (columnSearchValue === null) next = true;
+                // else if (columnSearchValue === true) next = false;
+                // else next = null;
 
-                this.setColumnSearch(columnName, next);
+                this.setColumnSearch(columnName, event.value);
+                console.log(event);
               }}
-            />
+              itemTemplate={(option: any) => <button className='btn btn-transparent'>
+                <span className='text'>{option.label}</span>
+              </button>}
+              options={[
+                {label: 'Y', value: true, className: 'p-0'},
+                {label: 'N', value: false, className: 'p-0'},
+              ]}
+              />
           break;
           default:
             columnSearchInput = <input
@@ -1178,8 +1194,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  onSelectionChange(event: any) {
-    // to be overriden
+  onSelectionChange() {
+    if (this.props.onSelectionChange) {
+      this.props.onSelectionChange(this);
+    }
   }
 
   onPaginationChangeCustom(event: DataTablePageEvent) {
