@@ -468,6 +468,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
+  contentClassName(): string
+  {
+    return '';
+  }
+
   renderTabTitle(tabIndex: number): JSX.Element {
     const tab = this.state.tabs[tabIndex];
     if (tab) {
@@ -923,6 +928,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       const warningsOrErrors = this.renderWarningsOrErrors();
 
       const formTitle = this.renderTitle();
+      const formContentClassName = this.contentClassName();
       const formContent = (warningsOrErrors ? warningsOrErrors : this.renderContent());
       const formFooter = this.renderFooter();
       const formTopMenu = (this.state.isInitialized ? this.renderTopMenu() : null);
@@ -937,7 +943,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             <div className="modal-header-right">{headerRight}</div>
           </div>
           {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
-          <div className="modal-body">
+          <div className={"modal-body " + formContentClassName}>
             {formContent}
           </div>
           {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
@@ -951,7 +957,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
               <div className="form-header-right">{headerRight}</div>
             </div>
             {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
-            <div className="form-body">
+            <div className={"form-body" + formContentClassName}>
               {formContent}
             </div>
             {formFooter ? <div className="form-footer">{formFooter}</div> : null}
