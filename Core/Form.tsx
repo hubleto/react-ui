@@ -294,6 +294,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     };
   }
 
+  getRecordFormUrl(): string {
+    return '';
+  }
+
   onAfterLoadFormDescription(description: FormDescription): FormDescription {
     return description;
   }
