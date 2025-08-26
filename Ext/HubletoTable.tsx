@@ -97,6 +97,7 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
                     return <button
                       key={key}
                       className={"btn btn-small btn-list-item " + (filterValue == key ? "btn-primary" : "btn-transparent")}
+                      style={{borderLeft: (filter.colors && filter.colors[key] ? '0.5em solid ' + filter.colors[key] : null)}}
                       onClick={() => {
                         let defaultFilters = this.state.defaultFilters ?? {};
 
@@ -108,7 +109,6 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
                                 if (filterValue[i] != key) defaultFilters[filterName].push(filterValue[i]);
                               }
                             } else {
-                              console.log('b');
                               defaultFilters[filterName] = filterValue;
                               defaultFilters[filterName].push(key);
                             }
