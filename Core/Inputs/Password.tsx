@@ -52,7 +52,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
           type={this.state.visible ? 'text' : 'password'}
           value={password1}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange()}
-          placeholder={this.translate("New password", 'HubletoMain\\Loader::Components\\Inputs\\Password')}
+          placeholder={this.translate("New password", 'Hubleto\\Erp\\Loader::Components\\Inputs\\Password')}
           className={
             (this.state.invalid ? 'is-invalid' : '')
             + " " + (this.props.cssClass ?? "")
@@ -66,7 +66,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
           value={password2}
           ref={this.refInputConfirm}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange()}
-          placeholder={this.translate("Confirm new password", 'HubletoMain\\Loader::Components\\Inputs\\Password')}
+          placeholder={this.translate("Confirm new password", 'Hubleto\\Erp\\Loader::Components\\Inputs\\Password')}
           className={
             (this.state.invalid ? 'is-invalid' : '')
             + " " + (this.props.cssClass ?? "")
