@@ -69,7 +69,7 @@ export interface TableUi {
   showFulltextSearch?: boolean,
   showColumnSearch?: boolean,
   emptyMessage?: any,
-  defaultFilters?: any,
+  filters?: any,
   customFilters?: any,
   moreActions?: any,
 }
@@ -128,7 +128,7 @@ export interface TableProps {
   className?: string,
   fulltextSearch?: string,
   columnSearch?: any,
-  defaultFilters?: any,
+  filters?: any,
 }
 
 // Laravel pagination
@@ -171,7 +171,7 @@ export interface TableState {
   async: boolean,
   readonly: boolean,
   customEndpointParams: any,
-  defaultFilters: any,
+  filters: any,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -227,7 +227,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       customEndpointParams: this.props.customEndpointParams ?? {},
       fulltextSearch: props.fulltextSearch ?? '',
       columnSearch: props.columnSearch ?? {},
-      defaultFilters: props.defaultFilters ?? {},
+      filters: props.filters ?? {},
     };
 
     if (props.description) state.description = props.description;
@@ -238,8 +238,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   componentDidMount() {
     if (this.state.async) {
-      this.loadTableDescription();
-      this.loadData();
+      this.loadTableDescription(() => {;
+        this.loadData();
+      });
     }
   }
 
@@ -285,9 +286,20 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   getEndpointParams(): any {
+    let filters = this.state.filters;
+
+    if (this.state.description?.ui?.filters) {
+      Object.keys(this.state.description.ui.filters).map((filterName) => {
+        const filter = this.state.description.ui.filters[filterName];
+        if (!filters[filterName] && (filter.default ?? null) !== null) {
+          filters[filterName] = filter.default;
+        }
+      });
+    }
+
     return {
       model: this.model,
-      defaultFilters: this.state.defaultFilters,
+      filters: this.state.filters,
       parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
       parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
       tag: this.props.tag,
@@ -346,8 +358,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   reload() {
     this.setState({isInitialized: false}, () => {
-      this.loadTableDescription();
-      this.loadData();
+      this.loadTableDescription(() => {
+        this.loadData();
+      });
+      
     });
   }
 
@@ -366,11 +380,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
           if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
 
-          if (successCallback) successCallback(description);
-
           description = this.onAfterLoadTableDescription(description);
 
-          this.setState({description: description});
+          this.setState({description: description}, () => {
+            if (successCallback) successCallback(description);
+          });
         } catch (err) {
           Notification.error(err.message);
         }

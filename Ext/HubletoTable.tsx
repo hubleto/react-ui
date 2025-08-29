@@ -76,7 +76,7 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
   }
 
   renderSidebarFilter(): JSX.Element {
-    if (this.state?.description?.ui?.defaultFilters) {
+    if (this.state?.description?.ui?.filters) {
       return <div className="border-r border-r-gray-100 pr-2 h-full">
         <button className="btn btn-transparent"
           onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
@@ -86,9 +86,9 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
         </button>
         {this.state.sidebarFilterHidden ? null :
           <div className="flex flex-col gap-2 text-nowrap mt-2">
-            {Object.keys(this.state.description.ui.defaultFilters).map((filterName) => {
-              const filter = this.state.description.ui.defaultFilters[filterName];
-              const filterValue = this.state.defaultFilters[filterName] ?? null;
+            {Object.keys(this.state.description.ui.filters).map((filterName) => {
+              const filter = this.state.description.ui.filters[filterName];
+              const filterValue = this.state.filters[filterName] ?? (filter.default ?? null);
 
               return <div key={filterName}>
                 <b>{filter.title}</b>
@@ -99,27 +99,27 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
                       className={"btn btn-small btn-list-item " + (filterValue == key ? "btn-primary" : "btn-transparent")}
                       style={{borderLeft: (filter.colors && filter.colors[key] ? '0.5em solid ' + filter.colors[key] : null)}}
                       onClick={() => {
-                        let defaultFilters = this.state.defaultFilters ?? {};
+                        let filters = this.state.filters ?? {};
 
                         if (filter.type == 'multipleSelectButtons') {
                           if (filterValue) {
                             if (filterValue.includes(key)) {
-                              defaultFilters[filterName] = [];
+                              filters[filterName] = [];
                               for (let i in filterValue) {
-                                if (filterValue[i] != key) defaultFilters[filterName].push(filterValue[i]);
+                                if (filterValue[i] != key) filters[filterName].push(filterValue[i]);
                               }
                             } else {
-                              defaultFilters[filterName] = filterValue;
-                              defaultFilters[filterName].push(key);
+                              filters[filterName] = filterValue;
+                              filters[filterName].push(key);
                             }
                           } else {
-                            defaultFilters[filterName] = [ key ];
+                            filters[filterName] = [ key ];
                           }
                         } else {
-                          defaultFilters[filterName] = key;
+                          filters[filterName] = key;
                         }
 
-                        this.setState({defaultFilters: defaultFilters}, () => this.loadData());
+                        this.setState({recordId: 0, filters: filters}, () => this.loadData());
                       }}
                     >
                       {filter.type == 'multipleSelectButtons' ?
