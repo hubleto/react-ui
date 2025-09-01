@@ -89,6 +89,7 @@ export interface FormProps {
 
   tabs?: Array<FormTab>,
   activeTab?: number,
+  activeTabUid?: string,
 
   tag?: string,
   context?: any,
@@ -103,6 +104,7 @@ export interface FormProps {
   onSaveCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
   onCopyCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
   onDeleteCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
+  onTabChangeCallback?: (form: Form<FormProps, FormState>) => void,
 }
 
 export interface FormState {
@@ -115,6 +117,7 @@ export interface FormState {
 
   tabs?: Array<FormTab>,
   activeTab?: number,
+  activeTabUid?: string,
 
   description: FormDescription,
   record: FormRecord,
@@ -204,6 +207,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       permissions: this.calculatePermissions(),
       tabs: this.props.tabs,
       activeTab: this.props.activeTab,
+      activeTabUid: this.props.activeTabUid,
     };
   }
 
@@ -384,6 +388,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     if (this.props.onDeleteCallback) this.props.onDeleteCallback(this, deleteResponse);
   }
 
+  onTabChange() {
+    if (this.props.onTabChangeCallback) this.props.onTabChangeCallback(this);
+  }
+
   saveRecord() {
     this.setState({invalidInputs: {}});
 
@@ -497,12 +505,19 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderTopMenuButton(index: number) {
     const tabs = this.state.tabs ?? [];
     const activeTab = this.state.activeTab ?? 0;
+    const activeTabUid = this.state.activeTabUid ?? 'default';
     const tabTitle = this.renderTabTitle(index);
 
     return <button
       key={index}
       className={"btn " + (activeTab == index ? "btn-primary" : "btn-transparent")}
-      onClick={() => { this.setState({activeTab: index}); }}
+      onClick={() => {
+        const tab = this.state.tabs ? this.state.tabs[index] : null;
+        const tabUid = (tab ? tab.uid : 'default');
+        this.setState({activeTab: index, activeTabUid: tabUid}, () => {
+          this.onTabChange();
+        });
+      }}
     >
       {tabs[index].icon ? <span className="icon"><i className={tabs[index].icon}></i></span> : null}
       {tabTitle ? <span className="text">{tabTitle}</span> : null}
