@@ -6,7 +6,7 @@ import request from '../Request'
 import * as uuid from 'uuid';
 import { ProgressBar } from 'primereact/progressbar';
 
-interface LookupInputProps extends InputProps {
+export interface LookupInputProps extends InputProps {
   model?: string
   endpoint?: string,
   customEndpointParams?: any,
@@ -14,14 +14,14 @@ interface LookupInputProps extends InputProps {
   uiStyle?: 'default' | 'select' | 'buttons';
 }
 
-interface LookupInputState extends InputState {
+export interface LookupInputState extends InputState {
   data: Array<any>,
   model: string
   endpoint: string,
   customEndpointParams: any,
 }
 
-export default class Lookup extends Input<LookupInputProps, LookupInputState> {
+export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputState> {
   static defaultProps = {
     inputClassName: 'lookup',
     id: uuid.v4(),
