@@ -136,7 +136,7 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
                   onDrop={this.onDrop}
                 >
                   <button
-                    className={`btn btn-transparent w-[100%] flex flew-row justify-between`}
+                    className={`btn btn-transparent w-[100%]`}
                     onClick={() =>
                       this.setState((prevState) => ({
                         record: {
@@ -151,14 +151,12 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
                   >
                     <div>
                       <span className="icon">
+                        <i className={`text-gray-500 fa fa-ellipsis-vertical`}></i>
+                      </span>
+                      <span className="icon">
                         <input type="checkbox" checked={!is_hidden} />
                       </span>
                       <span className="text">{title}</span>
-                    </div>
-                    <div>
-                      <span className="icon">
-                        <i className={`text-gray-500 fa fa-arrows-up-down`}></i>
-                      </span>
                     </div>
                   </button>
                 </div>
