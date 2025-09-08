@@ -657,7 +657,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       isInitialized: false,
       isInlineEditing: this.state.isInlineEditing,
       showInlineEditingButtons: false, // !this.state.isInlineEditing,
-      ...inputs[inputName]?.extendedProps,
+      ...inputs[inputName]?.inputProps,
       ...customInputProps,
       onInlineEditCancel: () => { },
       onInlineEditSave: () => { this.saveRecord(); },
