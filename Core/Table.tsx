@@ -172,6 +172,7 @@ export interface TableState {
   readonly: boolean,
   customEndpointParams: any,
   filters: any,
+  sidebarFilterHidden: boolean,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -228,6 +229,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       fulltextSearch: props.fulltextSearch ?? '',
       columnSearch: props.columnSearch ?? {},
       filters: props.filters ?? {},
+      sidebarFilterHidden: true,
     };
 
     if (props.description) state.description = props.description;
@@ -626,6 +628,18 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     let buttons: Array<JSX.Element> = [];
     if (this.showAddButton()) buttons.push(this.renderAddButton());
     if (this.showMoreActionsButton()) buttons.push(this.renderMoreActionsButton());
+
+    if (this.state?.description?.ui?.filters) {
+      buttons.push(
+        <button className="btn btn-transparent"
+          onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
+        >
+          <span className="icon">
+            <i className={"fas fa-" + (this.state.sidebarFilterHidden ? "filter" : "filter")}></i>
+          </span>
+        </button>
+      );
+    }
     return buttons;
   }
 
@@ -713,8 +727,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return <></>;
   }
 
-  renderSidebarFilter(): JSX.Element {
-    return <></>;
+  renderSidebarFilter(): null|JSX.Element {
+    return null;
   }
 
   renderFooter(): JSX.Element {
@@ -1176,9 +1190,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
         <div className="flex gap-2 flex-col md:flex-row overflow-x max-w-[100vw]">
-          <div className="table-sidebar-filter">
-            {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
-          </div>
+          {this.state.description?.ui?.showSidebarFilter && !this.state.sidebarFilterHidden ?
+            <div className="table-sidebar-filter">
+              {this.renderSidebarFilter()}
+            </div>
+          : null}
 
           <div className="table-body grow" id={"hubleto-table-body-" + this.props.uid}>
             <DataTable {...this.getTableProps()}>

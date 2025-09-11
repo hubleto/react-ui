@@ -17,7 +17,6 @@ export interface HubletoTableProps extends TableProps {
 }
 
 export interface HubletoTableState extends TableState {
-  sidebarFilterHidden: boolean,
   showExportCsvScreen: boolean,
   showImportCsvScreen: boolean,
   showColumnConfigScreen: boolean,
@@ -35,7 +34,6 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
   getStateFromProps(props: HubletoTableProps) {
     return {
       ...super.getStateFromProps(props),
-      sidebarFilterHidden: false,
       showExportCsvScreen: false,
       showImportCsvScreen: false,
       showColumnConfigScreen: false,
@@ -75,67 +73,57 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
     } else return {...super.getFormModalProps()}
   }
 
-  renderSidebarFilter(): JSX.Element {
-    if (this.state?.description?.ui?.filters) {
-      return <div className="border-r border-r-gray-100 pr-2 h-full">
-        <button className="btn btn-transparent"
-          onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
-        >
-          <span className="icon"><i className={"fas fa-" + (this.state.sidebarFilterHidden ? "arrow-right" : "arrow-left")}></i></span>
-          {this.state.sidebarFilterHidden ? null : <span className="text">Hide filter</span>}
-        </button>
-        {this.state.sidebarFilterHidden ? null :
-          <div className="flex flex-col gap-2 text-nowrap mt-2">
-            {Object.keys(this.state.description.ui.filters).map((filterName) => {
-              const filter = this.state.description.ui.filters[filterName];
-              const filterValue = this.state.filters[filterName] ?? (filter.default ?? null);
+  renderSidebarFilter(): null|JSX.Element {
+    if (this.state?.description?.ui?.filters && ! this.state.sidebarFilterHidden) {
+      return <div className="flex flex-col gap-2 text-nowrap h-full">
+        {Object.keys(this.state.description.ui.filters).map((filterName) => {
+          const filter = this.state.description.ui.filters[filterName];
+          const filterValue = this.state.filters[filterName] ?? (filter.default ?? null);
 
-              return <div key={filterName}>
-                <b>{filter.title}</b>
-                <div className="list">
-                  {Object.keys(filter.options).map((key: any) => {
-                    return <button
-                      key={key}
-                      className={"btn btn-small btn-list-item " + (filterValue == key ? "btn-primary" : "btn-transparent")}
-                      style={{borderLeft: (filter.colors && filter.colors[key] ? '0.5em solid ' + filter.colors[key] : null)}}
-                      onClick={() => {
-                        let filters = this.state.filters ?? {};
+          return <div key={filterName}>
+            <div className='bg-primary/10 p-1 text-sm'>{filter.title}</div>
+            <div className="list">
+              {Object.keys(filter.options).map((key: any) => {
+                return <button
+                  key={key}
+                  className={"btn btn-small btn-list-item " + (filterValue == key ? "btn-primary" : "btn-transparent")}
+                  style={{borderLeft: (filter.colors && filter.colors[key] ? '0.5em solid ' + filter.colors[key] : null)}}
+                  onClick={() => {
+                    let filters = this.state.filters ?? {};
 
-                        if (filter.type == 'multipleSelectButtons') {
-                          if (filterValue) {
-                            if (filterValue.includes(key)) {
-                              filters[filterName] = [];
-                              for (let i in filterValue) {
-                                if (filterValue[i] != key) filters[filterName].push(filterValue[i]);
-                              }
-                            } else {
-                              filters[filterName] = filterValue;
-                              filters[filterName].push(key);
-                            }
-                          } else {
-                            filters[filterName] = [ key ];
+                    if (filter.type == 'multipleSelectButtons') {
+                      if (filterValue) {
+                        if (filterValue.includes(key)) {
+                          filters[filterName] = [];
+                          for (let i in filterValue) {
+                            if (filterValue[i] != key) filters[filterName].push(filterValue[i]);
                           }
                         } else {
-                          filters[filterName] = key;
+                          filters[filterName] = filterValue;
+                          filters[filterName].push(key);
                         }
+                      } else {
+                        filters[filterName] = [ key ];
+                      }
+                    } else {
+                      filters[filterName] = key;
+                    }
 
-                        this.setState({recordId: 0, filters: filters}, () => this.loadData());
-                      }}
-                    >
-                      {filter.type == 'multipleSelectButtons' ?
-                        <span className="icon"><input type="checkbox" checked={filterValue && filterValue.includes(key)}></input></span>
-                      : null}
-                      <span className="text">{filter.options[key]}</span>
-                    </button>;
-                  })}
-                </div>
-              </div>;
-            })}
-          </div>
-        }
+                    this.setState({recordId: 0, filters: filters}, () => this.loadData());
+                  }}
+                >
+                  {filter.type == 'multipleSelectButtons' ?
+                    <span className="icon"><input type="checkbox" checked={filterValue && filterValue.includes(key)}></input></span>
+                  : null}
+                  <span className="text">{filter.options[key]}</span>
+                </button>;
+              })}
+            </div>
+          </div>;
+        })}
       </div>;
     } else {
-      return <></>;
+      return null;
     }
   }
 
