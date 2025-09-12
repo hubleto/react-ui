@@ -62,7 +62,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
     switch (props.type) {
       case 'datetime':
-        this.options = {...this.options, enableTime: true, showMonths: 2, dateFormat: 'Y-m-d H:m:s'};
+        this.options = {...this.options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:i:ss'};
       break;
       case 'date':
         this.options = {...this.options, showMonths: 2, weekNumbers: true, dateFormat: 'd.m.Y'};
@@ -191,7 +191,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       break;
     }
 
-    return <div className="flex-col">
+    return <div className="flex gap-2 items-center">
       <div className="flex">
         <div style={{minWidth: "8em"}}>
           <Flatpickr

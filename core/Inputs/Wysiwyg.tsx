@@ -13,12 +13,8 @@ export default class Wysiwyg extends Input<InputProps, WysiwygInputState> {
     id: uuid.v4(),
   }
 
-  refTextarea: any;
-
   constructor(props: InputProps) {
     super(props);
-
-    this.refTextarea = React.createRef();
 
     this.state = {
       ...this.state, // Parent state

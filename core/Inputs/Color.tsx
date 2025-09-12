@@ -29,12 +29,12 @@ export default class Color extends Input<InputProps, InputState> {
   renderInputElement() {
     return <>
       <div style={{background: this.state.value, width: '1.5em', height: '1.5em'}} className="mr-2"></div>
-      <div className="no-scrollbar" style={{height: '2.75em', overflow: 'auto'}}>
+      <div className="no-scrollbar w-full">
         <Compact
           ref={this.refInput}
           color={this.state.value}
           style={{
-            boxShadow: 'rgb(0 0 0 / 15%) 0px 0px 0px 1px, rgb(0 0 0 / 15%) 0px 8px 16px',
+            width: '100%'
           }}
           onChange={(color: any) => this.onChange(color.hex)}
           // rectRender={(props) => {

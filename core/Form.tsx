@@ -83,7 +83,6 @@ export interface FormProps {
   content?: Content,
   hideOverlay?: boolean,
   showInModal?: boolean,
-  showInModalSimple?: boolean,
   isInlineEditing?: boolean,
   customEndpointParams?: any,
 
@@ -634,13 +633,23 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const inputs = this.state.description?.inputs ?? {};
     const inputDescription = inputs[inputName] ?? {};
     const formDescription = this.state.description;
+    const inputType = inputDescription.type ?? '';
 
     // let customInputPropsWithoutOnchange = customInputProps;
     // delete customInputPropsWithoutOnchange.onChange;
 
+    if (!customInputProps) customInputProps = {};
+
     let value = null;
     if (this.state.updatingRecord) value = record[inputName];
     else value = record[inputName] ?? (formDescription.defaultValues ? formDescription.defaultValues[inputName] : null);
+
+    if (
+      !customInputProps.wrapperCssClass
+      && ['boolean', 'date', 'datetime'].indexOf(inputType) >= 0
+    ) {
+      customInputProps.wrapperCssClass = 'flex gap-2';
+    }
 
     return {
       inputName: inputName,
@@ -708,7 +717,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return <>
       <div
         id={this.props.uid + '_' + inputName}
-        className={"input-wrapper" + (inputProps.description?.required == true ? " required" : "")}
+        className={
+          "input-wrapper"
+          + (inputProps.wrapperCssClass ? " " + inputProps.wrapperCssClass : "")
+          + (inputProps.description?.required == true ? " required" : "")
+        }
         key={inputName}
       >
         <label className="input-label" htmlFor={this.props.uid + '_' + inputName}>
