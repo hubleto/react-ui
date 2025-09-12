@@ -953,10 +953,25 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             else cellValueElement = <span className="text-red-600" style={{fontSize: '1.2em'}}>✕</span>
           break;
           case 'date':
-            cellValueElement = <>{cellContent == '0000-00-00' ? '' : dateToEUFormat(cellContent)}</>;
+            cellValueElement = <>
+              <i className='fas fa-calendar mr-2 text-gray-300'></i>
+              {cellContent == '0000-00-00' ? '' : dateToEUFormat(cellContent)}
+            </>;
           break;
           case 'datetime':
-            cellValueElement = <>{cellContent == '0000-00-00' ? '' : datetimeToEUFormat(cellContent)}</>;
+            const date = cellContent.substr(0, 10);
+            const time = cellContent.substr(11);
+
+            cellValueElement = <div className='flex gap-2'>
+              <div>
+                <i className='fas fa-calendar mr-2 text-gray-300'></i>
+                <span>{dateToEUFormat(date)}</span>
+              </div>
+              <div>
+                <i className='fas fa-clock mr-2 text-gray-300'></i>
+                <span>{time}</span>
+              </div>
+            </div>;
           break;
           case 'tags':
             cellValueElement = <>
