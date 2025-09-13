@@ -887,7 +887,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderHeaderRight(): null|JSX.Element {
     return <>
-      {this.renderDeleteButton()}
       {this.props.showInModal ? this.renderCloseButton() : null}
     </>;
   }
@@ -896,14 +895,17 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const prevId = this.state?.prevId ?? 0;
     const nextId = this.state?.nextId ?? 0;
 
-    return <>
-      {prevId || nextId ? <>
-        <div className="pr-4">
+    return <div className='flex gap-2 w-full'>
+      <div>
+        {prevId || nextId ? <div className="pr-4">
           {this.renderPrevRecordButton()}
           {this.renderNextRecordButton()}
-        </div>
-      </> : null}
-    </>;
+        </div> : null}
+      </div>
+      <div>
+        {this.renderDeleteButton()}
+      </div>
+    </div>;
   }
 
   renderSubTitle(): null|JSX.Element {

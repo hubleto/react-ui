@@ -111,16 +111,18 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
           <div>{this.renderPrevRecordButton()}</div>
           <div>{this.renderNextRecordButton()}</div>
         </div>
-        {this.getRecordFormUrl() ? <>
-          <a
-            className='btn btn-transparent btn-small'
-            href={globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}
-            target='_blank'
-          >
-            <span className='icon'><i className='fas fa-link'></i></span>
-            <span className='text'>{globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
-          </a>
-        </> : null}
+        <div>
+          {this.getRecordFormUrl() ? <>
+            <a
+              className='btn btn-transparent btn-small'
+              href={globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}
+              target='_blank'
+            >
+              <span className='icon'><i className='fas fa-link'></i></span>
+              <span className='text'>{globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
+            </a>
+          </> : null}
+        </div>
         {this.props.junctionModel ? 
           <div className='badge flex gap-2'>
             <div><i className='fas fa-link'></i></div>
@@ -129,6 +131,9 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
             <div>#{this.props.junctionSourceRecordId}<br/></div>
           </div>
         : null}
+        <div>
+          {this.renderDeleteButton()}
+        </div>
       </div>
     </>;
   }
