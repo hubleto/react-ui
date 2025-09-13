@@ -129,6 +129,7 @@ export interface TableProps {
   fulltextSearch?: string,
   columnSearch?: any,
   filters?: any,
+  view?: string,
 }
 
 // Laravel pagination
@@ -306,6 +307,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
       tag: this.props.tag,
       context: this.props.context,
+      view: this.props.view,
       __IS_AJAX__: '1',
       ...this.props.customEndpointParams,
     }
@@ -314,6 +316,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   getTableProps(): Object {
     const sortOrders = {'asc': 1, 'desc': -1};
     const totalRecords = this.state.data?.total ?? 0;
+    const showColumnSearch = this.state.description?.ui?.showColumnSearch;
 
     let tableProps: any = {
       ref: this.dt,
@@ -323,7 +326,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       paginator: totalRecords > this.state.itemsPerPage,
       lazy: true,
       rows: this.state.itemsPerPage,
-      filterDisplay: 'row',
+      filterDisplay: (showColumnSearch ? 'row' : null),
       totalRecords: totalRecords,
       rowsPerPageOptions: [5, 15, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000],
       paginatorTemplate: "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown",
@@ -1087,9 +1090,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       const column: any = this.state.description?.columns[columnName] ?? {};
 
       const columnSearchValue = this.state.columnSearch[columnName] ?? null;
+      const showColumnSearch = this.state.description?.ui?.showColumnSearch;
 
       let columnSearchInput: any = null;
-      if (this.state.description?.ui?.showColumnSearch) {
+      if (showColumnSearch) {
         switch (column.type) {
           case 'date':
             columnSearchInput = <Flatpickr
@@ -1100,27 +1104,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             />
           break;
           case 'boolean':
-            // columnSearchInput = <TriStateCheckbox
-            //   value={columnSearchValue}
-            //   onChange={(event) => {
-            //     let next:any = null;
-
-            //     if (columnSearchValue === null) next = true;
-            //     else if (columnSearchValue === true) next = false;
-            //     else next = null;
-
-            //     this.setColumnSearch(columnName, next);
-            //   }}
-            // />
             columnSearchInput = <SelectButton
               value={columnSearchValue}
               onChange={(event) => {
-                // let next:any = null;
-
-                // if (columnSearchValue === null) next = true;
-                // else if (columnSearchValue === true) next = false;
-                // else next = null;
-
                 this.setColumnSearch(columnName, event.value);
                 console.log(event);
               }}
@@ -1149,9 +1135,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         key={columnName}
         field={columnName}
         header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
-        filter={columnSearchInput !== null}
+        filter={showColumnSearch}
         showFilterMenu={false}
-        filterElement={columnSearchInput ? (
+        filterElement={showColumnSearch ? (
           <div className="column-search input-wrapper">
             <div className="input-body"><div className="hubleto component input">
               <div className="input-element">

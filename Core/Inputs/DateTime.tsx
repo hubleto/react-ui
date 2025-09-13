@@ -192,7 +192,8 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
     }
 
     return <div className="flex gap-2 items-center">
-      <div className="flex">
+      <div className="flex gap-2 items-center">
+        <i className="fas fa-calendar"></i>
         <div style={{minWidth: "8em"}}>
           <Flatpickr
             ref={this.refInput}

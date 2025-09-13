@@ -75,25 +75,17 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
 
   renderHeaderLeft(): null|JSX.Element {
     const headerButtons = this.getFormHeaderButtons();
-    return <>
-      {super.renderHeaderLeft()}
-      {headerButtons && headerButtons.length > 0 ? <button className='btn btn-transparent btn-dropdown'>
-        <span className='icon'><i className='fas fa-chevron-down'></i></span>
-        <div className='menu'>
-          <div className="list mr-2">
-            {headerButtons.map((button, key) => {
-              return <button
-                className='btn btn-transparent btn-list-item'
-                onClick={() => { button.onClick(this); }}
-              >
-                <span className='icon'><i className='fas fa-grip-lines'></i></span>
-                <span className='text'>{button.title}</span>
-              </button>;
-            })}
-          </div>
-        </div>
-      </button> : null}
-    </>;
+    return <div className='flex flex-col gap-2'>
+      <div>{super.renderHeaderLeft()}</div>
+      {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {
+        return <button
+          className='btn btn-small btn-primary-outline'
+          onClick={() => { button.onClick(this); }}
+        >
+          <span className='text'>{button.title}</span>
+        </button>;
+      })}</div> : null}
+    </div>;
   }
 
   renderCustomInputs(): Array<JSX.Element> {

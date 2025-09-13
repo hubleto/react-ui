@@ -32,6 +32,7 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
   renderValueElement() {
     if (this.state.value) {
       return <>
+        <i className="fas fa-link"></i>
         <a
           href={this.state.value}
           target='_blank'
@@ -51,7 +52,8 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
   }
 
   renderInputElement() {
-    return <div className="w-full flex gap-2">
+    return <div className="w-full flex gap-2 items-center">
+      <i className="fas fa-link"></i>
       {super.renderInputElement()}
       <a
         href={this.state.value}

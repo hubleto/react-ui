@@ -36,6 +36,7 @@ export default class Int extends Input<IntInputProps, InputState> {
         + " " + (this.state.invalid ? 'is-invalid' : '')
         + " " + (this.props.cssClass ?? "")
         + " " + (this.state.readonly ? "bg-muted" : "")
+        + " max-w-40"
       }
       disabled={this.state.readonly}
     />;

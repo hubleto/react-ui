@@ -31,6 +31,7 @@ export default class Textarea extends Input<InputProps, InputState> {
         + " " + (this.state.invalid ? 'invalid' : '')
         + " " + (this.state.readonly ? "readonly" : "")
       }
+      style={{fontFamily: 'Courier'}}
       disabled={this.state.readonly}
     />;
   }

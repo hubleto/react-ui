@@ -634,6 +634,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const inputDescription = inputs[inputName] ?? {};
     const formDescription = this.state.description;
     const inputType = inputDescription.type ?? '';
+    const enumValues = inputDescription.enumValues;
 
     // let customInputPropsWithoutOnchange = customInputProps;
     // delete customInputPropsWithoutOnchange.onChange;
@@ -646,7 +647,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     if (
       !customInputProps.wrapperCssClass
-      && ['boolean', 'date', 'datetime'].indexOf(inputType) >= 0
+      && (
+        ['boolean', 'date', 'datetime', 'float'].indexOf(inputType) >= 0
+        || (inputType == 'int' && !enumValues)
+      )
     ) {
       customInputProps.wrapperCssClass = 'flex gap-2';
     }
