@@ -41,7 +41,7 @@ export default class Color extends Input<ColorInputProps, ColorInputState> {
     return <div className='flex flex-col gap-2'>
       <div
         style={{background: this.state.value}}
-        className="mr-2 cursor-pointer w-20 h-4 rounded"
+        className="mr-2 cursor-pointer w-20 h-4 rounded border border-gray-400"
         onClick={() => {
           this.setState({showColorSelector: !this.state.showColorSelector});
         }}
