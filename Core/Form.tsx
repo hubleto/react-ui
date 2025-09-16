@@ -119,6 +119,7 @@ export interface FormState {
   activeTabUid?: string,
 
   description: FormDescription,
+  originalRecord: FormRecord,
   record: FormRecord,
   endpoint: FormEndpoint,
   customEndpointParams: any,
@@ -197,6 +198,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       recordDeleted: false,
       isInlineEditing: props.isInlineEditing ? props.isInlineEditing : isCreatingRecord,
       invalidInputs: {},
+      originalRecord: {},
       record: {},
       params: null,
       invalidRecordId: false,
@@ -350,6 +352,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         if (this.state.id != -1 && !record.id) {
           this.setState({isInitialized: true, invalidRecordId: true});
         } else {
+          this.setState({originalRecord: record});
           this.setRecord(record);
         }
       }
@@ -462,7 +465,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   updateRecord(changedValues: any, onSuccess?: any) {
     const record = this.normalizeRecord(this.state.record);
-    this.setState({recordChanged: true, record: deepObjectMerge(record, changedValues)}, onSuccess);
+    const newRecord = deepObjectMerge(record, changedValues);
+    this.setState({
+      recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(newRecord)),
+      record: newRecord
+    }, onSuccess);
   }
 
   onAfterRecordLoaded(record: any) {
@@ -629,6 +636,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   getInputProps(inputName: string, customInputProps?: any): InputProps {
+    const originalRecord = this.state.originalRecord ?? {};
     const record = this.state.record ?? {};
     const inputs = this.state.description?.inputs ?? {};
     const inputDescription = inputs[inputName] ?? {};
@@ -667,6 +675,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       uid: this.props.uid + '_' + uuid.v4(),
       parentForm: this,
       context: this.props.context ? this.props.context : this.props.uid,
+      isModified: record[inputName] !== originalRecord[inputName],
       isInitialized: false,
       isInlineEditing: this.state.isInlineEditing,
       showInlineEditingButtons: false, // !this.state.isInlineEditing,
@@ -677,7 +686,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       onChange: (input: any, value: any) => {
         let record = {...this.state.record};
         record[inputName] = value;
-        this.setState({record: record, recordChanged: true}, () => {
+        this.setState({
+          record: record,
+          recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(record))
+        }, () => {
           if (this.props.onChange) this.props.onChange(input, value);
           if (customInputProps && customInputProps.onChange) customInputProps.onChange(input, value);
         });
@@ -725,6 +737,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           "input-wrapper"
           + (inputProps.wrapperCssClass ? " " + inputProps.wrapperCssClass : "")
           + (inputProps.description?.required == true ? " required" : "")
+          + (inputProps.isModified == true ? " modified" : "")
         }
         key={inputName}
       >

@@ -9,6 +9,7 @@ export interface InputDescription {
   required?: boolean,
   placeholder?: string,
   decimals?: number,
+  step?: number,
   unit?: string,
   format?: string,
   description?: string,
@@ -33,6 +34,7 @@ export interface InputProps {
   invalid?: boolean,
   cssClass?: string,
   placeholder?: string,
+  isModified?: boolean,
   isInitialized?: boolean,
   isInlineEditing?: boolean,
   showInlineEditingButtons?: boolean,
@@ -51,6 +53,7 @@ export interface InputState {
   origValue: any,
   onChange: (input: any, value: any) => void,
   cssClass: string,
+  isModified: boolean,
   isInitialized: boolean,
   isInlineEditing: boolean,
   showInlineEditingButtons: boolean,
@@ -81,6 +84,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
 
     globalThis.main.reactElements[this.props.uid] = this;
 
+    const isModified: boolean = props.isModified ?? false;
     const isInitialized: boolean = props.isInitialized ?? false;
     const isInlineEditing: boolean = props.isInlineEditing ?? true;
     const showInlineEditingButtons: boolean = props.showInlineEditingButtons ?? false;
@@ -92,6 +96,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     const description: any = props.description ?? null;
 
     this.state = {
+      isModified: isModified,
       isInitialized: isInitialized,
       isInlineEditing: isInlineEditing,
       showInlineEditingButtons: showInlineEditingButtons,
@@ -168,9 +173,11 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     return (
       "hubleto component input"
       + " " + this.props.inputClassName
-      + " " + (this.state.invalid ? 'invalid' : '')
       + " " + (this.state.cssClass ?? "")
+      + " " + (this.state.invalid ? 'invalid' : '')
       + " " + (this.state.readonly ? "bg-muted" : "")
+      + " " + (this.state.isInlineEditing ? 'editing' : '')
+      + " " + (this.state.isModified ? 'modified' : '')
     );
   }
 
@@ -254,7 +261,10 @@ export class Input<P extends InputProps, S extends InputState> extends Component
       globalThis.main.setTranslationContext(this.translationContext);
 
       return (
-        <div ref={this.refInputWrapper} className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
+        <div
+          ref={this.refInputWrapper}
+          className={this.getClassName()}
+        ><div className="inner">
           {this.state.isInlineEditing
             ? <>
               <input

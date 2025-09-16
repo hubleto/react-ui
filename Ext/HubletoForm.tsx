@@ -115,12 +115,22 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
           {this.getRecordFormUrl() ? <>
             <a
               className='btn btn-transparent btn-small'
+              title='Open in new tab'
               href={globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}
               target='_blank'
             >
               <span className='icon'><i className='fas fa-link'></i></span>
               <span className='text'>{globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
             </a>
+            <button
+              className='btn btn-transparent btn-small'
+              title='Copy link to clipboard'
+              onClick={() => {
+                navigator.clipboard.writeText(globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl());
+              }}
+            >
+              <span className='icon'><i className='fas fa-copy'></i></span>
+            </button>
           </> : null}
         </div>
         {this.props.junctionModel ? 
