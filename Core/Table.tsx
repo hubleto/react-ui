@@ -581,7 +581,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   showMoreActionsButton(): boolean {
-    if (!this.state.readonly && this.state.description?.ui?.showHeader && this.state?.description?.ui?.moreActions) {
+    if (!this.state.readonly && this.state?.description?.ui?.moreActions) {
       return true;
     } else {
       return false;
@@ -647,10 +647,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   renderHeaderLeft(): Array<JSX.Element> {
-    return [
-      ...this.renderHeaderButtons(),
-      this.renderFulltextSearch(),
-    ]
+    if (this.state.description?.ui?.showHeader) {
+      return [
+        ...this.renderHeaderButtons(),
+        this.renderFulltextSearch(),
+      ];
+    } else {
+      return [];
+    }
   }
 
   renderHeaderTitle(): JSX.Element {
