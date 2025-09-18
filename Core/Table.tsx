@@ -121,6 +121,7 @@ export interface TableProps {
   onDeleteRecord?: (table: Table<TableProps, TableState>) => void,
   onDeleteSelectionChange?: (table: Table<TableProps, TableState>) => void,
   onSelectionChange?: (table: Table<TableProps, TableState>) => void,
+  onAfterLoadData?: (table: Table<TableProps, TableState>) => void,
   data?: TableData,
   async?: boolean,
   readonly?: boolean,
@@ -425,6 +426,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             this.setState({
               loadingData: false,
               data: data,
+            }, () => {
+              if (this.props.onAfterLoadData) {
+                this.props.onAfterLoadData(this);
+              }
             });
           }
         );
