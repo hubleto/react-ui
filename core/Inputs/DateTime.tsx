@@ -153,9 +153,11 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
         break;
       }
 
-      return <div className="flex gap-2 items-center">
-        <i className="fas fa-calendar-days mr-2"></i>
-        {valueFormatted}
+      return <div className='flex flex-col'>
+        <div className="flex gap-2 items-center">
+          <i className="fas fa-calendar-days mr-2"></i>
+          {valueFormatted}
+        </div>
         <div className="text-xs">{this.renderReadableInfo(value)}</div>
       </div>
     } else {
@@ -191,8 +193,9 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       break;
     }
 
-    return <div className="flex gap-2 items-center">
-      <div className="flex">
+    return <div className="flex gap-1 flex-col">
+      <div className="flex gap-2 items-center">
+        <i className="fas fa-calendar"></i>
         <div style={{minWidth: "8em"}}>
           <Flatpickr
             ref={this.refInput}

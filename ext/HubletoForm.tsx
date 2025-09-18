@@ -75,25 +75,17 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
 
   renderHeaderLeft(): null|JSX.Element {
     const headerButtons = this.getFormHeaderButtons();
-    return <>
-      {super.renderHeaderLeft()}
-      {headerButtons && headerButtons.length > 0 ? <button className='btn btn-transparent btn-dropdown'>
-        <span className='icon'><i className='fas fa-chevron-down'></i></span>
-        <div className='menu'>
-          <div className="list mr-2">
-            {headerButtons.map((button, key) => {
-              return <button
-                className='btn btn-transparent btn-list-item'
-                onClick={() => { button.onClick(this); }}
-              >
-                <span className='icon'><i className='fas fa-grip-lines'></i></span>
-                <span className='text'>{button.title}</span>
-              </button>;
-            })}
-          </div>
-        </div>
-      </button> : null}
-    </>;
+    return <div className='flex flex-col gap-2'>
+      <div>{super.renderHeaderLeft()}</div>
+      {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {
+        return <button
+          className='btn btn-small btn-primary-outline'
+          onClick={() => { button.onClick(this); }}
+        >
+          <span className='text'>{button.title}</span>
+        </button>;
+      })}</div> : null}
+    </div>;
   }
 
   renderCustomInputs(): Array<JSX.Element> {
@@ -119,16 +111,28 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
           <div>{this.renderPrevRecordButton()}</div>
           <div>{this.renderNextRecordButton()}</div>
         </div>
-        {this.getRecordFormUrl() ? <>
-          <a
-            className='btn btn-transparent btn-small'
-            href={globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}
-            target='_blank'
-          >
-            <span className='icon'><i className='fas fa-link'></i></span>
-            <span className='text'>{globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
-          </a>
-        </> : null}
+        <div>
+          {this.getRecordFormUrl() ? <>
+            <a
+              className='btn btn-transparent btn-small'
+              title='Open in new tab'
+              href={globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}
+              target='_blank'
+            >
+              <span className='icon'><i className='fas fa-link'></i></span>
+              <span className='text'>{globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
+            </a>
+            <button
+              className='btn btn-transparent btn-small'
+              title='Copy link to clipboard'
+              onClick={() => {
+                navigator.clipboard.writeText(globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl());
+              }}
+            >
+              <span className='icon'><i className='fas fa-copy'></i></span>
+            </button>
+          </> : null}
+        </div>
         {this.props.junctionModel ? 
           <div className='badge flex gap-2'>
             <div><i className='fas fa-link'></i></div>
@@ -137,6 +141,9 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
             <div>#{this.props.junctionSourceRecordId}<br/></div>
           </div>
         : null}
+        <div>
+          {this.renderDeleteButton()}
+        </div>
       </div>
     </>;
   }

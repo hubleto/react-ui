@@ -26,6 +26,7 @@ export default class Int extends Input<IntInputProps, InputState> {
     return <input
       ref={this.refInput}
       type="number"
+      step={this.props.description.step ?? 1}
       value={this.state.value}
       onKeyDown={(evt) => evt.key === 'e' && evt.preventDefault()}
       onChange={(e) => this.setState({value: e.currentTarget.value.replace('e', '')})}
@@ -36,6 +37,7 @@ export default class Int extends Input<IntInputProps, InputState> {
         + " " + (this.state.invalid ? 'is-invalid' : '')
         + " " + (this.props.cssClass ?? "")
         + " " + (this.state.readonly ? "bg-muted" : "")
+        + " max-w-40"
       }
       disabled={this.state.readonly}
     />;

@@ -75,7 +75,7 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
 
   renderSidebarFilter(): null|JSX.Element {
     if (this.state?.description?.ui?.filters && ! this.state.sidebarFilterHidden) {
-      return <div className="flex flex-col gap-2 text-nowrap h-full">
+      return <div className="flex flex-col gap-2 text-nowrap">
         {Object.keys(this.state.description.ui.filters).map((filterName) => {
           const filter = this.state.description.ui.filters[filterName];
           const filterValue = this.state.filters[filterName] ?? (filter.default ?? null);

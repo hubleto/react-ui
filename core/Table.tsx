@@ -66,6 +66,8 @@ export interface TableUi {
   showSidebarFilter?: boolean,
   showHeaderTitle?: boolean,
   showNoDataAddButton?: boolean,
+  showMoreActionsButton?: boolean,
+  showAddButton?: boolean,
   showFulltextSearch?: boolean,
   showColumnSearch?: boolean,
   emptyMessage?: any,
@@ -121,6 +123,7 @@ export interface TableProps {
   onDeleteRecord?: (table: Table<TableProps, TableState>) => void,
   onDeleteSelectionChange?: (table: Table<TableProps, TableState>) => void,
   onSelectionChange?: (table: Table<TableProps, TableState>) => void,
+  onAfterLoadData?: (table: Table<TableProps, TableState>) => void,
   data?: TableData,
   async?: boolean,
   readonly?: boolean,
@@ -129,6 +132,7 @@ export interface TableProps {
   fulltextSearch?: string,
   columnSearch?: any,
   filters?: any,
+  view?: string,
 }
 
 // Laravel pagination
@@ -229,7 +233,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       fulltextSearch: props.fulltextSearch ?? '',
       columnSearch: props.columnSearch ?? {},
       filters: props.filters ?? {},
-      sidebarFilterHidden: true,
+      sidebarFilterHidden: false,
     };
 
     if (props.description) state.description = props.description;
@@ -306,6 +310,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
       tag: this.props.tag,
       context: this.props.context,
+      view: this.props.view,
       __IS_AJAX__: '1',
       ...this.props.customEndpointParams,
     }
@@ -314,6 +319,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   getTableProps(): Object {
     const sortOrders = {'asc': 1, 'desc': -1};
     const totalRecords = this.state.data?.total ?? 0;
+    const showColumnSearch = this.state.description?.ui?.showColumnSearch;
 
     let tableProps: any = {
       ref: this.dt,
@@ -323,7 +329,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       paginator: totalRecords > this.state.itemsPerPage,
       lazy: true,
       rows: this.state.itemsPerPage,
-      filterDisplay: 'row',
+      filterDisplay: (showColumnSearch ? 'row' : null),
       totalRecords: totalRecords,
       rowsPerPageOptions: [5, 15, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000],
       paginatorTemplate: "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown",
@@ -422,6 +428,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             this.setState({
               loadingData: false,
               data: data,
+            }, () => {
+              if (this.props.onAfterLoadData) {
+                this.props.onAfterLoadData(this);
+              }
             });
           }
         );
@@ -558,7 +568,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   showAddButton(): boolean {
-    if (!this.state.readonly && this.state.description?.ui?.showHeader && this.state.description?.permissions?.canCreate) {
+    if (
+      !this.state.readonly
+      && this.state.description?.ui?.showHeader
+      && this.state.description?.ui?.showAddButton
+      && this.state.description?.permissions?.canCreate
+    ) {
       return true;
     } else {
       return false;
@@ -578,7 +593,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   showMoreActionsButton(): boolean {
-    if (!this.state.readonly && this.state.description?.ui?.showHeader && this.state?.description?.ui?.moreActions) {
+    if (!this.state.readonly && (this.state?.description?.ui?.showMoreActionsButton)) {
       return true;
     } else {
       return false;
@@ -644,10 +659,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   renderHeaderLeft(): Array<JSX.Element> {
-    return [
-      ...this.renderHeaderButtons(),
-      this.renderFulltextSearch(),
-    ]
+    if (this.state.description?.ui?.showHeader) {
+      return [
+        ...this.renderHeaderButtons(),
+        this.renderFulltextSearch(),
+      ];
+    } else {
+      return [];
+    }
   }
 
   renderHeaderTitle(): JSX.Element {
@@ -1087,9 +1106,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       const column: any = this.state.description?.columns[columnName] ?? {};
 
       const columnSearchValue = this.state.columnSearch[columnName] ?? null;
+      const showColumnSearch = this.state.description?.ui?.showColumnSearch;
 
       let columnSearchInput: any = null;
-      if (this.state.description?.ui?.showColumnSearch) {
+      if (showColumnSearch) {
         switch (column.type) {
           case 'date':
             columnSearchInput = <Flatpickr
@@ -1100,27 +1120,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             />
           break;
           case 'boolean':
-            // columnSearchInput = <TriStateCheckbox
-            //   value={columnSearchValue}
-            //   onChange={(event) => {
-            //     let next:any = null;
-
-            //     if (columnSearchValue === null) next = true;
-            //     else if (columnSearchValue === true) next = false;
-            //     else next = null;
-
-            //     this.setColumnSearch(columnName, next);
-            //   }}
-            // />
             columnSearchInput = <SelectButton
               value={columnSearchValue}
               onChange={(event) => {
-                // let next:any = null;
-
-                // if (columnSearchValue === null) next = true;
-                // else if (columnSearchValue === true) next = false;
-                // else next = null;
-
                 this.setColumnSearch(columnName, event.value);
                 console.log(event);
               }}
@@ -1149,9 +1151,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         key={columnName}
         field={columnName}
         header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
-        filter={columnSearchInput !== null}
+        filter={showColumnSearch}
         showFilterMenu={false}
-        filterElement={columnSearchInput ? (
+        filterElement={showColumnSearch ? (
           <div className="column-search input-wrapper">
             <div className="input-body"><div className="hubleto component input">
               <div className="input-element">
@@ -1191,6 +1193,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   renderContent(): JSX.Element {
+    const sidebarFilter = this.renderSidebarFilter();
+
     return <>
       {this.renderFormModal()}
       {this.state.isUsedAsInput ? null : this.renderDeleteConfirmModal()}
@@ -1205,9 +1209,16 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
         <div className="flex gap-2 flex-col md:flex-row overflow-x max-w-[100vw]">
-          {this.state.description?.ui?.showSidebarFilter && !this.state.sidebarFilterHidden ?
+          {sidebarFilter && this.state.description?.ui?.showSidebarFilter && !this.state.sidebarFilterHidden ?
             <div className="table-sidebar-filter">
-              {this.renderSidebarFilter()}
+              {sidebarFilter}
+              {<button className="btn btn-transparent btn-small mt-2"
+                  onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
+                >
+                  <span className="icon"><i className="fas fa-arrow-left"></i></span>
+                  <span className="text">Hide filter</span>
+                </button>
+              }
             </div>
           : null}
 
