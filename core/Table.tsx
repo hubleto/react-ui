@@ -978,8 +978,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             </>;
           break;
           case 'datetime':
-            const date = cellContent.substr(0, 10);
-            const time = cellContent.substr(11);
+            const date = cellContent?.slice(0, 10) ?? "N/A";
+            const time = cellContent?.slice(11) ?? "N/A";
 
             cellValueElement = <div className='flex gap-2'>
               <div>
