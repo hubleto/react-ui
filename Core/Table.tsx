@@ -66,6 +66,8 @@ export interface TableUi {
   showSidebarFilter?: boolean,
   showHeaderTitle?: boolean,
   showNoDataAddButton?: boolean,
+  showMoreActionsButton?: boolean,
+  showAddButton?: boolean,
   showFulltextSearch?: boolean,
   showColumnSearch?: boolean,
   emptyMessage?: any,
@@ -231,7 +233,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       fulltextSearch: props.fulltextSearch ?? '',
       columnSearch: props.columnSearch ?? {},
       filters: props.filters ?? {},
-      sidebarFilterHidden: true,
+      sidebarFilterHidden: false,
     };
 
     if (props.description) state.description = props.description;
@@ -566,7 +568,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   showAddButton(): boolean {
-    if (!this.state.readonly && this.state.description?.ui?.showHeader && this.state.description?.permissions?.canCreate) {
+    if (
+      !this.state.readonly
+      && this.state.description?.ui?.showHeader
+      && this.state.description?.ui?.showAddButton
+      && this.state.description?.permissions?.canCreate
+    ) {
       return true;
     } else {
       return false;
@@ -586,7 +593,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   showMoreActionsButton(): boolean {
-    if (!this.state.readonly && this.state?.description?.ui?.moreActions) {
+    if (!this.state.readonly && (this.state?.description?.ui?.showMoreActionsButton)) {
       return true;
     } else {
       return false;
@@ -1186,6 +1193,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   renderContent(): JSX.Element {
+    const sidebarFilter = this.renderSidebarFilter();
+
     return <>
       {this.renderFormModal()}
       {this.state.isUsedAsInput ? null : this.renderDeleteConfirmModal()}
@@ -1200,9 +1209,16 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
         <div className="flex gap-2 flex-col md:flex-row overflow-x max-w-[100vw]">
-          {this.state.description?.ui?.showSidebarFilter && !this.state.sidebarFilterHidden ?
+          {sidebarFilter && this.state.description?.ui?.showSidebarFilter && !this.state.sidebarFilterHidden ?
             <div className="table-sidebar-filter">
-              {this.renderSidebarFilter()}
+              {sidebarFilter}
+              {<button className="btn btn-transparent btn-small mt-2"
+                  onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
+                >
+                  <span className="icon"><i className="fas fa-arrow-left"></i></span>
+                  <span className="text">Hide filter</span>
+                </button>
+              }
             </div>
           : null}
 
