@@ -62,7 +62,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
     switch (props.type) {
       case 'datetime':
-        this.options = {...this.options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:i:ss'};
+        this.options = {...this.options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:i:S'};
       break;
       case 'date':
         this.options = {...this.options, showMonths: 2, weekNumbers: true, dateFormat: 'd.m.Y'};
