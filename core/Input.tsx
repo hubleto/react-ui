@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import * as uuid from 'uuid';
 import Form from './Form';
+import TranslatedComponent from "./TranslatedComponent";
 
 export interface InputDescription {
   type?: string,
@@ -60,21 +61,21 @@ export interface InputState {
   description: InputDescription,
 }
 
-export class Input<P extends InputProps, S extends InputState> extends Component<P, S> {
+export class Input<P, S> extends TranslatedComponent<P, S> {
   static defaultProps = {
     inputClassName: '',
     id: uuid.v4(),
   };
 
-  state: S;
-  translationContext: string = 'input';
+  props: InputProps;
+  state: InputState;
 
   refInputWrapper: any;
   refInputElement: any;
   refValueElement: any;
   refInput: any;
 
-  constructor(props: P) {
+  constructor(props: InputProps) {
     super(props);
 
     this.refInputWrapper = React.createRef();
@@ -107,7 +108,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
       onChange: onChange,
       cssClass: cssClass,
       description: description,
-    } as S;
+    };
   }
 
   componentDidMount() {
@@ -163,10 +164,6 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     if (setNewState) {
       this.setState(newState);
     }
-  }
-
-  translate(orig: string, context?: string): string {
-    return globalThis.main.translate(orig, context ?? this.translationContext);
   }
 
   getClassName() {

@@ -774,13 +774,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           ? <>
             <span className="icon"><i className="fas fa-save"></i></span>
             <span className="text">
-              {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader::Components\\Form')}
+              {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
             </span>
             {this.state.recordChanged ? <span className="text">*</span> : null}
           </> : <>
             <span className="icon"><i className="fas fa-plus"></i></span>
             <span className="text">
-              {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader::Components\\Form')}
+              {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
             </span>
             {this.state.recordChanged ? <span className="text">*</span> : null}
           </>
@@ -798,7 +798,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         className={"btn btn-transparent"}
       >
         <span className="icon"><i className="fas fa-save"></i></span>
-        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy", 'Hubleto\\Erp\\Loader::Components\\Form')}</span>
+        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
   }
@@ -824,8 +824,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         <span className="icon"><i className="fas fa-trash-alt"></i></span>
         <span className="text text-nowrap">
           {this.state.deletingRecord ?
-            this.translate("Confirm delete", 'Hubleto\\Erp\\Loader::Components\\Form')
-            : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete", 'Hubleto\\Erp\\Loader::Components\\Form')
+            this.translate("Confirm delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+            : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
           }
         </span>
       </button> : null}
@@ -873,7 +873,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         className="btn btn-edit"
       >
         <span className="icon"><i className="fas fa-pencil-alt"></i></span>
-        <span className="text">{this.translate('Edit', 'Hubleto\\Erp\\Loader::Components\\Form')}</span>
+        <span className="text">{this.translate('Edit', 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
   }
@@ -933,8 +933,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderTitle(): null|JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
-        ? this.translate('Record', 'Hubleto\\Erp\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
-        : this.translate('New record', 'Hubleto\\Erp\\Loader::Components\\Form')
+        ? this.translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (this.state.record?.id ?? '-')
+        : this.translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
       )
     ;
 

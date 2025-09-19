@@ -189,7 +189,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   state: TableState;
 
   model: string;
-  translationContext: string = 'table';
   refFulltextSearchInput: any = null;
 
   dt = createRef<DataTable<any[]>>();
@@ -275,10 +274,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  translate(orig: string, context?: string): string {
-    return globalThis.main.translate(orig, context ?? this.translationContext);
-  }
-
   onAfterLoadTableDescription(description: any): any {
     return description;
   }
@@ -346,7 +341,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       //globalFilter={globalFilter}
       //header={header}
       emptyMessage: this.props.description?.ui?.emptyMessage || <>
-        <div className="p-2">{this.translate('No data.', 'Hubleto\\Erp\\Loader::Components\\Table')}</div>
+        <div className="p-2">{this.translate('No data.', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</div>
       </>,
       selectAll: true,
       selection: this.state.selection,
@@ -680,7 +675,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           ref={this.refFulltextSearchInput}
           className={"table-header-search " + (this.state.fulltextSearch == "" ? "" : "active")}
           type="search"
-          placeholder={this.translate('Search...', 'Hubleto\\Erp\\Loader::Components\\Table')}
+          placeholder={this.translate('Search...', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
           value={this.state.fulltextSearch}
           onKeyUp={(event: any) => {
             if (event.keyCode == 13) {
@@ -827,15 +822,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     if (hasRecordsToDelete) {
       return globalThis.main.showDialogConfirm(
-        this.translate('You are about to delete the record. Press OK to confirm.', 'Hubleto\\Erp\\Loader::Components\\Table'),
+        this.translate('You are about to delete the record. Press OK to confirm.', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
         {
           headerClassName: 'dialog-danger-header',
           contentClassName: 'dialog-danger-content',
-          header: this.translate('Delete record', 'Hubleto\\Erp\\Loader::Components\\Table'),
-          yesText: this.translate('Yes, delete', 'Hubleto\\Erp\\Loader::Components\\Table'),
+          header: this.translate('Delete record', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
+          yesText: this.translate('Yes, delete', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
           yesButtonClass: 'btn-danger',
           onYes: () => { this.deleteRecord(); },
-          noText: this.translate('No, do not delete', 'Hubleto\\Erp\\Loader::Components\\Table'),
+          noText: this.translate('No, do not delete', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
           onNo: () => {
             if (this.state.data) {
               let newData: TableData = this.state.data;
@@ -1058,7 +1053,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         </button>
         : <button
           className="btn btn-small btn-danger"
-          title={this.translate('Delete', 'Hubleto\\Erp\\Loader::Components\\Table')}
+          title={this.translate('Delete', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
           onClick={(e) => {
             e.preventDefault();
 
