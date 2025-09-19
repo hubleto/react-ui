@@ -36,30 +36,30 @@ export class HubletoReactUi {
     globalThis.main = this;
   }
 
-  translate(orig: string, context?: string): string {
-    let translated: string = orig;
+  // translate(orig: string, context?: string): string {
+  //   let translated: string = orig;
 
-    if (this.dictionary === null) return orig;
+  //   if (this.dictionary === null) return orig;
 
-    if (!context) context = this.defaultTranslationContext;
+  //   if (!context) context = this.defaultTranslationContext;
 
-    if (this.dictionary[context] && this.dictionary[context][orig]) {
-      translated = this.dictionary[context][orig];
-    } else if (this.dictionary['app'] && this.dictionary['app'][orig]) {
-      translated = this.dictionary['app'][orig];
-    } else {
-      console.log('atd', this.dictionary, orig, context);
-      this.addToDictionary(orig, context);
-    }
+  //   if (this.dictionary[context] && this.dictionary[context][orig]) {
+  //     translated = this.dictionary[context][orig];
+  //   } else if (this.dictionary['app'] && this.dictionary['app'][orig]) {
+  //     translated = this.dictionary['app'][orig];
+  //   } else {
+  //     console.log('atd', this.dictionary, orig, context);
+  //     this.addToDictionary(orig, context);
+  //   }
 
-    if (translated == '') translated = orig;
+  //   if (translated == '') translated = orig;
 
-    return translated;
-  }
+  //   return translated;
+  // }
 
-  addToDictionary(orig: string, context: string) {
-    // to be overriden
-  }
+  // addToDictionary(orig: string, context: string) {
+  //   // to be overriden
+  // }
 
   setTranslationContext(context: string) {
     this.defaultTranslationContext = context;
