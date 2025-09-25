@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/core/Form";
-import queryString from 'query-string';
 
 export interface HubletoTableExportCsvFormProps extends FormProps {}
 export interface HubletoTableExportCsvFormState extends FormState {}
@@ -43,6 +42,7 @@ export default class HubletoTableExportCsvForm<P, S> extends Form<HubletoTableEx
   }
 
   renderContent(): JSX.Element {
+    const qs = require('qs');
     return <div className="p-2">
       <div className="alert alert-info">
         CSV file with following columns and approximately {this.props.parentTable.state?.data?.total} items will be generated
@@ -64,7 +64,7 @@ export default class HubletoTableExportCsvForm<P, S> extends Form<HubletoTableEx
       </table>
       <a
         className="btn btn-large mt-2"
-        href={globalThis.main.config.projectUrl + "/api/table-export-csv?" + queryString.stringify(this.props.parentTable.getEndpointParams())}
+        href={globalThis.main.config.projectUrl + "/api/table-export-csv?" + qs.stringify(this.props.parentTable.getEndpointParams(), { arrayFormat: 'brackets' })}
         target="_blank"
       >
         <span className="icon"><i className="fas fa-download"></i></span>
