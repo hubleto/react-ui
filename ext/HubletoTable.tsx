@@ -6,6 +6,7 @@ import HubletoTableImportCsvForm from './HubletoTableImportCsvForm';
 import { getUrlParam } from '@hubleto/react-ui/core/Helper';
 import ModalForm from "@hubleto/react-ui/core/ModalForm";
 import HubletoTableColumnsCustomize from './HubletoTableColumnsCustomize';
+import { setUrlParam, deleteUrlParam } from "@hubleto/react-ui/core/Helper";
 
 export interface HubletoTableProps extends TableProps {
   junctionTitle?: string,
@@ -107,6 +108,10 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
                       }
                     } else {
                       filters[filterName] = key;
+                    }
+
+                    if (!this.props.parentForm) {
+                      setUrlParam('filters', filters);
                     }
 
                     this.setState({recordId: 0, filters: filters}, () => this.loadData());

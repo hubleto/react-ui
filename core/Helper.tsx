@@ -2,9 +2,10 @@ import React from 'react';
 import Notification from "./Notification";
 
 export function setUrlParam(paramName, paramValue) {
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set(paramName, paramValue);
-  window.history.pushState({}, "", '?' + urlParams.toString());
+  const qs = require('qs');
+  const urlParams = qs.parse(window.location.search.substr(1));
+  urlParams[paramName] = paramValue;
+  window.history.pushState({}, "", '?' + qs.stringify(urlParams, { arrayFormat: 'brackets' }));
 }
 
 export function getUrlParam(paramName): any {
@@ -16,7 +17,6 @@ export function deleteUrlParam(paramName): any {
   const urlParams = new URLSearchParams(window.location.search);
   urlParams.delete(paramName);
   if (Array.from(urlParams).length == 0) {
-    console.log('delete')
     history.pushState({}, '', location.protocol + "//" + location.host + location.pathname);
   } else {
     window.history.pushState({}, "", '?' + urlParams.toString())
