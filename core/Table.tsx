@@ -588,7 +588,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   showMoreActionsButton(): boolean {
-    if (!this.state.readonly && (this.state?.description?.ui?.showMoreActionsButton)) {
+    if (this.state?.description?.ui?.showMoreActionsButton) {
       return true;
     } else {
       return false;
