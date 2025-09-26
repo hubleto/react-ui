@@ -1,9 +1,15 @@
 import React, { Component } from 'react'
-import Select from 'react-select'
 import { Input, InputProps, InputState } from '../Input'
 import request from '../Request'
 import * as uuid from 'uuid';
 import { ProgressBar } from 'primereact/progressbar';
+import CreatableSelect from "react-select/creatable";
+import Select from "react-select/base";
+
+interface NewTagWrapper {
+  getNewRecord: (value: string) => object,
+  endpoint?: string,
+}
 
 interface Tags2InputProps extends InputProps {
   model?: string
@@ -11,6 +17,7 @@ interface Tags2InputProps extends InputProps {
   targetColumn: string,
   sourceColumn: string,
   colorColumn?: string,
+  newTagService?: NewTagWrapper,
 }
 
 interface Tags2InputState extends InputState {
@@ -52,6 +59,39 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
     };
   }
 
+  addNewTag(title: string) {
+    if (!(this.props.newTagService ?? false)) return;
+    let newRecord = this.props.newTagService.getNewRecord(title);
+
+    request.post(
+      this.props.newTagService.endpoint ?? "api/record/save",
+      { model: this.props.model, id: -1, record: newRecord },
+      {},
+      (saveResponse: any) => {
+        this.loadOptions(() => {
+          const value = this.convertValueToOptionList(this.state.value);
+          value.push(Object.values(this.state.options).find((opt) => opt.value == saveResponse.savedRecord.id) ?? { id: saveResponse.savedRecord.id, value: saveResponse.savedRecord.id, label: title });
+          this.handleChange(value);
+        });
+      },
+      (err: any) => {
+        console.log("Unable to create new Tag");
+      }
+    );
+  }
+
+  handleChange(selectedOptions: any) {
+    const value: Array<any> = [];
+    for (let i in selectedOptions) {
+      value.push({
+        id: selectedOptions[i].id ?? -1,
+        [this.props.targetColumn]: {_useMasterRecordId_: true},
+        [this.props.sourceColumn]: selectedOptions[i].value,
+      });
+    }
+    this.onChange(value);
+  }
+
   componentDidMount() {
     super.componentDidMount();
     this.loadOptions();
@@ -79,7 +119,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
     };
   }
 
-  loadOptions() {
+  loadOptions(callback = () => {}) {
     request.post(
       this.getEndpointUrl(),
       this.getEndpointParams(),
@@ -97,7 +137,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
         this.setState({
           isInitialized: true,
           options: options,
-        });
+        }, callback);
       }
     );
   }
@@ -149,23 +189,24 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   renderInputElement() {
-    return <Select
+    if (!(this.props.newTagService ?? false)) {
+      return <Select
+        ref={this.refInput}
+        value={this.state.value}
+        isMulti
+        options={Object.values(this.state.options)}
+        className="hubleto-lookup"
+        onChange={(selectedOptions: any) => this.handleChange(selectedOptions)}
+      />;
+    }
+    return <CreatableSelect
       ref={this.refInput}
-      defaultValue={this.convertValueToOptionList(this.state.value)}
+      value={this.convertValueToOptionList(this.state.value)}
       isMulti
-      options={this.state.options}
+      options={Object.values(this.state.options)}
       className="hubleto-lookup"
-      onChange={(selectedOptions: any) => {
-        const value: Array<any> = [];
-        for (let i in selectedOptions) {
-          value.push({
-            id: selectedOptions[i].id ?? -1,
-            [this.props.targetColumn]: {_useMasterRecordId_: true},
-            [this.props.sourceColumn]: selectedOptions[i].value,
-          });
-        }
-        this.onChange(value);
-      }}
+      onChange={(selectedOptions: any) => this.handleChange(selectedOptions)}
+      onCreateOption={(inputValue: string) => this.addNewTag(inputValue)}
     />;
   }
 }
