@@ -6,10 +6,10 @@ import { ProgressBar } from 'primereact/progressbar';
 import CreatableSelect from "react-select/creatable";
 import Select from "react-select/base";
 
-interface NewTagWrapper {
-  getNewRecord: (value: string) => object,
-  endpoint?: string,
-}
+// interface NewTagWrapper {
+//   getNewRecord: (value: string) => object,
+//   endpoint?: string,
+// }
 
 interface Tags2InputProps extends InputProps {
   model?: string
@@ -17,7 +17,8 @@ interface Tags2InputProps extends InputProps {
   targetColumn: string,
   sourceColumn: string,
   colorColumn?: string,
-  newTagService?: NewTagWrapper,
+  // newTagService?: NewTagWrapper,
+  onNewTag: (title: string) => object,
 }
 
 interface Tags2InputState extends InputState {
@@ -34,6 +35,9 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
     inputClassName: 'tags',
     id: uuid.v4(),
   }
+
+  props: Tags2InputProps;
+  state: Tags2InputState;
 
   constructor(props: Tags2InputProps) {
     super(props);
@@ -60,12 +64,16 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   addNewTag(title: string) {
-    if (!(this.props.newTagService ?? false)) return;
-    let newRecord = this.props.newTagService.getNewRecord(title);
+    // if (!(this.props.newTagService ?? false)) return;
+    // let newRecord = this.props.newTagService.getNewRecord(title);
+
+    if (!this.props.onNewTag) return;
+
+    const newTag = this.props.onNewTag(title);
 
     request.post(
-      this.props.newTagService.endpoint ?? "api/record/save",
-      { model: this.props.model, id: -1, record: newRecord },
+      "api/record/save",
+      { model: this.props.model, id: -1, record: newTag },
       {},
       (saveResponse: any) => {
         this.loadOptions(() => {
@@ -189,7 +197,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   renderInputElement() {
-    if (!(this.props.newTagService ?? false)) {
+    if (!this.props.onNewTag) {
       return <Select
         ref={this.refInput}
         value={this.state.value}
