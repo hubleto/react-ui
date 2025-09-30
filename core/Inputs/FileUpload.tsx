@@ -34,6 +34,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
 
   static defaultProps = {
     inputClassName: 'file-upload',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

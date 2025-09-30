@@ -10,6 +10,7 @@ interface HyperlinkInputState extends InputState {
 export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> {
   static defaultProps = {
     inputClassName: 'hyperlink',
+    uid: uuid.v4(),
     id: uuid.v4(),
     type: 'text',
     placeholder: 'https://',

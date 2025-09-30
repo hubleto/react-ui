@@ -21,12 +21,16 @@ export interface LookupInputState extends InputState {
   customEndpointParams: any,
 }
 
-export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputState> {
+export default class Lookup extends Input<LookupInputProps, LookupInputState> {
   static defaultProps = {
     inputClassName: 'lookup',
+    uid: uuid.v4(),
     id: uuid.v4(),
     uiStyle: 'default',
   }
+
+  props: LookupInputProps;
+  state: LookupInputState;
 
   constructor(props: LookupInputProps) {
     super(props);

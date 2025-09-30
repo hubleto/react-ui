@@ -12,6 +12,7 @@ interface PasswordInputState extends InputState {
 export default class Password extends Input<PasswordInputProps, PasswordInputState> {
   static defaultProps = {
     inputClassName: 'password',
+    uid: uuid.v4(),
     id: uuid.v4(),
     type: 'text',
   }

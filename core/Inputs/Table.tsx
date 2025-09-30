@@ -14,6 +14,7 @@ interface TableInputState extends InputState {
 export default class Table extends Input<TableInputProps, TableInputState> {
   static defaultProps = {
     inputClassName: 'table',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

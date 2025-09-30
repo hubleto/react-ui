@@ -5,6 +5,7 @@ import * as uuid from 'uuid';
 export default class Textarea extends Input<InputProps, InputState> {
   static defaultProps = {
     inputClassName: 'textarea',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

@@ -13,6 +13,7 @@ interface VarcharInputState extends InputState {
 export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> {
   static defaultProps = {
     inputClassName: 'varchar',
+    uid: uuid.v4(),
     id: uuid.v4(),
     type: 'text',
   }

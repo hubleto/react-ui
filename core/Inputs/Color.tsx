@@ -13,6 +13,7 @@ interface ColorInputState extends InputState {
 export default class Color extends Input<ColorInputProps, ColorInputState> {
   static defaultProps = {
     inputClassName: 'color',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

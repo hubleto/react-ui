@@ -6,6 +6,7 @@ import * as uuid from 'uuid';
 export default class Boolean extends Input<InputProps, InputState> {
   static defaultProps = {
     inputClassName: 'boolean',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 
