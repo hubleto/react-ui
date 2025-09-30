@@ -28,6 +28,7 @@ export default class HubletoApp {
 
   addCustomFormTab(tab: FormTab)
   {
+    tab.isCustom = true;
     this.customFormTabs.push(tab);
   }
 
