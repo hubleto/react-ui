@@ -4,12 +4,7 @@ import request from '../Request'
 import * as uuid from 'uuid';
 import { ProgressBar } from 'primereact/progressbar';
 import CreatableSelect from "react-select/creatable";
-import Select from "react-select/base";
-
-// interface NewTagWrapper {
-//   getNewRecord: (value: string) => object,
-//   endpoint?: string,
-// }
+import Select from "react-select";
 
 interface Tags2InputProps extends InputProps {
   model?: string
@@ -17,7 +12,6 @@ interface Tags2InputProps extends InputProps {
   targetColumn: string,
   sourceColumn: string,
   colorColumn?: string,
-  // newTagService?: NewTagWrapper,
   onNewTag: (title: string) => object,
 }
 
@@ -50,11 +44,11 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
     return {
       ...this.state, // Parent state
       endpoint:
-      props.endpoint
+        props.endpoint
           ? props.endpoint
           : (props.params && props.params.endpoint
-            ? props.params.endpoint
-            : (globalThis.main.config.defaultLookupEndpoint ?? 'api/record/lookup')
+              ? props.params.endpoint
+              : (globalThis.main.config.defaultLookupEndpoint ?? 'api/record/lookup')
           )
       ,
       model: props.model ? props.model : (props.params && props.params.model ? props.params.model : ''),
@@ -65,21 +59,22 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   addNewTag(title: string) {
-    // if (!(this.props.newTagService ?? false)) return;
-    // let newRecord = this.props.newTagService.getNewRecord(title);
-
     if (!this.props.onNewTag) return;
 
     const newTag = this.props.onNewTag(title);
 
     request.post(
       "api/record/save",
-      { model: this.props.model, id: -1, record: newTag },
+      {model: this.props.model, id: -1, record: newTag},
       {},
       (saveResponse: any) => {
         this.loadOptions(() => {
           const value = this.convertValueToOptionList(this.state.value);
-          value.push(Object.values(this.state.options).find((opt) => opt.value == saveResponse.savedRecord.id) ?? { id: saveResponse.savedRecord.id, value: saveResponse.savedRecord.id, label: title });
+          value.push(Object.values(this.state.options).find((opt) => opt.value == saveResponse.savedRecord.id) ?? {
+            id: saveResponse.savedRecord.id,
+            value: saveResponse.savedRecord.id,
+            label: title
+          });
           this.handleChange(value);
         });
       },
@@ -128,7 +123,8 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
     };
   }
 
-  loadOptions(callback = () => {}) {
+  loadOptions(callback = () => {
+  }) {
     request.post(
       this.getEndpointUrl(),
       this.getEndpointParams(),
@@ -182,11 +178,11 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
           <button
             key={i}
             className="btn btn-transparent btn-small mr-1"
-            style={{ borderColor: (options[i].color ? options[i].color : '') }}
+            style={{borderColor: (options[i].color ? options[i].color : '')}}
           >
             <span
               className="text"
-              style={{ color: (options[i].color ? options[i].color : '') }}
+              style={{color: (options[i].color ? options[i].color : '')}}
             >{options[i].label}</span>
           </button>
         );
@@ -198,12 +194,13 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   renderInputElement() {
-    if (!this.props.onNewTag) {
+    if (!(this.props.onNewTag ?? false)) {
       return <Select
         ref={this.refInput}
-        value={this.state.value}
+        value={this.convertValueToOptionList(this.state.value)}
         isMulti
-        options={Object.values(this.state.options)}
+        isSearchable={true}
+        options={this.state.options}
         className="hubleto-lookup"
         onChange={(selectedOptions: any) => this.handleChange(selectedOptions)}
       />;
