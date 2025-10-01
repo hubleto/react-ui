@@ -7,7 +7,7 @@ export default class HubletoApp {
   namespace: string;
 
   formHeaderButtons: Array<any> = [];
-  formTabs: Array<FormTab> = [];
+  customFormTabs: Array<FormTab> = [];
 
   constructor() {
   }
@@ -26,14 +26,15 @@ export default class HubletoApp {
     return this.formHeaderButtons;
   }
 
-  addFormTab(tab: FormTab)
+  addCustomFormTab(tab: FormTab)
   {
-    this.formTabs.push(tab);
+    tab.isCustom = true;
+    this.customFormTabs.push(tab);
   }
 
-  getFormTabs()
+  getCustomFormTabs()
   {
-    return this.formTabs;
+    return this.customFormTabs;
   }
 
 }

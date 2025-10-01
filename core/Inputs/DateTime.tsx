@@ -37,6 +37,7 @@ interface DateTimeInputProps extends InputProps {
 export default class DateTime extends Input<DateTimeInputProps, InputState> {
   static defaultProps = {
     inputClassName: 'datetime',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

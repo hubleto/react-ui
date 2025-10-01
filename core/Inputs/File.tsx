@@ -15,6 +15,7 @@ interface FileInputState extends InputState {
 export default class File extends Input<FileInputProps, FileInputState> {
   static defaultProps = {
     inputClassName: 'image',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

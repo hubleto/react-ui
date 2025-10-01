@@ -10,6 +10,7 @@ interface WysiwygInputState extends InputState {
 export default class Wysiwyg extends Input<InputProps, WysiwygInputState> {
   static defaultProps = {
     inputClassName: 'Wysiwyg',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

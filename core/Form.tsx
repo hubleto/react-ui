@@ -68,6 +68,7 @@ export interface FormTab {
   title?: string|JSX.Element,
   icon?: string,
   showCountFor?: string,
+  isCustom?: boolean,
   onRender?: (form: any) => JSX.Element,
 }
 
@@ -513,6 +514,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const activeTab = this.state.activeTab ?? 0;
     const activeTabUid = this.state.activeTabUid ?? 'default';
     const tabTitle = this.renderTabTitle(index);
+    const tab = tabs[index];
 
     return <button
       key={index}
@@ -525,8 +527,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         });
       }}
     >
-      {tabs[index].icon ? <span className="icon"><i className={tabs[index].icon}></i></span> : null}
-      {tabTitle ? <span className="text">{tabTitle}</span> : null}
+      {tab.icon ? <span className="icon"><i className={tab.icon}></i></span> : null}
+      {tabTitle ? <span className={"text " + (tab.isCustom ? "italic" : "")}>{tabTitle}</span> : null}
     </button>    
   }
 

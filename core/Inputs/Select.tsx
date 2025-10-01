@@ -10,6 +10,7 @@ interface SelectInputProps extends InputProps {
 export default class Select extends Input<SelectInputProps, InputState> {
   static defaultProps = {
     inputClassName: 'select',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

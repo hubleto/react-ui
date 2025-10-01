@@ -11,6 +11,7 @@ interface EnumValuesInputProps extends InputProps {
 export default class EnumValues extends Input<EnumValuesInputProps, InputState> {
   static defaultProps = {
     inputClassName: 'enumValues',
+    uid: uuid.v4(),
     id: uuid.v4(),
     uiStyle: 'select',
   }

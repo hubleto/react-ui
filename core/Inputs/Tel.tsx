@@ -10,6 +10,7 @@ interface TelInputState extends InputState {
 export default class Tel extends Varchar<InputProps, TelInputState> {
   static defaultProps = {
     inputClassName: 'tel',
+    uid: uuid.v4(),
     id: uuid.v4(),
     type: 'text',
     placeholder: '+1 AAA-BBBBB',

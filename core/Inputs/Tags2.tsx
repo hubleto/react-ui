@@ -33,6 +33,7 @@ interface Tags2InputState extends InputState {
 export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   static defaultProps = {
     inputClassName: 'tags',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

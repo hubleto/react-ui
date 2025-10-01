@@ -9,6 +9,7 @@ interface IntInputProps extends InputProps {
 export default class Int extends Input<IntInputProps, InputState> {
   static defaultProps = {
     inputClassName: 'int',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 
@@ -23,10 +24,11 @@ export default class Int extends Input<IntInputProps, InputState> {
 
   renderInputElement() {
     const decimals = this.props.description?.decimals ?? 0;
+    const step = this.props.description?.step ?? 1;
     return <input
       ref={this.refInput}
       type="number"
-      step={this.props.description.step ?? 1}
+      step={step}
       value={this.state.value}
       onKeyDown={(evt) => evt.key === 'e' && evt.preventDefault()}
       onChange={(e) => this.setState({value: e.currentTarget.value.replace('e', '')})}

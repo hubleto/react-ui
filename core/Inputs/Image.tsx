@@ -11,6 +11,7 @@ interface ImageInputState extends InputState {
 export default class Image extends Input<InputProps, ImageInputState> {
   static defaultProps = {
     inputClassName: 'image',
+    uid: uuid.v4(),
     id: uuid.v4(),
   }
 

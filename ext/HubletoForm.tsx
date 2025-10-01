@@ -43,7 +43,6 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
   }
 
   onAfterSaveRecord(saveResponse) {
-    console.log('onar', this.props);
     super.onAfterSaveRecord(saveResponse);
     if (
       this.props.junctionSaveEndpoint
@@ -52,7 +51,6 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
       && this.props.junctionDestinationColumn
       && this.props.junctionSourceRecordId
     ) {
-      console.log('onar', 'req', saveResponse);
       request.post(
         this.props.junctionSaveEndpoint,
         {
@@ -68,13 +66,19 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
     }
   }
 
-  getFormHeaderButtons()
+  getCustomTabs()
+  {
+    const customTabs = this.getParentApp()?.getCustomFormTabs() ?? [];
+    return customTabs;
+  }
+
+  getHeaderButtons()
   {
     return this.getParentApp()?.getFormHeaderButtons() ?? [];
   }
 
   renderHeaderLeft(): null|JSX.Element {
-    const headerButtons = this.getFormHeaderButtons();
+    const headerButtons = this.getHeaderButtons();
     return <div className='flex flex-col gap-2'>
       <div>{super.renderHeaderLeft()}</div>
       {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {

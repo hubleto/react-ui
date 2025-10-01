@@ -26,7 +26,7 @@ export interface InputDescription {
 }
 
 export interface InputProps {
-  uid: string,
+  uid?: string,
   inputName?: string,
   inputClassName?: string,
   value?: any,
@@ -61,9 +61,10 @@ export interface InputState {
   description: InputDescription,
 }
 
-export class Input<P, S> extends TranslatedComponent<P, S> {
+export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   static defaultProps = {
     inputClassName: '',
+    uid: uuid.v4(),
     id: uuid.v4(),
   };
 

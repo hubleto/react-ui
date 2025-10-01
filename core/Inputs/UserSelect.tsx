@@ -24,6 +24,7 @@ interface UserSelectInputState extends LookupInputState {
 export default class UserSelect extends LookupInput<UserSelectInputProps, UserSelectInputState> {
   static defaultProps = {
     inputClassName: 'user-select',
+    uid: uuid.v4(),
     id: uuid.v4(),
     uiStyle: 'default',
   }

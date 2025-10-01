@@ -10,6 +10,7 @@ interface MailtoInputState extends InputState {
 export default class Mailto extends Varchar<InputProps, MailtoInputState> {
   static defaultProps = {
     inputClassName: 'mailto',
+    uid: uuid.v4(),
     id: uuid.v4(),
     type: 'text',
     placeholder: '@',
