@@ -12,7 +12,7 @@ interface Tags2InputProps extends InputProps {
   targetColumn: string,
   sourceColumn: string,
   colorColumn?: string,
-  onNewTag: (title: string) => object,
+  onNewTag?: (title: string) => object,
 }
 
 interface Tags2InputState extends InputState {
