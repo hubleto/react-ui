@@ -1187,6 +1187,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return columns;
   }
 
+  renderTable(): JSX.Element {
+    return <>
+      <DataTable {...this.getTableProps()}>
+        {this.renderColumns()}
+      </DataTable>
+    </>;
+  }
+
   renderContent(): JSX.Element {
     const sidebarFilter = this.renderSidebarFilter();
 
@@ -1218,9 +1226,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           : null}
 
           <div className="table-body grow" id={"hubleto-table-body-" + this.props.uid}>
-            <DataTable {...this.getTableProps()}>
-              {this.renderColumns()}
-            </DataTable>
+            {this.renderTable()}
           </div>
         </div>
       </div>
