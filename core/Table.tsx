@@ -597,8 +597,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderMoreActionsButton(): JSX.Element {
     if (this.state?.description?.ui?.moreActions) {
-     return <button className="btn btn-dropdown btn-transparent">
-        <span className="icon"><i className="fas fa-cog"></i></span>
+      return <button className="btn btn-dropdown btn-transparent">
+        <span className="icon">
+          <i className="fas fa-cog"></i>
+          <span className="text text-nowrap">{this.translate('More options', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
+        </span>
         <span className="menu">
           <div className="btn-list text-nowrap">
             {this.state?.description?.ui?.moreActions.map((action, index) => {
