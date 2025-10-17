@@ -40,13 +40,20 @@ export default class Color extends Input<ColorInputProps, ColorInputState> {
 
   renderInputElement() {
     return <div className='flex flex-col gap-2'>
-      <div
-        style={{background: this.state.value}}
-        className="mr-2 cursor-pointer w-20 h-4 rounded border border-gray-400"
-        onClick={() => {
-          this.setState({showColorSelector: !this.state.showColorSelector});
-        }}
-      ></div>
+      <div className="flex justify-between items-center">
+        <div
+          style={{background: this.state.value}}
+          className="mr-2 cursor-pointer w-20 h-4 rounded border border-gray-400"
+          onClick={() => {
+            this.setState({showColorSelector: !this.state.showColorSelector});
+          }}
+        ></div>
+        { this.state.showColorSelector &&
+          <button className="btn btn-transparent" onClick={() => this.setState({showColorSelector: !this.state.showColorSelector})}>
+            <i className="fas fa-times"></i>
+          </button>
+        }
+      </div>
       {this.state.showColorSelector ?
         <div className="no-scrollbar w-full">
           <Compact
