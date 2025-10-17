@@ -318,7 +318,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     let tableProps: any = {
       ref: this.dt,
-      value: this.state.data?.data,
+      value: (this.state.data?.data ?? []).filter((a: any) => a._toBeDeleted_ !== true),
       dataKey: "id",
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
@@ -1060,7 +1060,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           onClick={(e) => {
             e.preventDefault();
 
-            if (data.id < 0) {
+            if (data.id <= 0 || data.id == undefined) {
               this.deleteRecordById(data.id);
             } else {
               this.findRecordById(data.id)._toBeDeleted_ = true;
