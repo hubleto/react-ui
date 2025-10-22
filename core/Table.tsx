@@ -133,6 +133,7 @@ export interface TableProps {
   columnSearch?: any,
   filters?: any,
   view?: string,
+  invalidInputs?: Array<string>,
 }
 
 // Laravel pagination
@@ -177,6 +178,7 @@ export interface TableState {
   customEndpointParams: any,
   filters: any,
   sidebarFilterHidden: boolean,
+  invalidInputs: Array<String>,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -233,6 +235,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       columnSearch: props.columnSearch ?? {},
       filters: props.filters ?? {},
       sidebarFilterHidden: false,
+      invalidInputs: props.invalidInputs ?? [],
     };
 
     if (props.description) state.description = props.description;
@@ -271,6 +274,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           this.loadData();
         }
       })
+    }
+
+    if (prevProps.invalidInputs != this.props.invalidInputs) {
+      this.setState({ invalidInputs: this.props.invalidInputs ?? [] });
     }
   }
 
@@ -870,11 +877,17 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   renderCell(columnName: string, column: any, data: any, options: any) {
     const columnValue: any = data[columnName]; // this.getColumnValue(columnName, column, data);
     const enumValues = column.enumValues;
+
+    const lastIndexOfBackslash = this.props.model.lastIndexOf('/');
+    const rawModelName = this.props.model.substring(lastIndexOfBackslash + 1);
+    const modelInputName = rawModelName + '.' + columnName;
+
     const inputProps = {
       uid: this.props.uid + '_' + columnName,
       inputName: columnName,
       value: columnValue,
       showInlineEditingButtons: false,
+      invalid: this.state.invalidInputs.some((v: any) => String(v).toLowerCase() === String(modelInputName).toLowerCase()),
       isInlineEditing: this.props.isInlineEditing,
       description: (this.state.description && this.state.description.inputs ? this.state.description?.inputs[columnName] : null),
     };

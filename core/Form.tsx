@@ -131,7 +131,7 @@ export interface FormState {
   recordDeleted: boolean,
   deleteButtonDisabled: boolean,
   isInlineEditing: boolean,
-  invalidInputs: Object,
+  invalidInputs: Array<string>,
   folderUrl?: string,
   params: any,
   invalidRecordId: boolean,
@@ -198,7 +198,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       deletingRecord: false,
       recordDeleted: false,
       isInlineEditing: props.isInlineEditing ? props.isInlineEditing : isCreatingRecord,
-      invalidInputs: {},
+      invalidInputs: [],
       originalRecord: {},
       record: {},
       params: null,
@@ -396,7 +396,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   saveRecord() {
-    this.setState({invalidInputs: {}});
+    this.setState({invalidInputs: []});
 
     let record = { ...this.state.record, id: this.state.id };
 
@@ -423,7 +423,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         this.onAfterSaveRecord(saveResponse);
       },
       (err: any) => {
-        if (err.status == 422) {
+        console.log(err);
+        if (err.data?.invalidInputs != undefined) {
           this.setState({invalidInputs: err.data.invalidInputs});
         }
       }
@@ -644,7 +645,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const inputDescription = inputs[inputName] ?? {};
     const formDescription = this.state.description;
     const inputType = inputDescription.type ?? '';
-    const enumValues = inputDescription.enumValues;
+    const enumValues = inputDescription.enumValues
+
+    const lastIndexOfBackslash = this.props.model.lastIndexOf('/');
+    const rawModelName = this.props.model.substring(lastIndexOfBackslash + 1);
+    const modelInputName = rawModelName + '.' + inputName;
+    const invalid = this.state.invalidInputs.some((v: any) => String(v).toLowerCase() === String(modelInputName).toLowerCase());
 
     // let customInputPropsWithoutOnchange = customInputProps;
     // delete customInputPropsWithoutOnchange.onChange;
@@ -671,7 +677,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       record: record,
       description: inputDescription,
       value: value,
-      invalid: this.state.invalidInputs[inputName] ?? false,
       cssClass: inputs[inputName]?.cssClass,
       readonly: this.props.readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
       uid: this.props.uid + '_' + uuid.v4(),
@@ -681,6 +686,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       isInitialized: false,
       isInlineEditing: this.state.isInlineEditing,
       showInlineEditingButtons: false, // !this.state.isInlineEditing,
+      invalid: invalid,
       ...inputs[inputName]?.inputProps,
       ...customInputProps,
       onInlineEditCancel: () => { },
@@ -704,6 +710,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
    */
   input(inputName: string, customInputProps?: any): JSX.Element {
     const inputProps = this.getInputProps(inputName, customInputProps);
+
     return InputFactory(inputProps);
   }
 
@@ -974,6 +981,14 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return null;
   }
 
+  renderErrorAlert(message: string) {
+    return <>
+      <div className="alert alert-danger m-1">
+        {message ?? "An error occured while performing the last operation."}
+      </div>
+    </>;
+  }
+
   render() {
     try {
       globalThis.main.setTranslationContext(this.translationContext);
@@ -997,6 +1012,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           </div>
           {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
           <div className={"modal-body " + formContentClassName}>
+            { this.state.invalidInputs.length != 0 ? this.renderErrorAlert('Please fix the errors below before saving the record.') : ''}
             {formContent}
           </div>
           {formFooter ? <div className="modal-footer">{formFooter}</div> : null}

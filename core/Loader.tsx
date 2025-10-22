@@ -65,39 +65,27 @@ export class HubletoReactUi {
     this.defaultTranslationContext = context;
   }
 
-  makeErrorResultReadable(error: any): JSX.Element {
-    console.log('makeErrorResultReadable', error, error.code, error.data);
+  getValidationErrorMessage(messageString: string): JSX.Element {
+    return <>
+      <b>Some inputs need your attention</b><br/>
+      <br/>
+      {messageString}
+    </>;
+  }
 
-    let message: any = null;
+  getDuplicateEntryErrorMessage(message: string): JSX.Element {
+    return <>
+      <b>Duplicate entry error</b><br/>
+      <br/>
+      <div>{message}</div>
+    </>;
+  }
 
-    try {
-      message = JSON.parse(error.message);
-    } catch(ex) {
-      message = {};
-    }
-
-    switch (error.code) {
-      case 87335:
-        return <>
-          <b>Some inputs need your attention</b><br/>
-          <br/>
-          {message.map((item) => <div>{item}</div>)}
-        </>;
-      break;
-      case 1062:
-        return <>
-          <b>Duplicate entry error</b><br/>
-          <br/>
-          <div>{error.message}</div>
-        </>;
-      break;
-      default:
-        return <>
-          <div>Error #{error.code}</div>
-          <pre style={{fontSize: '8pt', textAlign: 'left'}}>{error.message}</pre>
-        </>;
-      break;
-    }
+  getGenericErrorMessage(message: string, code: number): JSX.Element {
+    return <>
+      <div>Error #{code}</div>
+      <pre style={{fontSize: '8pt', textAlign: 'left'}}>{message}</pre>
+    </>;
   }
 
   showDialog(content: JSX.Element, props?: any) {

@@ -141,7 +141,17 @@ class Request {
     if (typeof error == 'string') {
       globalThis.main.showDialogDanger(error);
     } else {
-      globalThis.main.showDialogDanger(globalThis.main.makeErrorResultReadable(error));
+      switch(error.code) {
+        case 87335:
+          // globalThis.main.showDialogWarning(globalThis.main.getValidationErrorMessage(error.message));
+          break;
+        case 1062:
+          globalThis.main.showDialogDanger(globalThis.main.getDuplicateEntryErrorMessage(error.message));
+          break;
+        default:
+          globalThis.main.showDialogDanger(globalThis.main.getGenericErrorMessage(error, error.code))
+
+      }
     }
   }
 

@@ -23,6 +23,7 @@ export interface InputDescription {
   endpoint?: any,
   model?: any,
   info?: any,
+  invalid?: boolean
 }
 
 export interface InputProps {
@@ -166,6 +167,11 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
       setNewState = true;
     }
 
+    if (this.props.invalid != prevProps.invalid) {
+      newState.invalid = this.props.invalid;
+      setNewState = true;
+    }
+
     if (setNewState) {
       this.setState(newState);
     }
@@ -184,7 +190,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   }
 
   onChange(value: any) {
-    this.setState({value: value}, () => {
+    this.setState({value: value, invalid: false}, () => {
       if (typeof this.props.onChange == 'function') {
         this.props.onChange(this, value);
       }
