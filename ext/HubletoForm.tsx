@@ -159,7 +159,11 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
       {form: this}
     );
 
-    return <>{topMenu} {dynamicMenu}</>;
+    if (topMenu == null && dynamicMenu == null) {
+      return null;
+    } else {
+      return <>{topMenu} {dynamicMenu}</>;
+    }
   }
 
 }

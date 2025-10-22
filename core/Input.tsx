@@ -34,6 +34,7 @@ export interface InputProps {
   readonly?: boolean,
   invalid?: boolean,
   cssClass?: string,
+  cssStyle?: any,
   placeholder?: string,
   isModified?: boolean,
   isInitialized?: boolean,
@@ -54,6 +55,7 @@ export interface InputState {
   origValue: any,
   onChange: (input: any, value: any) => void,
   cssClass: string,
+  cssStyle: object,
   isModified: boolean,
   isInitialized: boolean,
   isInlineEditing: boolean,
@@ -95,6 +97,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
     const value: any = props.value;
     const onChange: any = props.onChange ?? null;
     const cssClass: string = props.cssClass ?? '';
+    const cssStyle: object = props.cssStyle ?? {};
     const description: any = props.description ?? null;
 
     this.state = {
@@ -108,6 +111,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
       origValue: value,
       onChange: onChange,
       cssClass: cssClass,
+      cssStyle: cssStyle,
       description: description,
     };
   }
