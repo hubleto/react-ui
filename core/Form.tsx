@@ -468,7 +468,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const record = this.normalizeRecord(this.state.record);
     const newRecord = deepObjectMerge(record, changedValues);
     this.setState({
-      recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(newRecord)),
+      recordChanged: true, //(JSON.stringify(this.state.originalRecord) !== JSON.stringify(newRecord)),
       record: newRecord
     }, onSuccess);
   }
