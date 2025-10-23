@@ -19,6 +19,11 @@ interface ContentCard {
   title: string
 }
 
+interface InvalidInput {
+  name: string,
+  id: number,
+}
+
 export interface FormEndpoint {
   describeForm: string,
   getRecord: string,
@@ -131,7 +136,7 @@ export interface FormState {
   recordDeleted: boolean,
   deleteButtonDisabled: boolean,
   isInlineEditing: boolean,
-  invalidInputs: Array<string>,
+  invalidInputs: Array<InvalidInput>,
   folderUrl?: string,
   params: any,
   invalidRecordId: boolean,
@@ -650,7 +655,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const lastIndexOfBackslash = this.props.model.lastIndexOf('/');
     const rawModelName = this.props.model.substring(lastIndexOfBackslash + 1);
     const modelInputName = rawModelName + '.' + inputName;
-    const invalid = this.state.invalidInputs.some((v: any) => String(v).toLowerCase() === String(modelInputName).toLowerCase());
+    const invalid = this.state.invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (this.state.record.id ?? -1));
 
     // let customInputPropsWithoutOnchange = customInputProps;
     // delete customInputPropsWithoutOnchange.onChange;

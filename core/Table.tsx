@@ -90,6 +90,11 @@ export interface ExternalCallbacks {
   onDeleteRecord?: string,
 }
 
+interface InvalidInput {
+  name: string,
+  id: number,
+}
+
 export interface TableProps {
   uid: string,
   description?: TableDescription,
@@ -133,7 +138,7 @@ export interface TableProps {
   columnSearch?: any,
   filters?: any,
   view?: string,
-  invalidInputs?: Array<string>,
+  invalidInputs?: Array<InvalidInput>,
 }
 
 // Laravel pagination
@@ -178,7 +183,8 @@ export interface TableState {
   customEndpointParams: any,
   filters: any,
   sidebarFilterHidden: boolean,
-  invalidInputs: Array<String>,
+  invalidInputs: Array<InvalidInput>,
+  tableUpdateIteration: number,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -236,6 +242,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       filters: props.filters ?? {},
       sidebarFilterHidden: false,
       invalidInputs: props.invalidInputs ?? [],
+      tableUpdateIteration: 0,
     };
 
     if (props.description) state.description = props.description;
@@ -276,8 +283,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       })
     }
 
-    if (prevProps.invalidInputs != this.props.invalidInputs) {
-      this.setState({ invalidInputs: this.props.invalidInputs ?? [] });
+    if (prevProps.invalidInputs !== this.props.invalidInputs) {
+      this.setState({ invalidInputs: this.props.invalidInputs ?? [], tableUpdateIteration: this.state.tableUpdateIteration + 1 });
     }
   }
 
@@ -324,6 +331,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     const showColumnSearch = this.state.description?.ui?.showColumnSearch;
 
     let tableProps: any = {
+      invalidInputs: this.props.invalidInputs,
+      key: this.state.tableUpdateIteration,
       ref: this.dt,
       value: (this.state.data?.data ?? []).filter((a: any) => a._toBeDeleted_ !== true),
       dataKey: "id",
@@ -887,10 +896,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       inputName: columnName,
       value: columnValue,
       showInlineEditingButtons: false,
-      invalid: this.state.invalidInputs.some((v: any) => String(v).toLowerCase() === String(modelInputName).toLowerCase()),
+      invalid: this.state.invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (data.id ?? -1)),
       isInlineEditing: this.props.isInlineEditing,
       description: (this.state.description && this.state.description.inputs ? this.state.description?.inputs[columnName] : null),
     };
+
     const cellProps = {
       columnName: columnName,
       column: column,

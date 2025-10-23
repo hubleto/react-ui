@@ -145,7 +145,7 @@ class Request {
         case 87335:
           // globalThis.main.showDialogWarning(globalThis.main.getValidationErrorMessage(error.message));
           break;
-        case 1062:
+        case 23000:
           globalThis.main.showDialogDanger(globalThis.main.getDuplicateEntryErrorMessage(error.message));
           break;
         default:
