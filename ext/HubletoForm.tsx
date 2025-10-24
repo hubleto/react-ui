@@ -4,6 +4,7 @@ import request from '@hubleto/react-ui/core/Request';
 import HubletoApp from '@hubleto/react-ui/ext/HubletoApp'
 
 export interface HubletoFormProps extends FormProps {
+  icon?: string,
   junctionTitle?: string,
   junctionModel?: string,
   junctionSourceColumn?: string,
@@ -11,7 +12,9 @@ export interface HubletoFormProps extends FormProps {
   junctionSourceRecordId?: number,
   junctionSaveEndpoint?: string,
 }
-export interface HubletoFormState extends FormState {}
+export interface HubletoFormState extends FormState {
+  icon?: string,
+}
 
 export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoFormState> {
   static defaultProps: any = {
@@ -39,6 +42,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
     return {
       ...super.getStateFromProps(props),
       isInlineEditing: true,
+      icon: this.props.icon,
     }
   }
 
@@ -79,17 +83,24 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
 
   renderHeaderLeft(): null|JSX.Element {
     const headerButtons = this.getHeaderButtons();
-    return <div className='flex flex-col gap-2'>
-      <div>{super.renderHeaderLeft()}</div>
-      {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {
-        return <button
-          className='btn btn-small btn-primary-outline'
-          onClick={() => { button.onClick(this); }}
-        >
-          <span className='text'>{button.title}</span>
-        </button>;
-      })}</div> : null}
-    </div>;
+    return <>
+      <div className='flex gap-2 items-center'>
+        {this.state.icon ? 
+          <div><i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i></div>
+        : null}
+        <div className='flex flex-col gap-2'>
+          <div>{super.renderHeaderLeft()}</div>
+          {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {
+            return <button
+              className='btn btn-small btn-primary-outline'
+              onClick={() => { button.onClick(this); }}
+            >
+              <span className='text'>{button.title}</span>
+            </button>;
+          })}</div> : null}
+        </div>
+      </div>
+    </>;
   }
 
   renderCustomInputs(): Array<JSX.Element> {
