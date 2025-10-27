@@ -62,6 +62,7 @@ export default class Wysiwyg extends Input<InputProps, WysiwygInputState> {
       <div className='flex-1'>
         <textarea
           className='w-full min-h-[15em]'
+          style={{fontFamily: 'courier', whiteSpace: 'nowrap', padding: '0.5em'}}
           value={this.state.textareaValue}
           onChange={(e) => {
             this.setState({textareaValue: e.target.value});

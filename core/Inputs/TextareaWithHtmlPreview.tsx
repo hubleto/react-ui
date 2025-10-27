@@ -2,10 +2,14 @@ import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
 import * as uuid from 'uuid';
 import DOMPurify from 'dompurify';
-
+import Editor from 'react-simple-code-editor';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-markup';
+import 'prismjs/themes/prism.css'; //Example style, you can use another
 
 interface TextareaWithHtmlPreviewInputState extends InputState {
   textareaValue: string,
+  previewInvalidated: boolean
 }
 
 export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaWithHtmlPreviewInputState> {
@@ -24,6 +28,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
       ...this.state, // Parent state
       isInitialized: true,
       textareaValue: this.state.value,
+      previewInvalidated: false,
     };
   }
 
@@ -34,26 +39,27 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
           HTML content
         </div>
         <div className='card-body'>
-          <textarea
+          {/* <textarea
             className='w-full min-h-[15em]'
-            style={{fontFamily: 'courier'}}
+            style={{fontFamily: 'courier', whiteSpace: 'nowrap', padding: '0.5em'}}
             value={this.state.textareaValue}
             onChange={(e) => {
               this.setState({textareaValue: e.target.value});
             }}
-          />
-
-          <button
-            className='btn btn-transparent mt-2 w-full'
-            onClick={() => {
-              const sanitized = DOMPurify.sanitize(this.state.textareaValue);
-              this.setState({textareaValue: sanitized});
-              this.onChange(sanitized);
+          /> */}
+          <Editor
+            className="bg-slate-300"
+            value={this.state.textareaValue}
+            onValueChange={(newValue) => {
+              this.setState({textareaValue: newValue, previewInvalidated: true});
             }}
-          >
-            <span className='icon'><i className='fas fa-arrow-right'></i></span>
-            <span className='text'>Sanitize HTML and update preview</span>
-          </button>
+            highlight={code => highlight(code, languages.markup)}
+            padding={10}
+            style={{
+              fontFamily: 'monospace',
+              fontSize: 11,
+            }}
+          />
         </div>
       </div>
       <div className='flex-1 card'>
@@ -61,9 +67,22 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
           Preview
         </div>
         <div className='card-body'>
-          {this.state.value
-            ? <div dangerouslySetInnerHTML={{__html: this.state.value}}></div>
-            : <div className='bg-gray-100 text-center p-4'>No preview available</div>
+          {this.state.previewInvalidated
+            ? <button
+              className='btn btn-transparent'
+              onClick={() => {
+                const sanitized = DOMPurify.sanitize(this.state.textareaValue);
+                this.setState({textareaValue: sanitized, previewInvalidated: false});
+                this.onChange(sanitized);
+              }}
+            >
+              <span className='icon'><i className='fas fa-arrows-rotate'></i></span>
+              <span className='text'>Sanitize HTML and update preview</span>
+            </button>
+            : (this.state.value
+              ? <div dangerouslySetInnerHTML={{__html: this.state.value}}></div>
+              : <div className='bg-gray-100 text-center p-4'>No preview available</div>
+            )
           }
         </div>
       </div>
