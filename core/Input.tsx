@@ -190,11 +190,15 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   }
 
   onChange(value: any) {
-    this.setState({value: value, invalid: false}, () => {
-      if (typeof this.props.onChange == 'function') {
-        this.props.onChange(this, value);
-      }
-    });
+    if (typeof this.props.onChange == 'function') {
+      this.setState({invalid: false}, () => {
+        if (typeof this.props.onChange == 'function') {
+          this.props.onChange(this, value);
+        }
+      });
+    } else {
+      this.setState({invalid: false, value: value});
+    }
   }
 
   serialize(): string {
