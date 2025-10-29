@@ -1,8 +1,11 @@
 import React, { Component } from "react";
 import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/core/Form";
+import {InputFactory} from "@hubleto/react-ui/core/InputFactory";
 
 export interface HubletoTableExportCsvFormProps extends FormProps {}
-export interface HubletoTableExportCsvFormState extends FormState {}
+export interface HubletoTableExportCsvFormState extends FormState {
+  separator: string,
+}
 
 export default class HubletoTableExportCsvForm<P, S> extends Form<HubletoTableExportCsvFormProps,HubletoTableExportCsvFormState> {
   static defaultProps: any = {
@@ -17,6 +20,14 @@ export default class HubletoTableExportCsvForm<P, S> extends Form<HubletoTableEx
 
     this.state = this.getStateFromProps(props);
   }
+
+  getStateFromProps(props: HubletoTableExportCsvFormProps) {
+    return {
+      separator: ',',
+      ...super.getStateFromProps(props),
+    };
+  }
+
 
   renderTitle(): JSX.Element {
     return <>
@@ -41,11 +52,18 @@ export default class HubletoTableExportCsvForm<P, S> extends Form<HubletoTableEx
     return this.renderCloseButton();
   }
 
+  getExportParams() {
+    return {
+      separator: this.state.separator,
+      ... this.props.parentTable.getEndpointParams(),
+    }
+  }
+
   renderContent(): JSX.Element {
     const qs = require('qs');
     return <div className="p-2">
       <div className="alert alert-info">
-        CSV file with following columns and approximately {this.props.parentTable.state?.data?.total} items will be generated
+        CSV file with following columns and {this.props.parentTable.state?.data?.total} items will be generated
       </div>
       <table className="table-default dense mt-2">
         <thead>
@@ -62,9 +80,19 @@ export default class HubletoTableExportCsvForm<P, S> extends Form<HubletoTableEx
           })}
         </tbody>
       </table>
+      {this.inputWrapper('separator', {
+        value: this.state.separator,
+        description: {
+          title: this.translate("Separator"),
+        },
+        isInlineEditing: true,
+        onChange: (input: any, value: string) => {
+          this.setState({ separator: value });
+        }
+      })}
       <a
         className="btn btn-large mt-2"
-        href={globalThis.main.config.projectUrl + "/api/table-export-csv?" + qs.stringify(this.props.parentTable.getEndpointParams(), { arrayFormat: 'brackets' })}
+        href={globalThis.main.config.projectUrl + "/api/table-export-csv?" + qs.stringify(this.getExportParams(), { arrayFormat: 'brackets' })}
         target="_blank"
       >
         <span className="icon"><i className="fas fa-download"></i></span>
