@@ -12,6 +12,7 @@ export interface ModalProps {
   headerLeft?: any;
   isOpen?: boolean;
   topMenu?: any;
+  isFullscreen?: boolean,
 }
 
 interface ModalState {
@@ -19,6 +20,7 @@ interface ModalState {
   type: string,
   isOpen: boolean;
   title?: string;
+  isFullscreen: boolean,
 }
 
 export default class Modal extends Component<ModalProps> {
@@ -39,7 +41,8 @@ export default class Modal extends Component<ModalProps> {
       uid: props.uid ?? uuid.v4(),
       type: props.type ?? "right",
       isOpen: props.isOpen ?? false,
-      title: props.title
+      title: props.title,
+      isFullscreen: props.isFullscreen,
     };
   };
 

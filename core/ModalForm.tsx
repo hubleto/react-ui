@@ -14,7 +14,7 @@ export default class ModalForm extends Modal {
         <div
           key={this.props.uid}
           id={"hubleto-modal-" + this.props.uid}
-          className={"modal " + this.props.type}
+          className={"modal " + (this.state.isFullscreen ? "fullscreen" : "") + " " + this.props.type}
         >
           <div className="modal-inner">
             {this.props.children}

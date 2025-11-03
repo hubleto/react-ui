@@ -78,6 +78,7 @@ export interface FormTab {
 }
 
 export interface FormProps {
+  modal?: any,
   isInitialized?: boolean,
   parentTable?: any,
   uid?: string,
@@ -136,6 +137,7 @@ export interface FormState {
   recordDeleted: boolean,
   deleteButtonDisabled: boolean,
   isInlineEditing: boolean,
+  isFullscreen: boolean,
   invalidInputs: Array<InvalidInput>,
   folderUrl?: string,
   params: any,
@@ -203,6 +205,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       deletingRecord: false,
       recordDeleted: false,
       isInlineEditing: props.isInlineEditing ? props.isInlineEditing : isCreatingRecord,
+      isFullscreen: false,
       invalidInputs: [],
       originalRecord: {},
       record: {},
@@ -892,6 +895,24 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
+  renderFullscreenButton(): null|JSX.Element {
+    return (
+      <button
+        className="btn btn-transparent"
+        type="button"
+        aria-label="Fullscreen"
+        onClick={() => {
+          this.setState({isFullscreen: !this.state.isFullscreen});
+          this.props.modal.current.setState({isFullscreen: !this.props.modal.current.state.isFullscreen});
+        }}
+      >
+          <span className="icon">
+            <i className={"fas fa-" + (this.state.isFullscreen ? "compress" : "expand")}></i>
+          </span>
+        </button>
+    );
+  }
+
   renderCloseButton(): null|JSX.Element {
     return (
       <button
@@ -914,7 +935,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderHeaderRight(): null|JSX.Element {
     return <>
-      {this.props.showInModal ? this.renderCloseButton() : null}
+      {this.props.modal ? <>
+        {this.renderFullscreenButton()}
+        {this.renderCloseButton()}
+      </> : null}
     </>;
   }
 
@@ -1008,7 +1032,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
       const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
-      if (this.props.showInModal) {
+      if (this.props.modal) {
         return <>
           <div className={"modal-header " + this.state.description?.ui?.headerClassName}>
             <div className="modal-header-left">{headerLeft}</div>

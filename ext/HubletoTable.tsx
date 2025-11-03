@@ -32,6 +32,18 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
   props: HubletoTableProps;
   state: HubletoTableState;
 
+  refExportCsvModal: any;
+  refImportCsvModal: any;
+  refColumnConfigModal: any;
+
+  constructor(props: HubletoTableProps) {
+    super(props);
+
+    this.refExportCsvModal = React.createRef();
+    this.refImportCsvModal = React.createRef();
+    this.refColumnConfigModal = React.createRef();
+  }
+
   getStateFromProps(props: HubletoTableProps) {
     return {
       ...super.getStateFromProps(props),
@@ -142,36 +154,37 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
       {super.renderContent()}
       {this.state.showExportCsvScreen ?
         <ModalForm
+          ref={this.refExportCsvModal}
           uid={this.props.uid + '_export_csv_modal'}
           isOpen={true}
           type='centered large'
         >
           <HubletoTableExportCsvForm
+            modal={this.refExportCsvModal}
             model={this.props.model}
             parentTable={this}
-            showInModal={true}
-            showInModalSimple={true}
             onClose={() => { this.setState({showExportCsvScreen: false}); }}
           ></HubletoTableExportCsvForm>
         </ModalForm>
       : null}
       {this.state.showImportCsvScreen ?
         <ModalForm
+          ref={this.refImportCsvModal}
           uid={this.props.uid + '_import_csv_modal'}
           isOpen={true}
           type='centered large'
         >
           <HubletoTableImportCsvForm
+            modal={this.refImportCsvModal}
             model={this.props.model}
             parentTable={this}
-            showInModal={true}
-            showInModalSimple={true}
             onClose={() => { this.setState({showImportCsvScreen: false}); }}
           ></HubletoTableImportCsvForm>
         </ModalForm>
       : null}
       {this.state.showColumnConfigScreen ?
         <ModalForm
+          ref={this.refColumnConfigModal}
           uid={this.props.uid + '_columns_config_modal'}
           isOpen={true}
           type='right'

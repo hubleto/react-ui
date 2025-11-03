@@ -198,6 +198,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   model: string;
   refFulltextSearchInput: any = null;
+  refFormModal: any = null;
+
 
   dt = createRef<DataTable<any[]>>();
 
@@ -207,6 +209,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     globalThis.main.reactElements[this.props.uid] = this;
 
     this.refFulltextSearchInput = React.createRef();
+    this.refFormModal = React.createRef();
 
     this.model = this.props.model ?? '';
 
@@ -453,6 +456,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   getFormProps(): FormProps {
     return {
       // isInitialized: false,
+      modal: this.refFormModal,
       parentTable: this,
       uid: this.props.uid + '_form',
       model: this.model,
@@ -501,6 +505,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   getFormModalProps(): any {
     return {
+      ref: this.refFormModal,
       uid: this.props.uid + '_form',
       type: this.state.recordId == -1 ? 'centered' : 'right',
       hideHeader: true,
@@ -1116,6 +1121,44 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     });
   }
 
+  addColumnSearch(columnName: string, value: any)
+  {
+    if (!value) return;
+
+    let columnSearch = this.state.columnSearch;
+    let columnSearchForColumn: any = this.state.columnSearch[columnName] ?? [];
+
+    if (typeof columnSearchForColumn === 'string') {
+      try {
+        columnSearchForColumn = JSON.parse(columnSearchForColumn);
+      } catch(ex) {
+        columnSearchForColumn = [];
+      }
+    }
+
+    if (columnSearchForColumn.length == 0) columnSearchForColumn.push('OR'); // default glue
+
+    columnSearchForColumn.push(value);
+
+    columnSearch[columnName] = columnSearchForColumn;
+
+    this.setState({columnSearch: columnSearch}, () => {
+      this.loadData();
+    });
+  }
+
+  deleteColumnSearch(columnName: string, index: number)
+  {
+    if (!this.state.columnSearch[columnName][index]) return;
+
+    let columnSearch = this.state.columnSearch;
+
+    delete columnSearch[columnName][index];
+    this.setState({columnSearch: columnSearch}, () => {
+      this.loadData();
+    });
+  }
+
   renderColumns(): JSX.Element[] {
     let columns: JSX.Element[] = [];
 
@@ -1130,6 +1173,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       const showColumnSearch = this.state.description?.ui?.showColumnSearch;
 
       let columnSearchInput: any = null;
+      let columnSearchValuePrettyfied: any = null;
+
       if (showColumnSearch) {
         switch (column.type) {
           case 'date':
@@ -1154,17 +1199,55 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                 {label: 'Y', value: true, className: 'p-0'},
                 {label: 'N', value: false, className: 'p-0'},
               ]}
-              />
+            />
           break;
           default:
             columnSearchInput = <input
               onKeyUp={(event: any) => {
                 if (event.keyCode == 13) {
-                  this.setColumnSearch(columnName, event.currentTarget.value);
+                  this.addColumnSearch(columnName, event.currentTarget.value);
+                  event.currentTarget.value = '';
                 }
               }}
             ></input>;
           break;
+        }
+
+        if (columnSearchValue instanceof Array) {
+          columnSearchValuePrettyfied = 
+            <div className='flex w-full gap-2 justify-items'>
+              <div className='grow'>
+                {columnSearchValue.map((item, index) => {
+                  if (index == 0) return null;
+                  return <>
+                    <button
+                      className='btn btn-small btn-warning'
+                      onClick={() => {
+                        this.deleteColumnSearch(columnName, index);
+                      }}
+                    >
+                      <span className='text'>{item}</span>
+                    </button>
+                  </>;
+                })}
+              </div>
+              <div>
+                <button
+                  className='btn btn-small btn-transparent'
+                  onClick={() => {
+                    let newColumnSearch = this.state.columnSearch;
+                    let glue = newColumnSearch[columnName][0];
+                    newColumnSearch[columnName][0] = (glue == 'OR' ? 'AND' : 'OR');
+                    this.setState({columnSearch: newColumnSearch}, () => {
+                      this.loadData();
+                    });
+                  }}
+                >
+                  <span className='text'>{this.state.columnSearch[columnName][0]}</span>
+                </button>
+              </div>
+            </div>
+          ;
         }
       }
 
@@ -1174,7 +1257,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
         filter={showColumnSearch}
         showFilterMenu={false}
-        filterElement={showColumnSearch ? (
+        filterElement={showColumnSearch ? (<>
           <div className="column-search input-wrapper">
             <div className="input-body"><div className="hubleto component input">
               <div className="input-element">
@@ -1182,7 +1265,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               </div>
             </div></div>
           </div>
-        ) : null}
+          {columnSearchValuePrettyfied}
+        </>) : null}
         body={(data: any, options: any) => {
           return (
             <div
