@@ -147,7 +147,7 @@ export interface FormState {
 
   permissions: FormPermissions,
 
-  savedSuccesfully: boolean,
+  savedSuccessfully: boolean,
   saveError: any,
 }
 
@@ -221,7 +221,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       tabs: this.props.tabs,
       activeTab: this.props.activeTab,
       activeTabUid: this.props.activeTabUid,
-      savedSuccesfully: false,
+      savedSuccessfully: false,
       saveError: null,
     };
   }
@@ -428,7 +428,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       (saveResponse: any) => {
         console.log('saveResponse', saveResponse);
         this.setState({
-          savedSuccesfully: true,
+          savedSuccessfully: true,
           saveError: null,
           record: saveResponse.savedRecord,
           id: saveResponse.savedRecord.id,
@@ -486,6 +486,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const newRecord = deepObjectMerge(record, changedValues);
     this.setState({
       recordChanged: true, //(JSON.stringify(this.state.originalRecord) !== JSON.stringify(newRecord)),
+      savedSuccessfully: false,
       record: newRecord
     }, onSuccess);
   }
@@ -712,7 +713,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         record[inputName] = value;
         this.setState({
           record: record,
-          recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(record))
+          recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(record)),
+          savedSuccessfully: false,
         }, () => {
           if (this.props.onChange) this.props.onChange(input, value);
           if (customInputProps && customInputProps.onChange) customInputProps.onChange(input, value);
@@ -801,12 +803,15 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     return <>
       {showButton ? <>
-        <button onClick={() => this.saveRecord()} className="btn btn-add">
+        <button onClick={() => this.saveRecord()} className={"btn " + (this.state.savedSuccessfully ? "btn-success" : "btn-add")}>
           {this.state.updatingRecord
             ? <>
-              <span className="icon"><i className="fas fa-save"></i></span>
+              <span className="icon"><i className={"fas " + (this.state.savedSuccessfully ? "fa-check" : "fa-save")}></i></span>
               <span className="text">
-                {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+                {this.state.savedSuccessfully
+                  ? this.translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+                  : (this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form'))
+                }
               </span>
               {this.state.recordChanged ? <span className="text">*</span> : null}
             </> : <>
@@ -818,10 +823,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             </>
           }
         </button>
-        {this.state.savedSuccesfully && !this.state.recordChanged
-          ? <div className='badge badge-success ml-2'>✓ Saved</div>
-          : null
-        }
         {this.state.saveError && this.state.saveError.message
           ? <div className='badge badge-danger ml-2'>{this.state.saveError.message}</div>
           : null
