@@ -11,6 +11,7 @@ export interface InputDescription {
   placeholder?: string,
   decimals?: number,
   step?: number,
+  icon?: string,
   unit?: string,
   format?: string,
   description?: string,

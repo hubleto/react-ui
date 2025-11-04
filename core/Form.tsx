@@ -763,6 +763,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         </label>
 
         <div className="input-body" key={inputName}>
+          {inputProps.description?.icon ?
+            <div className='input-icon'>
+              <i className={inputProps.description?.icon}></i>
+            </div>
+          : null}
+
           {body}
         </div>
 
