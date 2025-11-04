@@ -431,7 +431,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           savedSuccessfully: true,
           saveError: null,
           record: saveResponse.savedRecord,
-          id: saveResponse.savedRecord.id,
+          id: saveResponse.savedRecord?.id,
           recordChanged: false,
           updatingRecord: true,
           creatingRecord: false,

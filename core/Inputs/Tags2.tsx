@@ -71,7 +71,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
         this.loadOptions(() => {
           const value = this.convertValueToOptionList(this.state.value);
           value.push(Object.values(this.state.options).find((opt) => opt.value == saveResponse.savedRecord.id) ?? {
-            id: saveResponse.savedRecord.id,
+            id: saveResponse.savedRecord?.id,
             value: saveResponse.savedRecord.id,
             label: title
           });
