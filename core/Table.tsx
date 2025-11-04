@@ -483,14 +483,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         this.setState({ recordId: null });
       },
       onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
-        this.loadData();
-        if (this.props.closeFormAfterSave ?? false) {
-          this.setState({ recordId: null });
-        } else {
-          if (saveResponse && saveResponse.savedRecord.id) {
-            this.openForm(saveResponse.savedRecord.id);
-          }
-        }
+        // this.loadData();
+        // if (this.props.closeFormAfterSave ?? false) {
+        //   this.setState({ recordId: null });
+        // } else {
+        //   if (saveResponse && saveResponse.savedRecord.id) {
+        //     this.openForm(saveResponse.savedRecord.id);
+        //   }
+        // }
       },
       onCopyCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
         this.loadData();

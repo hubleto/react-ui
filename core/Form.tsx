@@ -146,6 +146,9 @@ export interface FormState {
   recordChanged: boolean,
 
   permissions: FormPermissions,
+
+  savedSuccesfully: boolean,
+  saveError: any,
 }
 
 export default class Form<P, S> extends TranslatedComponent<FormProps, FormState> {
@@ -218,6 +221,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       tabs: this.props.tabs,
       activeTab: this.props.activeTab,
       activeTabUid: this.props.activeTabUid,
+      savedSuccesfully: false,
+      saveError: null,
     };
   }
 
@@ -421,7 +426,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       { ...this.getEndpointParams(), record: record },
       {},
       (saveResponse: any) => {
+        console.log('saveResponse', saveResponse);
         this.setState({
+          savedSuccesfully: true,
+          saveError: null,
           record: saveResponse.savedRecord,
           id: saveResponse.savedRecord.id,
           recordChanged: false,
@@ -431,7 +439,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         this.onAfterSaveRecord(saveResponse);
       },
       (err: any) => {
-        console.log(err);
+        this.setState({saveError: err.data});
         if (err.data?.invalidInputs != undefined) {
           this.setState({invalidInputs: err.data.invalidInputs});
         }
@@ -792,23 +800,33 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     ;
 
     return <>
-      {showButton ? <button onClick={() => this.saveRecord()} className="btn btn-add">
-        {this.state.updatingRecord
-          ? <>
-            <span className="icon"><i className="fas fa-save"></i></span>
-            <span className="text">
-              {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
-            </span>
-            {this.state.recordChanged ? <span className="text">*</span> : null}
-          </> : <>
-            <span className="icon"><i className="fas fa-plus"></i></span>
-            <span className="text">
-              {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
-            </span>
-            {this.state.recordChanged ? <span className="text">*</span> : null}
-          </>
+      {showButton ? <>
+        <button onClick={() => this.saveRecord()} className="btn btn-add">
+          {this.state.updatingRecord
+            ? <>
+              <span className="icon"><i className="fas fa-save"></i></span>
+              <span className="text">
+                {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+              </span>
+              {this.state.recordChanged ? <span className="text">*</span> : null}
+            </> : <>
+              <span className="icon"><i className="fas fa-plus"></i></span>
+              <span className="text">
+                {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+              </span>
+              {this.state.recordChanged ? <span className="text">*</span> : null}
+            </>
+          }
+        </button>
+        {this.state.savedSuccesfully && !this.state.recordChanged
+          ? <div className='badge badge-success ml-2'>✓ Saved</div>
+          : null
         }
-      </button> : null}
+        {this.state.saveError && this.state.saveError.message
+          ? <div className='badge badge-danger ml-2'>{this.state.saveError.message}</div>
+          : null
+        }
+      </> : null}
     </>;
   }
 
