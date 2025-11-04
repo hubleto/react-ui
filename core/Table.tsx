@@ -328,6 +328,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
+  getCsvImportEndpointParams(): any {
+    return null;
+  }
+
   getTableProps(): Object {
     const sortOrders = {'asc': 1, 'desc': -1};
     const totalRecords = this.state.data?.total ?? 0;

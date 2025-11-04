@@ -4,8 +4,8 @@ import * as uuid from 'uuid';
 import { Input, InputProps, InputState } from '../Input'
 
 interface FileInputProps extends InputProps {
-  type: 'file' | 'image',
   uploadButtonText?: string,
+  acceptType?: Array<string>,
 }
 
 interface FileInputState extends InputState {
@@ -18,6 +18,9 @@ export default class File extends Input<FileInputProps, FileInputState> {
     uid: uuid.v4(),
     id: uuid.v4(),
   }
+
+  props: FileInputProps;
+  state: FileInputState;
 
   constructor(props: FileInputProps) {
     super(props);
@@ -97,7 +100,6 @@ export default class File extends Input<FileInputProps, FileInputState> {
       {this.renderValueElement()}
       {this.state.readonly ? null : <>
         <ImageUploading
-          ref={this.refInput}
           value={this.state.value && this.state.value['fileData'] != null
             ? [this.state.value]
             : []
@@ -105,6 +107,8 @@ export default class File extends Input<FileInputProps, FileInputState> {
           onChange={(files: Array<ImageType>, addUpdateIndex: any) => this.onFileChange(files)}
           maxNumber={1}
           dataURLKey="fileData"
+          acceptType={this.props.acceptType ?? ['jpg', 'gif', 'png']}
+          allowNonImageType={true}
         >
           {({
             imageList,

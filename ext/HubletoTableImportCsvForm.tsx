@@ -6,6 +6,8 @@ import request from "@hubleto/react-ui/core/Request";
 export interface HubletoTableImportCsvFormProps extends FormProps {}
 export interface HubletoTableImportCsvFormState extends FormState {
   csvData: string,
+  testResult?: any,
+  importResult?: any,
 }
 
 export default class HubletoTableImportCsvForm<P, S> extends Form<HubletoTableImportCsvFormProps,HubletoTableImportCsvFormState> {
@@ -25,6 +27,8 @@ export default class HubletoTableImportCsvForm<P, S> extends Form<HubletoTableIm
     this.state = {
       ...this.getStateFromProps(props),
       csvData: '',
+      testResult: null,
+      importResult: null,
     };
   }
 
@@ -52,50 +56,102 @@ export default class HubletoTableImportCsvForm<P, S> extends Form<HubletoTableIm
   }
 
   renderContent(): JSX.Element {
-    return <div className="p-2">
-      <div className="alert alert-info">
-        How to import:
-        <ul>
-          <li className="ml-2">• Prepare your CSV file. Read <a href="" target="_blank" className="btn btn-transparent">this guide</a> to learn how the CSV file shall be structured.</li>
-          <li className="ml-2">• Upload the CSV file.</li>
-          <li className="ml-2">• Start the import by clicking on "Import from CSV" button.</li>
-        </ul>
-      </div>
-      <div style={{zoom: 2}}>
-        <InputFile
-          type='file'
-          uid={this.props.parentTable.uid + '_import_csv_file'}
-          ref={this.refCsvFileInput}
-          onChange={(input: any, value: any) => {
-            console.log(value);
-            this.setState({csvData: value.fileData ?? ''});
-          }}
-          uploadButtonText='Select CSV file'
-        />
-      </div>
+    const csvImportEndpointParams = this.props.parentTable.getCsvImportEndpointParams();
 
-      <div className="alert alert-info mt-2">CSV file size: {Math.round(this.state.csvData.length * 100 / 1024) / 100} kB</div>
-      <button
-        className="btn btn-large mt-2"
-        onClick={() => {
-          console.log(this.refCsvFileInput,this.refCsvFileInput.current, this.refCsvFileInput.current.value);
-          request.post(
-            "api/table-import-csv",
-            {
-              ...this.props.parentTable.getEndpointParams(),
-              csvData: this.state.csvData,
-            },
-            {},
-            (data: any) => {
-              console.log(data);
-            }
-          );
-        }}
-      >
-        <span className="icon"><i className="fas fa-download"></i></span>
-        <span className="text">Import from CSV</span>
-      </button>
-    </div>;
+    if (!csvImportEndpointParams) {
+      return <div className='alert alert-danger'>
+        This table does not support CSV import.
+      </div>;
+    } else {
+      return <div className="p-2">
+        <div className="alert alert-info">
+          How to import:
+          <ul>
+            <li className="ml-2">• Prepare your CSV file. Read <a href="" target="_blank" className="btn btn-transparent">this guide</a> to learn how the CSV file shall be structured.</li>
+            <li className="ml-2">• Upload the CSV file.</li>
+            <li className="ml-2">• Start the import by clicking on "Import from CSV" button.</li>
+          </ul>
+        </div>
+        <div style={{zoom: 2}}>
+          <InputFile
+            uid={this.props.parentTable.uid + '_import_csv_file'}
+            ref={this.refCsvFileInput}
+            onChange={(input: any, value: any) => {
+              this.setState({csvData: value.fileData ?? ''});
+              request.post(
+                "api/table-import-csv",
+                {
+                  ...csvImportEndpointParams,
+                  testImport: true,
+                  csvData: value.fileData ?? '',
+                },
+                {},
+                (result: any) => {
+                  this.setState({testResult: result})
+                }
+              );
+            }}
+            uploadButtonText='Select CSV file'
+            acceptType={['csv']}
+          />
+        </div>
+
+        {this.state.testResult && this.state.testResult.foundRecords ? <>
+          <div className='mt-2'>
+            <div>Found following records</div>
+            <table className='table-default dense'>
+              <thead>
+                <tr>
+                  {Object.keys(this.state.testResult.foundRecords[0]).map((colName) => {
+                    return <td>{colName ?? ''}</td>;
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.testResult.foundRecords.map((record, index) => {
+                  return <tr>
+                    {Object.keys(record).map((colName) => {
+                      return <td>{record[colName] ?? ''}</td>;
+                    })}
+                  </tr>;
+                })}
+              </tbody>
+            </table>
+            <div>CSV file size: {Math.round(this.state.csvData.length * 100 / 1024) / 100} kB</div>
+            <div className='mt-2'>
+              <button
+                className="btn btn-large mt-2"
+                onClick={() => {
+                  request.post(
+                    "api/table-import-csv",
+                    {
+                      ...csvImportEndpointParams,
+                      testImport: false,
+                      csvData: this.state.csvData,
+                    },
+                    {},
+                    (result: any) => {
+                      this.setState({
+                        testResult: null,
+                        importResult: result,
+                      });
+                      this.props.parentTable.reload();
+                    }
+                  );
+                }}
+              >
+                <span className="icon"><i className="fas fa-download"></i></span>
+                <span className="text">Run the import !</span>
+              </button>
+            </div>
+          </div>
+        </> : null}
+
+        {this.state.importResult ? <div className='mt-2 alert alert-success'>
+          Imported {this.state.importResult.importedRecords} records.
+        </div> : null}
+      </div>;
+    }
   }
 
 }
