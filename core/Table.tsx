@@ -1203,6 +1203,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           break;
           default:
             columnSearchInput = <input
+              className='w-full'
               onKeyUp={(event: any) => {
                 if (event.keyCode == 13) {
                   this.addColumnSearch(columnName, event.currentTarget.value);
@@ -1260,7 +1261,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         filterElement={showColumnSearch ? (<>
           <div className="column-search input-wrapper">
             <div className="input-body"><div className="hubleto component input">
-              <div className="input-element">
+              <div className="input-element grow">
                 {columnSearchInput}
               </div>
             </div></div>
