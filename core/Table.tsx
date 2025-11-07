@@ -74,6 +74,7 @@ export interface TableUi {
   filters?: any,
   customFilters?: any,
   moreActions?: any,
+  dataView?: any,
 }
 
 export interface TableDescription {
@@ -155,7 +156,8 @@ interface TableData {
   per_page?: number,
   prev_page_url?: string|null,
   to?: number,
-  total?: number
+  total?: number,
+  tree?: any,
 }
 
 export interface TableState {
@@ -220,7 +222,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     let state: any = {
       endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultTableEndpoint ?? {
         describeTable: 'api/table/describe',
-        getRecords: 'api/record/get-list',
+        getRecords: 'api/record/load-table-data',
         deleteRecord: 'api/record/delete',
       }),
       recordId: props.recordId,
@@ -322,6 +324,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
       tag: this.props.tag,
       context: this.props.context,
+      dataView: this.state.description?.ui?.dataView,
       view: this.props.view,
       __IS_AJAX__: '1',
       ...this.props.customEndpointParams,
@@ -1306,7 +1309,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return columns;
   }
 
-  renderTable(): JSX.Element {
+  renderDataView(): JSX.Element {
     return <>
       <DataTable {...this.getTableProps()}>
         {this.renderColumns()}
@@ -1345,7 +1348,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           : null}
 
           <div className="table-body grow" id={"hubleto-table-body-" + this.props.uid}>
-            {this.renderTable()}
+            {this.renderDataView()}
           </div>
         </div>
       </div>

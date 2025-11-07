@@ -21,6 +21,7 @@ export interface HubletoTableState extends TableState {
   showExportCsvScreen: boolean,
   showImportCsvScreen: boolean,
   showColumnConfigScreen: boolean,
+  collapsedNodeIds: Array<number>,
 }
 
 export default class HubletoTable<P, S> extends Table<HubletoTableProps, HubletoTableState> {
@@ -50,6 +51,7 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
       showExportCsvScreen: false,
       showImportCsvScreen: false,
       showColumnConfigScreen: false,
+      collapsedNodeIds: [],
     };
   }
 
@@ -147,6 +149,71 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
   renderForm(): JSX.Element {
     let formProps: HubletoFormProps = this.getFormProps();
     return <HubletoForm {...formProps}/>;
+  }
+
+  renderTree(nodes: any, idParent: number = 0, level: number = 0): JSX.Element {
+    if (nodes.length && nodes.length > 0) {
+      return <div className='list'>
+        {nodes.map((node, index) => {
+          const hasChildren = node.children && node.children.length > 0;
+          const isExpanded = !this.state.collapsedNodeIds.includes(node.id);
+          return <div className='list-item'>
+            <div className='flex gap-2 justify-between'>
+              {hasChildren ?
+                <div>
+                  <button
+                    className='btn btn-transparent btn-list-item w-full'
+                    onClick={() => {
+                      let collapsedNodeIds = this.state.collapsedNodeIds;
+                      if (collapsedNodeIds.includes(node.id)) {
+                        for (let i in collapsedNodeIds) {
+                          if (collapsedNodeIds[i] == node.id) {
+                            delete collapsedNodeIds[i];
+                          }
+                        }
+                      } else {
+                        collapsedNodeIds.push(node.id);
+                      }
+                      this.setState({collapsedNodeIds: collapsedNodeIds});
+                    }}
+                  >
+                    <span className='icon'><i className={'fas fa-' + (isExpanded ? 'chevron-up' : 'chevron-down')}></i></span>
+                  </button>
+                </div>
+              : null}
+              <div className='grow'>
+                <button
+                  className='btn btn-transparent btn-list-item w-full'
+                  onClick={() => {
+                    this.openForm(node.id);
+                  }}
+                >
+                  <span className='text'>{node.title}</span>
+                </button>
+              </div>
+            </div>
+            {hasChildren && isExpanded ?
+              <div className='m-4'>
+                {this.renderTree(node.children, node.id, level + 1)}
+              </div>
+            : null}
+          </div>;
+        })}
+      </div>;
+    } else {
+      return <></>;
+    }
+  }
+
+  renderDataView(): JSX.Element {
+    switch (this.state.description?.ui?.dataView) {
+      case 'tree':
+        return this.renderTree(this.state?.data?.tree);
+      break;
+      default:
+        return super.renderDataView();
+      break;
+    }
   }
 
   renderContent(): JSX.Element {
