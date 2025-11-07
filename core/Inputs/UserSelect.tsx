@@ -29,6 +29,9 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
     uiStyle: 'default',
   }
 
+  props: UserSelectInputProps;
+  state: UserSelectInputState;
+
   getEndpointUrl() {
     return 'api/get-users';
   }
@@ -56,6 +59,25 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
               }}
             >
               <span className="text">{user.nick ?? (user.email ?? (user.last_name ?? '-'))}</span>
+              <span className="hover min-w-48">
+                <div className='flex gap-2'>
+                  <div className='grow'>
+                    {user.photo ?
+                      <img
+                        src={globalThis.main.config.uploadUrl + '/' + user.photo}
+                        className='w-12 max-h-12 rounded-xl'
+                      />
+                    : <div className='bg-gray-200 rounded-xl w-12 h-12 flex items-center justify-center'>
+                      <i className='fas fa-user'></i>
+                    </div>}
+                  </div>
+                  <div>
+                    <div className='text-primary'>{user.email}</div>
+                    <div className='font-bold'>{user.position}</div>
+                    <div>{user.first_name ?? ''} {user.last_name ?? ''} </div>
+                  </div>
+                </div>
+              </span>
             </button>
           </>;
         })}
