@@ -182,8 +182,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     this.state = this.getStateFromProps(props);
   }
 
+  isCreatingRecord(id: any): boolean
+  {
+    return id ? id == -1 : false;
+  }
+
   getStateFromProps(props: FormProps) {
-    const isCreatingRecord: boolean = props.id ? props.id == -1 : false;
+    const isCreatingRecord: boolean = this.isCreatingRecord(props.id);
     return {
       isInitialized: false,
       endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultFormEndpoint ?? {
@@ -284,8 +289,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       this.loadFormDescription();
 
       newState.invalidInputs = {};
-      newState.creatingRecord = this.props.id ? this.props.id <= 0 : false;
-      newState.updatingRecord = this.props.id ? this.props.id > 0 : false;
+      newState.creatingRecord = this.isCreatingRecord(this.props.id);
+      newState.updatingRecord = !newState.creatingRecord;
       setNewState = true;
     }
 
@@ -795,10 +800,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   renderSaveButton(): null|JSX.Element {
-    let id = this.state.id ? this.state.id : 0;
     let showButton = 
       this.state.description?.ui?.showSaveButton
-      && (id <= 0 && this.state.permissions.canCreate || id > 0 && this.state.permissions.canUpdate)
+      && (
+        this.state.creatingRecord && this.state.permissions.canCreate
+        || this.state.updatingRecord && this.state.permissions.canUpdate
+      )
     ;
 
     return <>

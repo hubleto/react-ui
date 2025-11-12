@@ -32,7 +32,7 @@ import request from "./Request";
 
 export interface TableEndpoint {
   describeTable: string,
-  getRecords: string,
+  loadTableData: string,
   deleteRecord: string,
 }
 
@@ -222,7 +222,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     let state: any = {
       endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultTableEndpoint ?? {
         describeTable: 'api/table/describe',
-        getRecords: 'api/record/load-table-data',
+        loadTableData: 'api/record/load-table-data',
         deleteRecord: 'api/record/delete',
       }),
       recordId: props.recordId,
@@ -429,7 +429,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         request.get(
           '',
           {
-            route: this.getEndpointUrl('getRecords'),
+            route: this.getEndpointUrl('loadTableData'),
             ...this.getEndpointParams(),
             filterBy: this.state.filterBy,
             model: this.model,
