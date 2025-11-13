@@ -32,13 +32,13 @@ export default class Wysiwyg extends Input<InputProps, WysiwygInputState> {
   }
 
   renderInputElement() {
-    console.log('this.state.value', this.state.value);
     return <div className='flex gap-2 w-full'>
       <div className='flex-1'>
         <ReactQuill
           ref={this.refQuill}
           theme="snow" // Use the 'snow' theme
           value={this.state.value}
+          readOnly={this.state.readonly}
           onChange={(htmlValue: string) => {
             this.onChange(htmlValue);
             this.setState({textareaValue: htmlValue});
@@ -59,29 +59,31 @@ export default class Wysiwyg extends Input<InputProps, WysiwygInputState> {
           ]}
         />
       </div>
-      <div className='flex-1'>
-        <textarea
-          className='w-full min-h-[15em]'
-          style={{fontFamily: 'courier', whiteSpace: 'nowrap', padding: '0.5em'}}
-          value={this.state.textareaValue}
-          onChange={(e) => {
-            this.setState({textareaValue: e.target.value});
-          }}
-        />
-        <button
-          className='btn btn-transparent mt-2'
-          onClick={() => {
-            console.log('this.state.textareaValue', this.state.textareaValue);
-            // this.onChange(this.state.textareaValue);
-            console.log(this.refQuill);
-            this.refQuill.current.editor.clipboard.dangerouslyPasteHTML(this.state.textareaValue);
+      {this.state.readonly ? null : 
+        <div className='flex-1'>
+          <textarea
+            className='w-full min-h-[15em]'
+            style={{fontFamily: 'courier', whiteSpace: 'nowrap', padding: '0.5em'}}
+            value={this.state.textareaValue}
+            onChange={(e) => {
+              this.setState({textareaValue: e.target.value});
+            }}
+          />
+          <button
+            className='btn btn-transparent mt-2'
+            onClick={() => {
+              console.log('this.state.textareaValue', this.state.textareaValue);
+              // this.onChange(this.state.textareaValue);
+              console.log(this.refQuill);
+              this.refQuill.current.editor.clipboard.dangerouslyPasteHTML(this.state.textareaValue);
 
-          }}
-        >
-          <span className='icon'><i className='fas fa-arrow-left'></i></span>
-          <span className='text'>Use this HTML code</span>
-        </button>
-      </div>
+            }}
+          >
+            <span className='icon'><i className='fas fa-arrow-left'></i></span>
+            <span className='text'>Use this HTML code</span>
+          </button>
+        </div>
+      }
     </div>;
   }
 }
