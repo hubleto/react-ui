@@ -103,7 +103,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
     </>;
   }
 
-  renderCustomInputs(): Array<JSX.Element> {
+  renderCustomInputs(): JSX.Element|Array<JSX.Element> {
     let customInputs: any = [];
 
     if (this.state?.description?.inputs) {

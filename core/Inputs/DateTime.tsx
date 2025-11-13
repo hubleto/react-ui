@@ -41,6 +41,8 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
     id: uuid.v4(),
   }
 
+  props: DateTimeInputProps;
+
   fp: any
 
   options: any = {
@@ -116,28 +118,28 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
   renderReadableInfo(value: any) {
     let days = moment(value).diff(moment(), 'days');
-    return <>
-      <div className="text-blue-400">{
-        days < -365 ? "(more than a year ago)" :
-        days < -30*6 ? "(more than 6 months ago)" :
-        days < -30*3 ? "(more than 3 months ago)" :
-        days < -30 ? "(more than a month ago)" :
-        days < -14 ? "(more than 2 weeks ago)" :
-        days < -7 ? "(more than a week ago)" :
-        days < -1 ? "(" + (-days) + " days ago)" :
-        days == -1 ? "(yesterday)" :
-        days == 0 ? "(today)" :
-        days == 1 ? "(tomorrow)" :
-        days > 365 ? "(in a year)" :
-        days > 30*6 ? "(in 6-12 months)" :
-        days > 30*3 ? "(in 3-6 months)" :
-        days > 30 ? "(in 1-3 months)" :
-        days > 14 ? "(in 2-4 weeks)" :
-        days > 7 ? "(in 1-2 weeks)" :
-        days > 1 ? "(in " + days + " days)" :
-        null
-      }</div>
-    </>;
+    let info = (
+      days < -365 ? "(more than a year ago)" :
+      days < -30*6 ? "(more than 6 months ago)" :
+      days < -30*3 ? "(more than 3 months ago)" :
+      days < -30 ? "(more than a month ago)" :
+      days < -14 ? "(more than 2 weeks ago)" :
+      days < -7 ? "(more than a week ago)" :
+      days < -1 ? "(" + (-days) + " days ago)" :
+      days == -1 ? "(yesterday)" :
+      days == 0 ? "(today)" :
+      days == 1 ? "(tomorrow)" :
+      days > 365 ? "(in a year)" :
+      days > 30*6 ? "(in 6-12 months)" :
+      days > 30*3 ? "(in 3-6 months)" :
+      days > 30 ? "(in 1-3 months)" :
+      days > 14 ? "(in 2-4 weeks)" :
+      days > 7 ? "(in 1-2 weeks)" :
+      days > 1 ? "(in " + days + " days)" :
+      ""
+    );
+
+    return (info == '' ? null : <div className="text-blue-400">{info}</div>);
   }
 
   renderValueElement() {
@@ -154,7 +156,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
         break;
       }
 
-      return <div className='flex flex-col'>
+      return <div className='flex'>
         <div className="flex gap-2 items-center">
           <i className="fas fa-calendar-days mr-2"></i>
           {valueFormatted}
@@ -169,17 +171,21 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
   renderInputElement() {
     let value: any = this.state.value;
     let defaultPlaceholder;
+    let icon = '';
 
     switch (this.props.type) {
       case 'datetime':
+        icon = 'fas fa-clock';
         value = datetimeToEUFormat(this.state.value);
         defaultPlaceholder = 'Year-Month-Day Hour:Min:Sec';
       break;
       case 'date':
+        icon = 'fas fa-calendar';
         value = dateToEUFormat(this.state.value);
         defaultPlaceholder = 'Year-Month-Day';
       break;
       case 'time':
+        icon = 'fas fa-clock';
         this.options = {
           ...this.options,
           ...{
@@ -194,9 +200,11 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       break;
     }
 
-    return <div className="flex gap-1 flex-col">
+    const readableInfo = this.renderReadableInfo(this.state.value);
+
+    return <div className="flex gap-2">
       <div className="flex gap-2 items-center">
-        <i className="fas fa-calendar"></i>
+        <i className={icon}></i>
         <div style={{minWidth: "8em"}}>
           <Flatpickr
             ref={this.refInput}
@@ -214,6 +222,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
             options={this.options}
           />
         </div>
+        {readableInfo ? <div className="text-xs">{readableInfo}</div> : null}
         <div>
           {this.state.readonly ? null :
             <button
@@ -228,7 +237,6 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
           }
         </div>
       </div>
-      <div className="text-xs">{this.renderReadableInfo(this.state.value)}</div>
     </div>;
   }
 }
