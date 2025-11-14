@@ -96,7 +96,7 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
           const filterValue = this.state.filters[filterName] ?? (filter.default ?? null);
 
           return <div key={filterName}>
-            <div className='bg-primary/10 p-1 text-sm'>{filter.title}</div>
+            <div className='bg-primary/10 p-1 text-sm dark:text-white dark:bg-slate-800'>{filter.title}</div>
             <div className="list">
               {Object.keys(filter.options).map((key: any) => {
                 return <button

@@ -85,7 +85,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
     const headerButtons = this.getHeaderButtons();
     return <>
       <div className='flex gap-2 items-center'>
-        {this.state.icon ? 
+        {this.state.icon ?
           <div><i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i></div>
         : null}
         <div className='flex flex-col gap-2'>
@@ -121,7 +121,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
   renderFooter(): null|JSX.Element {
     return <>
       <div className='w-full flex justify-between'>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center dark:text-white">
           <div>#{this.state.record.id}</div>
           <div>{this.renderPrevRecordButton()}</div>
           <div>{this.renderNextRecordButton()}</div>
@@ -148,7 +148,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
             </button>
           </> : null}
         </div>
-        {this.props.junctionModel ? 
+        {this.props.junctionModel ?
           <div className='badge flex gap-2'>
             <div><i className='fas fa-link'></i></div>
             {/* <div>{this.props.junctionModel.substring(this.props.junctionModel.lastIndexOf('/') + 1)}</div> */}
