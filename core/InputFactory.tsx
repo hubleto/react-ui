@@ -44,19 +44,6 @@ export function InputFactory(inputProps: any): JSX.Element {
           case 'file': inputToRender = <InputFile {...inputProps} />; break;
           case 'image': inputToRender = <InputImage {...inputProps} />; break;
           case 'datetime': case 'date': case 'time': inputToRender = <InputDateTime {...inputProps} type={description.type} />; break;
-          // case 'editor':
-          //   inputToRender = (
-          //     <div
-          //       className={'h-100 form-control ' + `${this.state.invalidInputs[inputProps.inputName] ? 'is-invalid' : 'border-0'}`}>
-          //       <ReactQuill
-          //         theme="snow"
-          //         value={this.state.data[inputProps.inputName] as Value}
-          //         onChange={(value) => this.inputOnChangeRaw(inputProps.inputName, value)}
-          //         className="w-100"
-          //       />
-          //     </div>
-          //   );
-          //   break;
           default: inputToRender = <InputVarchar {...inputProps} />;
         }
       }

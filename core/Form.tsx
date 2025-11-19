@@ -432,7 +432,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       { ...this.getEndpointParams(), record: record },
       {},
       (saveResponse: any) => {
-        console.log('saveResponse', saveResponse);
         this.setState({
           savedSuccessfully: true,
           saveError: null,
