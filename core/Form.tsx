@@ -107,7 +107,7 @@ export interface FormProps {
 
   onChange?: (input: any, value: any) => void,
   onClose?: () => void,
-  onSaveCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
+  onSaveCallback?: (form: Form<FormProps, FormState>, saveResponse: any, customSaveOptions?: any) => void,
   onCopyCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
   onDeleteCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
   onTabChangeCallback?: (form: Form<FormProps, FormState>) => void,
@@ -397,8 +397,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return record;
   }
 
-  onAfterSaveRecord(saveResponse) {
-    if (this.props.onSaveCallback) this.props.onSaveCallback(this, saveResponse);
+  onAfterSaveRecord(saveResponse, customSaveOptions?: any) {
+    console.log('onAfterSaveRecord', customSaveOptions);
+    if (this.props.onSaveCallback) this.props.onSaveCallback(this, saveResponse, customSaveOptions);
   }
 
   onAfterCopyRecord(copyResponse) {
@@ -413,7 +414,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     if (this.props.onTabChangeCallback) this.props.onTabChangeCallback(this);
   }
 
-  saveRecord() {
+  saveRecord(customSaveOptions?: any) {
     this.setState({invalidInputs: []});
 
     let record = { ...this.state.record, id: this.state.id };
@@ -441,7 +442,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           updatingRecord: true,
           creatingRecord: false,
         });
-        this.onAfterSaveRecord(saveResponse);
+        this.onAfterSaveRecord(saveResponse, customSaveOptions);
       },
       (err: any) => {
         this.setState({saveError: err.data});
@@ -558,7 +559,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderTopMenu(): null|JSX.Element {
     if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
       const tabs = this.state.tabs ?? [];
-      return <>
+      return <div className="top-menu-wrapper">
         <div>
           {tabs.map((item: any, index: number) => {
             if (item.position != 'right') {
@@ -573,7 +574,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             }
           })}
         </div>
-      </>;
+      </div>;
     } else {
       return null;
     }
@@ -808,28 +809,44 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       )
     ;
 
+    const saveIcon = "fas " + (this.state.savedSuccessfully ? "fa-check" : "fa-save");
+
     return <>
       {showButton ? <>
-        <button onClick={() => this.saveRecord()} className={"btn " + (this.state.savedSuccessfully ? "btn-success" : "btn-add")}>
+        <button
+          onClick={(e: any) => {
+            if (!e.isFromDropdownMenu) this.saveRecord({closeAfterSave: false});
+          }}
+          className={"btn " + (this.state.recordChanged ? (this.state.savedSuccessfully ? "btn-success" : "btn-add") : "btn-disabled")}
+        >
           {this.state.updatingRecord
             ? <>
-              <span className="icon"><i className={"fas " + (this.state.savedSuccessfully ? "fa-check" : "fa-save")}></i></span>
+              <span className="icon"><i className={saveIcon}></i></span>
               <span className="text">
                 {this.state.savedSuccessfully
                   ? this.translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
                   : (this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form'))
                 }
               </span>
-              {this.state.recordChanged ? <span className="text">*</span> : null}
             </> : <>
               <span className="icon"><i className="fas fa-plus"></i></span>
               <span className="text">
                 {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
               </span>
-              {this.state.recordChanged ? <span className="text">*</span> : null}
             </>
           }
         </button>
+        {this.state.recordChanged ? <>
+          <button
+            className="btn btn-add-outline ml-2"
+            onClick={(e: any) => {
+              e.isFromDropdownMenu = true;
+              this.saveRecord({closeAfterSave: true});
+            }}
+          >
+            <span className="text">{this.translate('Save and close')}</span>
+          </button>
+        </> : null}
         {this.state.saveError && this.state.saveError.message
           ? <div className='badge badge-danger ml-2'>{this.state.saveError.message}</div>
           : null
