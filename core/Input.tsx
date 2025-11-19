@@ -192,7 +192,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
 
   onChange(value: any) {
     if (typeof this.props.onChange == 'function') {
-      this.setState({invalid: false}, () => {
+      this.setState({invalid: false, value: value}, () => {
         if (typeof this.props.onChange == 'function') {
           this.props.onChange(this, value);
         }
