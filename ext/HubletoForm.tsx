@@ -184,7 +184,10 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
         {topMenuWithDynamicMenu}
         {this.state.id <= 0 ? null : <div className='flex p-2 bg-gradient-to-b from-gray-50 to-white'>
           <div className='flex-2'><WorkflowSelector parentForm={this}></WorkflowSelector></div>
-          <div className='text-right'>{this.inputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
+          {this.state.description && this.state.description.inputs && this.state.description.inputs.is_closed
+            ? <div className='text-right'>{this.inputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
+            : null
+        }
         </div>}
       </div>
     } else {
