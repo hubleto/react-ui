@@ -50,6 +50,7 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
           const userId = user.id ?? 0;
           return <>
             <button
+              key={key}
               className={
                 "btn " + (this.state.readonly && this.state.value != userId ? "btn-disabled" : "")
                 + " " + (this.state.value == userId ? "btn-primary" : "btn-transparent")

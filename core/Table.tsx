@@ -341,7 +341,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     const showColumnSearch = this.state.description?.ui?.showColumnSearch;
 
     let tableProps: any = {
-      invalidInputs: this.props.invalidInputs,
+      // Dusan 19.11.2025: sposobovalo to konzolovu chybu, docasne zakomentovane
+      // invalidInputs: this.props.invalidInputs,
       key: this.state.tableUpdateIteration,
       ref: this.dt,
       value: (this.state.data?.data ?? []).filter((a: any) => a._toBeDeleted_ !== true),
@@ -489,9 +490,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
         this.setState({ recordId: null });
       },
-      onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
+      onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any, customSaveOptions?: any) => {
         this.reload();
-        if (this.props.closeFormAfterSave ?? true) {
+        if (customSaveOptions.closeAfterSave ?? false) {
           this.setState({ recordId: null });
         } else if (saveResponse && saveResponse.savedRecord.id) {
           this.openForm(saveResponse.savedRecord.id);

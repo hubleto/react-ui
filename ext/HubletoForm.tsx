@@ -3,6 +3,9 @@ import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/c
 import request from '@hubleto/react-ui/core/Request';
 import HubletoApp from '@hubleto/react-ui/ext/HubletoApp'
 
+//@ts-ignore
+import WorkflowSelector from '@hubleto/apps/Workflow/Components/WorkflowSelector';
+
 export interface HubletoFormProps extends FormProps {
   icon?: string,
   junctionTitle?: string,
@@ -11,6 +14,7 @@ export interface HubletoFormProps extends FormProps {
   junctionDestinationColumn?: string,
   junctionSourceRecordId?: number,
   junctionSaveEndpoint?: string,
+  renderWorkflowUi?: boolean,
 }
 export interface HubletoFormState extends FormState {
   icon?: string,
@@ -46,8 +50,8 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
     }
   }
 
-  onAfterSaveRecord(saveResponse) {
-    super.onAfterSaveRecord(saveResponse);
+  onAfterSaveRecord(saveResponse, customSaveOptions?: any) {
+    super.onAfterSaveRecord(saveResponse, customSaveOptions);
     if (
       this.props.junctionSaveEndpoint
       && this.props.junctionModel
@@ -170,10 +174,24 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
       {form: this}
     );
 
-    if (topMenu == null && dynamicMenu == null) {
-      return null;
+    let topMenuWithDynamicMenu = null;
+    if (topMenu != null || dynamicMenu != null) {
+      topMenuWithDynamicMenu = <>{topMenu} {dynamicMenu}</>;
+    }
+
+    if (this.props.renderWorkflowUi) {
+      return <div className='flex flex-col'>
+        {topMenuWithDynamicMenu}
+        {this.state.id <= 0 ? null : <div className='flex p-2 bg-gradient-to-b from-gray-50 to-white'>
+          <div className='flex-2'><WorkflowSelector parentForm={this}></WorkflowSelector></div>
+          {this.state.description && this.state.description.inputs && this.state.description.inputs.is_closed
+            ? <div className='text-right'>{this.inputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
+            : null
+        }
+        </div>}
+      </div>
     } else {
-      return <>{topMenu} {dynamicMenu}</>;
+      return topMenuWithDynamicMenu;
     }
   }
 

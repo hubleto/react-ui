@@ -32,6 +32,7 @@ export const datetimeToEUFormat = (dateString: string): string => {
 
 interface DateTimeInputProps extends InputProps {
   type: 'date' | 'time' | 'datetime',
+  showReadable?: boolean,
 }
 
 export default class DateTime extends Input<DateTimeInputProps, InputState> {
@@ -161,7 +162,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
           <i className="fas fa-calendar-days mr-2"></i>
           {valueFormatted}
         </div>
-        <div className="text-xs">{this.renderReadableInfo(value)}</div>
+        {this.props.showReadable ? <div className="text-xs">{this.renderReadableInfo(value)}</div> : null}
       </div>
     } else {
       return super.renderValueElement();
@@ -200,7 +201,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       break;
     }
 
-    const readableInfo = this.renderReadableInfo(this.state.value);
+    const readableInfo = (this.props.showReadable ? this.renderReadableInfo(this.state.value) : null);
 
     return <div className="flex gap-2">
       <div className="flex gap-2 items-center">
