@@ -391,7 +391,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       this.loadTableDescription(() => {
         this.loadData();
       });
-      
+
     });
   }
 
@@ -868,6 +868,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               this.setState({data: newData});
             }
           },
+          onHide: () => {
+            if (this.state.data) {
+              let newData: TableData = this.state.data;
+              for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
+              this.setState({data: newData});
+            }
+          },
         }
       );
     } else {
@@ -1221,7 +1228,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         }
 
         if (columnSearchValue instanceof Array) {
-          columnSearchValuePrettyfied = 
+          columnSearchValuePrettyfied =
             <div className='flex w-full gap-2 justify-items'>
               <div className='grow'>
                 {columnSearchValue.map((item, index) => {
