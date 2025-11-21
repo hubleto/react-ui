@@ -169,6 +169,7 @@ export interface TableState {
   recordId?: any,
   recordPrevId?: any,
   recordNextId?: any,
+  activeRowId?: any,
   formEndpoint?: FormEndpoint,
   formProps?: FormProps,
   orderBy?: TableOrderBy,
@@ -586,7 +587,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   rowClassName(rowData: any): string {
-    return rowData.id === this.state.recordId ? 'highlighted' : '';
+    console.log(this.state.activeRowId);
+    return rowData.id === this.state.activeRowId ? 'highlighted' : '';
   }
 
   showAddButton(): boolean {
@@ -1451,7 +1453,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       }
 
       this.setState({ recordId: null }, () => {
-        this.setState({ recordId: id, recordPrevId: prevId, recordNextId: nextId });
+        this.setState({
+          recordId: id,
+          recordPrevId: prevId,
+          recordNextId: nextId,
+          activeRowId: id,
+        });
       });
     }
   }
