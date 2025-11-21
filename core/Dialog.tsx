@@ -27,7 +27,9 @@ export default class Dialog extends Component {
     props.resizable = false;
     props.headerClassName = this.props.headerClassName;
     props.contentClassName = this.props.contentClassName;
-    props.onHide = () => { this.hide(); };
+    if (this.props.onHide) {
+      props.onHide = () => { this.props.onHide(); this.hide(); };
+    } else props.onHide = () => { this.hide(); };
 
     if (this.state) props.visible = this.state.containerVisible;
     return <PrimereactDialog {...props}></PrimereactDialog>

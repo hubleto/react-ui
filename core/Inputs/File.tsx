@@ -107,7 +107,7 @@ export default class File extends Input<FileInputProps, FileInputState> {
           onChange={(files: Array<ImageType>, addUpdateIndex: any) => this.onFileChange(files)}
           maxNumber={1}
           dataURLKey="fileData"
-          acceptType={this.props.acceptType ?? ['jpg', 'gif', 'png']}
+          acceptType={this.props.acceptType ?? []}
           allowNonImageType={true}
         >
           {({
