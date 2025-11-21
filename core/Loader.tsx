@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
 import {isValidJson, kebabToPascal, camelToKebab, deepObjectMerge} from './Helper';
 import Dialog from "./Dialog";
+import Form, { FormProps, FormState } from "./Form";
 
 export class HubletoReactUi {
   config: object = {};
@@ -12,6 +13,7 @@ export class HubletoReactUi {
   reactComponents: any = {};
   reactElementsWaitingForRender: number = 0;
   reactElements: Object = {};
+  renderedForms: Array<Form<FormProps, FormState>> = [];
 
   primeReactTailwindTheme: any = {
     dataTable: {
@@ -36,33 +38,58 @@ export class HubletoReactUi {
     globalThis.main = this;
   }
 
-  // translate(orig: string, context?: string): string {
-  //   let translated: string = orig;
-
-  //   if (this.dictionary === null) return orig;
-
-  //   if (!context) context = this.defaultTranslationContext;
-
-  //   if (this.dictionary[context] && this.dictionary[context][orig]) {
-  //     translated = this.dictionary[context][orig];
-  //   } else if (this.dictionary['app'] && this.dictionary['app'][orig]) {
-  //     translated = this.dictionary['app'][orig];
-  //   } else {
-  //     console.log('atd', this.dictionary, orig, context);
-  //     this.addToDictionary(orig, context);
-  //   }
-
-  //   if (translated == '') translated = orig;
-
-  //   return translated;
-  // }
-
-  // addToDictionary(orig: string, context: string) {
-  //   // to be overriden
-  // }
-
   setTranslationContext(context: string) {
     this.defaultTranslationContext = context;
+  }
+
+  addFormToStack(form: Form<FormProps, FormState>) {
+    this.renderedForms.push(form);
+    // console.log('addFormToStack', this.renderedForms);
+    this.activateLastFormInStack();
+  }
+
+  removeFormFromStack(formToDelete: Form<FormProps, FormState>) {
+    let keyToDelete = null;
+    this.renderedForms.map((form, key) => {
+      if (form.state.stackUid === formToDelete.state.stackUid) {
+        keyToDelete = key;
+      }
+    })
+    if (keyToDelete !== null) {
+      delete this.renderedForms[keyToDelete];
+      // console.log('removeFormFromStack', this.renderedForms);
+      this.activateLastFormInStack();
+    }
+  }
+
+  getActiveFormInStack() {
+    let activeForm = null;
+
+    this.renderedForms.map((form, key) => {
+      if (form.state.isActive) activeForm = form;
+    });
+
+    return activeForm;
+  }
+
+  activateLastFormInStack() {
+    let lastForm = null;
+    this.renderedForms.map((form, key) => {
+      if (form) lastForm = form;
+    });
+
+    // console.log('lastForm', lastForm);
+    if (lastForm) {
+      // console.log('lastForm.state.stackUid', lastForm.state.stackUid);
+      this.renderedForms.map((form, key) => {
+        if (form.state.stackUid != lastForm.state.stackUid) {
+          console.log('isActive: false', form.state.stackUid);
+          this.renderedForms[key].setState({isActive: false});
+        }
+      })
+      // console.log('isActive: true', lastForm.state.stackUid);
+      lastForm.setState({isActive: true});
+    }
   }
 
   getValidationErrorMessage(messageString: string): JSX.Element {

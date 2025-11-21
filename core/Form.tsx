@@ -114,6 +114,8 @@ export interface FormProps {
 }
 
 export interface FormState {
+  stackUid?: string,
+  isActive: boolean,
   isInitialized: boolean,
   id?: any,
   prevId?: any,
@@ -190,6 +192,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   getStateFromProps(props: FormProps) {
     const isCreatingRecord: boolean = this.isCreatingRecord(props.id);
     return {
+      stackUid: uuid.v4(),
+      isActive: false,
       isInitialized: false,
       endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultFormEndpoint ?? {
         describeForm: 'api/form/describe',
@@ -301,6 +305,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   componentDidMount() {
     this.loadFormDescription();
+    globalThis.hubleto.addFormToStack(this);
+  }
+
+  componentWillUnmount() {
+    globalThis.hubleto.removeFormFromStack(this);
   }
 
   getEndpointUrl(action: string) {
@@ -398,7 +407,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   onAfterSaveRecord(saveResponse, customSaveOptions?: any) {
-    console.log('onAfterSaveRecord', customSaveOptions);
     if (this.props.onSaveCallback) this.props.onSaveCallback(this, saveResponse, customSaveOptions);
   }
 
@@ -504,9 +512,26 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   closeForm() {
-    if (this.props.onClose) {
-      this.props.onClose();
-    } else {
+    let ok = true;
+    if (this.state.recordChanged) ok = confirm('You have unsaved changes. Are you sure to close?');
+    if (ok) {
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    }
+  }
+
+  openNextRecord() {
+    const nextId = this.state?.nextId ?? 0;
+    if (nextId && this.props.parentTable) {
+      this.props.parentTable.openForm(nextId);
+    }
+  }
+
+  openPrevRecord() {
+    const prevId = this.state?.prevId ?? 0;
+    if (prevId && this.props.parentTable) {
+      this.props.parentTable.openForm(prevId);
     }
   }
 
@@ -820,7 +845,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         >
           {this.state.updatingRecord
             ? <>
-              <span className="icon"><i className={saveIcon}></i></span>
+              <span className="icon">
+                <i className={saveIcon}></i>
+                <span className="shortcut">Ctrl+S</span>
+              </span>
               <span className="text">
                 {this.state.savedSuccessfully
                   ? this.translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
@@ -828,7 +856,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
                 }
               </span>
             </> : <>
-              <span className="icon"><i className="fas fa-plus"></i></span>
+              <span className="icon">
+                <i className="fas fa-plus"></i>
+                <span className="shortcut">Ctrl+S</span>
+              </span>
               <span className="text">
                 {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
               </span>
@@ -902,14 +933,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     return (
       <button
-        onClick={() => {
-          if (prevId && this.props.parentTable) {
-            this.props.parentTable.openForm(prevId);
-          }
-        }}
+        onClick={() => { this.openPrevRecord(); }}
         className={"btn btn-transparent" + (prevId ? "" : " btn-disabled")}
       >
-        <span className="icon"><i className="fas fa-angle-left"></i></span>
+        <span className="icon">
+          <i className="fas fa-angle-left"></i>
+          <span className="shortcut">Ctrl+Shift+Left</span>
+        </span>
       </button>
     );
   }
@@ -919,14 +949,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     return (
       <button
-        onClick={() => {
-          if (nextId && this.props.parentTable) {
-            this.props.parentTable.openForm(nextId);
-          }
-        }}
+        onClick={() => { this.openNextRecord() }}
         className={"btn btn-transparent" + (nextId ? "" : " btn-disabled")}
       >
-        <span className="icon"><i className="fas fa-angle-right"></i></span>
+        <span className="icon">
+          <i className="fas fa-angle-right"></i>
+          <span className="shortcut">Ctrl+Shift+Right</span>
+        </span>
       </button>
     );
   }
@@ -969,16 +998,21 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         data-dismiss="modal"
         aria-label="Close"
         onClick={() => {
-          let ok = true;
-          if (this.state.recordChanged) ok = confirm('You have unsaved changes. Are you sure to close?');
-          if (ok) this.closeForm();
+          this.closeForm();
         }}
-      ><span className="icon"><i className="fas fa-xmark"></i></span></button>
+      >
+        <span className="icon">
+          <i className="fas fa-xmark"></i>
+          <span className="shortcut">Esc</span>
+        </span>
+      </button>
     );
   }
 
   renderHeaderLeft(): null|JSX.Element {
-    return <>{this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}</>;
+    return <>
+      {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
+    </>;
   }
 
   renderHeaderRight(): null|JSX.Element {
@@ -1082,7 +1116,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
       if (this.props.modal) {
         return <>
-          <div className={"modal-header " + this.state.description?.ui?.headerClassName}>
+          <div className={"modal-header " + (this.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
             <div className="modal-header-left">{headerLeft}</div>
             <div className="modal-header-title">{formTitle}</div>
             <div className="modal-header-right">{headerRight}</div>

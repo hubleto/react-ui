@@ -492,7 +492,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       },
       onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any, customSaveOptions?: any) => {
         this.reload();
-        if (customSaveOptions.closeAfterSave ?? false) {
+        if (customSaveOptions && (customSaveOptions.closeAfterSave ?? false)) {
           this.setState({ recordId: null });
         } else if (saveResponse && saveResponse.savedRecord.id) {
           this.openForm(saveResponse.savedRecord.id);

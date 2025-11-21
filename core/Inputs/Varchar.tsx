@@ -109,8 +109,8 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
           ref={this.refInput}
           type='text'
           value={this.state.value ?? ''}
-          onChange={(e) => this.setState({value: e.currentTarget.value})}
-          onBlur={(e) => this.onChange(e.currentTarget.value)}
+          // onKeyDown={(e) => this.setState({value: e.currentTarget.value})}
+          onChange={(e) => this.onChange(this.refInput.current.value) }
           placeholder={this.props.placeholder}
           className={
             (this.state.invalid ? 'is-invalid' : '')
