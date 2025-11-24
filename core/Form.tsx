@@ -874,6 +874,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
               this.saveRecord({closeAfterSave: true});
             }}
           >
+            <span className="icon">
+              <i className={saveIcon}></i>
+            </span>
             <span className="text">{this.translate('Save and close')}</span>
           </button>
         </> : null}

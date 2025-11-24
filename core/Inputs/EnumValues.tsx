@@ -16,6 +16,8 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
     uiStyle: 'select',
   }
 
+  props: EnumValuesInputProps;
+
   constructor(props: EnumValuesInputProps) {
     super(props);
 
@@ -53,7 +55,7 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
     }
 
     return <>
-      <div className={"badge " + cssClass ?? ''}>
+      <div className={"badge " + (cssClass ?? '')}>
         {value}
       </div>
     </>;

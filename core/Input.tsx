@@ -33,6 +33,7 @@ export interface InputProps {
   inputClassName?: string,
   value?: any,
   onChange?: (input: any, value: any) => void,
+  onInit?: (input: any) => void,
   readonly?: boolean,
   invalid?: boolean,
   cssClass?: string,
@@ -56,6 +57,7 @@ export interface InputState {
   value: any,
   origValue: any,
   onChange: (input: any, value: any) => void,
+  onInit?: (input: any) => void,
   cssClass: string,
   cssStyle: object,
   isModified: boolean,
@@ -98,6 +100,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
     const invalid: boolean = props.invalid ?? false;
     const value: any = props.value;
     const onChange: any = props.onChange ?? null;
+    const onInit: any = props.onInit ?? null;
     const cssClass: string = props.cssClass ?? '';
     const cssStyle: object = props.cssStyle ?? {};
     const description: any = props.description ?? null;
@@ -112,6 +115,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
       value: value,
       origValue: value,
       onChange: onChange,
+      onInit: onInit,
       cssClass: cssClass,
       cssStyle: cssStyle,
       description: description,
@@ -121,6 +125,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   componentDidMount() {
     if (this.props.parentForm && this.props.inputName) {
       this.props.parentForm.inputs[this.props.inputName.toString()] = this;
+      if (this.state.onInit) this.state.onInit(this);
     }
   }
 

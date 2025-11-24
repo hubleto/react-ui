@@ -93,7 +93,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
           <div><i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i></div>
         : null}
         <div className='flex flex-col gap-2'>
-          <div>{super.renderHeaderLeft()}</div>
+          <div className='flex justify-center'>{super.renderHeaderLeft()}</div>
           {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {
             return <button
               className='btn btn-small btn-primary-outline'

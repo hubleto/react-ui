@@ -588,7 +588,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   rowClassName(rowData: any): string {
-    console.log(this.state.activeRowId);
     return rowData.id === this.state.activeRowId ? 'highlighted' : '';
   }
 
