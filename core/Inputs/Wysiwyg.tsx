@@ -4,17 +4,22 @@ import * as uuid from 'uuid';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
+interface WysiwygInputProps extends InputState {
+  showHtmlCode?: boolean,
+}
+
 interface WysiwygInputState extends InputState {
   textareaValue: string,
 }
 
-export default class Wysiwyg extends Input<InputProps, WysiwygInputState> {
+export default class Wysiwyg extends Input<WysiwygInputProps, WysiwygInputState> {
   static defaultProps = {
     inputClassName: 'Wysiwyg',
     uid: uuid.v4(),
     id: uuid.v4(),
   }
 
+  props: WysiwygInputProps;
   state: WysiwygInputState;
 
   refQuill: any;
@@ -59,7 +64,7 @@ export default class Wysiwyg extends Input<InputProps, WysiwygInputState> {
           ]}
         />
       </div>
-      {this.state.readonly ? null : 
+      {this.state.readonly || !this.props.showHtmlCode ? null : 
         <div className='flex-1'>
           <textarea
             className='w-full min-h-[15em]'
