@@ -58,9 +58,9 @@ export default class HubletoTableImportCsvForm<P, S> extends Form<HubletoTableIm
   renderContent(): JSX.Element {
     const csvImportEndpointParams = this.props.parentTable.getCsvImportEndpointParams();
 
-    if (!csvImportEndpointParams) {
+    if (this.props.parentTable.props.parentForm && !csvImportEndpointParams) {
       return <div className='alert alert-danger'>
-        This table does not support CSV import.
+        This table does not support CSV import in nested forms.
       </div>;
     } else {
       return <div className="p-2">
