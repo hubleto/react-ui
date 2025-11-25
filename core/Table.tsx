@@ -1165,8 +1165,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (!this.state.columnSearch[columnName][index]) return;
 
     let columnSearch = this.state.columnSearch;
+    columnSearch[columnName].splice(index, 1);
+    if (columnSearch[columnName].length == 1) delete columnSearch[columnName];
 
-    delete columnSearch[columnName][index];
     this.setState({columnSearch: columnSearch}, () => {
       this.loadData();
     });
@@ -1245,21 +1246,24 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                   </>;
                 })}
               </div>
-              <div>
-                <button
-                  className='btn btn-small btn-transparent'
-                  onClick={() => {
-                    let newColumnSearch = this.state.columnSearch;
-                    let glue = newColumnSearch[columnName][0];
-                    newColumnSearch[columnName][0] = (glue == 'OR' ? 'AND' : 'OR');
-                    this.setState({columnSearch: newColumnSearch}, () => {
-                      this.loadData();
-                    });
-                  }}
-                >
-                  <span className='text'>{this.state.columnSearch[columnName][0]}</span>
-                </button>
-              </div>
+              {this.state.columnSearch[columnName].length > 2 ?
+                <div>
+                  <button
+                    className='btn btn-small btn-transparent'
+                    onClick={() => {
+                      let newColumnSearch = this.state.columnSearch;
+                      let glue = newColumnSearch[columnName][0];
+                      newColumnSearch[columnName][0] = (glue == 'OR' ? 'AND' : 'OR');
+                      this.setState({columnSearch: newColumnSearch}, () => {
+                        this.loadData();
+                      });
+                    }}
+                  >
+                    <span className='icon'><i className='fas fa-align-justify'></i></span>
+                    <span className='text'>{this.state.columnSearch[columnName][0]}</span>
+                  </button>
+                </div>
+              : null}
             </div>
           ;
         }
