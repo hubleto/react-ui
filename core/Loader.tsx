@@ -83,7 +83,7 @@ export class HubletoReactUi {
       // console.log('lastForm.state.stackUid', lastForm.state.stackUid);
       this.renderedForms.map((form, key) => {
         if (form.state.stackUid != lastForm.state.stackUid) {
-          console.log('isActive: false', form.state.stackUid);
+          // console.log('isActive: false', form.state.stackUid);
           this.renderedForms[key].setState({isActive: false});
         }
       })
