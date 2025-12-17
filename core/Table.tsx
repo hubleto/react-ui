@@ -201,6 +201,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   model: string;
   refFulltextSearchInput: any = null;
+  refForm: any = null;
   refFormModal: any = null;
 
 
@@ -212,6 +213,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     globalThis.main.reactElements[this.props.uid] = this;
 
     this.refFulltextSearchInput = React.createRef();
+    this.refForm = React.createRef();
     this.refFormModal = React.createRef();
 
     this.model = this.props.model ?? '';
@@ -466,6 +468,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   getFormProps(): FormProps {
     return {
       // isInitialized: false,
+      ref: this.refForm,
       modal: this.refFormModal,
       parentTable: this,
       uid: this.props.uid + '_form',
@@ -518,6 +521,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       type: this.state.recordId == -1 ? 'centered' : 'right',
       hideHeader: true,
       isOpen: this.state.recordId !== null,
+      refForm: this.refForm,
+      onClose: () => {
+        this.setState({ recordId: null });
+      },
       ...this.props.formModal
     }
   }

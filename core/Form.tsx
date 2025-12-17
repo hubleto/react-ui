@@ -114,8 +114,6 @@ export interface FormProps {
 }
 
 export interface FormState {
-  stackUid?: string,
-  isActive: boolean,
   isInitialized: boolean,
   id?: any,
   prevId?: any,
@@ -192,8 +190,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   getStateFromProps(props: FormProps) {
     const isCreatingRecord: boolean = this.isCreatingRecord(props.id);
     return {
-      stackUid: uuid.v4(),
-      isActive: false,
       isInitialized: false,
       endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultFormEndpoint ?? {
         describeForm: 'api/form/describe',
@@ -305,11 +301,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   componentDidMount() {
     this.loadFormDescription();
-    globalThis.hubleto.addFormToStack(this);
-  }
-
-  componentWillUnmount() {
-    globalThis.hubleto.removeFormFromStack(this);
   }
 
   getEndpointUrl(action: string) {
@@ -942,7 +933,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       >
         <span className="icon">
           <i className="fas fa-angle-left"></i>
-          <span className="shortcut">Ctrl+Shift+Left</span>
         </span>
       </button>
     );
@@ -958,7 +948,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       >
         <span className="icon">
           <i className="fas fa-angle-right"></i>
-          <span className="shortcut">Ctrl+Shift+Right</span>
         </span>
       </button>
     );
@@ -1118,9 +1107,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
       const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
-      if (this.props.modal) {
+      if (this.props.modal && this.props.modal.current) {
         return <>
-          <div className={"modal-header " + (this.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
+          <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
             <div className="modal-header-left">{headerLeft}</div>
             <div className="modal-header-title">{formTitle}</div>
             <div className="modal-header-right">{headerRight}</div>

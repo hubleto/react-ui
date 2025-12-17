@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
 import {isValidJson, kebabToPascal, camelToKebab, deepObjectMerge} from './Helper';
 import Dialog from "./Dialog";
-import Form, { FormProps, FormState } from "./Form";
+import Modal from "./Modal";
 
 export class HubletoReactUi {
   config: object = {};
@@ -13,7 +13,7 @@ export class HubletoReactUi {
   reactComponents: any = {};
   reactElementsWaitingForRender: number = 0;
   reactElements: Object = {};
-  renderedForms: Array<Form<FormProps, FormState>> = [];
+  renderedModals: Array<Modal> = [];
 
   primeReactTailwindTheme: any = {
     dataTable: {
@@ -42,53 +42,53 @@ export class HubletoReactUi {
     this.defaultTranslationContext = context;
   }
 
-  addFormToStack(form: Form<FormProps, FormState>) {
-    this.renderedForms.push(form);
-    // console.log('addFormToStack', this.renderedForms);
-    this.activateLastFormInStack();
+  addModalToStack(modal: Modal) {
+    this.renderedModals.push(modal);
+    // console.log('addModalToStack', this.renderedModals);
+    this.activateLastModalInStack();
   }
 
-  removeFormFromStack(formToDelete: Form<FormProps, FormState>) {
+  removeModalFromStack(modalToDelete: Modal) {
     let keyToDelete = null;
-    this.renderedForms.map((form, key) => {
-      if (form.state.stackUid === formToDelete.state.stackUid) {
+    this.renderedModals.map((modal, key) => {
+      if (modal.state.stackUid === modalToDelete.state.stackUid) {
         keyToDelete = key;
       }
     })
     if (keyToDelete !== null) {
-      delete this.renderedForms[keyToDelete];
-      // console.log('removeFormFromStack', this.renderedForms);
-      this.activateLastFormInStack();
+      delete this.renderedModals[keyToDelete];
+      // console.log('removeModalFromStack', this.renderedModals);
+      this.activateLastModalInStack();
     }
   }
 
-  getActiveFormInStack() {
-    let activeForm = null;
+  getActiveModalInStack() {
+    let activeModal = null;
 
-    this.renderedForms.map((form, key) => {
-      if (form.state.isActive) activeForm = form;
+    this.renderedModals.map((modal, key) => {
+      if (modal.state.isActive) activeModal = modal;
     });
 
-    return activeForm;
+    return activeModal;
   }
 
-  activateLastFormInStack() {
-    let lastForm = null;
-    this.renderedForms.map((form, key) => {
-      if (form) lastForm = form;
+  activateLastModalInStack() {
+    let lastModal = null;
+    this.renderedModals.map((modal, key) => {
+      if (modal) lastModal = modal;
     });
 
-    // console.log('lastForm', lastForm);
-    if (lastForm) {
-      // console.log('lastForm.state.stackUid', lastForm.state.stackUid);
-      this.renderedForms.map((form, key) => {
-        if (form.state.stackUid != lastForm.state.stackUid) {
-          // console.log('isActive: false', form.state.stackUid);
-          this.renderedForms[key].setState({isActive: false});
+    // console.log('lastModal', lastModal);
+    if (lastModal) {
+      // console.log('lastModal.state.stackUid', lastModal.state.stackUid);
+      this.renderedModals.map((modal, key) => {
+        if (modal.state.stackUid != lastModal.state.stackUid) {
+          // console.log('isActive: false', modal.state.stackUid);
+          this.renderedModals[key].setState({isActive: false});
         }
       })
-      // console.log('isActive: true', lastForm.state.stackUid);
-      lastForm.setState({isActive: true});
+      // console.log('isActive: true', lastModal.state.stackUid);
+      lastModal.setState({isActive: true});
     }
   }
 
