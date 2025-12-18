@@ -1,3 +1,4 @@
+import HtmlFrame from "@hubleto/react-ui/core/HtmlFrame";
 import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
 import * as uuid from 'uuid';
@@ -21,8 +22,12 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
 
   state: TextareaWithHtmlPreviewInputState;
 
+  refPreview: any;
+
   constructor(props: InputProps) {
     super(props);
+
+    this.refPreview = React.createRef();
 
     this.state = {
       ...this.state, // Parent state
@@ -34,30 +39,6 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
 
   renderInputElement() {
     return <div className='flex gap-2 w-full'>
-      <div className={'w-1/2 card ' + (this.state.previewInvalidated ? 'card-danger' : '')}>
-        <div className='card-header'>
-          Preview
-        </div>
-        <div className='card-body'>
-          {this.state.previewInvalidated
-            ? <button
-              className='btn btn-danger'
-              onClick={() => {
-                const sanitized = DOMPurify.sanitize(this.state.textareaValue);
-                this.setState({textareaValue: sanitized, previewInvalidated: false});
-                this.onChange(sanitized);
-              }}
-            >
-              <span className='icon'><i className='fas fa-arrows-rotate'></i></span>
-              <span className='text'>Sanitize HTML and update preview</span>
-            </button>
-            : (this.state.value
-              ? <div dangerouslySetInnerHTML={{__html: this.state.value}}></div>
-              : <div className='bg-gray-100 text-center p-4'>No preview available</div>
-            )
-          }
-        </div>
-      </div>
       <div className='w-1/2 card' style={{overflowX: 'auto'}}>
         <div className='card-header'>
           HTML content
@@ -84,6 +65,39 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
               fontSize: 11,
             }}
           />
+        </div>
+      </div>
+      <div className={'w-1/2 card ' + (this.state.previewInvalidated ? 'card-danger' : '')}>
+        <div className='card-header'>
+          Preview
+        </div>
+        <div className='card-body'>
+          {this.state.previewInvalidated
+            ? <button
+              className='btn btn-danger'
+              onClick={() => {
+                // const sanitized = DOMPurify.sanitize(this.state.textareaValue);
+                // this.setState({textareaValue: sanitized, previewInvalidated: false});
+                // this.onChange(sanitized);
+
+                this.setState({previewInvalidated: false});
+                this.onChange(this.state.textareaValue);
+              }}
+            >
+              <span className='icon'><i className='fas fa-arrows-rotate'></i></span>
+              <span className='text'>Update preview</span>
+            </button>
+            : (this.state.value
+              ? <>
+                <HtmlFrame
+                  ref={this.refPreview}
+                  className='w-full h-full'
+                  content={this.state.textareaValue}
+                />
+              </>
+              : <div className='bg-gray-100 text-center p-4'>No preview available</div>
+            )
+          }
         </div>
       </div>
     </div>;

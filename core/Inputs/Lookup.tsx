@@ -11,7 +11,7 @@ export interface LookupInputProps extends InputProps {
   endpoint?: string,
   customEndpointParams?: any,
   urlAdd?: string,
-  uiStyle?: 'default' | 'select' | 'buttons';
+  uiStyle?: 'default' | 'select' | 'buttons' | 'buttons-vertical';
 }
 
 export interface LookupInputState extends InputState {
@@ -161,8 +161,11 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
           {Object.keys(this.state.data).map((key: any) => this._renderOption(key))}
         </select>
       </>;
-    } else if (this.props.uiStyle == 'buttons') {
-      return <div ref={this.refInput} className="btn-group gap-1">{Object.keys(this.state.data).map((key: any) => {
+    } else if (this.props.uiStyle == 'buttons' || this.props.uiStyle == 'buttons-vertical') {
+      return <div
+        ref={this.refInput}
+        className={"btn-group gap-1 " + (this.props.uiStyle == 'buttons-vertical' ? " flex-col w-full" : "")}
+      >{Object.keys(this.state.data).map((key: any) => {
         const value = this.state.data ? (this.state.data[key]?.id ?? 0) : 0;
         const lookup = this.state.data ? (this.state.data[key]?._LOOKUP ?? '') : '';
         const color = this.state.data ? (this.state.data[key]?._LOOKUP_COLOR ?? '') : '';
@@ -172,7 +175,7 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
               "btn " + (this.state.readonly && this.state.value != value ? "btn-disabled" : "")
               + " " + (this.state.value == value ? "btn-primary" : "btn-transparent")
             }
-            style={{borderLeft: "0.5em solid " + color}}
+            style={{borderLeft: (color ? "0.5em solid " + color : "")}}
             onClick={() => { if (!this.state.readonly) this.onChange((this.state.value == value ? null : value)); }}
           >
             <span className="text">{lookup}</span>
