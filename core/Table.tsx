@@ -495,9 +495,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
         this.setState({ recordId: null });
       },
-      onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any, customSaveOptions?: any) => {
+      onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
         this.reload();
-        if (customSaveOptions && (customSaveOptions.closeAfterSave ?? false)) {
+        if (this.props.closeFormAfterSave ?? false) {
           this.setState({ recordId: null });
         } else if (saveResponse && saveResponse.savedRecord.id) {
           this.openForm(saveResponse.savedRecord.id);
@@ -521,7 +521,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       type: this.state.recordId == -1 ? 'centered' : 'right',
       hideHeader: true,
       isOpen: this.state.recordId !== null,
-      refForm: this.refForm,
+      form: this.refForm,
       onClose: () => {
         this.setState({ recordId: null });
       },
@@ -945,7 +945,18 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       let cellValueElement: JSX.Element|null = null;
 
       if (cellContent === null) {
-        cellValueElement = null;
+        switch (column.type) {
+          case 'lookup':
+            cellValueElement =
+              <span className='badge badge-small text-slate-300 p-1'>
+                N/A
+              </span>
+            ;
+          break;
+          default:
+            cellValueElement = null;
+          break;
+        }
       } else {
         switch (column.type) {
           case 'int':
@@ -1005,7 +1016,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             }
             cellValueElement =
               <span className={className} style={style}>
-              {data['_LOOKUP[' + columnName + ']'] ?? ''}
+                {data['_LOOKUP[' + columnName + ']'] ?? ''}
               </span>
             ;
           break;

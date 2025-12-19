@@ -47,6 +47,7 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
         {Object.keys(this.state.data).map((key: any) => {
           const user = this.state.data[key] ?? null;
           const userId = user.id ?? 0;
+          console.log(user);
           return <>
             <button
               key={key}
@@ -65,7 +66,10 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
                     className='max-w-4 max-h-4 rounded-xl'
                   />
                 : null}
-                <span className='text-xs'>{user.first_name} {user.last_name}</span>
+                <span className='text-xs'>{
+                  (Array.from(user.first_name ?? '')[0]).toString()
+                  + (Array.from(user.last_name ?? '')[0]).toString()
+                }</span>
               </span>
               <span className="hover min-w-48">
                 <div className='flex flex-col gap-2'>

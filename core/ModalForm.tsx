@@ -5,7 +5,7 @@ import Modal, { ModalProps, ModalState } from "./Modal";
 import Form, { FormProps, FormState } from "./Form"
 
 export interface ModalFormProps extends ModalProps {
-  refForm: any,
+  form: any,
 }
 
 export interface ModalFormState extends ModalState { }

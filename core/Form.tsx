@@ -431,6 +431,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       { ...this.getEndpointParams(), record: record },
       {},
       (saveResponse: any) => {
+        if (this.state.creatingRecord && this.props.parentTable) {
+          this.props.parentTable.setRecordFormUrl(saveResponse.savedRecord?.id);
+        }
         this.setState({
           savedSuccessfully: true,
           saveError: null,
@@ -439,8 +442,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           recordChanged: false,
           updatingRecord: true,
           creatingRecord: false,
+        }, () => {
+          this.onAfterSaveRecord(saveResponse, customSaveOptions);
         });
-        this.onAfterSaveRecord(saveResponse, customSaveOptions);
       },
       (err: any) => {
         this.setState({saveError: err.data});
