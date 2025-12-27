@@ -456,15 +456,24 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   copyRecord() {
-    request.post(
-      this.getEndpointUrl('saveRecord'),
-      { ...this.getEndpointParams(), record: { ...this.state.record, id: -1 } },
-      {},
-      (saveResponse: any) => { this.onAfterCopyRecord(saveResponse); },
-      (err: any) => {
-        alert('An error ocured while copying the record.');
-      }
-    );
+    this.setState({
+      id: -1,
+      record: { ...this.state.record, id: -1 },
+      updatingRecord: false,
+      creatingRecord: true,
+      recordChanged: true,
+    }, () => {
+      window.history.pushState({}, "", globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl());
+    });
+    // request.post(
+    //   this.getEndpointUrl('saveRecord'),
+    //   { ...this.getEndpointParams(), record: { ...this.state.record, id: -1 } },
+    //   {},
+    //   (saveResponse: any) => { this.onAfterCopyRecord(saveResponse); },
+    //   (err: any) => {
+    //     alert('An error ocured while copying the record.');
+    //   }
+    // );
   }
 
   deleteRecord() {
@@ -888,7 +897,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.state.description?.ui?.showCopyButton && this.state.permissions.canCreate ? <button
+      {this.state.updatingRecord && this.state.description?.ui?.showCopyButton && this.state.permissions.canCreate ? <button
         onClick={() => this.copyRecord()}
         className={"btn btn-transparent"}
       >

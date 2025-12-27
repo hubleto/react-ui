@@ -75,6 +75,7 @@ export interface TableUi {
   customFilters?: any,
   moreActions?: any,
   dataView?: any,
+  orderBy?: TableOrderBy,
 }
 
 export interface TableDescription {
@@ -118,7 +119,6 @@ export interface TableProps {
   params?: any,
   externalCallbacks?: ExternalCallbacks,
   itemsPerPage: number,
-  orderBy?: TableOrderBy,
   inlineEditingEnabled?: boolean,
   isInlineEditing?: boolean,
   isUsedAsInput?: boolean,
@@ -172,7 +172,6 @@ export interface TableState {
   activeRowId?: any,
   formEndpoint?: FormEndpoint,
   formProps?: FormProps,
-  orderBy?: TableOrderBy,
   page: number,
   itemsPerPage: number,
   fulltextSearch?: string,
@@ -238,7 +237,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       loadingData: false,
       page: 1,
       itemsPerPage: this.props.itemsPerPage,
-      orderBy: this.props.orderBy,
       inlineEditingEnabled: props.inlineEditingEnabled ? props.inlineEditingEnabled : false,
       isInlineEditing: props.isInlineEditing ? props.isInlineEditing : false,
       isUsedAsInput: props.isUsedAsInput ? props.isUsedAsInput : false,
@@ -365,8 +363,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       onRowUnselect: (event: DataTableUnselectEvent) => this.onRowUnselect(event),
       onPage: (event: DataTablePageEvent) => this.onPaginationChangeCustom(event),
       onSort: (event: DataTableSortEvent) => this.onOrderByChangeCustom(event),
-      sortOrder: sortOrders[this.state.orderBy?.direction ?? 'asc'],
-      sortField: this.state.orderBy?.field,
+      sortOrder: sortOrders[this.state.description?.ui?.orderBy?.direction ?? 'desc'],
+      sortField: this.state.description?.ui?.orderBy?.field ?? 'id',
       rowClassName: (rowData: any) => this.rowClassName(rowData),
       stripedRows: true,
       //globalFilter={globalFilter}
@@ -438,7 +436,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             ...this.getEndpointParams(),
             filterBy: this.state.filterBy,
             model: this.model,
-            orderBy: this.state.orderBy,
+            orderBy: this.state.description?.ui?.orderBy,
             page: this.state.page ?? 0,
             itemsPerPage: this.state.itemsPerPage ?? 35,
             parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
@@ -1426,7 +1424,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     // 1 == ASC
     // -1 == DESC
     // null == neutral icons
-    if (event.sortField == this.state.orderBy?.field) {
+    if (event.sortField == this.state.description?.ui?.orderBy?.field) {
       orderBy = {
         field: event.sortField,
         direction: event.sortOrder === 1 ? 'asc' : 'desc',

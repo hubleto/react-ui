@@ -164,7 +164,8 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
             <div>#{this.props.junctionSourceRecordId}<br/></div>
           </div>
         : null}
-        <div>
+        <div className='flex gap-2'>
+          {this.renderCopyButton()}
           {this.renderDeleteButton()}
         </div>
       </div>

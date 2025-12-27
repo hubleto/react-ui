@@ -102,7 +102,7 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
             "btn " + (this.state.readonly && this.state.value != key ? "btn-disabled" : "")
             + " " + (this.state.value == key ? "btn-primary " + enumCssClass : "btn-transparent")
           }
-          onClick={() => { if (!this.state.readonly) this.onChange((this.state.value == key ? null : key)); }}
+          onClick={() => { if (!this.state.readonly) this.onChange(key); }}
         >
           <span className="text">{enumValue}</span>
         </button>;

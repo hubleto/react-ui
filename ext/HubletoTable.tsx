@@ -96,12 +96,19 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
           const filterValue = this.state.filters[filterName] ?? (filter.default ?? null);
 
           return <div key={filterName}>
-            <div className='bg-primary/10 p-1 text-sm dark:text-white dark:bg-slate-800'>{filter.title}</div>
-            <div className="list">
+            {filter.title
+              ? <div className='bg-primary/10 p-1 text-sm dark:text-white dark:bg-slate-800'>{filter.title}</div>
+              : null
+            }
+            <div className={"list" + (filter.direction == "horizontal" ? " horizontal" : "")}>
               {Object.keys(filter.options).map((key: any) => {
                 return <button
                   key={key}
-                  className={"max-w-60 btn btn-small btn-list-item " + (filterValue == key ? "btn-primary" : "btn-transparent")}
+                  className={
+                    "max-w-60 btn btn-small btn-list-item "
+                    + (filterValue == key ? "btn-primary" : "btn-transparent")
+                    + (filter.direction == "horizontal" ? " text-center" : "")
+                  }
                   style={{borderLeft: (filter.colors && filter.colors[key] ? '0.5em solid ' + filter.colors[key] : null)}}
                   onClick={() => {
                     let filters = this.state.filters ?? {};
@@ -121,14 +128,20 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
                         filters[filterName] = [ key ];
                       }
                     } else {
-                      filters[filterName] = key;
+                      console.log(filters, filterName, key);
+                      if (filters[filterName] == key) {
+                        delete filters[filterName];
+                      } else {
+                        filters[filterName] = key;
+                      }
+                      console.log(filters);
                     }
 
                     if (!this.props.parentForm) {
                       setUrlParam('filters', filters);
                     }
 
-                    this.setState({recordId: 0, filters: filters}, () => this.loadData());
+                    this.setState({recordId: 0, filters: filters}, () => this.reload());
                   }}
                 >
                   {filter.type == 'multipleSelectButtons' ?

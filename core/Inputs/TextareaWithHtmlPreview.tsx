@@ -39,11 +39,11 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
 
   renderInputElement() {
     return <div className='flex gap-2 w-full'>
-      <div className='w-1/2 card' style={{overflowX: 'auto'}}>
+      <div className='w-1/2 card'>
         <div className='card-header'>
           HTML content
         </div>
-        <div className='card-body' style={{maxWidth: '600px'}}>
+        <div className='card-body flex flex-col overflow-y-auto' style={{maxWidth: '600px'}}>
           {/* <textarea
             className='w-full min-h-[15em]'
             style={{fontFamily: 'courier', whiteSpace: 'nowrap', padding: '0.5em'}}
@@ -56,7 +56,8 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
             className="bg-slate-300"
             value={this.state.textareaValue ?? ''}
             onValueChange={(newValue) => {
-              this.setState({textareaValue: newValue, previewInvalidated: true});
+              this.setState({textareaValue: newValue});
+              this.onChange(newValue);
             }}
             highlight={code => highlight(code, languages.markup)}
             padding={10}
