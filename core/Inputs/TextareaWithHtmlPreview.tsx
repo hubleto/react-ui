@@ -11,6 +11,7 @@ import 'prismjs/themes/prism.css'; //Example style, you can use another
 interface TextareaWithHtmlPreviewInputState extends InputState {
   textareaValue: string,
   previewInvalidated: boolean
+  isFullscreen: boolean;
 }
 
 export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaWithHtmlPreviewInputState> {
@@ -34,16 +35,46 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
       isInitialized: true,
       textareaValue: this.state.value,
       previewInvalidated: false,
+      isFullscreen: false,
     };
   }
 
   renderInputElement() {
-    return <div className='flex gap-2 w-full'>
+    let editorStyle: any = {
+      overflow: 'auto',
+      fontFamily: 'monospace',
+      fontSize: 11,
+    };
+    let wrapperStyle: any = {};
+
+    if (this.state.isFullscreen) {
+      wrapperStyle.position = 'fixed';
+      wrapperStyle.left = '0px';
+      wrapperStyle.top = '0px';
+      wrapperStyle.width = '100vw';
+      wrapperStyle.height = '100vh';
+      wrapperStyle.background = 'white';
+      wrapperStyle.padding = '1em';
+      wrapperStyle.zIndex = 9999999;
+    }
+    return <div
+      className='flex gap-2 w-full'
+      style={wrapperStyle}
+    >
       <div className='w-1/2 card'>
         <div className='card-header'>
           HTML content
+          <div>
+            <button
+              className='btn btn-small btn-transparent'
+              onClick={() => { this.setState({isFullscreen: !this.state.isFullscreen}); }}
+            >
+              <span className='icon'><i className='fas fa-expand'></i></span>
+              <span className='text'>Toggle fullscreen</span>
+            </button>
+          </div>
         </div>
-        <div className='card-body flex flex-col overflow-y-auto' style={{maxWidth: '600px'}}>
+        <div className='card-body flex flex-col overflow-y-auto'>
           {/* <textarea
             className='w-full min-h-[15em]'
             style={{fontFamily: 'courier', whiteSpace: 'nowrap', padding: '0.5em'}}
@@ -53,7 +84,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
             }}
           /> */}
           <Editor
-            className="bg-slate-300"
+            className="bg-slate-100 w-full overflow-y"
             value={this.state.textareaValue ?? ''}
             onValueChange={(newValue) => {
               this.setState({textareaValue: newValue});
@@ -61,10 +92,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
             }}
             highlight={code => highlight(code, languages.markup)}
             padding={10}
-            style={{
-              fontFamily: 'monospace',
-              fontSize: 11,
-            }}
+            style={editorStyle}
           />
         </div>
       </div>
