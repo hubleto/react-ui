@@ -402,11 +402,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (this.props.descriptionSource == 'props') return;
 
     request.get(
-      '',
-      {
-        route: this.getEndpointUrl('describeTable'),
-        ...this.getEndpointParams(),
-      },
+      this.getEndpointUrl('describeTable'),
+      this.getEndpointParams(),
       (description: any) => {
         try {
 
@@ -430,9 +427,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     } else {
       this.setState({loadingData: true}, () => {
         request.get(
-          '',
+          this.getEndpointUrl('loadTableData'),
           {
-            route: this.getEndpointUrl('loadTableData'),
             ...this.getEndpointParams(),
             filterBy: this.state.filterBy,
             model: this.model,
@@ -827,9 +823,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
       if (recordToDelete) {
         request.get(
-          '',
+          this.getEndpointUrl('deleteRecord'),
           {
-            route: this.getEndpointUrl('deleteRecord'),
             ...this.getEndpointParams(),
             id: recordToDelete.id ?? 0,
             hash: recordToDelete._idHash_ ?? '',
@@ -1315,7 +1310,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               <div className='cell-buttons'>
                 <button
                   className='btn btn-small btn-white'
-                  title='Copy cell contant to clipboard'
+                  title='Copy cell content to clipboard'
                   onClick={(e) => {
                     navigator.clipboard.writeText(data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? ''));
                     e.stopPropagation();

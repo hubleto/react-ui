@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { HubletoComponentProps } from './Component';
 
 export interface HtmlFrameProps {
+  iframeId?: string,
   content?: string,
   className?: string,
 }
@@ -24,6 +25,7 @@ export default class HtmlFrame extends Component<HtmlFrameProps, HtmlFrameState>
         src="about:blank"
         className={this.props.className}
         srcDoc={this.state.content}
+        id={this.props.iframeId}
       />
     </>
   }
