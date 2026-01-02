@@ -94,7 +94,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
       <div className='flex gap-2 items-center'>
         <div>
           <div>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
-          <div className=' h-8 w-16 text-center'>{this.state.recordChanged ? <div className='badge badge-small badge-warning block '>unsaved changes</div> : null}</div>
+          <div className=' h-8 w-16 text-center'>{this.state.recordChanged ? <div className='badge badge-small badge-warning block '>{this.translate('unsaved changes')}</div> : null}</div>
         </div>
         <div className='flex flex-col gap-2'>
           <div className='flex'>{super.renderHeaderLeft()}</div>

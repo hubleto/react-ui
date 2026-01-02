@@ -70,7 +70,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
               onClick={() => { this.setState({isFullscreen: !this.state.isFullscreen}); }}
             >
               <span className='icon'><i className='fas fa-expand'></i></span>
-              <span className='text'>Toggle fullscreen</span>
+              <span className='text'>{this.translate('Toggle fullscreen')}</span>
             </button>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
               }}
             >
               <span className='icon'><i className='fas fa-arrows-rotate'></i></span>
-              <span className='text'>Update preview</span>
+              <span className='text'>{this.translate('Update preview')}</span>
             </button>
             : (this.state.value
               ? <>
@@ -124,7 +124,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
                   content={this.state.textareaValue}
                 />
               </>
-              : <div className='bg-gray-100 text-center p-4'>No preview available</div>
+              : <div className='bg-gray-100 text-center p-4'>{this.translate('No preview available')}</div>
             )
           }
         </div>

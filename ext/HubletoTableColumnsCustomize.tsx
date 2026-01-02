@@ -92,7 +92,7 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
   };
 
   renderTitle(): JSX.Element {
-    return <>Customize Columns</>;
+    return <>{this.translate('Customize Columns')}</>;
   }
 
   render(): JSX.Element {
@@ -104,11 +104,11 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
               <span className="icon">
                 <i className="fas fa-save"></i>
               </span>
-              <span className="text">Save</span>
+              <span className="text">{this.translate('Save')}</span>
             </button>
           </div>
           <div className="modal-header-title">
-            <h2>Customize Columns</h2>
+            <h2>{this.translate('Customize Columns')}</h2>
           </div>
           <div className="modal-header-right">
             <button

@@ -94,7 +94,7 @@ export class HubletoReactUi {
 
   getValidationErrorMessage(messageString: string): JSX.Element {
     return <>
-      <b>Some inputs need your attention</b><br/>
+      <b>{this.translate('Some inputs need your attention')}</b><br/>
       <br/>
       {messageString}
     </>;
@@ -102,7 +102,7 @@ export class HubletoReactUi {
 
   getDuplicateEntryErrorMessage(message: string): JSX.Element {
     return <>
-      <b>Duplicate entry error</b><br/>
+      <b>{this.translate('Duplicate entry error')}</b><br/>
       <br/>
       <div>{message}</div>
     </>;

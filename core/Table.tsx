@@ -1368,7 +1368,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                   onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
                 >
                   <span className="icon"><i className="fas fa-arrow-left"></i></span>
-                  <span className="text">Hide filter</span>
+                  <span className="text">{this.translate('Hide filter')}</span>
                 </button>
               }
             </div>
