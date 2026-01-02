@@ -209,7 +209,7 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
         {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.main.config.projectUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
-        {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.main.config.projectUrl + "/" + this.props.urlAdd}>
+        {this.props.urlAdd && !this.state.readonly ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.main.config.projectUrl + "/" + this.props.urlAdd}>
           <span className="icon"><i className="fas fa-plus"></i></span>
         </a> : null}
       </>;
