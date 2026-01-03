@@ -37,12 +37,20 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
   refImportCsvModal: any;
   refColumnConfigModal: any;
 
+  refExportCsvForm: any;
+  refImportCsvForm: any;
+  refColumnsConfigScreen: any;
+
   constructor(props: HubletoTableProps) {
     super(props);
 
     this.refExportCsvModal = React.createRef();
     this.refImportCsvModal = React.createRef();
     this.refColumnConfigModal = React.createRef();
+
+    this.refExportCsvForm = React.createRef();
+    this.refImportCsvForm = React.createRef();
+    this.refColumnsConfigScreen = React.createRef();
   }
 
   getStateFromProps(props: HubletoTableProps) {
@@ -235,11 +243,13 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
       {this.state.showExportCsvScreen ?
         <ModalForm
           ref={this.refExportCsvModal}
+          form={this.refExportCsvForm}
           uid={this.props.uid + '_export_csv_modal'}
           isOpen={true}
           type='centered large'
         >
           <HubletoTableExportCsvForm
+            ref={this.refExportCsvForm}
             modal={this.refExportCsvModal}
             model={this.props.model}
             parentTable={this}
@@ -250,11 +260,13 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
       {this.state.showImportCsvScreen ?
         <ModalForm
           ref={this.refImportCsvModal}
+          form={this.refImportCsvForm}
           uid={this.props.uid + '_import_csv_modal'}
           isOpen={true}
           type='centered large'
         >
           <HubletoTableImportCsvForm
+            ref={this.refImportCsvForm}
             modal={this.refImportCsvModal}
             model={this.props.model}
             parentTable={this}
@@ -265,12 +277,14 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
       {this.state.showColumnConfigScreen ?
         <ModalForm
           ref={this.refColumnConfigModal}
+          form={this.refColumnsConfigScreen}
           uid={this.props.uid + '_columns_config_modal'}
           isOpen={true}
           type='right'
           title='Customize Columns'
         >
           <HubletoTableColumnsCustomize
+            ref={this.refColumnsConfigScreen}
             parentTable={this}
             tableTag={this.props.tag}
             tableModel={this.model}

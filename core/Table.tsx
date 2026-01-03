@@ -70,6 +70,7 @@ export interface TableUi {
   showAddButton?: boolean,
   showFulltextSearch?: boolean,
   showColumnSearch?: boolean,
+  showAsPlainTable?: boolean,
   emptyMessage?: any,
   filters?: any,
   customFilters?: any,
@@ -626,43 +627,64 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   renderMoreActionsButton(): JSX.Element {
-    if (this.state?.description?.ui?.moreActions) {
-      return <button className="btn btn-dropdown btn-transparent">
-        <span className="icon"><i className="fas fa-cog"></i></span>
-        <span className="text text-nowrap">{this.translate('More options', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
-        <span className="menu">
-          <div className="btn-list text-nowrap">
-            {this.state?.description?.ui?.moreActions.map((action, index) => {
-              const type = action.type ?? '';
+    let moreActions = [
+      {
+        title: 'Show as plain table',
+        type: 'onclick',
+        onClick: () => {
+          let description: any = this.state?.description ?? {};
+          if (!description.ui) description.ui = {};
+          description.ui.showAsPlainTable = true;
+          this.setState({description: description});
+        }
+      },
+      ...this.state?.description?.ui?.moreActions
+    ];
 
-              if (type == 'link') {
-                return <a key={index} className="btn btn-transparent btn-list-item" href={action.href}>
-                  <span className="icon"><i className="fas fa-grip-lines"></i></span>
-                  <span className="text">{action.title}</span>
-                </a>;
-              }
+    return <button className="btn btn-dropdown btn-transparent">
+      <span className="icon"><i className="fas fa-cog"></i></span>
+      <span className="text text-nowrap">{this.translate('More options', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
+      <span className="menu">
+        <div className="btn-list text-nowrap">
+          {moreActions.map((action, index) => {
+            const type = action.type ?? '';
 
-              if (type == 'stateChange') {
-                return <div
-                  key={index}
-                  className="btn btn-transparent btn-list-item"
-                  onClick={() => {
-                    let newState = this.state;
-                    newState[action.state] = action.value;
-                    this.setState(newState);
-                  }}
-                >
-                  <span className="icon"><i className="fas fa-grip-lines"></i></span>
-                  <span className="text">{action.title}</span>
-                </div>;
-              }
-            })}
-          </div>
-        </span>
-      </button>
-    } else {
-      return <></>;
-    }
+            if (type == 'onclick') {
+              return <div
+                key={index}
+                className="btn btn-transparent btn-list-item"
+                onClick={() => { action.onClick(); }}
+              >
+                <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                <span className="text">{action.title}</span>
+              </div>;
+            }
+
+            if (type == 'link') {
+              return <a key={index} className="btn btn-transparent btn-list-item" href={action.href}>
+                <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                <span className="text">{action.title}</span>
+              </a>;
+            }
+
+            if (type == 'stateChange') {
+              return <div
+                key={index}
+                className="btn btn-transparent btn-list-item"
+                onClick={() => {
+                  let newState = this.state;
+                  newState[action.state] = action.value;
+                  this.setState(newState);
+                }}
+              >
+                <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                <span className="text">{action.title}</span>
+              </div>;
+            }
+          })}
+        </div>
+      </span>
+    </button>;
   }
 
   renderHeaderButtons(): Array<JSX.Element> {
@@ -1337,11 +1359,34 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   renderDataView(): JSX.Element {
-    return <>
-      <DataTable {...this.getTableProps()}>
-        {this.renderColumns()}
-      </DataTable>
-    </>;
+    if (this.state.description?.ui?.showAsPlainTable) {
+      return <table className='table-default dense'>
+        <thead>
+          <tr>
+            {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
+              const column = this.state.description?.columns[colName];
+              return <th className='border-none'>{column.title}</th>;
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {this.state.data?.data.map((row, rowIndex) => {
+            console.log(row);
+            return <tr>
+              {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
+                return <td className='border-none'>{row['_LOOKUP[' + colName + ']'] ?? row[colName]}</td>;
+              })}
+            </tr>;
+          })}
+        </tbody>
+      </table>;
+    } else {
+      return <>
+        <DataTable {...this.getTableProps()}>
+          {this.renderColumns()}
+        </DataTable>
+      </>;
+    }
   }
 
   renderContent(): JSX.Element {
