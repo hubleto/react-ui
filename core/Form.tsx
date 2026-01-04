@@ -142,6 +142,7 @@ export interface FormState {
   folderUrl?: string,
   params: any,
   invalidRecordId: boolean,
+  loadRecordError: any,
 
   recordChanged: boolean,
 
@@ -228,11 +229,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       activeTabUid: this.props.activeTabUid,
       savedSuccessfully: false,
       saveError: null,
+      loadRecordError: null,
     };
   }
 
-  calculatePermissions(customPermissions?: any) {
-    const record = this.state?.record;
+  calculatePermissions(record?: any) {
+    if (!record) record = this.state?.record;
     let permissions = { canCreate: false, canRead: false, canUpdate: false, canDelete: false };
 
     if (record && record._PERMISSIONS) {
@@ -240,30 +242,23 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       permissions.canRead = record._PERMISSIONS[1];
       permissions.canUpdate = record._PERMISSIONS[2];
       permissions.canDelete = record._PERMISSIONS[3];
-    }
+    } else {
 
-    if (this.state?.description?.permissions) {
-      const p = this.state.description.permissions;
-      if (p.canCreate) permissions.canCreate = p.canCreate;
-      if (p.canRead) permissions.canRead = p.canRead;
-      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
-      if (p.canDelete) permissions.canDelete = p.canDelete;
-    }
+      if (this.state?.description?.permissions) {
+        const p = this.state.description.permissions;
+        if (p.canCreate) permissions.canCreate = p.canCreate;
+        if (p.canRead) permissions.canRead = p.canRead;
+        if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+        if (p.canDelete) permissions.canDelete = p.canDelete;
+      }
 
-    if (this.props?.description?.permissions) {
-      const p = this.props.description.permissions;
-      if (p.canCreate) permissions.canCreate = p.canCreate;
-      if (p.canRead) permissions.canRead = p.canRead;
-      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
-      if (p.canDelete) permissions.canDelete = p.canDelete;
-    }
-
-    if (customPermissions) {
-      const p = customPermissions;
-      if (p.canCreate) permissions.canCreate = p.canCreate;
-      if (p.canRead) permissions.canRead = p.canRead;
-      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
-      if (p.canDelete) permissions.canDelete = p.canDelete;
+      if (this.props?.description?.permissions) {
+        const p = this.props.description.permissions;
+        if (p.canCreate) permissions.canCreate = p.canCreate;
+        if (p.canRead) permissions.canRead = p.canRead;
+        if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+        if (p.canDelete) permissions.canDelete = p.canDelete;
+      }
     }
 
     return permissions;
@@ -339,12 +334,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
         description = this.onAfterLoadFormDescription(description);
-        const newPermissions = this.calculatePermissions(description?.permissions);
 
         this.setState({
           description: description,
-          readonly: !(newPermissions.canUpdate || newPermissions.canCreate),
-          permissions: newPermissions,
+          readonly: !(description?.permissions.canUpdate || description?.permissions.canCreate),
+          permissions: description?.permissions,
         }, () => {
           if (this.state.id !== -1) {
             this.loadRecord();
@@ -374,13 +368,16 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           this.setState({originalRecord: record});
           this.setRecord(record);
         }
+      },
+      (error) => {
+        this.setState({loadRecordError: error.data});
       }
     );
   }
 
   setRecord(record: any) {
     record = this.onAfterRecordLoaded(record);
-    let p = this.calculatePermissions();
+    let p = this.calculatePermissions(record);
 
     this.setState({
       isInitialized: true,
@@ -500,7 +497,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   updateRecord(changedValues: any, onSuccess?: any) {
     const record = this.normalizeRecord(this.state.record);
-    const newRecord = deepObjectMerge(record, changedValues);
+    const newRecord = deepObjectMerge({...record}, changedValues);
     this.setState({
       recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(newRecord)),
       savedSuccessfully: false,
@@ -685,6 +682,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderContent(): null|JSX.Element {
     const tab = this.state.tabs ? this.state.tabs[this.state.activeTab] : null;
     const tabUid = (tab ? tab.uid : 'default');
+
     if (tab && tab.onRender) return tab.onRender(this);
     else return this.renderTab(tabUid);
   }
@@ -1107,53 +1105,60 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   render() {
-    try {
-      globalThis.main.setTranslationContext(this.translationContext);
+    if (this.state.loadRecordError) {
+      return <>
+        <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
+        <div className="m-4"><code>{this.state.loadRecordError.message}</code></div>
+      </>
+    } else {
+      try {
+        globalThis.main.setTranslationContext(this.translationContext);
 
-      const warningsOrErrors = this.renderWarningsOrErrors();
+        const warningsOrErrors = this.renderWarningsOrErrors();
 
-      const formTitle = this.renderTitle();
-      const formContentClassName = this.contentClassName();
-      const formContent = (warningsOrErrors ? warningsOrErrors : this.renderContent());
-      const formFooter = this.renderFooter();
-      const formTopMenu = (this.state.isInitialized ? this.renderTopMenu() : null);
-      const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
-      const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
+        const formTitle = this.renderTitle();
+        const formContentClassName = this.contentClassName();
+        const formContent = (warningsOrErrors ? warningsOrErrors : this.renderContent());
+        const formFooter = this.renderFooter();
+        const formTopMenu = (this.state.isInitialized ? this.renderTopMenu() : null);
+        const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
+        const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
-      if (this.props.modal && this.props.modal.current) {
-        return <>
-          <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
-            <div className="modal-header-left">{headerLeft}</div>
-            <div className="modal-header-title">{formTitle}</div>
-            <div className="modal-header-right">{headerRight}</div>
-          </div>
-          {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
-          <div className={"modal-body " + formContentClassName}>
-            { Array.isArray(this.state.invalidInputs) && this.state.invalidInputs.length != 0 ? this.renderErrorAlert('Please fix the errors below before saving the record.') : ''}
-            {formContent}
-          </div>
-          {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
-        </>;
-      } else {
-        return <>
-          <div id={"hubleto-form-" + this.props.uid} className="hubleto component form">
-            <div className="form-header">
-              <div className="form-header-left">{headerLeft}</div>
-              <div className="form-header-title">{formTitle}</div>
-              <div className="form-header-right">{headerRight}</div>
+        if (this.props.modal && this.props.modal.current) {
+          return <>
+            <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
+              <div className="modal-header-left">{headerLeft}</div>
+              <div className="modal-header-title">{formTitle}</div>
+              <div className="modal-header-right">{headerRight}</div>
             </div>
-            {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
-            <div className={"form-body" + formContentClassName}>
+            {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
+            <div className={"modal-body " + formContentClassName}>
+              { Array.isArray(this.state.invalidInputs) && this.state.invalidInputs.length != 0 ? this.renderErrorAlert('Please fix the errors below before saving the record.') : ''}
               {formContent}
             </div>
-            {formFooter ? <div className="form-footer">{formFooter}</div> : null}
-          </div>
-        </>;
+            {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+          </>;
+        } else {
+          return <>
+            <div id={"hubleto-form-" + this.props.uid} className="hubleto component form">
+              <div className="form-header">
+                <div className="form-header-left">{headerLeft}</div>
+                <div className="form-header-title">{formTitle}</div>
+                <div className="form-header-right">{headerRight}</div>
+              </div>
+              {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
+              <div className={"form-body" + formContentClassName}>
+                {formContent}
+              </div>
+              {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+            </div>
+          </>;
+        }
+      } catch(e) {
+        console.error('Failed to render form.');
+        console.error(e);
+        return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
       }
-    } catch(e) {
-      console.error('Failed to render form.');
-      console.error(e);
-      return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
     }
   }
 }

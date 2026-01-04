@@ -348,7 +348,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       // invalidInputs: this.props.invalidInputs,
       key: this.state.tableUpdateIteration,
       ref: this.dt,
-      value: (this.state.data?.data ?? []).filter((a: any) => a._toBeDeleted_ !== true),
+      value: this.state.data?.data, //(this.state.data?.data ?? []).filter((a: any) => a._toBeDeleted_ !== true),
       dataKey: "id",
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
@@ -1319,28 +1319,32 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           {columnSearchValuePrettyfied}
         </>) : null}
         body={(data: any, options: any) => {
-          return (
-            <div
-              key={'column-' + columnName}
-              className={
-                this.cellClassName(columnName, column, data)
-                + (data._toBeDeleted_ ? ' to-be-deleted' : '')
-              }
-              style={this.cellCssStyle(columnName, column, data)}
-            >
-              {this.renderCell(columnName, column, data, options)}
-              <div className='cell-buttons'>
-                <button
-                  className='btn btn-small btn-white'
-                  title='Copy cell content to clipboard'
-                  onClick={(e) => {
-                    navigator.clipboard.writeText(data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? ''));
-                    e.stopPropagation();
-                  }}
-                ><span className='icon'><i className='fas fa-copy'></i></span></button>
+          if (data._PERMISSIONS[1]) { // can read
+            return (
+              <div
+                key={'column-' + columnName}
+                className={
+                  this.cellClassName(columnName, column, data)
+                  + (data._toBeDeleted_ ? ' to-be-deleted' : '')
+                }
+                style={this.cellCssStyle(columnName, column, data)}
+              >
+                {this.renderCell(columnName, column, data, options)}
+                <div className='cell-buttons'>
+                  <button
+                    className='btn btn-small btn-white'
+                    title='Copy cell content to clipboard'
+                    onClick={(e) => {
+                      navigator.clipboard.writeText(data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? ''));
+                      e.stopPropagation();
+                    }}
+                  ><span className='icon'><i className='fas fa-copy'></i></span></button>
+                </div>
               </div>
-            </div>
-          );
+            );
+          } else {
+            return <div className='badge text-xs text-nowrap'>Hidden record</div>;
+          }
         }}
         style={{ width: 'auto' }}
         sortable
