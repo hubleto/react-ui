@@ -188,6 +188,7 @@ export interface TableState {
   sidebarFilterHidden: boolean,
   invalidInputs: Array<InvalidInput>,
   tableUpdateIteration: number,
+  myRootUrl: string,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -251,6 +252,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       sidebarFilterHidden: false,
       invalidInputs: props.invalidInputs ?? [],
       tableUpdateIteration: 0,
+      myRootUrl: window.location.protocol + "//" + window.location.host + window.location.pathname,
     };
 
     if (props.description) state.description = props.description;
@@ -479,21 +481,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       ...this.props.formCustomProps ?? {},
       customEndpointParams: this.state.customEndpointParams ?? {},
       onClose: () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.delete('recordId');
-        urlParams.delete('recordTitle');
-        if (Array.from(urlParams).length == 0) {
-          window.history.pushState({}, '', window.location.protocol + "//" + window.location.host + window.location.pathname);
-        } else {
-          window.history.pushState({}, "", '?' + urlParams.toString());
-        }
-
-        this.setState({ recordId: null });
+       this.closeForm();
       },
       onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
         this.reload();
         if (this.props.closeFormAfterSave ?? false) {
-          this.setState({ recordId: null });
+          this.closeForm();
         } else if (saveResponse && saveResponse.savedRecord.id) {
           this.openForm(saveResponse.savedRecord.id);
         }
@@ -518,7 +511,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       isOpen: this.state.recordId !== null,
       form: this.refForm,
       onClose: () => {
-        this.setState({ recordId: null });
+        this.closeForm();
       },
       ...this.props.formModal
     }
@@ -1072,6 +1065,26 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               })}
             </>
           break;
+          case 'json':
+            let columnValueParsed = null;
+            try {
+              columnValueParsed = JSON.parse(columnValue);
+            } catch (ex) {
+              columnValueParsed = null;
+            }
+
+            if (columnValueParsed === null) {
+              cellValueElement = null;
+            } else if (Array.isArray(columnValueParsed)) {
+              cellValueElement = <>{columnValueParsed.map((item, index) => {
+                return <div key={index} className='badge block text-xs'>{item}</div>
+              })}</>;
+            } else {
+              cellValueElement = <>{Object.keys(columnValueParsed).map((key, index) => {
+                return <div key={index} className='badge block text-xs'>{key}: {columnValueParsed[key]}</div>
+              })}</>;
+            }
+          break;
           default:
             cellValueElement = (typeof cellContent == 'object' ? JSON.stringify(cellContent) : cellContent);
           break;
@@ -1237,7 +1250,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               value={columnSearchValue}
               onChange={(event) => {
                 this.setColumnSearch(columnName, event.value);
-                console.log(event);
               }}
               itemTemplate={(option: any) => <button className='btn btn-transparent'>
                 <span className='text'>{option.label}</span>
@@ -1375,7 +1387,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         </thead>
         <tbody>
           {this.state.data?.data.map((row, rowIndex) => {
-            console.log(row);
             return <tr>
               {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
                 return <td className='border-none'>{row['_LOOKUP[' + colName + ']'] ?? row[colName]}</td>;
@@ -1535,6 +1546,20 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
+  closeForm() {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete('recordId');
+    urlParams.delete('recordTitle');
+
+    if (Array.from(urlParams).length == 0) {
+      window.history.pushState({}, '', this.state.myRootUrl);
+    } else {
+      window.history.pushState({}, '', this.state.myRootUrl + '?' + urlParams.toString());
+    }
+
+    this.setState({ recordId: null });
+  }
+
   onAddClick() {
     if (this.props.externalCallbacks && this.props.externalCallbacks.onAddClick) {
       window[this.props.externalCallbacks.onAddClick](this);
@@ -1544,7 +1569,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   onRowClick(row: any) {
-    if (this.props.externalCallbacks && this.props.externalCallbacks.onRowClick) {
+    if (!row._PERMISSIONS[1]) return; // cannot read
+
+      if (this.props.externalCallbacks && this.props.externalCallbacks.onRowClick) {
       window[this.props.externalCallbacks.onRowClick](this, row.id ?? 0);
     } if (this.props.onRowClick) {
       this.props.onRowClick(this, row);
@@ -1580,7 +1607,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (orderBy && this.props.data) {
       let data = this.props.data;
       if (orderBy.direction == "asc") {
-        console.log(data.data)
 
         data.data.sort((a, b) => {
           const valA = getValue(a[orderBy.field]);
