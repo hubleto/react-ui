@@ -29,6 +29,8 @@ import { dateToEUFormat, datetimeToEUFormat } from "./Inputs/DateTime";
 
 import { deepObjectMerge } from "./Helper";
 import request from "./Request";
+import { classNames } from 'primereact/utils';
+import { css } from 'jquery';
 
 export interface TableEndpoint {
   describeTable: string,
@@ -384,9 +386,25 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           () => { this.onSelectionChange(); }
         )
       },
+      footer: () => {
+        let hiddenRecordsCount = 0;
+        let footer = [];
+
+        this.state.data?.data.map((item, index) => {
+          if (!item._PERMISSIONS[1]) hiddenRecordsCount++;
+        })
+
+        if (hiddenRecordsCount > 0) {
+          footer.push(<div>{hiddenRecordsCount} records were hidden based on your permissions.</div>);
+        }
+
+        if (this.state.description?.ui?.showFooter) footer.push(this.renderFooter());
+
+        return footer;
+      }
     };
 
-    if (this.state.description?.ui?.showFooter) tableProps.footer = this.renderFooter();
+    
 
     return tableProps;
   }
@@ -583,7 +601,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   rowClassName(rowData: any): string {
-    return rowData.id === this.state.activeRowId ? 'highlighted' : '';
+    let cssClasses: any = [];
+
+    if (!rowData._PERMISSIONS[1]) cssClasses.push('hidden-record');
+    if (rowData.id === this.state.activeRowId) cssClasses.push('highlighted');
+
+    return cssClasses.join(' ');
   }
 
   showAddButton(): boolean {
@@ -1355,7 +1378,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               </div>
             );
           } else {
-            return <div className='badge text-xs text-nowrap'>Hidden record</div>;
+            return <div className='text-nowrap'>Hidden record</div>;
           }
         }}
         style={{ width: 'auto' }}
