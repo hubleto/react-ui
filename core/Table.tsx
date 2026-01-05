@@ -211,7 +211,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   constructor(props: TableProps) {
     super(props);
 
-    globalThis.main.reactElements[this.props.uid] = this;
+    globalThis.hubleto.reactElements[this.props.uid] = this;
 
     this.refFulltextSearchInput = React.createRef();
     this.refForm = React.createRef();
@@ -224,14 +224,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   getStateFromProps(props: TableProps): TableState {
     let state: any = {
-      endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultTableEndpoint ?? {
+      endpoint: props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultTableEndpoint ?? {
         describeTable: 'api/table/describe',
         loadTableData: 'api/record/load-table-data',
         deleteRecord: 'api/record/delete',
       }),
       recordId: props.recordId,
       activeRowId: props.recordId,
-      formEndpoint: props.formEndpoint ? props.formEndpoint : (globalThis.main.config.defaultFormEndpoint ?? null),
+      formEndpoint: props.formEndpoint ? props.formEndpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? null),
       formProps: {
         model: this.model,
         uid: props.uid,
@@ -866,7 +866,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
 
     if (hasRecordsToDelete) {
-      return globalThis.main.showDialogConfirm(
+      return globalThis.hubleto.showDialogConfirm(
         this.translate('You are about to delete the record. Press OK to confirm.', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
         {
           headerClassName: 'dialog-danger-header',
@@ -907,7 +907,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderForm(): JSX.Element {
     if (this.props.formReactComponent) {
-      return globalThis.main.renderReactElement(this.props.formReactComponent, this.getFormProps()) ?? <></>;
+      return globalThis.hubleto.renderReactElement(this.props.formReactComponent, this.getFormProps()) ?? <></>;
     } else {
       return <Form {...this.getFormProps()} />;
     }
@@ -947,7 +947,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (typeof column.cellRenderer == 'function') {
       return column.cellRenderer(this, data, options);
     } else if (typeof column.tableCellRenderer === 'string' && column.tableCellRenderer !== '') {
-      return globalThis.main.renderReactElement(column.tableCellRenderer, cellProps) ?? <></>;
+      return globalThis.hubleto.renderReactElement(column.tableCellRenderer, cellProps) ?? <></>;
     } else {
 
       let cellValueElement: JSX.Element|null = null;
@@ -992,7 +992,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             else {
               cellValueElement = <img
                 style={{ width: '30px', height: '30px' }}
-                src={globalThis.main.config.uploadUrl + "/" + cellContent}
+                src={globalThis.hubleto.config.uploadUrl + "/" + cellContent}
                 className="rounded"
               />;
             }
@@ -1001,7 +1001,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             if (!cellContent) cellValueElement = <i className="fas fa-image" style={{color: '#e3e6f0'}}></i>
             else {
               cellValueElement = <a
-                href={globalThis.main.config.uploadUrl + "/" + cellContent}
+                href={globalThis.hubleto.config.uploadUrl + "/" + cellContent}
                 target='_blank'
                 onClick={(e) => { e.stopPropagation(); }}
                 className='btn btn-primary-outline btn-small'
@@ -1444,7 +1444,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   render() {
     try {
-      globalThis.main.setTranslationContext(this.translationContext);
+      globalThis.hubleto.setTranslationContext(this.translationContext);
 
       if (!this.state.data) {
         return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;

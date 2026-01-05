@@ -61,7 +61,7 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
               <span className="text flex gap-2">
                 {user.photo ?
                   <img
-                    src={globalThis.main.config.uploadUrl + '/' + user.photo}
+                    src={globalThis.hubleto.config.uploadUrl + '/' + user.photo}
                     className='max-w-4 max-h-4 rounded-xl'
                   />
                 : null}
@@ -75,7 +75,7 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
                   <div className='grow'>
                     {user.photo ?
                       <img
-                        src={globalThis.main.config.uploadUrl + '/' + user.photo}
+                        src={globalThis.hubleto.config.uploadUrl + '/' + user.photo}
                         className='max-w-12 max-h-12 rounded-xl'
                       />
                     : <div className='bg-gray-200 rounded-xl w-12 h-12 flex items-center justify-center'>

@@ -12,17 +12,17 @@ interface ApiError {
 class Request {
 
   getProjectUrl(): string {
-    if (!globalThis.main.config.projectUrl) {
+    if (!globalThis.hubleto.config.projectUrl) {
       console.warn('HubletoReactUi.Request: projectUrl is not set. Your AJAX requests might not work. To suppress this warning, set projectUrl to empty value.')
       console.warn('To set the value add a script tag in HTML head section and set window.configEnv.projectUrl.')
       console.warn('To suppress this warning, set may set projectUrl to an empty value.')
     };
 
-    return globalThis.main.config.projectUrl + '/';
+    return globalThis.hubleto.config.projectUrl + '/';
   }
 
   alertOnError(responseData: any) {
-    globalThis.main.showDialogWarning(responseData.errorHtml);
+    globalThis.hubleto.showDialogWarning(responseData.errorHtml);
   }
 
   public get<T>(
@@ -139,17 +139,17 @@ class Request {
 
   private fatalErrorNotification(error: any) {
     if (typeof error == 'string') {
-      globalThis.main.showDialogDanger(error);
+      globalThis.hubleto.showDialogDanger(error);
     } else {
       switch(error.code) {
         case 87335:
-          // globalThis.main.showDialogWarning(globalThis.main.getValidationErrorMessage(error.message));
+          // globalThis.hubleto.showDialogWarning(globalThis.hubleto.getValidationErrorMessage(error.message));
           break;
         case 23000:
-          globalThis.main.showDialogDanger(globalThis.main.getDuplicateEntryErrorMessage(error.message));
+          globalThis.hubleto.showDialogDanger(globalThis.hubleto.getDuplicateEntryErrorMessage(error.message));
           break;
         default:
-          globalThis.main.showDialogDanger(globalThis.main.getGenericErrorMessage(error, error.code))
+          globalThis.hubleto.showDialogDanger(globalThis.hubleto.getGenericErrorMessage(error, error.code))
 
       }
     }

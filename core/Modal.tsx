@@ -32,7 +32,7 @@ export default class Modal extends Component<ModalProps> {
     super(props);
 
     if (this.props.uid) {
-      globalThis.main.reactElements[this.props.uid] = this;
+      globalThis.hubleto.reactElements[this.props.uid] = this;
     }
 
     this.state = this.getStateFromProps(props);

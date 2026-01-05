@@ -42,7 +42,7 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
           ? props.endpoint
           : (props.description && props.description.endpoint
             ? props.description.endpoint
-            : (globalThis.main.config.defaultLookupEndpoint ?? 'api/record/lookup')
+            : (globalThis.hubleto.config.defaultLookupEndpoint ?? 'api/record/lookup')
           )
       ,
       model: props.model ? props.model : (props.description && props.description.model ? props.description.model : ''),
@@ -131,7 +131,7 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
         >
           <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
         </a>
-        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.main.config.projectUrl + "/" + urlDetail}>
+        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
       </>;
@@ -206,10 +206,10 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
           menuPosition="fixed"
           menuPortalTarget={document.body}
         />
-        {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.main.config.projectUrl + "/" + urlDetail}>
+        {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
-        {this.props.urlAdd && !this.state.readonly ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.main.config.projectUrl + "/" + this.props.urlAdd}>
+        {this.props.urlAdd && !this.state.readonly ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + this.props.urlAdd}>
           <span className="icon"><i className="fas fa-plus"></i></span>
         </a> : null}
       </>;

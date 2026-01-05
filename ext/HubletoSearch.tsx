@@ -33,7 +33,7 @@ export default class HubletoSearch<P, S> extends Component<HubletoSearchProps, H
     super(props);
 
     this.searchRef = React.createRef();
-    globalThis.main.reactElements['global-fulltext-search'] = this;
+    globalThis.hubleto.reactElements['global-fulltext-search'] = this;
 
     this.state = {
       // query: '',
@@ -60,7 +60,7 @@ export default class HubletoSearch<P, S> extends Component<HubletoSearchProps, H
     // let query = this.state.query;
     if (item) {
       if (item.url) {
-        location.href = globalThis.main.config.projectUrl + '/' + item.url;
+        location.href = globalThis.hubleto.config.projectUrl + '/' + item.url;
       }
       // if (item.autocomplete) {
       //   console.log('setva', {id: 0, label: item.autocomplete});

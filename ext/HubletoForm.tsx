@@ -40,7 +40,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
 
   getParentApp(): HubletoApp
   {
-    if (typeof this.parentApp == 'string') return globalThis.main.getApp(this.parentApp);
+    if (typeof this.parentApp == 'string') return globalThis.hubleto.getApp(this.parentApp);
     else return this.parentApp;
   }
 
@@ -138,17 +138,17 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
             <a
               className='btn btn-transparent btn-small'
               title='Open in new tab'
-              href={globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}
+              href={globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl()}
               target='_blank'
             >
               <span className='icon'><i className='fas fa-link'></i></span>
-              <span className='text'>{globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
+              <span className='text'>{globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
             </a>
             <button
               className='btn btn-transparent btn-small'
               title='Copy link to clipboard'
               onClick={() => {
-                navigator.clipboard.writeText(globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl());
+                navigator.clipboard.writeText(globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl());
               }}
             >
               <span className='icon'><i className='fas fa-copy'></i></span>
@@ -173,7 +173,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
 
   renderTopMenu(): null|JSX.Element {
     const topMenu = super.renderTopMenu();
-    const dynamicMenu = globalThis.main.injectDynamicContent(
+    const dynamicMenu = globalThis.hubleto.injectDynamicContent(
       this.constructor.name + ':TopMenu',
       {form: this}
     );

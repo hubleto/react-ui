@@ -177,7 +177,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     super(props);
 
     if (this.props.uid) {
-      globalThis.main.reactElements[this.props.uid] = this;
+      globalThis.hubleto.reactElements[this.props.uid] = this;
     }
 
     this.state = this.getStateFromProps(props);
@@ -192,7 +192,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     const isCreatingRecord: boolean = this.isCreatingRecord(props.id);
     return {
       isInitialized: false,
-      endpoint: props.endpoint ? props.endpoint : (globalThis.main.config.defaultFormEndpoint ?? {
+      endpoint: props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? {
         describeForm: 'api/form/describe',
         saveRecord: 'api/record/save',
         deleteRecord: 'api/record/delete',
@@ -460,7 +460,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       creatingRecord: true,
       recordChanged: true,
     }, () => {
-      window.history.pushState({}, "", globalThis.main.config.projectUrl + '/' + this.getRecordFormUrl());
+      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl());
     });
     // request.post(
     //   this.getEndpointUrl('saveRecord'),
@@ -1112,7 +1112,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       </>
     } else {
       try {
-        globalThis.main.setTranslationContext(this.translationContext);
+        globalThis.hubleto.setTranslationContext(this.translationContext);
 
         const warningsOrErrors = this.renderWarningsOrErrors();
 
