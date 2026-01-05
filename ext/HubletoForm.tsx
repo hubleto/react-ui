@@ -4,8 +4,7 @@ import request from '@hubleto/react-ui/core/Request';
 import HubletoApp from '@hubleto/react-ui/ext/HubletoApp'
 
 //@ts-ignore
-import WorkflowSelector from '@hubleto/apps/Workflow/Components/WorkflowSelector';
-import { content } from "html2canvas/dist/types/css/property-descriptors/content";
+import WorkflowSelector from '@hubleto/react-ui/ext/WorkflowSelector';
 import moment from "moment";
 
 export interface HubletoFormProps extends FormProps {
