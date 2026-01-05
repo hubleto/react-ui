@@ -26,6 +26,8 @@ export class HubletoReactUi {
   lastShownDialogRef: any;
   defaultTranslationContext: string = 'app';
 
+  dynamicContentInjectors: any = {};
+
   /**
   * Define attributes which will not removed
   */
@@ -40,6 +42,10 @@ export class HubletoReactUi {
 
   setTranslationContext(context: string) {
     this.defaultTranslationContext = context;
+  }
+
+  translate(orig: string, context?: string, contextInner?: string): string {
+    return orig; // to be overridden
   }
 
   addModalToStack(modal: Modal) {
@@ -392,4 +398,31 @@ export class HubletoReactUi {
     });
 
   }
+
+  registerDynamicContent(contentGroup: string, injector: any) {
+    if (!this.dynamicContentInjectors[contentGroup]) {
+      this.dynamicContentInjectors[contentGroup] = [];
+    }
+
+    this.dynamicContentInjectors[contentGroup].push(injector);
+  }
+
+  injectDynamicContent(contentGroup: string, injectorProps: any): Array<JSX.Element>|null {
+    if (this.dynamicContentInjectors && this.dynamicContentInjectors[contentGroup]) {
+      let dynamicContent: Array<JSX.Element> = [];
+      for (let i in this.dynamicContentInjectors[contentGroup]) {
+        dynamicContent.push(
+          React.createElement(
+            this.dynamicContentInjectors[contentGroup][i],
+            injectorProps
+          )
+        );
+      }
+      return dynamicContent;
+      // return dynamicContent.map((content, key) => <div key={key}>{content}</div>);
+    } else {
+      return null;
+    }
+  }
+
 }
