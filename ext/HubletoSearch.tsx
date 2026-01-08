@@ -18,7 +18,10 @@ const Option = (innerProps, isDisabled) => {
     <components.Option {...innerProps}>
       <div>{innerProps.data.label}</div>
       <div className="text-xs">{innerProps.data.description}</div>
-      <div className="text-xs text-gray-300 dark:text-primary">{innerProps.data.APP_NAMESPACE}</div>
+      <div className="badge badge-extra-small text-xs">
+        <i className={"pr-2 fas fa-" + innerProps.data.APP_ICON}></i>
+        {innerProps.data.APP_SHORT_NAME}
+      </div>
     </components.Option>
   )
 }
