@@ -391,11 +391,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         let footer = [];
 
         this.state.data?.data.map((item, index) => {
-          if (!item._PERMISSIONS[1]) hiddenRecordsCount++;
+          if (item._PERMISSIONS && !item._PERMISSIONS[1]) hiddenRecordsCount++;
         })
 
         if (hiddenRecordsCount > 0) {
-          footer.push(<div>{hiddenRecordsCount} records were hidden based on your permissions.</div>);
+          footer.push(<div className='badge badge-warning'>⚠ {hiddenRecordsCount} records were hidden based on your permissions.</div>);
         }
 
         if (this.state.description?.ui?.showFooter) footer.push(this.renderFooter());
@@ -603,7 +603,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   rowClassName(rowData: any): string {
     let cssClasses: any = [];
 
-    if (!rowData._PERMISSIONS[1]) cssClasses.push('hidden-record');
+    if (rowData._PERMISSIONS && !rowData._PERMISSIONS[1]) cssClasses.push('hidden-record');
     if (rowData.id === this.state.activeRowId) cssClasses.push('highlighted');
 
     return cssClasses.join(' ');
@@ -654,7 +654,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           this.setState({description: description});
         }
       },
-      ...this.state?.description?.ui?.moreActions
+      ...(this.state?.description?.ui?.moreActions ?? [])
     ];
 
     return <button className="btn btn-dropdown btn-transparent">
@@ -1354,7 +1354,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           {columnSearchValuePrettyfied}
         </>) : null}
         body={(data: any, options: any) => {
-          if (data._PERMISSIONS[1]) { // can read
+          if (data._PERMISSIONS && !data._PERMISSIONS[1]) { // can not read
+            return <div className='text-nowrap'>Hidden record</div>;
+          } else {
             return (
               <div
                 key={'column-' + columnName}
@@ -1377,8 +1379,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                 </div>
               </div>
             );
-          } else {
-            return <div className='text-nowrap'>Hidden record</div>;
           }
         }}
         style={{ width: 'auto' }}
@@ -1592,7 +1592,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   onRowClick(row: any) {
-    if (!row._PERMISSIONS[1]) return; // cannot read
+    if (row._PERMISSIONS && !row._PERMISSIONS[1]) return; // cannot read
 
       if (this.props.externalCallbacks && this.props.externalCallbacks.onRowClick) {
       window[this.props.externalCallbacks.onRowClick](this, row.id ?? 0);

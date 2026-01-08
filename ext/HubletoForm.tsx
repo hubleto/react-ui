@@ -91,10 +91,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
     const headerButtons = this.getHeaderButtons();
     return <>
       <div className='flex gap-2 items-center'>
-        <div>
-          <div>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
-          <div className=' h-8 w-16 text-center'>{this.state.recordChanged ? <div className='badge badge-small badge-warning block '>{this.translate('unsaved changes')}</div> : null}</div>
-        </div>
+        <div>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
         <div className='flex flex-col gap-2'>
           <div className='flex'>{super.renderHeaderLeft()}</div>
           {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {
@@ -132,20 +129,20 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
           <div>#{this.state.record.id}</div>
           <div>{this.renderPrevRecordButton()}</div>
           <div>{this.renderNextRecordButton()}</div>
+          {this.state.recordChanged ? <div className='badge badge-small badge-warning block '>{this.translate('unsaved changes')}</div> : null}
         </div>
-        <div>
+        <div className='flex gap-2 items-center'>
           {this.getRecordFormUrl() ? <>
             <a
-              className='btn btn-transparent btn-small'
+              className='text-sm text-gray-500 text-nowrap'
               title='Open in new tab'
               href={globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl()}
               target='_blank'
             >
-              <span className='icon'><i className='fas fa-link'></i></span>
-              <span className='text'>{globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl()}</span>
+              {globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl()}
             </a>
             <button
-              className='btn btn-transparent btn-small'
+              className='btn btn-transparent'
               title='Copy link to clipboard'
               onClick={() => {
                 navigator.clipboard.writeText(globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl());
@@ -154,6 +151,10 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
               <span className='icon'><i className='fas fa-copy'></i></span>
             </button>
           </> : null}
+          {this.state.description && this.state.description.inputs && this.state.description.inputs.shared_with
+            ? this.input('shared_with')
+            : null
+          }
         </div>
         {this.props.junctionModel ?
           <div className='badge flex gap-2'>
@@ -191,7 +192,7 @@ export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoForm
           {this.state.description && this.state.description.inputs && this.state.description.inputs.is_closed
             ? <div className='text-right'>{this.inputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
             : null
-        }
+          }
         </div>}
       </div>
     } else {
