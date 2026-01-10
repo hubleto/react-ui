@@ -118,10 +118,10 @@
   .btn.btn-dropdown.open > .menu > .list .btn { @apply !text-nowrap dark:bg-slate-800 dark:text-white; }
   .btn.btn-dropdown.open > .menu > .list .btn:hover { @apply dark:bg-slate-600; }
 
-  .btn.btn-dropdown:focus { @apply !bg-gray-100 !text-gray-800 !border-gray-100; }
-  .btn.btn-dropdown:focus > .menu { @apply !visible; }
-  .btn.btn-dropdown:focus > .menu > .list .btn { @apply !text-nowrap dark:bg-slate-800 dark:text-white; }
-  .btn.btn-dropdown:focus > .menu > .list .btn:hover { @apply dark:bg-slate-600; }
+  .btn.btn-dropdown:focus-within { @apply !bg-gray-100 !text-gray-800 !border-gray-100; }
+  .btn.btn-dropdown:focus-within > .menu { @apply !visible; }
+  .btn.btn-dropdown:focus-within > .menu > .list .btn { @apply !text-nowrap dark:bg-slate-800 dark:text-white; }
+  .btn.btn-dropdown:focus-within > .menu > .list .btn:hover { @apply dark:bg-slate-600; }
 
   .btn-group { @apply flex divide-x rounded border border-gray-100 dark:border-gray-600; }
   .btn-group.vertical { @apply flex-col divide-y; }

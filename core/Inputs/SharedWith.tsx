@@ -49,6 +49,12 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
       valuesPerUser = {};
     }
 
+    Object.keys(valuesPerUser).map((idUser: any) => {
+      if (valuesPerUser[idUser] != 'read' && valuesPerUser[idUser] != 'modify') {
+        delete valuesPerUser[idUser];
+      }
+    })
+
     return <>
       <button
         className="btn btn-transparent"

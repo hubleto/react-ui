@@ -234,7 +234,15 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   calculatePermissions(record?: any) {
+    if (!this.state?.record) return {
+      canCreate: true,
+      canRead: true,
+      canUpdate: true,
+      canDelete: true,
+    };
+
     if (!record) record = this.state?.record;
+
     let permissions = { canCreate: false, canRead: false, canUpdate: false, canDelete: false };
 
     if (record && record._PERMISSIONS) {
@@ -334,11 +342,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
         description = this.onAfterLoadFormDescription(description);
+        let permissions = this.calculatePermissions();
 
         this.setState({
           description: description,
-          readonly: !(description?.permissions.canUpdate || description?.permissions.canCreate),
-          permissions: description?.permissions,
+          readonly: !(permissions.canUpdate || permissions.canCreate),
+          permissions: permissions,
         }, () => {
           if (this.state.id !== -1) {
             this.loadRecord();

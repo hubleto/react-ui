@@ -12,6 +12,12 @@ export default class SharedWithTableCellRenderer extends TableCellRenderer<Table
         valuesPerUser = {};
       }
 
+      Object.keys(valuesPerUser).map((idUser: any) => {
+        if (valuesPerUser[idUser] != 'read' && valuesPerUser[idUser] != 'modify') {
+          delete valuesPerUser[idUser];
+        }
+      })
+
       let userCount = Object.keys(valuesPerUser).length;
 
       if (userCount > 0) return <><i className='fas fa-share-nodes pr-2'></i> {userCount} user(s)</>;
