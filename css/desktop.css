@@ -48,8 +48,37 @@
 body.react-elements-rendering #app-main-content { display: none; }
 body.react-elements-rendered #app-main-content { display: block; }
 
-body #logo { transition: 250ms; transition-delay: 300ms; }
-body.ajax-loading #logo { transform: rotate(25deg); }
+body #ajax-loader { display: none; }
+body.ajax-loading #ajax-loader { display: block; }
+/* body.ajax-loading #default-sidebar { @apply opacity-50; } */
+
+/* LOADING BAR */
+body #ajax-loader {
+  width: 2.6em;
+  right: 0.5em;
+  top: 0.5em;
+  aspect-ratio: 1;
+  border: 1em solid var(--color-primary);
+  border-radius: 50%;
+  position: fixed;
+  transform: rotate(45deg);
+  z-index: 99999999999999999;
+}
+body #ajax-loader::before {
+  content: "";
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  border: 15px solid var(--color-secondary);
+  animation: ajax-loader 2s infinite linear;
+}
+@keyframes ajax-loader {
+    0%   {clip-path:polygon(50% 50%,0 0,0    0,0    0   ,0    0   ,0    0   )}
+    25%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0   ,100% 0   ,100% 0   )}
+    50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
+    75%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0    100%,0    100%)}
+    100% {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0    100%,0    0   )}
+}
 
 /* SWAL */
 

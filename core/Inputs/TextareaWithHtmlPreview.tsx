@@ -101,32 +101,11 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
           Preview
         </div>
         <div className='card-body'>
-          {this.state.previewInvalidated
-            ? <button
-              className='btn btn-danger'
-              onClick={() => {
-                // const sanitized = DOMPurify.sanitize(this.state.textareaValue);
-                // this.setState({textareaValue: sanitized, previewInvalidated: false});
-                // this.onChange(sanitized);
-
-                this.setState({previewInvalidated: false});
-                this.onChange(this.state.textareaValue);
-              }}
-            >
-              <span className='icon'><i className='fas fa-arrows-rotate'></i></span>
-              <span className='text'>{this.translate('Update preview')}</span>
-            </button>
-            : (this.state.value
-              ? <>
-                <HtmlFrame
-                  ref={this.refPreview}
-                  className='w-full h-full'
-                  content={this.state.textareaValue}
-                />
-              </>
-              : <div className='bg-gray-100 text-center p-4'>{this.translate('No preview available')}</div>
-            )
-          }
+          <HtmlFrame
+            ref={this.refPreview}
+            className='w-full h-full'
+            content={this.state.textareaValue}
+          />
         </div>
       </div>
     </div>;

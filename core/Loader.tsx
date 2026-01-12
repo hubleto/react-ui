@@ -118,7 +118,7 @@ export class HubletoReactUi {
     return <>
       <pre className='text-red-800 text-base'>{message}</pre>
       <div className='text-xs mt-4 text-gray-400'>
-        <div>Error #{code}</div>
+        {code == 0 ? null : <div>Error #{code}</div>}
         <div>{details}</div>
       </div>
     </>;
