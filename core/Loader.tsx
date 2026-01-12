@@ -114,16 +114,18 @@ export class HubletoReactUi {
     </>;
   }
 
-  getGenericErrorMessage(message: string, code: number): JSX.Element {
+  getGenericErrorMessage(message: string, code: number, details?: string): JSX.Element {
     return <>
-      <div>Error #{code}</div>
-      <pre style={{fontSize: '8pt', textAlign: 'left'}}>{message}</pre>
+      <pre className='text-red-800 text-base'>{message}</pre>
+      <div className='text-xs mt-4 text-gray-400'>
+        <div>Error #{code}</div>
+        <div>{details}</div>
+      </div>
     </>;
   }
 
   showDialog(content: JSX.Element, props?: any) {
     const root = createRoot(document.getElementById('app-dialogs'));
-
     this.lastShownDialogRef = React.createRef();
 
     props.headerClassName = 'dialog-header ' + (props.headerClassName ?? '');
@@ -193,23 +195,31 @@ export class HubletoReactUi {
   }
 
   showDialogConfirm(content: JSX.Element, props?: any) {
+    const propsCloned = {...props};
     let defaultProps = {
       headerClassName: 'dialog-confirm-header',
       contentClassName: 'dialog-confirm-content',
       header: "Confirm",
       footer: <>
         <div className={"flex w-full justify-between"}>
-          <button className={"btn " + props.yesButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); props.onYes(); }} >
+          <button className={"btn " + propsCloned.yesButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); propsCloned.onYes(); }} >
             <span className="icon"><i className="fas fa-check"></i></span>
-            <span className="text">{props.yesText}</span>
+            <span className="text">{propsCloned.yesText}</span>
           </button>
-          <button className={"btn " + props.noButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); props.onNo(); }} >
+          <button className={"btn " + propsCloned.noButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); propsCloned.onNo(); }} >
             <span className="icon"><i className="fas fa-xmark"></i></span>
-            <span className="text">{props.noText}</span>
+            <span className="text">{propsCloned.noText}</span>
           </button>
         </div>
       </>
     };
+
+    delete props.yesButtonClass;
+    delete props.yesText;
+    delete props.onYes;
+    delete props.noButtonClass;
+    delete props.noText;
+    delete props.onNo;
 
     if (!props.headerClassName) props.headerClassName = defaultProps.headerClassName;
     if (!props.contentClassName) props.contentClassName = defaultProps.contentClassName;
