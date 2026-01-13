@@ -723,7 +723,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     if (
       !customInputProps.wrapperCssClass
       && (
-        ['boolean', 'date', 'datetime', 'float'].indexOf(inputType) >= 0
+        ['boolean', 'date', 'datetime', 'decimal'].indexOf(inputType) >= 0
         || (inputType == 'int' && !enumValues)
       )
     ) {

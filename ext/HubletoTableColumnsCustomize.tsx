@@ -64,6 +64,24 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
     );
   }
 
+  resetRecord(): void {
+    request.post(
+      "api/reset-table-columns-customize",
+      {
+        record: this.state.record,
+        model: this.props.tableModel,
+        tag: this.props.tableTag,
+      },
+      {},
+      (data: any) => {
+        if (data.status == "success") {
+          this.props.onClose();
+          this.props.parentTable.loadTableDescription();
+        }
+      }
+    );
+  }
+
   onDragStart = (e, key) => {
     this.setState({ draggedKey: key });
     e.dataTransfer.effectAllowed = "move";
@@ -123,8 +141,8 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
             </button>
           </div>
         </div>
-        {this.state.record ? (
-          <div className="p-2 flex flex-col gap-2">
+        <div className='modal-body'>
+          {this.state.record ? <div className="p-2 flex flex-col gap-2">
             {Object.entries(this.state.record).map(
               ([key, { title, is_hidden }]) => (
                 <div
@@ -149,7 +167,7 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
                       }))
                     }
                   >
-                    <div className='flex flex-row'>
+                    <div className='flex flex-row items-center'>
                       <span className="icon">
                         <i className={`text-gray-500 fa fa-ellipsis-vertical`}></i>
                       </span>
@@ -162,10 +180,14 @@ export default class HubletoTableColumnsCustomize<P, S> extends Component {
                 </div>
               )
             )}
-          </div>
-        ) : (
-          <></>
-        )}
+          </div> : null}
+        </div>
+        <div className='modal-footer'>
+          <button className="btn btn-transparent" onClick={() => this.resetRecord()}>
+            <span className="icon"><i className="fas fa-refresh"></i></span>
+            <span className="text">Reset to default</span>
+          </button>
+        </div>
       </>
     );
   }
