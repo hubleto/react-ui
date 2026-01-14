@@ -7,7 +7,7 @@ import HubletoApp from '@hubleto/react-ui/ext/HubletoApp'
 import WorkflowSelector from '@hubleto/react-ui/ext/WorkflowSelector';
 import moment from "moment";
 
-export interface HubletoFormProps extends FormProps {
+export interface FormExtendedProps extends FormProps {
   icon?: string,
   junctionTitle?: string,
   junctionModel?: string,
@@ -18,21 +18,21 @@ export interface HubletoFormProps extends FormProps {
   renderWorkflowUi?: boolean,
   timeline?: Array<any>,
 }
-export interface HubletoFormState extends FormState {
+export interface FormExtendedState extends FormState {
   icon?: string,
 }
 
-export default class HubletoForm<P, S> extends Form<HubletoFormProps,HubletoFormState> {
+export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExtendedState> {
   static defaultProps: any = {
     ...Form.defaultProps
   };
 
-  props: HubletoFormProps;
-  state: HubletoFormState;
+  props: FormExtendedProps;
+  state: FormExtendedState;
 
   parentApp: string|HubletoApp;
 
-  constructor(props: HubletoFormProps) {
+  constructor(props: FormExtendedProps) {
     super(props);
 
     this.state = this.getStateFromProps(props);

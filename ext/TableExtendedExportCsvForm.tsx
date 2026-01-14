@@ -1,26 +1,26 @@
 import React, { Component } from "react";
 import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/core/Form";
 
-export interface HubletoTableExportCsvFormProps extends FormProps {}
-export interface HubletoTableExportCsvFormState extends FormState {
+export interface TableExtendedExportCsvFormProps extends FormProps {}
+export interface TableExtendedExportCsvFormState extends FormState {
   separator: string,
 }
 
-export default class HubletoTableExportCsvForm<P, S> extends Form<HubletoTableExportCsvFormProps,HubletoTableExportCsvFormState> {
+export default class TableExtendedExportCsvForm<P, S> extends Form<TableExtendedExportCsvFormProps,TableExtendedExportCsvFormState> {
   static defaultProps: any = {
     ...Form.defaultProps
   };
 
-  props: HubletoTableExportCsvFormProps;
-  state: HubletoTableExportCsvFormState;
+  props: TableExtendedExportCsvFormProps;
+  state: TableExtendedExportCsvFormState;
 
-  constructor(props: HubletoTableExportCsvFormProps) {
+  constructor(props: TableExtendedExportCsvFormProps) {
     super(props);
 
     this.state = this.getStateFromProps(props);
   }
 
-  getStateFromProps(props: HubletoTableExportCsvFormProps) {
+  getStateFromProps(props: TableExtendedExportCsvFormProps) {
     return {
       separator: ',',
       ...super.getStateFromProps(props),
