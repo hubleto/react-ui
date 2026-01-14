@@ -136,13 +136,11 @@ export default class HubletoTable<P, S> extends Table<HubletoTableProps, Hubleto
                         filters[filterName] = [ key ];
                       }
                     } else {
-                      console.log(filters, filterName, key);
                       if (filters[filterName] == key) {
                         delete filters[filterName];
                       } else {
                         filters[filterName] = key;
                       }
-                      console.log(filters);
                     }
 
                     if (!this.props.parentForm) {

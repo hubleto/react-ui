@@ -542,19 +542,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       cellClassName += ' badge ' + (column.enumCssClasses ? (column.enumCssClasses[rowData[columnName]] ?? '') : '');
     } else {
       cellClassName += ' column-' + column.type;
-      // switch (column.type) {
-      //   case 'int':
-      //   case 'decimal':
-      //     cellClassName += ' text-right font-semibold';
-      //   break;
-      //   case 'date':
-      //   case 'datetime':
-      //     cellClassName += ' text-left';
-      //   break;
-      //   case 'lookup':
-      //     cellClassName += ' text-primary';
-      //   break;
-      // }
+      switch (column.type) {
+        case 'int':
+        case 'decimal':
+        case 'currency':
+          cellClassName += ' text-right';
+        break;
+      }
     }
 
     if (column.colorScale) {
@@ -625,6 +619,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   renderAddButton(forEmptyMessage?: boolean): JSX.Element {
     return (
       <button
+        key="add-btn"
         className={"btn " + (forEmptyMessage ? "btn-white btn-small" : "btn-add")}
         onClick={() => this.onAddClick()}
       >
@@ -657,7 +652,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       ...(this.state?.description?.ui?.moreActions ?? [])
     ];
 
-    return <button className="btn btn-dropdown btn-transparent">
+    return <button
+      className="btn btn-dropdown btn-transparent"
+      key="more-actions-btn"
+    >
       <span className="icon"><i className="fas fa-cog"></i></span>
       <span className="text text-nowrap">{this.translate('More options', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
       <span className="menu">
@@ -710,12 +708,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     if (this.state?.description?.ui?.filters) {
       buttons.push(
-        <button className="btn btn-transparent"
+        <button
+          className="btn btn-transparent"
+          key="filters-btn"
           onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
         >
-          <span className="icon">
-            <i className={"fas fa-" + (this.state.sidebarFilterHidden ? "filter" : "filter")}></i>
-          </span>
+          <span className="icon"><i className="fas fa-filter"></i></span>
+          <span className="text">{this.translate('Show/Hide filter')}</span>
         </button>
       );
     }
