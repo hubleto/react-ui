@@ -640,12 +640,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   renderMoreActionsButton(): JSX.Element {
     let moreActions = [
       {
-        title: 'Show as plain table',
+        title: (this.state?.description?.ui?.showAsPlainTable ? 'Show as standard table' : 'Show as plain table'),
         type: 'onclick',
         onClick: () => {
           let description: any = this.state?.description ?? {};
           if (!description.ui) description.ui = {};
-          description.ui.showAsPlainTable = true;
+          description.ui.showAsPlainTable = !description.ui.showAsPlainTable;
           this.setState({description: description});
         }
       },

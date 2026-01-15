@@ -62,7 +62,7 @@ export default class TableExtendedExportCsvForm<P, S> extends Form<TableExtended
     const qs = require('qs');
     return <div className="p-2">
       <div className="alert alert-info">
-        CSV file with following columns and {this.props.parentTable.state?.data?.total} items will be generated
+        A CSV file with the following columns and {this.props.parentTable.state?.data?.total} items will be generated
       </div>
       <table className="table-default dense mt-2">
         <thead>
