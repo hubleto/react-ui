@@ -245,6 +245,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
           uid={this.props.uid + '_export_csv_modal'}
           isOpen={true}
           type='centered large'
+          onClose={() => {this.setState({showExportCsvScreen: false});}}
         >
           <TableExtendedExportCsvForm
             ref={this.refExportCsvForm}
@@ -262,6 +263,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
           uid={this.props.uid + '_import_csv_modal'}
           isOpen={true}
           type='centered large'
+          onClose={() => { this.setState({showImportCsvScreen: false}); }}
         >
           <TableExtendedImportCsvForm
             ref={this.refImportCsvForm}
@@ -280,6 +282,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
           isOpen={true}
           type='right'
           title='Customize Columns'
+          onClose={() => { this.setState({showColumnConfigScreen: false}); }}
         >
           <TableExtendedColumnsCustomize
             ref={this.refColumnsConfigScreen}
