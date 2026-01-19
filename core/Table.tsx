@@ -1417,7 +1417,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           {this.state.data?.data.map((row, rowIndex) => {
             return <tr>
               {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
-                return <td className='border-none'>{row['_LOOKUP[' + colName + ']'] ?? row[colName]}</td>;
+                const val = row['_LOOKUP[' + colName + ']'] ?? row[colName];
+                return <td className='border-none'>{
+                  (typeof val === 'object' && val) ? (val.identifier || val.name || val.title || JSON.stringify(val)) : val
+                }</td>;
               })}
             </tr>;
           })}
