@@ -38,7 +38,7 @@ export default class Wysiwyg extends Input<WysiwygInputProps, WysiwygInputState>
 
   renderInputElement() {
     return <div className='flex gap-2 w-full'>
-      <div className='flex-1'>
+      <div className='flex-1 min-w-0 [&_.ql-editor]:[word-break:break-word]'>
         <ReactQuill
           ref={this.refQuill}
           theme="snow" // Use the 'snow' theme

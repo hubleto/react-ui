@@ -889,15 +889,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     if (hasRecordsToDelete) {
       return globalThis.hubleto.showDialogConfirm(
-        this.translate('You are about to delete the record. Press OK to confirm.', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
+        this.translate('Are you sure you want to delete this record?', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
         {
           headerClassName: 'dialog-danger-header',
           contentClassName: 'dialog-danger-content',
           header: this.translate('Delete record', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
-          yesText: this.translate('Yes, delete', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
+          yesText: this.translate('Delete', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
           yesButtonClass: 'btn-danger',
           onYes: () => { this.deleteRecord(); },
-          noText: this.translate('No, do not delete', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
+          noText: this.translate('Cancel', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
           onNo: () => {
             if (this.state.data) {
               let newData: TableData = this.state.data;
