@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import AsyncSelect from 'react-select/async'
-import AsyncCreatable from 'react-select/async-creatable'
 import { Input, InputProps, InputState } from '../Input'
 import request from '../Request'
 import * as uuid from 'uuid';
-import { ProgressBar } from 'primereact/progressbar';
 
 export interface LookupInputProps extends InputProps {
   model?: string
