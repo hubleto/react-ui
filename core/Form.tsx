@@ -878,7 +878,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             </>
           }
         </button>
-        {this.state.recordChanged ? <>
+        {/* {this.state.recordChanged ? <>
           <button
             className="btn btn-add-outline ml-2"
             onClick={(e: any) => {
@@ -891,7 +891,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             </span>
             <span className="text">{this.translate('Save and close')}</span>
           </button>
-        </> : null}
+        </> : null} */}
         {this.state.saveError && this.state.saveError.message
           ? <div className='badge badge-danger ml-2'>{this.state.saveError.message}</div>
           : null

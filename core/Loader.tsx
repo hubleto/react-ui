@@ -98,6 +98,47 @@ export class HubletoReactUi {
     }
   }
 
+  registerModalShortcuts() {
+    document.addEventListener('keydown', function(e) {
+      // console.log('keydown', e);
+      if (e.ctrlKey && e.key === 'k') {
+        globalThis.hubleto.reactElements['global-fulltext-search'].searchRef.current.focus();
+        e.preventDefault();
+      }
+      if (e.ctrlKey && e.key === 's') {
+        const activeModal = globalThis.hubleto.getActiveModalInStack();
+
+        if (activeModal && activeModal.props.form && activeModal.props.form.current) {
+          activeModal.props.form.current.saveRecord();
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'PageDown') {
+        const activeModal = globalThis.hubleto.getActiveModalInStack();
+        if (activeModal && activeModal.props.form && activeModal.props.form.current) {
+          activeModal.props.form.current.openNextRecord();
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'PageUp') {
+        const activeModal = globalThis.hubleto.getActiveModalInStack();
+        if (activeModal && activeModal.props.form && activeModal.props.form.current) {
+          activeModal.props.form.current.openPrevRecord();
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }
+      if (e.key === 'Escape') {
+        const activeModal = globalThis.hubleto.getActiveModalInStack();
+        if (activeModal) {
+          activeModal.close();
+        }
+      }
+    });
+  }
+
   getValidationErrorMessage(messageString: string): JSX.Element {
     return <>
       <b>{this.translate('Some inputs need your attention')}</b><br/>
