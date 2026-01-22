@@ -1419,7 +1419,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
                 const val = row['_LOOKUP[' + colName + ']'] ?? row[colName];
                 return <td className='border-none'>{
-                  (typeof val === 'object' && val) ? (val.identifier || val.name || val.title || JSON.stringify(val)) : val
+                  (typeof val === 'object' && val !== null) ? val['_LOOKUP'] : val
                 }</td>;
               })}
             </tr>;
@@ -1666,9 +1666,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         data: data
       });
     } else {
+      let updatedDescription = { ...this.state.description };
+      updatedDescription.ui.orderBy = orderBy;
       this.setState({
         ...stateParams,
-        orderBy: orderBy,
+        description: updatedDescription,
       }, () => this.loadData());
     }
   }
