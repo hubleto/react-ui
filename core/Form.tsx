@@ -374,6 +374,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         if (this.state.id != -1 && !record.id) {
           this.setState({isInitialized: true, invalidRecordId: true});
         } else {
+          this.setState({originalRecord: record});
           this.setRecord(record);
         }
       },
@@ -752,12 +753,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       onInlineEditSave: () => { this.saveRecord(); },
       onChange: (input: any, value: any) => {
         let record = {...this.state.record};
-        if (value === '') {
-          const orig = this.state.originalRecord ? this.state.originalRecord[inputName] : undefined;
-          if (orig === null || orig === undefined) {
-             value = orig;
-          }
-        }
+        if (value === '') value = null;
         record[inputName] = value;
         this.setState({
           record: record,
