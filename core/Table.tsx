@@ -453,7 +453,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             ...this.getEndpointParams(),
             filterBy: this.state.filterBy,
             model: this.model,
-            orderBy: this.state.description?.ui?.orderBy,
+            orderBy: this.state.description?.ui?.orderBy ?? { field: 'id', direction: 'desc' },
             page: this.state.page ?? 0,
             itemsPerPage: this.state.itemsPerPage ?? 35,
             parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
