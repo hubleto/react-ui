@@ -55,7 +55,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
         const updatedRecord = {...this.props.parentForm.state.record, WORKFLOW_HISTORY: data.history};
         this.props.parentForm.setState({
           record: updatedRecord,
-          originalRecord: {...this.props.parentForm.state.originalRecord, WORKFLOW_HISTORY: data.history}
+          originalRecord: updatedRecord,
         });
         
         this.setState({ workflows: data.workflows, history: data.history });
