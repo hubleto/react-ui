@@ -390,9 +390,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         let hiddenRecordsCount = 0;
         let footer = [];
 
-        this.state.data?.data.map((item, index) => {
-          if (item._PERMISSIONS && !item._PERMISSIONS[1]) hiddenRecordsCount++;
-        })
+        if (this.state.data?.data) {
+          this.state.data?.data.map((item, index) => {
+            if (item._PERMISSIONS && !item._PERMISSIONS[1]) hiddenRecordsCount++;
+          });
+        }
 
         if (hiddenRecordsCount > 0) {
           footer.push(<div className='badge badge-warning'>⚠ {hiddenRecordsCount} records were hidden based on your permissions.</div>);
