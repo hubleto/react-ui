@@ -122,7 +122,6 @@ class Request {
     err: AxiosError<ApiError>,
     errorCallback?: (data: any) => void
   ) {
-    console.log(err);
     if (err.response) {
       this.fatalErrorNotification(url, err.response.data);
       if (errorCallback) errorCallback(err.response);

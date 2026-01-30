@@ -894,10 +894,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             <span className="text">{this.translate('Save and close')}</span>
           </button>
         </> : null} */}
-        {this.state.saveError && this.state.saveError.message
-          ? <div className='badge badge-danger ml-2'>{this.state.saveError.message}</div>
-          : null
-        }
       </> : null}
     </>;
   }
@@ -1138,15 +1134,24 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
         if (this.props.modal && this.props.modal.current) {
+          console.log('ts', this.state);
           return <>
             <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
               <div className="modal-header-left">{headerLeft}</div>
               <div className="modal-header-title">{formTitle}</div>
               <div className="modal-header-right">{headerRight}</div>
             </div>
+            {this.state.saveError && this.state.saveError.message
+              ? <div className='text-red-800 bg-red-300 p-2'>{this.state.saveError.message}</div>
+              : null
+            }
             {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
             <div className={"modal-body " + formContentClassName}>
-              { Array.isArray(this.state.invalidInputs) && this.state.invalidInputs.length != 0 ? this.renderErrorAlert('Please fix the errors below before saving the record.') : ''}
+              {/* {
+                Array.isArray(this.state.invalidInputs) && this.state.invalidInputs.length != 0
+                ? this.renderErrorAlert('Following inputs contain invalid values: ' + this.state.invalidInputs.map((item) => item.name + ' '))
+                : ''
+              } */}
               {formContent}
             </div>
             {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
