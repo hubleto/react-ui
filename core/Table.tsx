@@ -1267,14 +1267,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
       if (showColumnSearch) {
         switch (column.type) {
-          case 'date':
-            columnSearchInput = <Flatpickr
-              onChange={(data: Date[]) => {
-                this.setColumnSearch(columnName, data);
-              }}
-              options={{mode: 'range'}}
-            />
-          break;
+          // case 'date':
+          //   columnSearchInput = <Flatpickr
+          //     onChange={(data: Date[]) => {
+          //       this.setColumnSearch(columnName, data);
+          //     }}
+          //     options={{mode: 'range'}}
+          //   />
+          // break;
           case 'boolean':
             columnSearchInput = <SelectButton
               value={columnSearchValue}
