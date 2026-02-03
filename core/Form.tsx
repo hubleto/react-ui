@@ -1113,6 +1113,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
+  renderSaveErrorMessage(): null|JSX.Element{
+    return this.state.saveError && this.state.saveError.message
+      ? <div className='text-white bg-red-300 p-2'>{this.state.saveError.message}</div>
+      : null
+    ;
+  }
+
   render() {
     if (this.state.loadRecordError) {
       return <>
@@ -1124,6 +1131,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         globalThis.hubleto.setTranslationContext(this.translationContext);
 
         const warningsOrErrors = this.renderWarningsOrErrors();
+        const saveErrorMessage = this.renderSaveErrorMessage();
 
         const formTitle = this.renderTitle();
         const formContentClassName = this.contentClassName();
@@ -1140,10 +1148,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
               <div className="modal-header-title">{formTitle}</div>
               <div className="modal-header-right">{headerRight}</div>
             </div>
-            {this.state.saveError && this.state.saveError.message
-              ? <div className='text-red-800 bg-red-300 p-2'>{this.state.saveError.message}</div>
-              : null
-            }
+            {saveErrorMessage}
             {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
             <div className={"modal-body " + formContentClassName}>
               {/* {
@@ -1163,6 +1168,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
                 <div className="form-header-title">{formTitle}</div>
                 <div className="form-header-right">{headerRight}</div>
               </div>
+              {saveErrorMessage}
               {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
               <div className={"form-body" + formContentClassName}>
                 {formContent}
