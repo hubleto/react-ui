@@ -61,8 +61,7 @@
   .hubleto.component.input .inner:hover .inline-editing-buttons { @apply !visible }
 
   .hubleto.component.input .input-after { @apply flex-1 ml-2; }
-  .hubleto.component.input .input-unit { @apply flex-1 ml-2; }
-
+  .hubleto.component.input .input-unit { @apply flex-none ml-2 whitespace-nowrap; }
   .is-invalid, .hubleto.component.input.invalid {
     @apply !border-red-500 text-red-500;
   }
