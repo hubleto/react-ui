@@ -640,8 +640,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   renderMoreActionsButton(): JSX.Element {
-    let moreActions = [
-      {
+    let moreActions = {
+      showAsPlainTable: {
         title: (this.state?.description?.ui?.showAsPlainTable ? 'Show as standard table' : 'Show as plain table'),
         type: 'onclick',
         onClick: () => {
@@ -652,7 +652,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         }
       },
       ...(this.state?.description?.ui?.moreActions ?? [])
-    ];
+    };
 
     return <button
       className="btn btn-dropdown btn-transparent"
@@ -662,7 +662,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       <span className="text text-nowrap">{this.translate('More options', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
       <span className="menu">
         <div className="btn-list text-nowrap">
-          {moreActions.map((action, index) => {
+          {Object.keys(moreActions).map((key, index) => {
+            const action = moreActions[key];
             const type = action.type ?? '';
 
             if (type == 'onclick') {

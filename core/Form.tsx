@@ -1134,7 +1134,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
         if (this.props.modal && this.props.modal.current) {
-          console.log('ts', this.state);
           return <>
             <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
               <div className="modal-header-left">{headerLeft}</div>
