@@ -15,6 +15,7 @@ interface ErpWorkflowSelectorState {
   workflows: Array<any>,
   history: Array<any>,
   changeWorkflow: boolean,
+  initialLoad: boolean,
 }
 
 export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWorkflowSelectorProps, ErpWorkflowSelectorState> {
@@ -34,6 +35,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
       workflows: null,
       history: null,
       changeWorkflow: false,
+      initialLoad: true
     };
   }
 
@@ -52,16 +54,22 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
       },
       {},
       (data: any) => {
-        this.props.parentForm.updateRecord({...this.props.parentForm.state.record, WORKFLOW_HISTORY: data.history})
+        if (this.state.initialLoad == true) {
+          // sets the original record to include WORKFLOW_HISTORY
+          this.props.parentForm.setRecord({...this.props.parentForm.state.record, WORKFLOW_HISTORY: data.history});
+          this.setState({initialLoad: false});
+        } else {
+          this.props.parentForm.updateRecord({...this.props.parentForm.state.record, WORKFLOW_HISTORY: data.history})
+        }
         this.setState({ workflows: data.workflows, history: data.history });
         if (onSuccess) onSuccess();
       }
     );
   }
-  
+
   onWorkflowChange(idWorkflow: number) {
     this.setState({ idWorkflow: idWorkflow, changeWorkflow: false }, () => {
-      this.props.parentForm.updateRecord({id_workflow: idWorkflow}, () => {
+      this.props.parentForm.updateRecord({id_workflow: String(idWorkflow)}, () => {
         this.loadData(() => {
           if (this.props.onWorkflowChange) {
             this.props.onWorkflowChange(idWorkflow, 0);
@@ -73,7 +81,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
 
   onWorkflowStepChange(idWorkflowStep: number, step: any) {
     this.setState({ idWorkflowStep: idWorkflowStep }, () => {
-      this.props.parentForm.updateRecord({id_workflow_step: idWorkflowStep}, () => {
+      this.props.parentForm.updateRecord({id_workflow_step: String(idWorkflowStep)}, () => {
         if (this.props.onWorkflowStepChange) {
           this.props.onWorkflowStepChange(idWorkflowStep, step);
         }
@@ -91,7 +99,6 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
     const history = this.state.history.filter((item) => item.id_workflow_step == R.id_workflow_step);
     const steps = workflows ? workflows[R.id_workflow]?.STEPS : null;
 
-    // console.log(this.state.history, history);
 
     let stepBtnClass = "btn-light";
 
@@ -122,7 +129,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
                   {steps.map((s, i) => {
                     if (stepBtnClass == "btn-primary") stepBtnClass = "btn-transparent";
                     else if (s.id == R.id_workflow_step) stepBtnClass = "btn-primary";
-                    
+
                     return <button
                       key={i}
                       onClick={() => this.onWorkflowStepChange(s.id, s)}
