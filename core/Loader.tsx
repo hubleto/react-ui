@@ -133,7 +133,11 @@ export class HubletoReactUi {
       if (e.key === 'Escape') {
         const activeModal = globalThis.hubleto.getActiveModalInStack();
         if (activeModal) {
-          activeModal.close();
+          if (activeModal.props.form && activeModal.props.form.current && activeModal.props.form.current.closeForm) {
+            activeModal.props.form.current.closeForm();
+          } else {
+            activeModal.close();
+          }
         }
       }
     });
