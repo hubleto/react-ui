@@ -27,6 +27,7 @@ export class HubletoReactUi {
   defaultTranslationContext: string = 'app';
 
   dynamicContentInjectors: any = {};
+  locale: any = {};
 
   /**
   * Define attributes which will not removed
@@ -35,9 +36,14 @@ export class HubletoReactUi {
     'onclick'
   ];
 
-  constructor(config: object) {
+  constructor(config: any) {
     this.config = config;
     globalThis.main = this;
+    this.locale = {
+      currencySymbol: config.locale?.currencySymbol ?? '€',
+      decimalsSeparator: config.locale?.decimalsSeparator ?? '.',
+      thousandsSeparator: config.locale?.thousandsSeparator ?? ' ',
+    }
   }
 
   setTranslationContext(context: string) {
@@ -485,6 +491,41 @@ export class HubletoReactUi {
     } else {
       return null;
     }
+  }
+
+  numberFormat(
+    value: number|string,
+    decimals: number = 2,
+    decimalsSeparator: string = '',
+    thousandsSeparator: string = ''
+  ): string {
+    if (decimalsSeparator == '') decimalsSeparator = this.locale.decimalsSeparator;
+    if (thousandsSeparator == '') thousandsSeparator = this.locale.thousandsSeparator;
+  
+    value = (value ?? '').toString().replace(/[^0-9+\-Ee.]/g, '');
+
+    let n = parseFloat(value);
+    if (isNaN(n)) n = 0;
+
+    n = Math.round(n * Math.pow(10, decimals)) / Math.pow(10, decimals);
+    let [integerPart, fractionalPart] = n.toString().split('.');
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+
+    if (fractionalPart === undefined) {
+      fractionalPart = '';
+    }
+    while (fractionalPart.length < decimals) {
+      fractionalPart += '0';
+    }
+
+    return integerPart + (decimals > 0 ? decimalsSeparator + fractionalPart : '');
+  }
+
+  currencyFormat(value: number|string, decimals: number = 2): string {
+    return (
+      this.numberFormat(value, decimals)
+      + ' ' + this.locale.currencySymbol
+    );
   }
 
 }

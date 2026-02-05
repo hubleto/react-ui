@@ -438,7 +438,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       { ...this.getEndpointParams(), record: record },
       {},
       (saveResponse: any) => {
-        if (this.state.creatingRecord && this.props.parentTable) {
+        if (this.state.creatingRecord && this.props.parentTable && this.props.parentTable.setRecordFormUrl) {
           this.props.parentTable.setRecordFormUrl(saveResponse.savedRecord?.id);
         }
         this.setState({
