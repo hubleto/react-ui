@@ -544,14 +544,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       cellClassName += ' badge ' + (column.enumCssClasses ? (column.enumCssClasses[rowData[columnName]] ?? '') : '');
     } else {
       cellClassName += ' column-' + column.type;
-      switch (column.type) {
-        case 'int':
-        case 'decimal':
-        case 'currency':
-          cellClassName += ' text-right';
-        break;
-      }
     }
+
+    if (column.textAlign == 'right') cellClassName += ' text-right';
+    if (column.textAlign == 'center') cellClassName += ' text-center';
 
     if (column.colorScale) {
       const min: number = this.getMinColumnValue(columnName);
@@ -1265,6 +1261,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
       let columnSearchInput: any = null;
       let columnSearchValuePrettyfied: any = null;
+      let alignHeader: 'left' | 'right' | 'center' = 'left';
+
+      if (column.textAlign == 'right') alignHeader = 'right';
+      if (column.textAlign == 'center') alignHeader = 'center';
 
       if (showColumnSearch) {
         switch (column.type) {
@@ -1351,6 +1351,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
         filter={showColumnSearch}
         showFilterMenu={false}
+        alignHeader={alignHeader}
         filterElement={showColumnSearch ? (<>
           <div className="column-search input-wrapper">
             <div className="input-body"><div className="hubleto component input">

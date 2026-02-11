@@ -59,9 +59,9 @@ export default class Color extends Input<ColorInputProps, ColorInputState> {
           <Compact
             ref={this.refInput}
             color={this.state.value}
-            style={{
-              width: '100%'
-            }}
+            // style={{
+            //   width: '100%'
+            // }}
             onChange={(color: any) => this.onChange(color.hex)}
             // rectRender={(props) => {
             //   console.log(props.key)
