@@ -996,20 +996,20 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             if (column.showExponential) cellContent = cellContent.toExponential();
             cellValueElement = <>
               {cellContent}
-              {column.unit ? ' ' + column.unit : ''}
+              {columnValue && column.unit ? ' ' + column.unit : ''}
             </>;
           break;
           case 'decimal':
             if (column.showExponential) cellContent = cellContent.toExponential();
             cellValueElement = <>
               {cellContent ? Number(cellContent).toFixed(column.decimals ?? 2) : null}
-              {column.unit ? ' ' + column.unit : ''}
+              {columnValue && column.unit ? ' ' + column.unit : ''}
             </>;
           break;
           case 'currency':
             cellValueElement = <span className={columnValue < 0 ? 'text-red-800' : 'text-green-800'}>
               {cellContent ? globalThis.hubleto.currencyFormat(cellContent, column.decimals ?? 2) : null}
-              {column.unit ? ' ' + column.unit : ''}
+              {columnValue && column.unit ? ' ' + column.unit : ''}
             </span>;
           break;
           case 'color':
