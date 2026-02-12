@@ -1113,7 +1113,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             }
           break;
           default:
-            cellValueElement = (typeof cellContent == 'object' ? JSON.stringify(cellContent) : cellContent);
+            cellValueElement = <>
+              {typeof cellContent == 'object' ? JSON.stringify(cellContent) : cellContent}
+              {columnValue && column.unit ? ' ' + column.unit : ''}
+            </>;
           break;
         }
 
