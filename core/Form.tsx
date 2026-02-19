@@ -347,7 +347,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
         let tabs = this.state.tabs;
         let hasCustomColumns = true;
-        if (hasCustomColumns) {
+        if (tabs && hasCustomColumns) {
           tabs.push({
             uid: '__custom_columns',
             title: 'Custom',
