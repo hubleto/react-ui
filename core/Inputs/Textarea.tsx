@@ -27,7 +27,7 @@ export default class Textarea extends Input<InputProps, InputState> {
       // onBlur={(e) => this.onChange(e.currentTarget.value)}
       aria-describedby="passwordHelpInline"
       rows={5}
-      placeholder={this.props.description?.placeholder}
+      placeholder={this.props.description?.placeholder ?? this.props.description?.title}
       className={
         (this.props.cssClass ?? "")
         + " " + (this.state.invalid ? 'invalid' : '')

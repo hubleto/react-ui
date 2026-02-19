@@ -346,7 +346,15 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         let permissions = this.calculatePermissions();
 
         let tabs = this.state.tabs;
-        let hasCustomColumns = true;
+        let hasCustomColumns = false;
+        let inputs = this.state.description?.inputs;
+
+        if (inputs) {
+          Object.keys(inputs).map((inpName, index) => {
+            if (inputs[inpName].isCustom) hasCustomColumns = true;
+          });
+        }
+
         if (tabs && hasCustomColumns) {
           tabs.push({
             uid: '__custom_columns',
