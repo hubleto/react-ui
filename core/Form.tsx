@@ -342,10 +342,29 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
         description = this.onAfterLoadFormDescription(description);
+
         let permissions = this.calculatePermissions();
+
+        let tabs = this.state.tabs;
+        let hasCustomColumns = true;
+        if (hasCustomColumns) {
+          tabs.push({
+            uid: '__custom_columns',
+            title: 'Custom',
+            onRender: (form: any) => {
+              const inputs = form.state.description?.inputs;
+              return <>{Object.keys(inputs).map((inpName, index) => {
+                if (inputs[inpName].isCustom) {
+                  return form.inputWrapper(inpName);
+                }
+              })}</>;
+            }
+          });
+        }
 
         this.setState({
           description: description,
+          tabs: tabs,
           readonly: !(permissions.canUpdate || permissions.canCreate),
           permissions: permissions,
         }, () => {
@@ -692,9 +711,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderContent(): null|JSX.Element {
     const tab = this.state.tabs ? this.state.tabs[this.state.activeTab] : null;
     const tabUid = (tab ? tab.uid : 'default');
-
-    if (tab && tab.onRender) return tab.onRender(this);
-    else return this.renderTab(tabUid);
+    if (tab && typeof tab.onRender === 'function') {
+      const tabContent = tab.onRender(this);
+      console.log('tabContent', tabContent);
+      return tabContent;
+    } else return this.renderTab(tabUid);
   }
 
   getInputProps(inputName: string, customInputProps?: any): InputProps {
