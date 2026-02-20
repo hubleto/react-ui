@@ -360,12 +360,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             uid: '__custom_columns',
             title: 'Custom',
             onRender: (form: any) => {
-              const inputs = form.state.description?.inputs;
-              return <>{Object.keys(inputs).map((inpName, index) => {
-                if (inputs[inpName].isCustom) {
-                  return form.inputWrapper(inpName);
-                }
-              })}</>;
+              // const inputs = form.state.description?.inputs;
+              // return <>{Object.keys(inputs).map((inpName, index) => {
+              //   if (inputs[inpName].isCustom) {
+              //     return form.inputWrapper(inpName);
+              //   }
+              // })}</>;
+              return form.renderCustomInputs();
             }
           });
         }
@@ -576,6 +577,21 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   contentClassName(): string
   {
     return '';
+  }
+
+  renderCustomInputs(): JSX.Element|Array<JSX.Element> {
+    let customInputs: any = [];
+
+    if (this.state?.description?.inputs) {
+      Object.keys(this.state.description.inputs).map((inputName) => {
+        const inputDesc = this.state.description.inputs[inputName];
+        if (inputDesc.isCustom) {
+          customInputs.push(this.inputWrapper(inputName));
+        }
+      });
+    }
+
+    return customInputs;
   }
 
   renderTabTitle(tabIndex: number): JSX.Element {

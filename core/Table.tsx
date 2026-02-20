@@ -113,9 +113,9 @@ export interface TableProps {
   endpoint?: TableEndpoint,
   customEndpointParams?: any,
   model: string,
-  parentRecordId?: any,
+  // parentRecordId?: any,
   parentForm?: Form<FormProps, FormState>,
-  parentFormModel?: string,
+  // parentFormModel?: string,
   tag?: string,
   context?: string,
   where?: Array<any>,
@@ -274,7 +274,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   componentDidUpdate(prevProps: TableProps) {
     if (
       (prevProps.formProps?.id != this.props.formProps?.id)
-      || (prevProps.parentRecordId != this.props.parentRecordId)
+      // || (prevProps.parentRecordId != this.props.parentRecordId)
     ) {
       this.state.formProps = this.props.formProps;
       if (this.state.async) {
@@ -327,8 +327,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return {
       model: this.model,
       filters: this.state.filters,
-      parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
-      parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
+      // parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
+      // parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
       tag: this.props.tag,
       context: this.props.context,
       dataView: this.state.description?.ui?.dataView,
@@ -458,8 +458,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             orderBy: this.state.description?.ui?.orderBy ?? { field: 'id', direction: 'desc' },
             page: this.state.page ?? 0,
             itemsPerPage: this.state.itemsPerPage ?? 35,
-            parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
-            parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
+            // parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
+            // parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
             fulltextSearch: this.state.fulltextSearch,
             columnSearch: this.state.columnSearch,
             tag: this.props.tag,

@@ -107,21 +107,6 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     </>;
   }
 
-  renderCustomInputs(): JSX.Element|Array<JSX.Element> {
-    let customInputs: any = [];
-
-    if (this.state?.description?.inputs) {
-      Object.keys(this.state.description.inputs).map((inputName) => {
-        const inputDesc = this.state.description.inputs[inputName];
-        if (inputDesc.isCustom) {
-          customInputs.push(this.inputWrapper(inputName));
-        }
-      });
-    }
-
-    return customInputs;
-  }
-
   renderFooter(): null|JSX.Element {
     return <>
       <div className='w-full flex justify-between'>

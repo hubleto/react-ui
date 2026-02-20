@@ -214,6 +214,15 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
             {hasChildren && isExpanded ?
               <div className='m-4'>
                 {this.renderTree(node.children, node.id, level + 1)}
+                <button
+                  className='btn btn-transparent btn-list-item w-full'
+                  onClick={() => {
+                    this.openForm(-1);
+                  }}
+                >
+                  <span className='icon'><i className='fas fa-plus'></i></span>
+                  <span className='text'>{this.translate('Add new')}</span>
+                </button>
               </div>
             : null}
           </div>;
@@ -225,6 +234,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
   }
 
   renderDataView(): JSX.Element {
+    console.log('this.state.description?.ui?.dataView', this.state.description?.ui);
     switch (this.state.description?.ui?.dataView) {
       case 'tree':
         return this.renderTree(this.state?.data?.tree);
