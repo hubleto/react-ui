@@ -332,8 +332,17 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
   /*
    * Render tree node
    */
-  renderNode(data: any, options: any) {
-    return <div>{JSON.stringify(data)}</div>;
+  renderNode(node: any) {
+    return <>
+      <button
+        className='btn btn-transparent w-full'
+        onClick={() => {
+          this.openForm(node.id);
+        }}
+      >
+        <span className='text'>{node.title}</span>
+      </button>
+    </>;
   }
 
   renderTree(nodes: any = null, idParent: number = 0, level: number = 0): JSX.Element {
@@ -341,16 +350,16 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
       nodes = this.state.data.nodes;
     }
     if (nodes.length && nodes.length > 0) {
-      return <div className='list'>
+      return <div>
         {nodes.map((node, index) => {
           const hasChildren = node.CHILDREN && node.CHILDREN.length > 0;
           const isExpanded = !this.state.collapsedNodeIds.includes(node.id);
-          return <div className='list-item'>
-            <div className='flex gap-2 justify-between'>
+          return <div className=''>
+            <div className='btn-group my-1'>
               {hasChildren ?
                 <div>
                   <button
-                    className='btn btn-transparent btn-list-item w-full'
+                    className='btn btn-transparent h-full'
                     onClick={() => {
                       let collapsedNodeIds = this.state.collapsedNodeIds;
                       if (collapsedNodeIds.includes(node.id)) {
@@ -370,28 +379,21 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
                 </div>
               : null}
               <div className='grow'>
-                <button
-                  className='btn btn-transparent btn-list-item w-full'
-                  onClick={() => {
-                    this.openForm(node.id);
-                  }}
-                >
-                  <span className='text'>{node.title}</span>
-                </button>
+                {this.renderNode(node)}
               </div>
             </div>
             {hasChildren && isExpanded ?
-              <div className='m-4'>
+              <div className='ml-4 mt-2'>
                 {this.renderTree(node.CHILDREN, node.id, level + 1)}
-                <button
-                  className='btn btn-transparent btn-list-item w-full'
+                {/* <button
+                  className='btn btn-transparent w-full'
                   onClick={() => {
                     this.openForm(-1);
                   }}
                 >
                   <span className='icon'><i className='fas fa-plus'></i></span>
                   <span className='text'>{this.translate('Add new')}</span>
-                </button>
+                </button> */}
               </div>
             : null}
           </div>;
