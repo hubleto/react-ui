@@ -148,7 +148,7 @@ export interface TableProps {
 // Laravel pagination
 interface TableData {
   current_page?: number,
-  data: Array<any>,
+  records: Array<any>,
   first_page_url?: string,
   from?: number,
   last_page_url?: string,
@@ -352,7 +352,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       // invalidInputs: this.props.invalidInputs,
       key: this.state.tableUpdateIteration,
       ref: this.dt,
-      value: this.state.data?.data, //(this.state.data?.data ?? []).filter((a: any) => a._toBeDeleted_ !== true),
+      value: this.state.data?.records, //(this.state.data?.records ?? []).filter((a: any) => a._toBeDeleted_ !== true),
       dataKey: "id",
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
@@ -390,8 +390,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         let hiddenRecordsCount = 0;
         let footer = [];
 
-        if (this.state.data?.data) {
-          this.state.data?.data.map((item, index) => {
+        if (this.state.data?.records) {
+          this.state.data?.records.map((item, index) => {
             if (item._PERMISSIONS && !item._PERMISSIONS[1]) hiddenRecordsCount++;
           });
         }
@@ -547,7 +547,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
 
     if (column.textAlign == 'right') cellClassName += ' text-right';
-    if (column.textAlign == 'center') cellClassName += ' text-center';
+    else if (column.textAlign == 'center') cellClassName += ' text-center';
+    else cellClassName += ' text-left';
 
     if (column.colorScale) {
       const min: number = this.getMinColumnValue(columnName);
@@ -569,9 +570,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   getMinColumnValue(columnName: string): number {
     let min: number = 0;
     let assigned: boolean = false;
-    if (this.state.data?.data) {
-      for (let i in this.state.data.data) {
-        let val = Number(this.state.data.data[i][columnName] ?? 0);
+    if (this.state.data?.records) {
+      for (let i in this.state.data.records) {
+        let val = Number(this.state.data.records[i][columnName] ?? 0);
         if (!assigned || val < min) min = val;
         assigned = true;
       }
@@ -582,9 +583,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   getMaxColumnValue(columnName: string): number {
     let max: number = 0;
     let assigned: boolean = false;
-    if (this.state.data?.data) {
-      for (let i in this.state.data.data) {
-        let val = Number(this.state.data.data[i][columnName] ?? 0);
+    if (this.state.data?.records) {
+      for (let i in this.state.data.records) {
+        let val = Number(this.state.data.records[i][columnName] ?? 0);
         if (!assigned || val > max) max = val;
         assigned = true;
       }
@@ -818,9 +819,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   deleteRecordById(id: number): void {
     let i: any = 0;
-    for (i in this.state.data?.data) {
-      if (this.state.data?.data[i].id == id) {
-        this.state.data?.data.splice(i, 1);
+    for (i in this.state.data?.records) {
+      if (this.state.data?.records[i].id == id) {
+        this.state.data?.records.splice(i, 1);
       }
     }
   }
@@ -828,9 +829,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   findRecordById(id: number): any {
     let data: any = {};
 
-    for (let i in this.state.data?.data) {
-      if (this.state.data?.data[i].id == id) {
-        data = this.state.data.data[i];
+    for (let i in this.state.data?.records) {
+      if (this.state.data?.records[i].id == id) {
+        data = this.state.data.records[i];
       }
     }
 
@@ -847,9 +848,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       let recordToDelete: any = null;
       let indexRecordToDelete: any = 0;
 
-      for (let i in this.state.data?.data) {
-        if (this.state.data?.data[i]._toBeDeleted_) {
-          recordToDelete = this.state.data?.data[i];
+      for (let i in this.state.data?.records) {
+        if (this.state.data?.records[i]._toBeDeleted_) {
+          recordToDelete = this.state.data?.records[i];
           indexRecordToDelete = i;
           break;
         }
@@ -867,7 +868,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           },
           (response: any) => {
             let data = this.state.data;
-            if (data) delete data.data[indexRecordToDelete]._toBeDeleted_;
+            if (data) delete data.records[indexRecordToDelete]._toBeDeleted_;
             this.setState({data: data}, () => {
               this.loadData();
             });
@@ -879,8 +880,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderDeleteConfirmModal(): JSX.Element {
     let hasRecordsToDelete: boolean = false;
-    for (let i in this.state.data?.data) {
-      if (this.state.data?.data[i]._toBeDeleted_) {
+    for (let i in this.state.data?.records) {
+      if (this.state.data?.records[i]._toBeDeleted_) {
         hasRecordsToDelete = true;
         break;
       }
@@ -900,14 +901,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           onNo: () => {
             if (this.state.data) {
               let newData: TableData = this.state.data;
-              for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
+              for (let i in newData.records) delete newData.records[i]._toBeDeleted_;
               this.setState({data: newData});
             }
           },
           onHide: () => {
             if (this.state.data) {
               let newData: TableData = this.state.data;
-              for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
+              for (let i in newData.records) delete newData.records[i]._toBeDeleted_;
               this.setState({data: newData});
             }
           },
@@ -1065,7 +1066,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           break;
           case 'date':
             cellValueElement = <>
-              <i className='fas fa-calendar mr-2 text-gray-300'></i>
+              {/* <i className='fas fa-calendar mr-2 text-gray-300'></i> */}
               {cellContent == '0000-00-00' ? '' : dateToEUFormat(cellContent)}
             </>;
           break;
@@ -1134,7 +1135,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           onChange: (input: any, value: any) => {
             if (this.state.data) {
               let data: TableData = this.state.data;
-              data.data[rowIndex][columnName] = value;
+              data.records[rowIndex][columnName] = value;
               this.setState({data: data});
               if (this.props.onChange) {
                 this.props.onChange(this);
@@ -1421,7 +1422,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           </tr>
         </thead>
         <tbody>
-          {this.state.data?.data.map((row, rowIndex) => {
+          {this.state.data?.records.map((row, rowIndex) => {
             return <tr>
               {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
                 const val = row['_LOOKUP[' + colName + ']'] ?? row[colName];
@@ -1552,8 +1553,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     let prevRow: any = {};
     let saveNextId: boolean = false;
 
-    for (let i in this.state.data?.data) {
-      const row = this.state.data?.data[i];
+    for (let i in this.state.data?.records) {
+      const row = this.state.data?.records[i];
       if (row && row.id) {
         if (saveNextId) {
           nextId = row.id;
@@ -1646,7 +1647,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       let data = this.props.data;
       if (orderBy.direction == "asc") {
 
-        data.data.sort((a, b) => {
+        data.records.sort((a, b) => {
           const valA = getValue(a[orderBy.field]);
           const valB = getValue(b[orderBy.field]);
 
@@ -1657,7 +1658,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
 
       } else {
-        data.data.sort((a, b) => {
+        data.records.sort((a, b) => {
           const valA = getValue(a[orderBy.field]);
           const valB = getValue(b[orderBy.field]);
 

@@ -75,7 +75,7 @@ export default class Tags extends Input<TagsInputProps, TagsInputState> {
         id: this.props.recordId
       },
       (data: any) => {
-        const tmpTags: Array<any> = data.data;
+        const tmpTags: Array<any> = data.records;
         const selected: Array<number> = data.selected;
 
         let tags: Array<TagBadge> = [];

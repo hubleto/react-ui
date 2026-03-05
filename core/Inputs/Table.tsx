@@ -35,10 +35,10 @@ export default class Table extends Input<TableInputProps, TableInputState> {
         isInlineEditing: this.state.isInlineEditing,
         readonly: !this.state.isInlineEditing,
         onChange: (table: BigTable<TableProps, TableState>) => {
-          this.onChange(this, table.state.data?.data);
+          this.onChange(this, table.state.data?.records);
         },
         onDeleteSelectionChange: (table: BigTable<TableProps, TableState>) => {
-          this.onChange(table.state.data?.data ?? []);
+          this.onChange(table.state.data?.records ?? []);
         },
         onRowClick: (table: BigTable<TableProps, TableState>, row: any) => {
           if (this.props.onRowClick) {

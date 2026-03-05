@@ -174,7 +174,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     if (nodes.length && nodes.length > 0) {
       return <div className='list'>
         {nodes.map((node, index) => {
-          const hasChildren = node.children && node.children.length > 0;
+          const hasChildren = node.CHILDREN && node.CHILDREN.length > 0;
           const isExpanded = !this.state.collapsedNodeIds.includes(node.id);
           return <div className='list-item'>
             <div className='flex gap-2 justify-between'>
@@ -213,7 +213,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
             </div>
             {hasChildren && isExpanded ?
               <div className='m-4'>
-                {this.renderTree(node.children, node.id, level + 1)}
+                {this.renderTree(node.CHILDREN, node.id, level + 1)}
                 <button
                   className='btn btn-transparent btn-list-item w-full'
                   onClick={() => {
@@ -234,7 +234,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
   }
 
   renderDataView(): JSX.Element {
-    console.log('this.state.description?.ui?.dataView', this.state.description?.ui);
+    // console.log('this.state.description?.ui?.dataView', this.state.description?.ui);
     switch (this.state.description?.ui?.dataView) {
       case 'tree':
         return this.renderTree(this.state?.data?.tree);
