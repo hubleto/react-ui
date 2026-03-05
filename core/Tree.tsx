@@ -335,7 +335,7 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
   renderNode(node: any) {
     return <>
       <button
-        className='btn btn-transparent w-full'
+        className={'btn w-full ' + (node.id == this.state.recordId ? 'btn-primary': 'btn-transparent')}
         onClick={() => {
           this.openForm(node.id);
         }}

@@ -323,12 +323,14 @@
   .modal > .modal-inner > .modal-header > .modal-header-title { @apply flex-1 text-center text-sm md:text-xl px-2 min-w-0; }
   .modal > .modal-inner > .modal-header > .modal-header-title h2 { @apply m-0 p-0 text-sm md:text-xl text-primary break-words max-w-full; }
   .modal > .modal-inner > .modal-header > .modal-header-right { @apply flex gap-1 justify-end; }
+  .modal > .modal-inner > .modal-header-buttons { @apply flex gap-1 p-2 border-b border-b-primary/20; }
   .modal > .modal-inner > .modal-header .btn { @apply flex-nowrap }
   .modal > .modal-inner > .modal-header .btn .text { @apply hidden md:flex }
   .modal > .modal-inner > .modal-top-menu .top-menu-wrapper { @apply flex w-full justify-between border-gray-100 bg-white dark:bg-slate-900 border-b border-b-primary/20 dark:border-b-slate-600; }
   .modal > .modal-inner > .modal-top-menu .top-menu-wrapper .btn { @apply p-1 border-none rounded-none shadow-none; }
   .modal > .modal-inner > .modal-body { @apply p-2 flex-1 overflow-y-auto relative; }
   .modal > .modal-inner > .modal-footer { @apply flex gap-2 p-2 border-t border-t-gray-200 bg-gray-50 dark:bg-slate-900 dark:border-slate-800; }
+  .modal > .modal-inner > .modal-footer-buttons { @apply flex gap-1 p-2 bg-white border-t border-t-gray-200; }
 
   .modal.theme-secondary { @apply border-secondary; }
   .modal.theme-secondary > .modal-inner { @apply border-secondary; }

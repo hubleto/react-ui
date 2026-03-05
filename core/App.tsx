@@ -16,16 +16,6 @@ export default class App {
     //
   }
 
-  addFormHeaderButton(title: string, onClick: any)
-  {
-    this.formHeaderButtons.push({ title: title, onClick: onClick });
-  }
-
-  getFormHeaderButtons()
-  {
-    return this.formHeaderButtons;
-  }
-
   addCustomFormTab(tab: FormTab)
   {
     tab.isCustom = true;

@@ -82,26 +82,12 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     return customTabs;
   }
 
-  getHeaderButtons()
-  {
-    return this.getParentApp()?.getFormHeaderButtons() ?? [];
-  }
-
   renderHeaderLeft(): null|JSX.Element {
-    const headerButtons = this.getHeaderButtons();
     return <>
       <div className='flex gap-2 items-center'>
         <div>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
         <div className='flex flex-col gap-2'>
           <div className='flex'>{super.renderHeaderLeft()}</div>
-          {headerButtons && headerButtons.length > 0 ? <div className='flex gap-2'>{headerButtons.map((button, key) => {
-            return <button
-              className='btn btn-small btn-primary-outline'
-              onClick={() => { button.onClick(this); }}
-            >
-              <span className='text'>{button.title}</span>
-            </button>;
-          })}</div> : null}
         </div>
       </div>
     </>;

@@ -173,6 +173,32 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   inputs: any = {};
 
+  static formHeaderButtons: any = {};
+  static formFooterButtons: any = {};
+
+  static addFormHeaderButton(title: string, icon: string, onClick: any) {
+    if (!this.formHeaderButtons[this.name]) {
+      this.formHeaderButtons[this.name] = [];
+    }
+    this.formHeaderButtons[this.name].push({ title: title, icon: icon, onClick: onClick });
+  }
+
+  static getFormHeaderButtons(formClass: string) {
+    return this.formHeaderButtons[formClass] ?? [];
+  }
+
+
+  static addFormFooterButton(title: string, icon: string, onClick: any) {
+    if (!this.formFooterButtons[this.name]) {
+      this.formFooterButtons[this.name] = [];
+    }
+    this.formFooterButtons[this.name].push({ title: title, icon: icon, onClick: onClick });
+  }
+
+  static getFormFooterButtons(formClass: string) {
+    return this.formFooterButtons[formClass] ?? [];
+  }
+  
   constructor(props: FormProps) {
     super(props);
 
@@ -883,6 +909,41 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
   }
 
+  renderHeaderButtons(): null|JSX.Element {
+    const headerButtons = Form.getFormHeaderButtons(this.constructor.name);
+    if (headerButtons && headerButtons.length > 0) {
+      return headerButtons.map((button, key) => {
+        return <button
+          key={key}
+          className='btn btn-small btn-primary-outline'
+          onClick={() => { button.onClick(this); }}
+        >
+          <span className='text'>{button.title}</span>
+        </button>;
+      });
+    } else {
+      return null;
+    }
+  }
+
+  renderFooterButtons(): null|JSX.Element {
+    const footerButtons = Form.getFormFooterButtons(this.constructor.name);
+    if (footerButtons && footerButtons.length > 0) {
+      return footerButtons.map((button, key) => {
+        return <button
+          key={key}
+          className='btn btn-white'
+          onClick={() => { button.onClick(this); }}
+        >
+          {button.icon == '' ? null : <span className='icon'><i className={button.icon}></i></span>}
+          <span className='text'>{button.title}</span>
+        </button>;
+      });
+    } else {
+      return null;
+    }
+  }
+
   renderSaveButton(): null|JSX.Element {
     let showButton = 
       this.state.description?.ui?.showSaveButton
@@ -1185,6 +1246,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         const formTopMenu = (this.state.isInitialized ? this.renderTopMenu() : null);
         const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
         const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
+        const headerButtons = this.renderHeaderButtons();
+        const footerButtons = this.renderFooterButtons();
 
         if (this.props.modal && this.props.modal.current) {
           return <>
@@ -1193,6 +1256,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
               <div className="modal-header-title">{formTitle}</div>
               <div className="modal-header-right">{headerRight}</div>
             </div>
+            {headerButtons ? <div className='modal-header-buttons'>{headerButtons}</div> : null}
             {saveErrorMessage}
             {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
             <div className={"modal-body " + formContentClassName}>
@@ -1203,6 +1267,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
               } */}
               {formContent}
             </div>
+            {footerButtons ? <div className='modal-footer-buttons'>{footerButtons}</div> : null}
             {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
           </>;
         } else {
