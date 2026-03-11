@@ -26,6 +26,9 @@
   aside#default-sidebar > nav .btn .text { @apply border-none text-base; }
   aside#default-sidebar > nav .btn.btn-active { @apply bg-white text-gray-800 dark:bg-primary dark:text-white dark:hover:bg-primary/80; }
   aside#default-sidebar > div.second-sidebar { @apply bg-white dark:bg-gray-900 dark:text-gray-100 h-full w-48 px-2 mt-12 overflow-y-auto border-r border-r-gray-100 dark:border-r-slate-700; }
+  aside#default-sidebar > div.second-sidebar .btn.btn-primary-outline { @apply dark:bg-transparent; }
+  aside#default-sidebar > div.second-sidebar .btn.btn-primary-outline .text { @apply dark:text-gray-100; }
+  aside#default-sidebar > div.second-sidebar .btn.btn-primary-outline .icon { @apply dark:text-gray-100; }
 
   nav#default-navbar { @apply bg-white fixed w-full z-20 top-0 start-0; }
   nav#default-navbar > div { @apply flex flex-wrap items-center w-[100vw] justify-between m-0 p-2 dark:bg-gray-900 dark:border-b dark:border-b-slate-700; }
