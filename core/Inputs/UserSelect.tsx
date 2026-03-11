@@ -40,6 +40,30 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
     return this.renderInputElement();
   }
 
+  loadData(inputValue: string|null = null, callback: ((option: Array<any>) => void)|null = null) {
+    let usersFromCache = globalThis.hubleto.users;
+    if (usersFromCache) {
+      this.setState({
+        isInitialized: true,
+        data: usersFromCache,
+      });
+    } else {
+      request.post(
+        this.getEndpointUrl(),
+        {...this.getEndpointParams(), search: inputValue},
+        {},
+        (data: any) => {
+          this.setState({
+            isInitialized: true,
+            data: data
+          });
+
+          globalThis.hubleto.users = data;
+        }
+      );
+    }
+  }
+
   renderInputElement() {
     if (!this.state.data) return <>...</>;
     return <div className='flex flex-wrap gap-2 items-center'>
@@ -51,7 +75,7 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
             key={key}
             className={
               "btn " + (this.state.readonly && this.state.value != userId ? "btn-disabled" : "")
-              + " " + (this.state.value == userId ? "btn-primary" : "btn-transparent")
+              + " " + (this.state.value == userId ? "btn-primary" : "btn-white")
             }
             onClick={() => {
               if (!this.state.readonly) this.onChange((this.state.value == userId ? null : userId));

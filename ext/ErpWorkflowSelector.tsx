@@ -7,6 +7,7 @@ import request from "@hubleto/react-ui/core/Request";
 
 interface ErpWorkflowSelectorProps {
   parentForm: any,
+  readonly?: boolean,
   onWorkflowChange?: (idWorkflow: number, idWorkflowStep: number) => void,
   onWorkflowStepChange?: (idWorkflowStep: number, step: any) => void,
 }
@@ -16,6 +17,7 @@ interface ErpWorkflowSelectorState {
   history: Array<any>,
   changeWorkflow: boolean,
   initialLoad: boolean,
+  readonly?: boolean,
 }
 
 export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWorkflowSelectorProps, ErpWorkflowSelectorState> {
@@ -35,7 +37,8 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
       workflows: null,
       history: null,
       changeWorkflow: false,
-      initialLoad: true
+      initialLoad: true,
+      readonly: this.props.readonly,
     };
   }
 
@@ -68,6 +71,8 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
   }
 
   onWorkflowChange(idWorkflow: number) {
+    if (this.state.readonly) return;
+
     this.setState({ idWorkflow: idWorkflow, changeWorkflow: false }, () => {
       this.props.parentForm.updateRecord({id_workflow: String(idWorkflow)}, () => {
         this.loadData(() => {
@@ -80,6 +85,8 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
   }
 
   onWorkflowStepChange(idWorkflowStep: number, step: any) {
+    if (this.state.readonly) return;
+
     this.setState({ idWorkflowStep: idWorkflowStep }, () => {
       this.props.parentForm.updateRecord({id_workflow_step: String(idWorkflowStep)}, () => {
         if (this.props.onWorkflowStepChange) {
@@ -105,9 +112,6 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
     return <>
       <div className='flex flex-row flex-wrap'>
         {this.state.changeWorkflow ? <div className='flex gap-2 items-center'>
-          <div>
-            Set workflow to
-          </div>
           <div className="input-body">
             <div className="hubleto component input"><div className="inner">
               <div className="input-element">
@@ -152,12 +156,15 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
                   })}
                 </div>
                 <div className='text-xs text-gray-400 flex gap-2'>
+                  {this.state.readonly ? <i className='fas fa-lock'></i> : null}
                   {history[0] ? <>Last update: {history[0].datetime_change} by {history[0].USER?.nick ?? 'unknown'}</> : null}
-                  <a href='#' onClick={() => { this.setState({changeWorkflow: true}); }}>
-                    <span className="text">{this.translate('Change workflow')}</span>
-                  </a>
+                  {this.state.readonly ? null :
+                    <a href='#' onClick={() => { this.setState({changeWorkflow: true}); }}>
+                      <span className="text">{this.translate('Change workflow')}</span>
+                    </a>
+                  }
                 </div>
-              </> : <div>
+              </> : (this.state.readonly ? null : <div>
                 <button
                   className='btn btn-primary-outline btn-small'
                   onClick={() => { this.setState({changeWorkflow: true}); }}
@@ -165,7 +172,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
                   <span className='icon'><i className='fas fa-timeline'></i></span>
                   <span className="text">{this.translate('Change workflow')}</span>
                 </button>
-              </div>}
+              </div>)}
             </div>
           </div>
         </div>}

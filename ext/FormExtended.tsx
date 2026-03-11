@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/core/Form";
 import request from '@hubleto/react-ui/core/Request';
-import App from '@hubleto/react-ui/core/App'
+import App from '@hubleto/react-ui/core/App';
+import UserSelect from '@hubleto/react-ui/core/Inputs/UserSelect';
 
 //@ts-ignore
 import ErpWorkflowSelector from '@hubleto/react-ui/ext/ErpWorkflowSelector';
@@ -16,10 +17,12 @@ export interface FormExtendedProps extends FormProps {
   junctionSourceRecordId?: number,
   junctionSaveEndpoint?: string,
   renderWorkflowUi?: boolean,
+  renderOwnerManagerUi?: boolean,
   timeline?: Array<any>,
 }
 export interface FormExtendedState extends FormState {
   icon?: string,
+  showOwnerManagerSelector?: boolean,
 }
 
 export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExtendedState> {
@@ -143,6 +146,76 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     </>;
   }
 
+  renderWorkflowUi() {
+    return (this.state.id <= 0 ? null : <div className='flex grow p-2 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800'>
+      <div className='flex-2'>
+        <ErpWorkflowSelector
+          parentForm={this}
+          readonly={this.state.record.id_manager == globalThis.hubleto.idUser}
+        ></ErpWorkflowSelector>
+      </div>
+      {this.state.description && this.state.description.inputs && this.state.description.inputs.is_closed
+        ? <div className='text-right'>{this.inputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
+        : null
+      }
+    </div>);
+  }
+
+  renderOwnerManagerUi() {
+    const idOwner = this.state.record.id_owner;
+    const owner = globalThis.hubleto.users ? globalThis.hubleto.users[idOwner] : null;
+    const idManager = this.state.record.id_manager;
+    const manager = globalThis.hubleto.users ? globalThis.hubleto.users[idManager] : null;
+
+    return <div className='p-2 flex flex-col'>
+      <div className='btn-group flex-col'>
+        <div className='btn btn-transparent' onClick={() => { this.setState({showOwnerManagerSelector: !this.state.showOwnerManagerSelector})}}>
+          <span className="text flex gap-2">{owner ? <>
+            <span className='text-xs text-gray-500'>Owner</span>
+            {owner.photo ?
+              <img
+                src={globalThis.hubleto.config.uploadUrl + '/' + owner.photo}
+                className='max-w-4 max-h-4 rounded-xl'
+              />
+            : null}
+            <span className='text-xs'>{
+              (Array.from(owner.first_name ?? '')[0]).toString()
+              + (Array.from(owner.last_name ?? '')[0]).toString()
+              + (owner.id == globalThis.hubleto.idUser ? ' (you) ' : '')
+            }</span>
+          </> : '-'}</span>
+        </div>
+        <div className='btn btn-transparent' onClick={() => { this.setState({showOwnerManagerSelector: !this.state.showOwnerManagerSelector})}}>
+          <span className="text flex gap-2">{manager ? <>
+            <span className='text-xs text-gray-500'>Manager</span>
+            {manager.photo ?
+              <img
+                src={globalThis.hubleto.config.uploadUrl + '/' + manager.photo}
+                className='max-w-4 max-h-4 rounded-xl'
+              />
+            : null}
+            <span className='text-xs'>{
+              (Array.from(manager.first_name ?? '')[0]).toString()
+              + (Array.from(manager.last_name ?? '')[0]).toString()
+              + (manager.id == globalThis.hubleto.idUser ? ' (you) ' : '')
+            }</span>
+          </> : '-'}</span>
+        </div>
+      </div>
+      {this.state.showOwnerManagerSelector ? <div
+        className='relative w-0 h-0'
+        style={{zIndex: 99999999999}}
+      >
+        <div
+          className='mt-2 shadow min-w-64 border border-primary bg-white rounded'
+        >
+          {this.inputWrapper('id_owner')}
+          {this.inputWrapper('id_manager')}
+        </div>
+      </div> : null}
+    </div>;
+  }
+
   renderTopMenu(): null|JSX.Element {
     const topMenu = super.renderTopMenu();
     const dynamicMenu = globalThis.hubleto.injectDynamicContent(
@@ -155,20 +228,25 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
       topMenuWithDynamicMenu = <>{topMenu} {dynamicMenu}</>;
     }
 
+    let workflowUi = null;
+
     if (this.props.renderWorkflowUi) {
-      return <div className='flex flex-col'>
-        {topMenuWithDynamicMenu}
-        {this.state.id <= 0 ? null : <div className='flex p-2 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800'>
-          <div className='flex-2'><ErpWorkflowSelector parentForm={this}></ErpWorkflowSelector></div>
-          {this.state.description && this.state.description.inputs && this.state.description.inputs.is_closed
-            ? <div className='text-right'>{this.inputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
-            : null
-          }
-        </div>}
-      </div>
-    } else {
-      return topMenuWithDynamicMenu;
+      workflowUi = this.renderWorkflowUi();
     }
+
+    let ownerManagerUi = null;
+
+    if (this.props.renderOwnerManagerUi) {
+      ownerManagerUi = this.renderOwnerManagerUi();
+    }
+
+    return <div className='flex flex-col'>
+      {topMenuWithDynamicMenu}
+      <div className='flex justify-between'>
+        {ownerManagerUi}
+        {workflowUi}
+      </div>
+    </div>
   }
 
   renderTimeline(timelineConfig: any): null|JSX.Element {
