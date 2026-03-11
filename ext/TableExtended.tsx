@@ -221,7 +221,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
                   }}
                 >
                   <span className='icon'><i className='fas fa-plus'></i></span>
-                  <span className='text'>{this.translate('Add new')}</span>
+                  <span className='text'>{this.translate('Add new', 'Hubleto\\Erp\\Loader', 'Components\\TableExtended')}</span>
                 </button>
               </div>
             : null}
@@ -291,7 +291,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
           uid={this.props.uid + '_columns_config_modal'}
           isOpen={true}
           type='right'
-          title='Customize Columns'
+          title={this.translate('Customize Columns', 'Hubleto\\Erp\\Loader', 'Components\\TableExtended')}
           onClose={() => { this.setState({showColumnConfigScreen: false}); }}
         >
           <TableExtendedColumnsCustomize

@@ -70,7 +70,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
               onClick={() => { this.setState({isFullscreen: !this.state.isFullscreen}); }}
             >
               <span className='icon'><i className='fas fa-expand'></i></span>
-              <span className='text'>{this.translate('Toggle fullscreen')}</span>
+              <span className='text'>{this.translate('Toggle fullscreen','Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
             </button>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
       </div>
       <div className={'w-1/2 card ' + (this.state.previewInvalidated ? 'card-danger' : '')}>
         <div className='card-header'>
-          Preview
+          {this.translate('Preview','Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}
         </div>
         <div className='card-body'>
           <HtmlFrame

@@ -578,7 +578,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   closeForm() {
     let ok = true;
-    if (this.state.recordChanged) ok = confirm('You have unsaved changes. Are you sure to close?');
+    if (this.state.recordChanged) ok = confirm(this.translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
     if (ok) {
       if (this.props.onClose) {
         this.props.onClose();
