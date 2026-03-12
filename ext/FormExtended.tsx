@@ -151,9 +151,10 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
       <div className='flex-2'>
         <ErpWorkflowSelector
           parentForm={this}
-          readonly={this.state.record.id_manager == globalThis.hubleto.idUser}
+          readonly={this.state.record.id_manager && this.state.record.id_manager != globalThis.hubleto.idUser}
         ></ErpWorkflowSelector>
       </div>
+      {/* [{this.state.record.id_manager}, {globalThis.hubleto.idUser}] */}
       {this.state.description && this.state.description.inputs && this.state.description.inputs.is_closed
         ? <div className='text-right'>{this.inputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
         : null
