@@ -271,28 +271,25 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     let permissions = { canCreate: false, canRead: false, canUpdate: false, canDelete: false };
 
-    if (record && record._PERMISSIONS) {
-      permissions.canCreate = record._PERMISSIONS[0];
-      permissions.canRead = record._PERMISSIONS[1];
-      permissions.canUpdate = record._PERMISSIONS[2];
-      permissions.canDelete = record._PERMISSIONS[3];
-    } else {
+    permissions.canCreate = record._PERMISSIONS ? record._PERMISSIONS[0] ?? true : true;
+    permissions.canRead = record._PERMISSIONS ? record._PERMISSIONS[1] ?? true : true;
+    permissions.canUpdate = record._PERMISSIONS ? record._PERMISSIONS[2] ?? true : true;
+    permissions.canDelete = record._PERMISSIONS ? record._PERMISSIONS[3] ?? true : true;
 
-      if (this.state?.description?.permissions) {
-        const p = this.state.description.permissions;
-        if (p.canCreate) permissions.canCreate = p.canCreate;
-        if (p.canRead) permissions.canRead = p.canRead;
-        if (p.canUpdate) permissions.canUpdate = p.canUpdate;
-        if (p.canDelete) permissions.canDelete = p.canDelete;
-      }
+    if (this.state?.description?.permissions) {
+      const p = this.state.description.permissions;
+      permissions.canCreate = permissions.canCreate && (p.canCreate ?? true);
+      permissions.canRead = permissions.canRead && (p.canRead ?? true);
+      permissions.canUpdate = permissions.canUpdate && (p.canUpdate ?? true);
+      permissions.canDelete = permissions.canDelete && (p.canDelete ?? true);
+    }
 
-      if (this.props?.description?.permissions) {
-        const p = this.props.description.permissions;
-        if (p.canCreate) permissions.canCreate = p.canCreate;
-        if (p.canRead) permissions.canRead = p.canRead;
-        if (p.canUpdate) permissions.canUpdate = p.canUpdate;
-        if (p.canDelete) permissions.canDelete = p.canDelete;
-      }
+    if (this.props?.description?.permissions) {
+      const p = this.props.description.permissions;
+      permissions.canCreate = permissions.canCreate && (p.canCreate ?? true);
+      permissions.canRead = permissions.canRead && (p.canRead ?? true);
+      permissions.canUpdate = permissions.canUpdate && (p.canUpdate ?? true);
+      permissions.canDelete = permissions.canDelete && (p.canDelete ?? true);
     }
 
     return permissions;
