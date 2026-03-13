@@ -44,6 +44,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
       overflow: 'auto',
       fontFamily: 'monospace',
       fontSize: 11,
+      maxWidth: '600px',
     };
     let wrapperStyle: any = {};
 
