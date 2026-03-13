@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import request from '@hubleto/react-ui/core/Request';
 import TableExtended, { TableExtendedProps, TableExtendedState } from './TableExtended';
+import TranslatedComponent from "@hubleto/react-ui/core//TranslatedComponent";
 
 export interface TableExtendedColumnsCustomizeProps {
   tableModel: string,
@@ -14,7 +15,7 @@ export interface TableExtendedColumnsCustomizeState {
   draggedKey: null,
 }
 
-export default class TableExtendedColumnsCustomize<P, S> extends Component {
+export default class TableExtendedColumnsCustomize<P, S> extends TranslatedComponent<TableExtendedColumnsCustomizeProps, TableExtendedColumnsCustomizeState> {
 
   props: TableExtendedColumnsCustomizeProps;
   state: TableExtendedColumnsCustomizeState;
@@ -122,11 +123,11 @@ export default class TableExtendedColumnsCustomize<P, S> extends Component {
               <span className="icon">
                 <i className="fas fa-save"></i>
               </span>
-              <span className="text">Save</span>
+              <span className="text">{this.translate('Save', 'Hubleto\\Erp\\Loader', 'Components\\TableExtendedColumnsCustomize')}</span>
             </button>
           </div>
           <div className="modal-header-title">
-            <h2>Customize Columns</h2>
+            <h2>{this.translate('Customize Columns', 'Hubleto\\Erp\\Loader', 'Components\\TableExtendedColumnsCustomize')}</h2>
           </div>
           <div className="modal-header-right">
             <button
@@ -190,7 +191,7 @@ export default class TableExtendedColumnsCustomize<P, S> extends Component {
         <div className='modal-footer'>
           <button className="btn btn-transparent" onClick={() => this.resetRecord()}>
             <span className="icon"><i className="fas fa-refresh"></i></span>
-            <span className="text">Reset to default</span>
+            <span className="text">{this.translate('Reset to default', 'Hubleto\\Erp\\Loader', 'Components\\TableExtendedColumnsCustomize')}</span>
           </button>
         </div>
       </>

@@ -397,7 +397,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         }
 
         if (hiddenRecordsCount > 0) {
-          footer.push(<div className='badge badge-warning'>⚠ {hiddenRecordsCount} records were hidden based on your permissions.</div>);
+          footer.push(<div className='badge badge-warning'>⚠ {hiddenRecordsCount} {this.translate('records were hidden based on your permissions.', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</div>);
         }
 
         if (this.state.description?.ui?.showFooter) footer.push(this.renderFooter());
@@ -639,7 +639,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   renderMoreActionsButton(): JSX.Element {
     let moreActions = {
       showAsPlainTable: {
-        title: (this.state?.description?.ui?.showAsPlainTable ? 'Show as standard table' : 'Show as plain table'),
+        title: (this.state?.description?.ui?.showAsPlainTable ? 
+          this.translate('Show as standard table', 'Hubleto\\Erp\\Loader', 'Components\\Table') 
+          : this.translate('Show as plain table', 'Hubleto\\Erp\\Loader', 'Components\\Table')),
         type: 'onclick',
         onClick: () => {
           let description: any = this.state?.description ?? {};
@@ -714,7 +716,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
         >
           <span className="icon"><i className="fas fa-filter"></i></span>
-          <span className="text">{this.translate('Show/Hide filter')}</span>
+          <span className="text">{this.translate('Show/Hide filter', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
         </button>
       );
     }
@@ -1383,7 +1385,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                 <div className='cell-buttons'>
                   <button
                     className='btn btn-small btn-white'
-                    title='Copy cell content to clipboard'
+                    title={this.translate('Copy cell content to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
                     onClick={(e) => {
                       navigator.clipboard.writeText(data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? ''));
                       e.stopPropagation();
@@ -1467,7 +1469,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                   onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
                 >
                   <span className="icon"><i className="fas fa-arrow-left"></i></span>
-                  <span className="text">{this.translate('Hide filter')}</span>
+                  <span className="text">{this.translate('Hide filter', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
                 </button>
               }
             </div>
