@@ -540,14 +540,18 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   cellClassName(columnName: string, column: any, rowData: any) {
     let cellClassName = 'table-cell-content ' + (column.cssClass ?? '');
 
+    if (column.tableCssClass) {
+      cellClassName += ' ' + column.tableCssClass;
+    }
+
     if (column.enumValues) {
       cellClassName += ' badge ' + (column.enumCssClasses ? (column.enumCssClasses[rowData[columnName]] ?? '') : '');
     } else {
       cellClassName += ' column-' + column.type;
     }
 
-    if (column.textAlign == 'right') cellClassName += ' text-right';
-    else if (column.textAlign == 'center') cellClassName += ' text-center';
+    if (column.textAlign == 'right') cellClassName += ' text-right float-right';
+    else if (column.textAlign == 'center') cellClassName += ' text-center m-auto';
     else cellClassName += ' text-left';
 
     if (column.colorScale) {
@@ -1372,6 +1376,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           if (data._PERMISSIONS && !data._PERMISSIONS[1]) { // can not read
             return <div className='text-nowrap'>Hidden record</div>;
           } else {
+            const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
             return (
               <div
                 key={'column-' + columnName}
@@ -1380,6 +1385,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                   + (data._toBeDeleted_ ? ' to-be-deleted' : '')
                 }
                 style={this.cellCssStyle(columnName, column, data)}
+                title={cellText}
               >
                 {this.renderCell(columnName, column, data, options)}
                 <div className='cell-buttons'>
@@ -1387,7 +1393,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                     className='btn btn-small btn-white'
                     title={this.translate('Copy cell content to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
                     onClick={(e) => {
-                      navigator.clipboard.writeText(data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? ''));
+                      navigator.clipboard.writeText(cellText);
                       e.stopPropagation();
                     }}
                   ><span className='icon'><i className='fas fa-copy'></i></span></button>
@@ -1554,6 +1560,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     let nextId: any = null;
     let prevRow: any = {};
     let saveNextId: boolean = false;
+
+    let canRead = this.state.description?.permissions?.canRead;
+
+    if (!canRead) return;
 
     for (let i in this.state.data?.records) {
       const row = this.state.data?.records[i];

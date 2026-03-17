@@ -98,6 +98,13 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
 
   renderFooter(): null|JSX.Element {
     return <>
+      {this.state.record.id > 0 ? <a
+        className='btn btn-primary-outline'
+        href={globalThis.hubleto.config.projectUrl + '/ai-assistant?model=' + this.props.model + '&id=' + this.state.record.id}
+        target='_blank'
+      >
+        <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
+      </a> : null}
       <div className='w-full flex justify-between'>
         <div className="flex gap-2 items-center dark:text-white">
           <div>#{this.state.record.id}</div>
