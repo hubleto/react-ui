@@ -1091,7 +1091,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderFullscreenButton(): null|JSX.Element {
     return (
       <button
-        className="btn btn-transparent"
+        className="btn btn-transparent hidden md:block"
         type="button"
         aria-label="Fullscreen"
         onClick={() => {
@@ -1099,10 +1099,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           this.props.modal.current.setState({isFullscreen: !this.props.modal.current.state.isFullscreen});
         }}
       >
-          <span className="icon">
-            <i className={"fas fa-" + (this.state.isFullscreen ? "compress" : "expand")}></i>
-          </span>
-        </button>
+        <span className="icon">
+          <i className={"fas fa-" + (this.state.isFullscreen ? "compress" : "expand")}></i>
+        </span>
+      </button>
     );
   }
 

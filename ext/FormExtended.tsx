@@ -88,7 +88,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
   renderHeaderLeft(): null|JSX.Element {
     return <>
       <div className='flex gap-2 items-center'>
-        <div>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
+        <div className='hidden md:block'>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
         <div className='flex flex-col gap-2'>
           <div className='flex'>{super.renderHeaderLeft()}</div>
         </div>
@@ -105,7 +105,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
       >
         <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
       </a> : null}
-      <div className='w-full flex justify-between'>
+      <div className='w-full flex justify-between flex-col md:flex-row'>
         <div className="flex gap-2 items-center dark:text-white">
           <div>#{this.state.record.id}</div>
           <div>{this.renderPrevRecordButton()}</div>

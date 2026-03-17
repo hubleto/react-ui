@@ -38,8 +38,8 @@ class Request {
       const responseData: any = res.data;
       document.body.classList.remove("ajax-loading");
       if (responseData.status == 'error') {
-        this.alertOnError(responseData);
         if (errorCallback) errorCallback(responseData);
+        else this.alertOnError(responseData);
       } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
@@ -58,8 +58,8 @@ class Request {
       const responseData: any = res.data;
       document.body.classList.remove("ajax-loading");
       if (responseData.status == 'error') {
-        this.alertOnError(responseData);
         if (errorCallback) errorCallback(responseData);
+        else this.alertOnError(responseData);
       } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
@@ -76,8 +76,8 @@ class Request {
     }).then(res => {
       const responseData: any = res.data;
       if (responseData.status == 'error') {
-        this.alertOnError(responseData);
         if (errorCallback) errorCallback(responseData);
+        else this.alertOnError(responseData);
       } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
@@ -94,8 +94,8 @@ class Request {
     }).then(res => {
       const responseData: any = res.data;
       if (responseData.status == 'error') {
-        this.alertOnError(responseData);
         if (errorCallback) errorCallback(responseData);
+        else this.alertOnError(responseData);
       } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
