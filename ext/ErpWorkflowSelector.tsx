@@ -157,10 +157,15 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
                 </div>
                 <div className='text-xs text-gray-400 flex gap-2'>
                   {this.state.readonly ? <i className='fas fa-lock'></i> : null}
-                  {history[0] ? <>Last update: {history[0].datetime_change} by {history[0].USER?.nick ?? 'unknown'}</> : null}
+                  {history[0] ? <>
+                    {this.translate('Last update: {{ date }} by {{ user }}', 'Hubleto\\Erp\\Loader', 'Components\\ErpWorkflowSelector')
+                      .replace('{{ date }}', history[0].datetime_change)
+                      .replace('{{ user }}', history[0].USER?.nick ?? this.translate('unknown', 'Hubleto\\Erp\\Loader', 'Components\\ErpWorkflowSelector'))
+                    }
+                  </> : null}                  
                   {this.state.readonly ? null :
                     <a href='#' onClick={() => { this.setState({changeWorkflow: true}); }}>
-                      <span className="text">{this.translate('Change workflow')}</span>
+                      <span className="text">{this.translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\ErpWorkflowSelector')}</span>
                     </a>
                   }
                 </div>
@@ -170,7 +175,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
                   onClick={() => { this.setState({changeWorkflow: true}); }}
                 >
                   <span className='icon'><i className='fas fa-timeline'></i></span>
-                  <span className="text">{this.translate('Change workflow')}</span>
+                  <span className="text">{this.translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\ErpWorkflowSelector')}</span>
                 </button>
               </div>)}
             </div>

@@ -94,7 +94,8 @@ export default class ErpSearch<P, S> extends Component<ErpSearchProps, ErpSearch
         // onKeyDown={(e: any) => { console.log(this.searchRef.current.getValue()); }}
         onChange={(item: any) => { this.onChange(item); }}
         components={{ Option }}
-        placeholder='[Ctrl+K] Search in Hubleto...'
+        placeholder={globalThis.hubleto.translate('[Ctrl+K] Search in Hubleto...', 'Hubleto\\Erp\\Loader', 'Components\\ErpSearch')}
+        noOptionsMessage={() => globalThis.hubleto.translate('No options', 'Hubleto\\Erp\\Loader', 'Components\\ErpSearch')}        
         className="hubleto-lookup"
         styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
         menuPosition="fixed"
