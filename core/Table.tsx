@@ -715,7 +715,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (this.state?.description?.ui?.filters) {
       buttons.push(
         <button
-          className="btn btn-transparent"
+          className="btn btn-transparent hidden md:block"
           key="filters-btn"
           onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
         >
@@ -744,7 +744,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderFulltextSearch(): JSX.Element {
     if (this.state.description?.ui?.showFulltextSearch) {
-      return <div className="table-header-search">
+      return <div className="table-header-search" key="fulltext-search">
         <input
           ref={this.refFulltextSearchInput}
           className={"table-header-search " + (this.state.fulltextSearch == "" ? "" : "active")}
@@ -788,7 +788,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         {left.length == 0 ? null :
           <div className="table-header-left">
             {left.map((item: any, index: any) => {
-              return <div key={'header-left-' + index}>{item}</div>;
+              return item;
             })}
           </div>
         }
@@ -1467,7 +1467,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
         {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
-        <div className="flex gap-2 flex-col md:flex-row overflow-x max-w-[100vw]">
+        <div className="flex gap-2 flex-col md:flex-row overflow-x max-w-[98vw]">
           {sidebarFilter && this.state.description?.ui?.showSidebarFilter && !this.state.sidebarFilterHidden ?
             <div className="table-sidebar-filter">
               {sidebarFilter}
