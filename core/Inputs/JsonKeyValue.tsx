@@ -87,7 +87,7 @@ export default class JsonKeyValue extends Input<InputProps, JsonKeyValueInputSta
           onClick={() => this.addNewKeyValue()}
         >
           <span className="icon"><i className="fas fa-plus"></i></span>
-          <span className="text">{this.translate('Add value')}</span>
+          <span className="text">{this.translate('Add value', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\JsonKeyValue')}</span>
         </button>
       </div>
     </div>;

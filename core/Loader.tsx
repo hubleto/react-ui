@@ -151,7 +151,7 @@ export class HubletoReactUi {
 
   getValidationErrorMessage(messageString: string): JSX.Element {
     return <>
-      <b>{this.translate('Some inputs need your attention')}</b><br/>
+      <b>{this.translate('Some inputs need your attention', 'Hubleto\\Erp\\Loader', 'HubletoReactUi')}</b><br/>
       <br/>
       {messageString}
     </>;
@@ -159,7 +159,7 @@ export class HubletoReactUi {
 
   getDuplicateEntryErrorMessage(message: string): JSX.Element {
     return <>
-      <b>{this.translate('Duplicate entry error')}</b><br/>
+      <b>{this.translate('Duplicate entry error', 'Hubleto\\Erp\\Loader', 'HubletoReactUi')}</b><br/>
       <br/>
       <div>{message}</div>
     </>;
@@ -204,7 +204,7 @@ export class HubletoReactUi {
           onClick={() => { this.lastShownDialogRef.current.hide(); }}
         >
           <span className="icon"><i className="fas fa-check"></i></span>
-          <span className="text">OK, I understand</span>
+          <span className="text">{ this.translate('OK, I understand', 'Hubleto\\Erp\\Loader', 'HubletoReactUi') }</span>
         </button>
       </div>
     };
@@ -223,14 +223,14 @@ export class HubletoReactUi {
     let defaultProps: any = {
       headerClassName: 'dialog-warning-header',
       contentClassName: 'dialog-warning-content',
-      header: "Warning",
+      header: this.translate('Warning', 'Hubleto\\Erp\\Loader', 'HubletoReactUi') ,
       footer: <div className={"flex w-full justify-start"}>
         <button
           className="btn btn-transparent"
           onClick={() => { this.lastShownDialogRef.current.hide() }}
         >
           <span className="icon"><i className="fas fa-check"></i></span>
-          <span className="text">OK, I understand</span>
+          <span className="text">{ this.translate('OK, I understand', 'Hubleto\\Erp\\Loader', 'HubletoReactUi') }</span>
         </button>
       </div>
     };
@@ -250,7 +250,7 @@ export class HubletoReactUi {
     let defaultProps = {
       headerClassName: 'dialog-confirm-header',
       contentClassName: 'dialog-confirm-content',
-      header: "Confirm",
+      header: this.translate('Confirm', 'Hubleto\\Erp\\Loader', 'HubletoReactUi'),
       footer: <>
         <div className={"flex w-full justify-between"}>
           <button className={"btn " + propsCloned.yesButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); propsCloned.onYes(); }} >

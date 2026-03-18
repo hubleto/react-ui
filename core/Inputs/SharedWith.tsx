@@ -88,7 +88,7 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
           type='right'
           showHeader={true}
           title={<>
-            <h2>{this.translate('Share')}</h2>
+            <h2>{this.translate('Share', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</h2>
           </>}
           onClose={(modal: ModalSimple) => { this.setState({showModal: false}); }}
         >
@@ -114,9 +114,9 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
                       valuesPerUser[user.id] = event.currentTarget.value;
                     }}
                   >
-                    <option value=''>Default access based on ownership</option>
-                    <option value='read'>Can only read</option>
-                    <option value='modify'>Can read and modify</option>
+                    <option value=''>{this.translate('Default access based on ownership', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</option>
+                    <option value='read'>{this.translate('Can only read', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</option>
+                    <option value='modify'>{this.translate('Can read and modify', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</option>
                   </select>
                 </td>
               </tr>;
@@ -130,7 +130,7 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
             }}
           >
             <span className='icon'><i className='fas fa-check'></i></span>
-            <span className='text'>{this.translate('Apply')}</span>
+            <span className='text'>{this.translate('Apply', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</span>
           </button>
         </ModalSimple>
       : null}

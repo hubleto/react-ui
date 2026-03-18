@@ -110,7 +110,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
           <div>#{this.state.record.id}</div>
           <div>{this.renderPrevRecordButton()}</div>
           <div>{this.renderNextRecordButton()}</div>
-          {this.state.recordChanged ? <div className='badge badge-small badge-warning block '>{this.translate('unsaved changes')}</div> : null}
+          {this.state.recordChanged ? <div className='badge badge-small badge-warning block '>{this.translate('unsaved changes', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}</div> : null}
         </div>
         <div className='flex gap-2 items-center'>
           {this.getRecordFormUrl() ? <>
@@ -124,7 +124,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
             </a>
             <button
               className='btn btn-transparent'
-              title='Copy link to clipboard'
+              title={this.translate('Copy link to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
               onClick={() => {
                 navigator.clipboard.writeText(globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl());
               }}
