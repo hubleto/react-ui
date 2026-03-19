@@ -147,8 +147,13 @@ export default class TableExtendedImportCsvForm<P, S> extends Form<TableExtended
           </div>
         </> : null}
 
-        {this.state.importResult ? <div className='mt-2 alert alert-success'>
-          Imported {this.state.importResult.importedRecords} records.
+        {this.state.importResult ? <div className='mt-2'>
+          <div className='alert alert-success'>Imported {this.state.importResult.importedRecords} records.</div>
+          {this.state.importResult.failedImports ? <div className='alert alert-danger mt-2'>
+            <b>Ooops. There were some errors during import.</b><br/>
+            <br/>
+            <pre className='text-xs overflow-x-auto'>{JSON.stringify(this.state.importResult.failedImports, null, 2)}</pre>
+          </div> : null}
         </div> : null}
       </div>;
     }

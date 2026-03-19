@@ -772,13 +772,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
    */
   renderContent(): null|JSX.Element {
     const tabs: Array<FormTab> = this.state.tabs ?? [];
-    // this.state.tabs[this.state.activeTab] : null;
     const tab: FormTab = tabs.filter((t) => t['uid'] == this.state.activeTabUid)[0] ?? null;
     const tabUid = (tab ? tab.uid : 'default');
-    console.log('renderContent', tabs, tab, tabUid);
+
     if (tab && typeof tab.onRender === 'function') {
       const tabContent = tab.onRender(this);
-      console.log('tabContent', tabContent);
       return tabContent;
     } else return this.renderTab(tabUid);
   }
