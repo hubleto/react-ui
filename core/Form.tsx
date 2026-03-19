@@ -468,6 +468,14 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   onTabChange() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (this.state.activeTabUid == 'default') {
+      urlParams.delete('tab');
+    } else {
+      urlParams.set('tab', this.state.activeTabUid);
+    }
+    window.history.pushState({}, "", '?' + urlParams.toString());
+
     if (this.props.onTabChangeCallback) this.props.onTabChangeCallback(this);
   }
 
@@ -577,6 +585,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     let ok = true;
     if (this.state.recordChanged) ok = confirm(this.translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
     if (ok) {
+
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.delete('tab');
+      window.history.pushState({}, "", '?' + urlParams.toString());
+
       if (this.props.onClose) {
         this.props.onClose();
       }
@@ -636,14 +649,16 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderTopMenuButton(index: number) {
     const tabs = this.state.tabs ?? [];
-    const activeTab = this.state.activeTab ?? 0;
+    // const activeTab = this.state.activeTab ?? 0;
     const activeTabUid = this.state.activeTabUid ?? 'default';
     const tabTitle = this.renderTabTitle(index);
     const tab = tabs[index];
 
+    const isActive = tab['uid'] == activeTabUid;
+
     return <button
       key={index}
-      className={"btn " + (activeTab == index ? "btn-primary" : "btn-transparent")}
+      className={"btn " + (isActive ? "btn-primary" : "btn-transparent")}
       onClick={() => {
         const tab = this.state.tabs ? this.state.tabs[index] : null;
         const tabUid = (tab ? tab.uid : 'default');
@@ -756,8 +771,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
    * Render content
    */
   renderContent(): null|JSX.Element {
-    const tab = this.state.tabs ? this.state.tabs[this.state.activeTab] : null;
+    const tabs: Array<FormTab> = this.state.tabs ?? [];
+    // this.state.tabs[this.state.activeTab] : null;
+    const tab: FormTab = tabs.filter((t) => t['uid'] == this.state.activeTabUid)[0] ?? null;
     const tabUid = (tab ? tab.uid : 'default');
+    console.log('renderContent', tabs, tab, tabUid);
     if (tab && typeof tab.onRender === 'function') {
       const tabContent = tab.onRender(this);
       console.log('tabContent', tabContent);
