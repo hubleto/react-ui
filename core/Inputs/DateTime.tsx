@@ -178,12 +178,12 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       case 'datetime':
         icon = 'fas fa-clock';
         value = datetimeToEUFormat(this.state.value);
-        defaultPlaceholder = 'Year-Month-Day Hour:Min:Sec';
+        defaultPlaceholder = this.translate('Year-Month-Day Hour:Min:Sec','Hubleto\\Erp\\Loader','Components\\Inputs\\DateTime');
       break;
       case 'date':
         icon = 'fas fa-calendar';
         value = dateToEUFormat(this.state.value);
-        defaultPlaceholder = 'Year-Month-Day';
+        defaultPlaceholder = this.translate('Year-Month-Day','Hubleto\\Erp\\Loader','Components\\Inputs\\DateTime');
       break;
       case 'time':
         icon = 'fas fa-clock';

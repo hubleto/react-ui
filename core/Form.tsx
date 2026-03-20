@@ -165,7 +165,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   model: string;
   components: Array<React.JSX.Element> = [];
-  translationContext: string = '';
 
   // DEPRECATED
   jsxContentRendered: boolean = false;
