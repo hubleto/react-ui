@@ -1,6 +1,6 @@
 import React, { Component, ChangeEvent, createRef } from 'react';
 
-import { setUrlParam } from "./Helper";
+import { setUrlParam, deleteUrlParam } from "./Helper";
 import Modal, { ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
 import ModalForm from "./ModalForm";
@@ -764,7 +764,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             if (event.keyCode == 13) {
               this.loadData();
               if (!this.props.parentForm) {
-                setUrlParam('q', this.state.fulltextSearch);
+                if (this.state.fulltextSearch == '') {
+                  deleteUrlParam('q');
+                } else {
+                  setUrlParam('q', this.state.fulltextSearch);
+                }
               }
             }
           }}
@@ -950,22 +954,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  // /*
-  //  * Render body for Column (PrimeReact column)
-  //  */
-  // isCellEditable(columnName: string, column: any, data: any, options: any) {
-  //   console.log('isCellEditable', columnName, data.id, this.state.editedCells);
-  //   for (let i in this.state.editedCells) {
-  //     if (
-  //       this.state.editedCells[i][0] == data.id
-  //       && this.state.editedCells[i][1] == columnName
-  //     ) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
-  
   /*
    * Render body for Column (PrimeReact column)
    */
@@ -1239,6 +1227,20 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     else return <div className='flex gap-2'>{moreActions.map((item, key) => item)}</div>;
   }
 
+  applyColumnSearch(columnSearch: any) {
+    if (!this.props.parentForm) {
+      if (columnSearch.length == 0) {
+        deleteUrlParam('search');
+      } else {
+        setUrlParam('search', columnSearch);
+      }
+    }
+
+    this.setState({columnSearch: columnSearch}, () => {
+      this.loadData();
+    });
+  }
+
   setColumnSearch(columnName: string, value: any)
   {
     let columnSearch: any = this.state.columnSearch;
@@ -1246,9 +1248,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (value === null) delete columnSearch[columnName];
     else columnSearch[columnName] = value;
 
-    this.setState({columnSearch: columnSearch}, () => {
-      this.loadData();
-    });
+    this.applyColumnSearch(columnSearch);
+
   }
 
   addColumnSearch(columnName: string, value: any)
@@ -1272,9 +1273,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     columnSearch[columnName] = columnSearchForColumn;
 
-    this.setState({columnSearch: columnSearch}, () => {
-      this.loadData();
-    });
+    this.applyColumnSearch(columnSearch);
   }
 
   deleteColumnSearch(columnName: string, index: number)
@@ -1285,9 +1284,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     columnSearch[columnName].splice(index, 1);
     if (columnSearch[columnName].length == 1) delete columnSearch[columnName];
 
-    this.setState({columnSearch: columnSearch}, () => {
-      this.loadData();
-    });
+    this.applyColumnSearch(columnSearch);
   }
 
   renderColumns(): JSX.Element[] {
@@ -1470,7 +1467,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           </div>;
         }}
         onCellEditComplete={(e: ColumnEvent) => {
-          console.log('onCellEditorComplete', e);
           request.post(
             this.getEndpointUrl('saveRecord'),
             {
@@ -1486,6 +1482,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             }
           );
 
+        }}
+        onCellEditCancel={(e: ColumnEvent) => {
+          setTimeout(() => this.setState({isInlineEditing: false}), 100);
         }}
         style={{ width: 'auto' }}
         sortable
@@ -1671,7 +1670,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         this.setRecordFormUrl(id);
       }
 
-      this.setState({ recordId: null }, () => {
+      this.setState({ recordId: null, isInlineEditing: false }, () => {
         this.setState({
           recordId: id,
           recordPrevId: prevId,
@@ -1693,7 +1692,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       window.history.pushState({}, '', this.state.myRootUrl + '?' + urlParams.toString());
     }
 
-    this.setState({ recordId: null });
+    this.setState({ recordId: null, isInlineEditing: false });
   }
 
   onAddClick() {

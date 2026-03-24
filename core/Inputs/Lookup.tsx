@@ -162,7 +162,7 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
     } else if (this.props.uiStyle == 'buttons' || this.props.uiStyle == 'buttons-vertical') {
       return <div
         ref={this.refInput}
-        className={"btn-group gap-1 flex-wrap " + (this.props.uiStyle == 'buttons-vertical' ? " flex-col w-full" : "")}
+        className={"btn-group gap-1 bg-white flex-wrap " + (this.props.uiStyle == 'buttons-vertical' ? " flex-col w-full" : "")}
       >{Object.keys(this.state.data).map((key: any) => {
         const value = this.state.data ? (this.state.data[key]?.id ?? 0) : 0;
         const lookup = this.state.data ? (this.state.data[key]?._LOOKUP ?? '') : '';
