@@ -80,7 +80,8 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
           value={value}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.onChange(e.target.value)}
           className={
-            (this.state.invalid ? 'is-invalid' : '')
+            "bg-white"
+            + " " + (this.state.invalid ? 'is-invalid' : '')
             + " " + (this.props.cssClass ?? "")
             + " " + (this.state.readonly ? "bg-muted" : "")
           }

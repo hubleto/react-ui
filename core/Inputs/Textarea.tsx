@@ -29,7 +29,8 @@ export default class Textarea extends Input<InputProps, InputState> {
       rows={5}
       placeholder={this.props.description?.placeholder ?? this.props.description?.title}
       className={
-        (this.props.cssClass ?? "")
+        "bg-white"
+        + " " + (this.props.cssClass ?? "")
         + " " + (this.state.invalid ? 'invalid' : '')
         + " " + (this.state.readonly ? "readonly" : "")
       }

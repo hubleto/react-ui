@@ -20,7 +20,7 @@ import {
   DataTableSortEvent,
   SortOrder,
 } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { Column, ColumnEvent } from 'primereact/column';
 import { ProgressBar } from 'primereact/progressbar';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputFactory } from "./InputFactory";
@@ -35,6 +35,7 @@ import { css } from 'jquery';
 export interface TableEndpoint {
   describeTable: string,
   loadTableData: string,
+  saveRecord: string,
   deleteRecord: string,
 }
 
@@ -92,6 +93,7 @@ export interface ExternalCallbacks {
   openForm?: string,
   onAddClick?: string,
   onRowClick?: string,
+  onSaveRecord?: string,
   onDeleteRecord?: string,
 }
 
@@ -130,6 +132,7 @@ export interface TableProps {
   selection?: Array<any>,
   onChange?: (table: Table<TableProps, TableState>) => void,
   onRowClick?: (table: Table<TableProps, TableState>, row: any) => void,
+  onSaveRecord?: (table: Table<TableProps, TableState>) => void,
   onDeleteRecord?: (table: Table<TableProps, TableState>) => void,
   onDeleteSelectionChange?: (table: Table<TableProps, TableState>) => void,
   onSelectionChange?: (table: Table<TableProps, TableState>) => void,
@@ -231,6 +234,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       endpoint: props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultTableEndpoint ?? {
         describeTable: 'api/table/describe',
         loadTableData: 'api/record/load-table-data',
+        saveRecord: 'api/record/save',
         deleteRecord: 'api/record/delete',
       }),
       recordId: props.recordId,
@@ -355,11 +359,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       // invalidInputs: this.props.invalidInputs,
       key: this.state.tableUpdateIteration,
       ref: this.dt,
-      value: this.state.data?.records, //(this.state.data?.records ?? []).filter((a: any) => a._toBeDeleted_ !== true),
+      value: this.state.data?.records,
       dataKey: "id",
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
       lazy: true,
+      editMode: 'cell',
       rows: this.state.itemsPerPage,
       filterDisplay: (showColumnSearch ? 'row' : null),
       totalRecords: totalRecords,
@@ -945,6 +950,22 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
+  // /*
+  //  * Render body for Column (PrimeReact column)
+  //  */
+  // isCellEditable(columnName: string, column: any, data: any, options: any) {
+  //   console.log('isCellEditable', columnName, data.id, this.state.editedCells);
+  //   for (let i in this.state.editedCells) {
+  //     if (
+  //       this.state.editedCells[i][0] == data.id
+  //       && this.state.editedCells[i][1] == columnName
+  //     ) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
+  
   /*
    * Render body for Column (PrimeReact column)
    */
@@ -1138,75 +1159,84 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
       let op = createRef<OverlayPanel>();
 
-      if (this.props.isInlineEditing) {
-        return InputFactory({
-          ...inputProps,
-          onInlineEditCancel: () => { op.current?.hide(); },
-          onChange: (input: any, value: any) => {
-            if (this.state.data) {
-              let data: TableData = this.state.data;
-              data.records[rowIndex][columnName] = value;
-              this.setState({data: data});
-              if (this.props.onChange) {
-                this.props.onChange(this);
+      if (options.renderEditor) {
+        return <>
+          {cellValueElement}
+          <div className='absolute w-full top-0 left-0'>{InputFactory({
+            ...inputProps,
+            onInlineEditCancel: () => { op.current?.hide(); },
+            onChange: (input: any, value: any) => {
+              if (this.state.data) {
+                let data: TableData = this.state.data;
+                data.records[rowIndex][columnName] = value;
+                this.setState({data: data});
+                if (this.props.onChange) {
+                  this.props.onChange(this);
+                }
               }
             }
-          }
-        });
+          })}</div>
+        </>;
       } else {
         return cellValueElement;
       }
     }
   }
 
+  renderDeleteButton(data: any, options: any) {
+    return data._toBeDeleted_
+      ? <button
+      className="btn btn-small btn-cancel"
+      onClick={(e) => {
+        e.preventDefault();
+        delete this.findRecordById(data.id)._toBeDeleted_;
+        this.setState({data: this.state.data}, () => {
+          if (this.props.onDeleteSelectionChange) {
+            this.props.onDeleteSelectionChange(this);
+          }
+        });
+      }}
+    >
+      <span className="icon"><i className="fas fa-times"></i></span>
+    </button>
+    : <button
+      className="btn btn-small btn-danger"
+      title={this.translate('Delete', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
+      onClick={(e) => {
+        e.preventDefault();
+
+        if (data.id <= 0 || data.id == undefined) {
+          this.deleteRecordById(data.id);
+        } else {
+          this.findRecordById(data.id)._toBeDeleted_ = true;
+        }
+
+        this.setState({data: this.state.data}, () => {
+          if (this.props.onDeleteSelectionChange) {
+            this.props.onDeleteSelectionChange(this);
+          }
+        });
+      }}
+    >
+      <span className="icon"><i className="fas fa-trash-alt"></i></span>
+    </button>;
+  }
+
   renderActionsColumn(data: any, options: any) {
     const R = this.findRecordById(data.id);
 
+    let moreActions = [];
     let canDelete = !this.state.readonly && this.state.description?.permissions?.canDelete;
 
     if (R._PERMISSIONS && !R._PERMISSIONS[3]) canDelete = false;
 
     if (canDelete) {
-      return data._toBeDeleted_
-        ? <button
-          className="btn btn-small btn-cancel"
-          onClick={(e) => {
-            e.preventDefault();
-            delete this.findRecordById(data.id)._toBeDeleted_;
-            this.setState({data: this.state.data}, () => {
-              if (this.props.onDeleteSelectionChange) {
-                this.props.onDeleteSelectionChange(this);
-              }
-            });
-          }}
-        >
-          <span className="icon"><i className="fas fa-times"></i></span>
-        </button>
-        : <button
-          className="btn btn-small btn-danger"
-          title={this.translate('Delete', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
-          onClick={(e) => {
-            e.preventDefault();
-
-            if (data.id <= 0 || data.id == undefined) {
-              this.deleteRecordById(data.id);
-            } else {
-              this.findRecordById(data.id)._toBeDeleted_ = true;
-            }
-
-            this.setState({data: this.state.data}, () => {
-              if (this.props.onDeleteSelectionChange) {
-                this.props.onDeleteSelectionChange(this);
-              }
-            });
-          }}
-        >
-          <span className="icon"><i className="fas fa-trash-alt"></i></span>
-        </button>
-      ;
-    } else {
-      return null;
+      moreActions.push(this.renderDeleteButton(data, options));
     }
+
+    if (moreActions.length == 0) return null;
+    else if (moreActions.length == 1) return moreActions[0];
+    else return <div className='flex gap-2'>{moreActions.map((item, key) => item)}</div>;
   }
 
   setColumnSearch(columnName: string, value: any)
@@ -1394,17 +1424,68 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                 {this.renderCell(columnName, column, data, options)}
                 <div className='cell-buttons'>
                   <button
-                    className='btn btn-small btn-white'
+                    className='btn btn-small btn-primary-outline'
                     title={this.translate('Copy cell content to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
                     onClick={(e) => {
                       navigator.clipboard.writeText(cellText);
                       e.stopPropagation();
                     }}
                   ><span className='icon'><i className='fas fa-copy'></i></span></button>
+                  {column.readonly || column.type == 'virtual' ? null :
+                    <button
+                      className="btn btn-small btn-primary-outline"
+                      title={this.translate('Edit', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
+                      onClick={(e) => {
+                        // Default cell click behavior is to open the form.
+                        // If prevented, the 'onClick' of DataTable will
+                        // be launched, which means editing the cell
+                        // when editMode = 'cell'.
+                        e.preventDefault();
+                      }}
+                    >
+                      <span className="icon"><i className="fas fa-pencil"></i></span>
+                    </button>
+                  }
                 </div>
               </div>
             );
           }
+        }}
+        editor={column.readonly ? null : (options) => {
+          const data = options.rowData;
+          const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
+
+          this.setState({isInlineEditing: true});
+
+          return <div
+            key={'column-' + columnName}
+            className={
+              this.cellClassName(columnName, column, data)
+              + (data._toBeDeleted_ ? ' to-be-deleted' : '')
+            }
+            style={this.cellCssStyle(columnName, column, data)}
+            title={cellText}
+          >
+            {this.renderCell(columnName, column, data, {rowIndex: options.rowIndex, renderEditor: true})}
+          </div>;
+        }}
+        onCellEditComplete={(e: ColumnEvent) => {
+          console.log('onCellEditorComplete', e);
+          request.post(
+            this.getEndpointUrl('saveRecord'),
+            {
+              ...this.getEndpointParams(),
+              id: e.newRowData.id ?? null,
+              record: this.findRecordById(e.newRowData.id),
+            },
+            {},
+            (description: any) => {
+              this.setState({isInlineEditing: false}, () => {
+                this.reload();
+              });
+            }
+          );
+
         }}
         style={{ width: 'auto' }}
         sortable
@@ -1625,6 +1706,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   onRowClick(row: any) {
     if (row._PERMISSIONS && !row._PERMISSIONS[1]) return; // cannot read
+    if (this.state.isInlineEditing) return; // doing nothing when inline editing
 
       if (this.props.externalCallbacks && this.props.externalCallbacks.onRowClick) {
       window[this.props.externalCallbacks.onRowClick](this, row.id ?? 0);

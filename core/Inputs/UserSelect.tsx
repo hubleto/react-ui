@@ -66,7 +66,7 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
 
   renderInputElement() {
     if (!this.state.data) return <>...</>;
-    return <div className='flex flex-wrap gap-2 items-center'>
+    return <div className='flex flex-wrap gap-2 items-center bg-white'>
       <div ref={this.refInput} className="btn-group gap-1 flex-wrap">
         {Object.keys(this.state.data).map((key: any) => {
           const user = this.state.data[key] ?? null;
