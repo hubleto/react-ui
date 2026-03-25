@@ -198,7 +198,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   static getFormFooterButtons(formClass: string) {
     return this.formFooterButtons[formClass] ?? [];
   }
-  
+
   constructor(props: FormProps) {
     super(props);
 
@@ -370,7 +370,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
         let tabs = this.state.tabs;
         let hasCustomColumns = false;
-        let inputs = this.state.description?.inputs;
+        let inputs = description?.inputs;
 
         if (inputs) {
           Object.keys(inputs).map((inpName, index) => {
@@ -669,7 +669,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     >
       {tab.icon ? <span className="icon"><i className={tab.icon}></i></span> : null}
       {tabTitle ? <span className={"text " + (tab.isCustom ? "italic" : "")}>{tabTitle}</span> : null}
-    </button>    
+    </button>
   }
 
   renderTopMenu(): null|JSX.Element {
@@ -958,7 +958,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   renderSaveButton(): null|JSX.Element {
-    let showButton = 
+    let showButton =
       this.state.description?.ui?.showSaveButton
       && (
         this.state.creatingRecord && this.state.permissions.canCreate
