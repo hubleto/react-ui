@@ -39,7 +39,7 @@ export default class Color extends Input<ColorInputProps, ColorInputState> {
   }
 
   renderInputElement() {
-    return <div className='flex flex-col gap-2'>
+    return <div className='flex flex-col gap-2 bg-white'>
       <div className="flex justify-between items-center">
         <div
           style={{background: this.state.value}}

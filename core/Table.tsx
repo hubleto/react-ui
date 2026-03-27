@@ -721,18 +721,18 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (this.showAddButton()) buttons.push(this.renderAddButton());
     if (this.showMoreActionsButton()) buttons.push(this.renderMoreActionsButton());
 
-    if (this.state?.description?.ui?.filters) {
-      buttons.push(
-        <button
-          className="btn btn-transparent hidden md:block"
-          key="filters-btn"
-          onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
-        >
-          <span className="icon"><i className="fas fa-filter"></i></span>
-          <span className="text">{this.translate('Show/Hide filter', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
-        </button>
-      );
-    }
+    // if (this.state?.description?.ui?.filters) {
+    //   buttons.push(
+    //     <button
+    //       className="btn btn-transparent hidden md:block"
+    //       key="filters-btn"
+    //       onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
+    //     >
+    //       <span className="icon"><i className="fas fa-filter"></i></span>
+    //       <span className="text">{this.translate('Show/Hide filter', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
+    //     </button>
+    //   );
+    // }
     return buttons;
   }
 

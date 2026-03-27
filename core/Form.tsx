@@ -400,10 +400,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
           readonly: !(permissions.canUpdate || permissions.canCreate),
           permissions: permissions,
         }, () => {
-          if (this.state.id !== -1) {
-            this.loadRecord();
-          } else {
+          if (this.state.id == -1) {
             this.setRecord(description.defaultValues ?? {});
+          } else {
+            this.loadRecord();
           }
         });
       }
