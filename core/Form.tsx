@@ -945,7 +945,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       return footerButtons.map((button, key) => {
         return <button
           key={key}
-          className='btn btn-white'
+          className='btn btn-primary'
           onClick={() => { button.onClick(this); }}
         >
           {button.icon == '' ? null : <span className='icon'><i className={button.icon}></i></span>}

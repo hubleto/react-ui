@@ -196,6 +196,7 @@ export interface TableState {
   invalidInputs: Array<InvalidInput>,
   tableUpdateIteration: number,
   myRootUrl: string,
+  editMode: string,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -261,6 +262,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       sidebarFilterHidden: false,
       invalidInputs: props.invalidInputs ?? [],
       tableUpdateIteration: 0,
+      editMode: '',
       myRootUrl: window.location.protocol + "//" + window.location.host + window.location.pathname,
     };
 
@@ -364,7 +366,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
       lazy: true,
-      editMode: 'cell',
+      editMode: this.state.editMode,
       rows: this.state.itemsPerPage,
       filterDisplay: (showColumnSearch ? 'row' : null),
       totalRecords: totalRecords,
@@ -661,6 +663,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           if (!description.ui) description.ui = {};
           description.ui.showAsPlainTable = !description.ui.showAsPlainTable;
           this.setState({description: description});
+        }
+      },
+      switchEditMode: {
+        title: (this.state?.editMode == 'cell' ?
+          this.translate('Disable edit mode', 'Hubleto\\Erp\\Loader', 'Components\\Table') 
+          : this.translate('Enable edit mode', 'Hubleto\\Erp\\Loader', 'Components\\Table')),
+        type: 'onclick',
+        onClick: () => {
+          this.setState({editMode: this.state.editMode == 'cell' ? '' : 'cell'});
         }
       },
       ...(this.state?.description?.ui?.moreActions ?? [])
@@ -1428,7 +1439,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                       e.stopPropagation();
                     }}
                   ><span className='icon'><i className='fas fa-copy'></i></span></button>
-                  {column.readonly || column.type == 'virtual' ? null :
+                  {this.state.editMode == '' || column.readonly || column.type == 'virtual' ? null :
                     <button
                       className="btn btn-small btn-primary-outline"
                       title={this.translate('Edit', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
