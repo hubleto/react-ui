@@ -661,10 +661,19 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderMoreActionsButton(): JSX.Element {
     let moreActions = {
+      showHideFilter: {
+        title: this.translate('Show/Hide filter', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
+        icon: 'fas fa-filter',
+        type: 'onclick',
+        onClick: () => {
+          this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden});
+        }
+      },
       showAsPlainTable: {
         title: (this.state?.description?.ui?.showAsPlainTable ? 
           this.translate('Show as standard table', 'Hubleto\\Erp\\Loader', 'Components\\Table') 
           : this.translate('Show as plain table', 'Hubleto\\Erp\\Loader', 'Components\\Table')),
+        icon: 'fas fa-table',
         type: 'onclick',
         onClick: () => {
           let description: any = this.state?.description ?? {};
@@ -673,10 +682,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           this.setState({description: description});
         }
       },
-      switchEditMode: {
+      toggleEditMode: {
         title: (this.state?.editMode == 'cell' ?
           this.translate('Disable edit mode', 'Hubleto\\Erp\\Loader', 'Components\\Table') 
           : this.translate('Enable edit mode', 'Hubleto\\Erp\\Loader', 'Components\\Table')),
+        icon: 'fas fa-pencil',
         type: 'onclick',
         onClick: () => {
           this.setState({editMode: this.state.editMode == 'cell' ? '' : 'cell'});
@@ -689,8 +699,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       className="btn btn-dropdown btn-transparent"
       key="more-actions-btn"
     >
-      <span className="icon"><i className="fas fa-cog"></i></span>
-      <span className="text text-nowrap">{this.translate('More options', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
+      <span className="icon"><i className="fas fa-ellipsis-vertical"></i></span>
+      {/* <span className="text text-nowrap">{this.translate('More options', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span> */}
       <span className="menu">
         <div className="btn-list text-nowrap">
           {Object.keys(moreActions).map((key, index) => {
@@ -703,14 +713,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                 className="btn btn-transparent btn-list-item"
                 onClick={() => { action.onClick(); }}
               >
-                <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                <span className="icon"><i className={action.icon ?? 'fas fa-grip-lines'}></i></span>
                 <span className="text">{action.title}</span>
               </div>;
             }
 
             if (type == 'link') {
               return <a key={index} className="btn btn-transparent btn-list-item" href={action.href}>
-                <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                <span className="icon"><i className={action.icon ?? 'fas fa-grip-lines'}></i></span>
                 <span className="text">{action.title}</span>
               </a>;
             }
@@ -725,7 +735,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                   this.setState(newState);
                 }}
               >
-                <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                <span className="icon"><i className={action.icon ?? 'fas fa-grip-lines'}></i></span>
                 <span className="text">{action.title}</span>
               </div>;
             }
