@@ -116,7 +116,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
           {this.getRecordFormUrl() ? <>
             <a
               className='text-sm text-gray-500 text-nowrap'
-              title='Open in new tab'
+              title={this.translate('Open in new tab', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
               href={globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl()}
               target='_blank'
             >
