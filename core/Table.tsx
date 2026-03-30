@@ -52,6 +52,8 @@ export interface TableInputs {
   [key: string]: any;
 }
 
+export type TableSelectionMode = '' | 'single' | 'multiple' | undefined | null;
+
 export interface TablePermissions {
   canCreate?: boolean,
   canRead?: boolean,
@@ -80,6 +82,7 @@ export interface TableUi {
   moreActions?: any,
   dataView?: any,
   orderBy?: TableOrderBy,
+  selectionMode?: TableSelectionMode,
 }
 
 export interface TableDescription {
@@ -128,7 +131,7 @@ export interface TableProps {
   inlineEditingEnabled?: boolean,
   isInlineEditing?: boolean,
   isUsedAsInput?: boolean,
-  selectionMode?: 'single' | 'multiple' | undefined,
+  selectionMode?: TableSelectionMode,
   selection?: Array<any>,
   onChange?: (table: Table<TableProps, TableState>) => void,
   onRowClick?: (table: Table<TableProps, TableState>, row: any) => void,
@@ -351,10 +354,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return null;
   }
 
+  getSelectionMode(): TableSelectionMode {
+    return this.props.selectionMode ?? this.state.description?.ui?.selectionMode ?? '';
+  }
+
   getTableProps(): Object {
     const sortOrders = {'asc': 1, 'desc': -1};
     const totalRecords = this.state.data?.total ?? 0;
     const showColumnSearch = this.state.description?.ui?.showColumnSearch;
+    const selectionMode = this.getSelectionMode();
 
     let tableProps: any = {
       // Dusan 19.11.2025: sposobovalo to konzolovu chybu, docasne zakomentovane
@@ -389,7 +397,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       </>,
       selectAll: true,
       selection: this.state.selection,
-      selectionMode: (this.props.selectionMode == 'single' ? 'radiobutton': (this.props.selectionMode == 'multiple' ? 'checkbox' : null)),
+      selectionMode: selectionMode == 'single' ? 'radiobutton' : (selectionMode == 'multiple' ? 'checkbox' : null),
       onSelectionChange: (event: any) => {
         this.setState(
           {selection: event.value} as TableState,
@@ -1300,9 +1308,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderColumns(): JSX.Element[] {
     let columns: JSX.Element[] = [];
+    const selectionMode = this.getSelectionMode();
 
-    if (this.props.selectionMode) {
-      columns.push(<Column selectionMode={this.props.selectionMode}></Column>);
+    if (selectionMode) {
+      columns.push(<Column selectionMode={selectionMode}></Column>);
     }
 
     Object.keys(this.state.description?.columns ?? {}).map((columnName: string) => {
