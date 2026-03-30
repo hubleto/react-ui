@@ -10,6 +10,18 @@ import TranslatedComponent from "./TranslatedComponent";
 import Flatpickr from "react-flatpickr";
 import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 import { SelectButton } from 'primereact/selectbutton';
+import { addLocale, locale } from 'primereact/api';
+
+const primeReactLocaleMap = {
+  sk: { choose: 'Vybrať' },
+  cs: { choose: 'Vybrat' },
+  pl: { choose: 'Wybierz' },
+  de: { choose: 'Auswählen' },
+  ro: { choose: 'Alege' },
+  it: { choose: 'Scegli' },
+  es: { choose: 'Elegir' },
+  fr: { choose: 'Choisir' },
+};
 
 import {
   DataTable,
@@ -223,6 +235,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     super(props);
 
     globalThis.hubleto.reactElements[this.props.uid] = this;
+
+    const lang = globalThis.hubleto.language;
+    if (lang && primeReactLocaleMap[lang]) {
+      addLocale(lang, primeReactLocaleMap[lang]);
+      locale(lang);
+    }
 
     this.refFulltextSearchInput = React.createRef();
     this.refForm = React.createRef();
