@@ -700,7 +700,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           this.setState({description: description});
         }
       },
-      toggleEditMode: {
+      ...(this.state?.description?.ui?.moreActions ?? [])
+    };
+
+    if (!this.state.readonly) {
+      moreActions['toggleEditMode'] = {
         title: (this.state?.editMode == 'cell' ?
           this.translate('Disable edit mode', 'Hubleto\\Erp\\Loader', 'Components\\Table') 
           : this.translate('Enable edit mode', 'Hubleto\\Erp\\Loader', 'Components\\Table')),
@@ -709,9 +713,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         onClick: () => {
           this.setState({editMode: this.state.editMode == 'cell' ? '' : 'cell'});
         }
-      },
-      ...(this.state?.description?.ui?.moreActions ?? [])
-    };
+      };
+    }
 
     return <button
       className="btn btn-dropdown btn-transparent"
@@ -1456,6 +1459,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             return <div className='text-nowrap'>Hidden record</div>;
           } else {
             const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
+            const cellDetailUrl = data['_LOOKUP_DETAIL_URL[' + columnName + ']'] ?? '';
             return (
               <div
                 key={'column-' + columnName}
@@ -1468,6 +1472,16 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               >
                 {this.renderCell(columnName, column, data, options)}
                 <div className='cell-buttons'>
+                  {cellDetailUrl ?
+                    <button
+                      className='btn btn-small btn-primary-outline'
+                      title={this.translate('Open in new tab', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
+                      onClick={(e) => {
+                        globalThis.window.open(globalThis.hubleto.config.projectUrl + '/' + cellDetailUrl)
+                        e.stopPropagation();
+                      }}
+                    ><span className='icon'><i className='fas fa-arrow-up-right-from-square'></i></span></button>
+                  : null}
                   <button
                     className='btn btn-small btn-primary-outline'
                     title={this.translate('Copy cell content to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\Table')}
@@ -1603,13 +1617,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           {sidebarFilter && this.state.description?.ui?.showSidebarFilter && !this.state.sidebarFilterHidden ?
             <div className="table-sidebar-filter">
               {sidebarFilter}
-              {<button className="btn btn-transparent btn-small mt-2"
+              {/* {<button className="btn btn-transparent btn-small mt-2"
                   onClick={() => this.setState({sidebarFilterHidden: !this.state.sidebarFilterHidden})}
                 >
                   <span className="icon"><i className="fas fa-arrow-left"></i></span>
                   <span className="text">{this.translate('Hide filter', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</span>
                 </button>
-              }
+              } */}
             </div>
           : null}
 

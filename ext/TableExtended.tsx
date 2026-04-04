@@ -108,7 +108,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
               ? <div className='bg-primary/10 p-1 text-sm dark:text-white dark:bg-slate-800'>{filter.title}</div>
               : null
             }
-            <div className={"list" + (filter.direction == "horizontal" ? " horizontal" : "")}>
+            <div className={"list dense" + (filter.direction == "horizontal" ? " horizontal" : "")}>
               {Object.keys(filter.options).map((key: any) => {
                 return <button
                   key={key}

@@ -578,6 +578,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   onAfterFormInitialized() {
+    this.onTabChange();
   }
 
   closeForm() {
