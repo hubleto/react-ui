@@ -3,6 +3,7 @@ import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/c
 import request from '@hubleto/react-ui/core/Request';
 import App from '@hubleto/react-ui/core/App';
 import UserSelect from '@hubleto/react-ui/core/Inputs/UserSelect';
+import HtmlFrame from "@hubleto/react-ui/core/HtmlFrame";
 
 //@ts-ignore
 import ErpWorkflowSelector from '@hubleto/react-ui/ext/ErpWorkflowSelector';
@@ -18,11 +19,13 @@ export interface FormExtendedProps extends FormProps {
   junctionSaveEndpoint?: string,
   renderWorkflowUi?: boolean,
   renderOwnerManagerUi?: boolean,
+  renderPreviewUi?: boolean,
   timeline?: Array<any>,
 }
 export interface FormExtendedState extends FormState {
   icon?: string,
   showOwnerManagerSelector?: boolean,
+  htmlPreview?: any,
 }
 
 export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExtendedState> {
@@ -47,14 +50,109 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     else return this.parentApp;
   }
 
+  getTabsLeft() {
+    return [];
+  }
+
+  getCustomTabs()
+  {
+    const customTabs = this.getParentApp()?.getCustomFormTabs() ?? [];
+    return customTabs;
+  }
+
+  getTabsRight() {
+    let tabs = [];
+    if (this.props.renderPreviewUi) {
+      tabs.push({ uid: 'preview', icon: 'fas fa-print', cssClass: 'btn-violet', position: 'right' });
+    }
+
+    return tabs;
+  }
+
+  getTabs() {
+    return [
+      ...this.getTabsLeft(),
+      ...this.getCustomTabs(),
+      ...this.getTabsRight(),
+    ];
+  }
+
   getStateFromProps(props: FormProps) {
     return {
       ...super.getStateFromProps(props),
       isInlineEditing: true,
       icon: this.props.icon,
+      tabs: this.getTabs(),
     }
   }
 
+  getTitleAsText() {
+    return this.props.model.split('/').pop() + ' ' + this.state.record.id;
+  }
+
+  updatePreview(idTemplate: number) {
+    request.post(
+      'documents/api/get-preview-html',
+      {
+        model: this.props.model,
+        recordId: this.state.record.id,
+        idTemplate: idTemplate,
+      },
+      {},
+      (result: any) => {
+        this.setState({htmlPreview: result.html});
+      }
+    );
+  }
+
+  showPreviewVars() {
+    request.post(
+      'documents/api/get-preview-vars',
+      {
+        model: this.props.model,
+        recordId: this.state.record.id,
+      },
+      {},
+      (vars: any) => {
+        this.setState({htmlPreview: '<pre>' + JSON.stringify(vars.vars, null, 2) + '</pre>'});
+      }
+    );
+  }
+
+  generatePdf() {
+    request.post(
+      'documents/api/generate-pdf',
+      {
+        model: this.props.model,
+        recordId: this.state.record.id,
+        documentName: this.getTitleAsText(),
+      },
+      {},
+      (result: any) => {
+        // if (result.idDocument) {
+        //   window.open(globalThis.hubleto.config.projectUrl + '/documents/' + result.idDocument);
+        // }
+        // this.reload();
+        if (result && result.pdfFile) {
+          this.updateRecord({
+            idDocument: result.idDocument,
+            pdf: result.pdfFile,
+          });
+        }
+      }
+    );
+  }
+
+  onTabChange() {
+    super.onTabChange();
+
+    const tabUid = this.state.activeTabUid;
+    switch (tabUid) {
+      case 'preview':
+        this.updatePreview(this.state.record.id_template);
+      break;
+    }
+  }
   onAfterSaveRecord(saveResponse, customSaveOptions?: any) {
     super.onAfterSaveRecord(saveResponse, customSaveOptions);
     if (
@@ -77,12 +175,6 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
         (data: any) => { /* */ }
       );
     }
-  }
-
-  getCustomTabs()
-  {
-    const customTabs = this.getParentApp()?.getCustomFormTabs() ?? [];
-    return customTabs;
   }
 
   renderHeaderLeft(): null|JSX.Element {
@@ -315,20 +407,82 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     }
   }
 
-  // renderContent(): null|JSX.Element {
-  //   const R = this.state.record;
-  //   let content = super.renderContent();
+  renderTab(tabUid: string) {
+    const R = this.state.record;
 
-  //   if (timeline) {
-  //     return <div className='flex gap-2'>
-  //       <div className='grow'>{content}</div>
-  //       <div className='shrink p-2 flex flex-col items-center gap-2 max-w-48'>{timeline}</div>
-  //     </div>
-  //   } else {
-  //     return content;
-  //   }
+    switch (tabUid) {
+      case 'preview':
+        return <div className='flex gap-2 h-full'>
+          <div className='flex-1 w-72 flex flex-col gap-2'>
+            <div className='grow'>
+              {this.inputWrapper('id_template', {
+                uiStyle: 'buttons-vertical',
+                onChange: (input: any) => {
+                  this.updatePreview(input.state.value);
+                }
+              })}
+            </div>
+            {this.inputWrapper('id_document', {readonly: true})}
+          </div>
+          <div className='flex-3 flex flex-col'>
+            <div className='flex gap-2 align-center justify-end'>
+              <div>
+                {this.input('pdf', {readonly: true})}
+              </div>
+              <div className='flex gap-2'>
+                <button
+                  className='btn btn-transparent mb-4'
+                  onClick={() => {
+                    this.generatePdf();
+                  }}
+                >
+                  <span className='icon'><i className='fas fa-download'></i></span>
+                  <span className='text'>{this.translate('Export to PDF')}</span>
+                </button>
+                <button
+                  className='btn btn-transparent mb-4'
+                  onClick={() => {
+                    const iframe = window.frames[this.props.uid + '_preview'];
+                    const origDocumentTitle = document.title;
 
-  // }
+                    document.title += this.getTitleAsText();
 
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+
+                    document.title = origDocumentTitle;
+                  }}
+                >
+                  <span className='icon'><i className='fas fa-print'></i></span>
+                  <span className='text'>{this.translate('Print')}</span>
+                </button>
+              </div>
+            </div>
+            <div className='w-full h-full card mt-2'>
+              <div className="card-body">
+                <HtmlFrame
+                  className='w-full h-full'
+                  iframeId={this.props.uid + '_preview'}
+                  content={this.state.htmlPreview}
+                />
+              </div>
+              <div className='card-footer'>
+                <a
+                  href='#'
+                  onClick={() => {
+                    this.showPreviewVars();
+                  }}
+                >{this.translate('Show variables available in template')}</a>
+              </div>
+            </div>
+          </div>
+        </div>;
+      break;
+
+      default:
+        return super.renderTab(tabUid);
+      break;
+    }
+  }
 
 }

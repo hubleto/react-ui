@@ -72,6 +72,7 @@ export interface FormTab {
   uid: string,
   title?: string|JSX.Element,
   icon?: string,
+  cssClass?: string,
   showCountFor?: string,
   isCustom?: boolean,
   onRender?: (form: any) => JSX.Element,
@@ -658,7 +659,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     return <button
       key={index}
-      className={"btn " + (isActive ? "btn-primary" : "btn-transparent")}
+      className={"btn " + (isActive ? "btn-primary" : (tab.cssClass ?? "btn-transparent"))}
       onClick={() => {
         const tab = this.state.tabs ? this.state.tabs[index] : null;
         const tabUid = (tab ? tab.uid : 'default');
