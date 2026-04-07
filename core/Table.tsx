@@ -1164,6 +1164,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           break;
           case 'json':
             let columnValueParsed = null;
+
             try {
               columnValueParsed = JSON.parse(columnValue);
             } catch (ex) {
@@ -1174,11 +1175,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               cellValueElement = null;
             } else if (Array.isArray(columnValueParsed)) {
               cellValueElement = <>{columnValueParsed.map((item, index) => {
-                return <div key={index} className='badge block text-xs'>{item}</div>
+                return <div key={index} className='badge block text-xs'>{JSON.stringify(item)}</div>
               })}</>;
             } else {
               cellValueElement = <>{Object.keys(columnValueParsed).map((key, index) => {
-                return <div key={index} className='badge block text-xs'>{key}: {columnValueParsed[key]}</div>
+                return <div key={index} className='badge block text-xs'>{key}: {columnValueParsed[key].toString()}</div>
               })}</>;
             }
           break;
