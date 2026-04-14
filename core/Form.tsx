@@ -75,6 +75,7 @@ export interface FormTab {
   cssClass?: string,
   showCountFor?: string,
   isCustom?: boolean,
+  subTabs?: Array<FormTab>,
   onRender?: (form: any) => JSX.Element,
 }
 
@@ -469,7 +470,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   onTabChange() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (this.state.activeTabUid == 'default') {
+    if (this.state.activeTabUid == 'default' || this.state.activeTabUid == '') {
       urlParams.delete('tab');
     } else {
       urlParams.set('tab', this.state.activeTabUid);
@@ -650,12 +651,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderTopMenuButton(index: number) {
     const tabs = this.state.tabs ?? [];
-    // const activeTab = this.state.activeTab ?? 0;
-    const activeTabUid = this.state.activeTabUid ?? 'default';
+    const tabUid = this.state.activeTabUid ?? 'default';
+    const mainTabUid = tabUid.split('.')[0] ?? 'default';
+
     const tabTitle = this.renderTabTitle(index);
     const tab = tabs[index];
 
-    const isActive = tab['uid'] == activeTabUid;
+    const isActive = tab['uid'] == mainTabUid;
 
     return <button
       key={index}
@@ -764,22 +766,62 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       tabTemplate = {'form.column': { items: tabInputs } };
     }
 
-    //@ts-ignore
-    return this.renderFromTemplate(tabTemplate);
+    if (!tabTemplate) {
+      return <></>;
+    } else {
+      //@ts-ignore
+      return this.renderFromTemplate(tabTemplate);
+    }
   }
 
   /**
    * Render content
    */
   renderContent(): null|JSX.Element {
-    const tabs: Array<FormTab> = this.state.tabs ?? [];
-    const tab: FormTab = tabs.filter((t) => t['uid'] == this.state.activeTabUid)[0] ?? null;
-    const tabUid = (tab ? tab.uid : 'default');
+    let tabs: Array<FormTab> = this.state.tabs ?? [];
+    let tabUid = this.state.activeTabUid ?? '';
 
-    if (tab && typeof tab.onRender === 'function') {
-      const tabContent = tab.onRender(this);
+    if (tabUid == '') tabUid = 'default';
+
+    let mainTabUid = tabUid.split('.')[0] ?? 'default';
+    let mainTab: FormTab = tabs.filter((t) => t['uid'] == mainTabUid)[0] ?? null;
+
+    // console.log('mainTab', mainTab, mainTab?.subTabs);
+    let subTabUid = tabUid.split('.')[1] ?? (mainTab?.subTabs ? mainTab?.subTabs[0]?.uid ?? '' : '');
+//     // const tabUid = (tab ? tab.uid : 'default');
+// console.log(this.state.activeTabUid, tabUid, mainTabUid, subTabUid, mainTab);
+    if (!mainTab) return null;
+
+    if (typeof mainTab.onRender === 'function') {
+      const tabContent = mainTab.onRender(this);
       return tabContent;
-    } else return this.renderTab(tabUid);
+    } else {
+      const tabContent = this.renderTab(mainTabUid + (subTabUid ? '.' + subTabUid : ''));
+
+      if (mainTab.subTabs && mainTab.subTabs.length > 0) {
+
+        return <div className='flex h-full gap-2'>
+          <div className='btn-group vertical flex-1'>{mainTab.subTabs.map((subTab, index) => {
+            return <button
+              key={index}
+              className={'btn ' + (subTab.uid == subTabUid ? 'btn-primary' : (subTab.cssClass ?? 'btn-transparent'))}
+              onClick={() => {
+                console.log('subTab', subTab);
+                this.setState({activeTab: index, activeTabUid: mainTab.uid + '.' + subTab.uid}, () => {
+                  this.onTabChange();
+                });
+              }}
+            >
+              {subTab.icon ? <span className='icon'><i className={subTab.icon}></i></span> : null}
+              <span className='text text-nowrap'>{subTab.title}</span>
+            </button>
+          })}</div>
+          <div className='flex-5'>{tabContent}</div>
+        </div>;
+      } else {
+        return tabContent;
+      }
+    }
   }
 
   getInputProps(inputName: string, customInputProps?: any): InputProps {
