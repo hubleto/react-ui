@@ -650,12 +650,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   renderTopMenuButton(index: number) {
-    const tabs = this.state.tabs ?? [];
-    const tabUid = this.state.activeTabUid ?? 'default';
-    const mainTabUid = tabUid.split('.')[0] ?? 'default';
+    let tabs = this.state.tabs ?? [];
+    let tabUid = this.state.activeTabUid ?? '';
+    if (tabUid == '') tabUid = 'default';
+    let mainTabUid = tabUid.split('.')[0] ?? 'default';
 
-    const tabTitle = this.renderTabTitle(index);
-    const tab = tabs[index];
+    let tabTitle = this.renderTabTitle(index);
+    let tab = tabs[index];
 
     const isActive = tab['uid'] == mainTabUid;
 
@@ -742,7 +743,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderTab(tab: string): null|JSX.Element {
     let template: any = {};
-
+console.log('rentab', tab);
     if (this.state.description?.ui?.templateJson) {
       try {
         template = JSON.parse(this.state.description?.ui?.templateJson);
@@ -783,22 +784,24 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     if (tabUid == '') tabUid = 'default';
 
-    let mainTabUid = tabUid.split('.')[0] ?? 'default';
+    let mainTabUid = tabUid.split('.')[0] ?? '';
+    if (mainTabUid == '') mainTabUid = 'default';
+
     let mainTab: FormTab = tabs.filter((t) => t['uid'] == mainTabUid)[0] ?? null;
 
     // console.log('mainTab', mainTab, mainTab?.subTabs);
     let subTabUid = tabUid.split('.')[1] ?? (mainTab?.subTabs ? mainTab?.subTabs[0]?.uid ?? '' : '');
 //     // const tabUid = (tab ? tab.uid : 'default');
-// console.log(this.state.activeTabUid, tabUid, mainTabUid, subTabUid, mainTab);
-    if (!mainTab) return null;
+console.log(mainTabUid, mainTab);
+    // if (!mainTab) return null;
 
-    if (typeof mainTab.onRender === 'function') {
+    if (mainTab && typeof mainTab.onRender === 'function') {
       const tabContent = mainTab.onRender(this);
       return tabContent;
     } else {
       const tabContent = this.renderTab(mainTabUid + (subTabUid ? '.' + subTabUid : ''));
 
-      if (mainTab.subTabs && mainTab.subTabs.length > 0) {
+      if (mainTab && mainTab.subTabs && mainTab.subTabs.length > 0) {
 
         return <div className='flex h-full gap-2'>
           <div className='btn-group vertical flex-1'>{mainTab.subTabs.map((subTab, index) => {
