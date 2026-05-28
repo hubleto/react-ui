@@ -102,9 +102,9 @@ export default class TableExtendedImportCsvForm<P, S> extends Form<TableExtended
             <table className='table-default dense'>
               <thead>
                 <tr>
-                  {Object.keys(this.state.testResult.foundRecords[0]).map((colName) => {
+                  {this.state.testResult.foundRecords[0] ? Object.keys(this.state.testResult.foundRecords[0]).map((colName) => {
                     return <td>{colName ?? ''}</td>;
-                  })}
+                  }) : null}
                 </tr>
               </thead>
               <tbody>

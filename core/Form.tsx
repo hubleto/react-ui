@@ -743,7 +743,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderTab(tab: string): null|JSX.Element {
     let template: any = {};
-console.log('rentab', tab);
+
     if (this.state.description?.ui?.templateJson) {
       try {
         template = JSON.parse(this.state.description?.ui?.templateJson);
@@ -789,11 +789,7 @@ console.log('rentab', tab);
 
     let mainTab: FormTab = tabs.filter((t) => t['uid'] == mainTabUid)[0] ?? null;
 
-    // console.log('mainTab', mainTab, mainTab?.subTabs);
     let subTabUid = tabUid.split('.')[1] ?? (mainTab?.subTabs ? mainTab?.subTabs[0]?.uid ?? '' : '');
-//     // const tabUid = (tab ? tab.uid : 'default');
-console.log(mainTabUid, mainTab);
-    // if (!mainTab) return null;
 
     if (mainTab && typeof mainTab.onRender === 'function') {
       const tabContent = mainTab.onRender(this);
@@ -809,7 +805,6 @@ console.log(mainTabUid, mainTab);
               key={index}
               className={'btn ' + (subTab.uid == subTabUid ? 'btn-primary' : (subTab.cssClass ?? 'btn-transparent'))}
               onClick={() => {
-                console.log('subTab', subTab);
                 this.setState({activeTab: index, activeTabUid: mainTab.uid + '.' + subTab.uid}, () => {
                   this.onTabChange();
                 });
