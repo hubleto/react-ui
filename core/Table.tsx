@@ -355,12 +355,21 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
 
     return {
+
+      filterBy: this.state.filterBy,
       model: this.model,
+      orderBy: this.state.description?.ui?.orderBy ?? { field: 'id', direction: 'desc' },
+      page: this.state.page ?? 0,
+      itemsPerPage: this.state.itemsPerPage ?? 35,
+      fulltextSearch: this.state.fulltextSearch,
+      columnSearch: this.state.columnSearch,
+      tag: this.props.tag,
+      context: this.props.context,
+      where: this.props.where,
+
       filters: this.state.filters,
       // parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
       // parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
-      tag: this.props.tag,
-      context: this.props.context,
       dataView: this.state.description?.ui?.dataView,
       view: this.props.view,
       __IS_AJAX__: '1',
@@ -489,19 +498,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           this.getEndpointUrl('loadTableData'),
           {
             ...this.getEndpointParams(),
-            filterBy: this.state.filterBy,
-            model: this.model,
-            orderBy: this.state.description?.ui?.orderBy ?? { field: 'id', direction: 'desc' },
-            page: this.state.page ?? 0,
-            itemsPerPage: this.state.itemsPerPage ?? 35,
-            // parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
-            // parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
-            fulltextSearch: this.state.fulltextSearch,
-            columnSearch: this.state.columnSearch,
-            tag: this.props.tag,
-            context: this.props.context,
-            where: this.props.where,
-            __IS_AJAX__: '1',
           },
           (data: any) => {
             this.setState({
