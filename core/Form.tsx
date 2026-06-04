@@ -522,15 +522,21 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
+  prepareRecordCopy() {
+    return { ...this.state.record, id: -1 };
+  }
+
   copyRecord() {
+    let newRecord = this.prepareRecordCopy();
     this.setState({
       id: -1,
-      record: { ...this.state.record, id: -1 },
+      record: newRecord,
       updatingRecord: false,
       creatingRecord: true,
       recordChanged: true,
     }, () => {
       window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl());
+      this.onAfterCopyRecord(newRecord);
     });
     // request.post(
     //   this.getEndpointUrl('saveRecord'),

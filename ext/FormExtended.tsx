@@ -250,7 +250,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
       <div className='flex-2'>
         <ErpWorkflowSelector
           parentForm={this}
-          readonly={this.state.record.id_manager && this.state.record.id_manager != globalThis.hubleto.idUser}
+          readonly={this.state.readonly}
         ></ErpWorkflowSelector>
       </div>
       {/* [{this.state.record.id_manager}, {globalThis.hubleto.idUser}] */}

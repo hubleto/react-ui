@@ -544,10 +544,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           this.openForm(saveResponse.savedRecord.id);
         }
       },
-      onCopyCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
-        this.loadData();
-        this.openForm(saveResponse.savedRecord.id);
-      },
+      // onCopyCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
+      //   this.loadData();
+      //   this.openForm(saveResponse.savedRecord.id);
+      // },
       onDeleteCallback: () => {
         this.loadData();
         this.setState({ recordId: null });
