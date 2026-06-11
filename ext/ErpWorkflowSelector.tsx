@@ -192,9 +192,11 @@ export function updateFormWorkflowByTag(form: any, tag: string, onsuccess: any) 
     { idWorkflow: form.state.record.id_workflow, tag: tag },
     {},
     (result: any) => {
-      form.updateRecord({id_workflow_step: result.id}, () => {
-        if (onsuccess) onsuccess();
-      });
+      if (result && result.id) {
+        form.updateRecord({id_workflow_step: result.id}, () => {
+          if (onsuccess) onsuccess();
+        });
+      }
     }
   );
 }
