@@ -937,6 +937,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             this.setState({data: data}, () => {
               this.loadData();
             });
+          },
+          (err: any) => {
+            const message = err?.data?.message;
+            if (message) globalThis.hubleto.showDialogWarning(message);
+            let data = this.state.data;
+            if (data && data.records[indexRecordToDelete]) delete data.records[indexRecordToDelete]._toBeDeleted_;
+            this.setState({data: data});
           }
         );
       }
