@@ -563,6 +563,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       },
       (err: any) => {
         this.setState({deletingRecord: false});
+        const message = err?.data?.message;
+        if (message) globalThis.hubleto.showDialogWarning(message);
       }
     );
   }
@@ -1281,7 +1283,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderSaveErrorMessage(): null|JSX.Element{
     return this.state.saveError && this.state.saveError.message
-      ? <div className='text-white bg-red-300 p-2'>{this.state.saveError.message}</div>
+      ? <div className='text-white bg-red-300 p-2 whitespace-pre-line'>{this.state.saveError.message}</div>
       : null
     ;
   }
