@@ -55,30 +55,30 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
       }
     })
 
+    console.log(valuesPerUser);
+
     return <>
       <button
         className="btn btn-transparent"
         onClick={() => { this.setState({showModal: true}); }}
       >
         <span className="icon"><i className="fas fa-share-nodes"></i></span>
-        {Object.keys(valuesPerUser).length == 0 ? null :
-          <span className="text flex gap-4 text-xs">
-            {Object.keys(valuesPerUser).map((idUser: any) => {
-              let user = null;
-              this.state.data.map((tmpUser) => {
-                if (tmpUser.id == idUser) user = tmpUser;
-              });
+        {Object.keys(valuesPerUser).length == 0 ? null 
+         : Object.keys(valuesPerUser).length == 1 ?
+           Object.keys(valuesPerUser).map((idUser: any) => {
+            if (!this.state.data) return null;
 
-              return (user ? <div>
-                {user.nick ??
-                  (Array.from(user.first_name ?? '')[0]).toString()
-                  + (Array.from(user.last_name ?? '')[0]).toString()
-                }
-                {valuesPerUser[idUser] == 'read' ? <i className='text-xs fas fa-eye pl-2'></i> : null}
-                {valuesPerUser[idUser] == 'modify' ? <i className='text-xs fas fa-pencil pl-2'></i> : null}
-              </div> : null);
-            })}
-          </span>
+            let user = this.state.data[idUser] ?? null;
+            return (user ? <span className="text flex gap-4 text-xs">
+              {valuesPerUser[idUser] == 'read' ? <i className='text-xs fas fa-eye pl-2'></i> : null}
+              {valuesPerUser[idUser] == 'modify' ? <i className='text-xs fas fa-pencil pl-2'></i> : null}
+              {user.nick ??
+                (Array.from(user.first_name ?? '')[0]).toString()
+                + (Array.from(user.last_name ?? '')[0]).toString()
+              }
+            </span> : null);
+           })
+          : <span className="text">Shared with {Object.keys(valuesPerUser).length}</span>
         }
       </button>
       {this.state.showModal ?
@@ -96,6 +96,7 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
             {Object.keys(this.state.data).map((key: any) => {
               const user = this.state.data[key] ?? null;
               const userId = user.id ?? 0;
+              const value = valuesPerUser[userId] ?? '';
               return <tr>
                 <td>{user.first_name} {user.last_name}</td>
                 <td>
@@ -106,32 +107,71 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
                     />
                   : null}
                 </td>
-                <td>{user.nick}</td>
+                <td>{user.email}</td>
                 <td>
-                  <select
+                  <div className='btn-group'>
+                    <button
+                      className={'btn ' + (value == '' ? 'btn-primary' : 'btn-transparent')}
+                      onClick={(event) => {
+                        let newValue = valuesPerUser;
+                        console.log(newValue);
+                        delete newValue[userId];
+                        console.log(newValue);
+                        this.setState({value: JSON.stringify(newValue)});
+                      }}
+                    >
+                      <span className='text text-nowrap'>Do not share</span>
+                    </button>
+                    <button
+                      className={'btn ' + (value == 'read' ? 'btn-primary' : 'btn-transparent')}
+                      onClick={(event) => {
+                        let newValue = valuesPerUser;
+                        newValue[userId] = 'read';
+                        console.log(newValue);
+                        this.setState({value: JSON.stringify(newValue)});
+                      }}
+                    >
+                      <span className='icon'><i className='fas fa-eye'></i></span>
+                    </button>
+                    <button
+                      className={'btn ' + (value == 'modify' ? 'btn-primary' : 'btn-transparent')}
+                      onClick={(event) => {
+                        let newValue = valuesPerUser;
+                        newValue[userId] = 'modify';
+                        console.log(newValue);
+                        this.setState({value: JSON.stringify(newValue)});
+                      }}
+                    >
+                      <span className='icon'><i className='fas fa-pencil'></i></span>
+                    </button>
+                  </div>
+                  {/* <select
                     value={valuesPerUser[userId]}
                     onChange={(event) => {
-                      valuesPerUser[user.id] = event.currentTarget.value;
+                      valuesPerUser[userId] = event.currentTarget.value;
                     }}
                   >
                     <option value=''>{this.translate('Default access based on ownership', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</option>
                     <option value='read'>{this.translate('Can only read', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</option>
                     <option value='modify'>{this.translate('Can read and modify', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</option>
-                  </select>
+                  </select> */}
                 </td>
               </tr>;
             })}
           </tbody></table>
-          <button
-            className='btn btn-add btn-large mt-4 m-auto'
-            onClick={() => {
-              this.onChange(JSON.stringify(valuesPerUser));
-              this.setState({showModal: false});
-            }}
-          >
-            <span className='icon'><i className='fas fa-check'></i></span>
-            <span className='text'>{this.translate('Apply', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</span>
-          </button>
+          <div className='flex gap-2 items-center mt-4'>
+            <button
+              className='btn btn-add btn-large'
+              onClick={() => {
+                this.onChange(JSON.stringify(valuesPerUser));
+                this.setState({showModal: false});
+              }}
+            >
+              <span className='icon'><i className='fas fa-check'></i></span>
+              <span className='text'>{this.translate('Share', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</span>
+            </button>
+            <div className='badge badge-info'>Sharing overrides default ownership permissions.</div>
+          </div>
         </ModalSimple>
       : null}
     </>;

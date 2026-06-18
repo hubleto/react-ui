@@ -224,10 +224,6 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
               <span className='icon'><i className='fas fa-copy'></i></span>
             </button>
           </> : null}
-          {this.state.description && this.state.description.inputs && this.state.description.inputs.shared_with
-            ? this.input('shared_with')
-            : null
-          }
         </div>
         {this.props.junctionModel ?
           <div className='badge flex gap-2'>
@@ -345,6 +341,10 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
       <div className='flex justify-between'>
         {ownerManagerUi}
         {workflowUi}
+        {this.state.description && this.state.description.inputs && this.state.description.inputs.shared_with
+          ? <div className="p-2">{this.input('shared_with')}</div>
+          : null
+        }
       </div>
     </div>
   }
