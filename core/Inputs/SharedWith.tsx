@@ -49,13 +49,13 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
       valuesPerUser = {};
     }
 
+    if (!valuesPerUser) valuesPerUser = {};
+
     Object.keys(valuesPerUser).map((idUser: any) => {
       if (valuesPerUser[idUser] != 'read' && valuesPerUser[idUser] != 'modify') {
         delete valuesPerUser[idUser];
       }
     })
-
-    console.log(valuesPerUser);
 
     return <>
       <button
@@ -92,7 +92,7 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
           </>}
           onClose={(modal: ModalSimple) => { this.setState({showModal: false}); }}
         >
-          <table ref={this.refInput} className="table-default"><tbody>
+          <table ref={this.refInput} className="table-default dense"><tbody>
             {Object.keys(this.state.data).map((key: any) => {
               const user = this.state.data[key] ?? null;
               const userId = user.id ?? 0;

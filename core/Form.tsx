@@ -470,11 +470,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   onTabChange() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (this.state.activeTabUid == 'default' || this.state.activeTabUid == '') {
-      urlParams.delete('tab');
-    } else {
-      urlParams.set('tab', this.state.activeTabUid);
-    }
+
+    let tab = this.state.activeTabUid;
+    let tabExists = (this.state.tabs && this.state.tabs.filter((t) => t.uid == tab).length > 0);
+
+    if (tab == 'default' || !tabExists) urlParams.delete('tab');
+    else urlParams.set('tab', tab);
+
     window.history.pushState({}, "", '?' + urlParams.toString());
 
     if (this.props.onTabChangeCallback) this.props.onTabChangeCallback(this);
