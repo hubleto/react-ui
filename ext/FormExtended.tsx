@@ -337,7 +337,13 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     }
 
     return <div className='flex flex-col'>
-      {topMenuWithDynamicMenu}
+      <div className='flex'>
+        {topMenuWithDynamicMenu}
+        {this.state.description && this.state.description.inputs && this.state.description.inputs.color
+          ? <div className="p-2">{this.input('color')}</div>
+          : null
+        }
+      </div>
       <div className='flex justify-between'>
         {ownerManagerUi}
         {workflowUi}

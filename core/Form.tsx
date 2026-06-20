@@ -93,6 +93,8 @@ export interface FormProps {
   hideOverlay?: boolean,
   showInModal?: boolean,
   isInlineEditing?: boolean,
+  showHeader?: boolean,
+  showFooter?: boolean,
   customEndpointParams?: any,
 
   tabs?: Array<FormTab>,
@@ -158,6 +160,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   static defaultProps = {
     uid: '_form_' + uuid.v4().replace('-', '_'),
     descriptionSource: 'both',
+    showHeader: true,
+    showFooter: true,
   }
 
   props: FormProps;
@@ -1315,12 +1319,14 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
         if (this.props.modal && this.props.modal.current) {
           return <>
-            <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
-              <div className="modal-header-left">{headerLeft}</div>
-              <div className="modal-header-title">{formTitle}</div>
-              <div className="modal-header-right">{headerRight}</div>
-            </div>
-            {headerButtons ? <div className='modal-header-buttons'>{headerButtons}</div> : null}
+            {this.props.showHeader ? <>
+              <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
+                <div className="modal-header-left">{headerLeft}</div>
+                <div className="modal-header-title">{formTitle}</div>
+                <div className="modal-header-right">{headerRight}</div>
+              </div>
+              {headerButtons ? <div className='modal-header-buttons'>{headerButtons}</div> : null}
+            </> : null}
             {saveErrorMessage}
             {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
             <div className={"modal-body " + formContentClassName}>
@@ -1332,22 +1338,28 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
               {formContent}
             </div>
             {footerButtons ? <div className='modal-footer-buttons'>{footerButtons}</div> : null}
-            {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+            {this.props.showFooter ? <>
+              {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+            </> : null}
           </>;
         } else {
           return <>
             <div id={"hubleto-form-" + this.props.uid} className="hubleto component form">
-              <div className="form-header">
-                <div className="form-header-left">{headerLeft}</div>
-                <div className="form-header-title">{formTitle}</div>
-                <div className="form-header-right">{headerRight}</div>
-              </div>
+              {this.props.showHeader ? <>
+                <div className="form-header">
+                  <div className="form-header-left">{headerLeft}</div>
+                  <div className="form-header-title">{formTitle}</div>
+                  <div className="form-header-right">{headerRight}</div>
+                </div>
+              </> : null}
               {saveErrorMessage}
               {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
               <div className={"form-body" + formContentClassName}>
                 {formContent}
               </div>
-              {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+              {this.props.showFooter ? <>
+                {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+              </> : null}
             </div>
           </>;
         }

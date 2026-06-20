@@ -233,14 +233,14 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     }
   }
 
-  renderDataView(): JSX.Element {
+  renderRecords(): JSX.Element {
     // console.log('this.state.description?.ui?.dataView', this.state.description?.ui);
     switch (this.state.description?.ui?.dataView) {
       case 'tree':
         return this.renderTree(this.state?.data?.tree);
       break;
       default:
-        return super.renderDataView();
+        return super.renderRecords();
       break;
     }
   }

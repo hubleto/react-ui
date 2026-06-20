@@ -1568,7 +1568,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return columns;
   }
 
-  renderDataView(): JSX.Element {
+  renderRecords(): JSX.Element {
     if (this.state.description?.ui?.showAsPlainTable) {
       return <table className='table-default dense'>
         <thead>
@@ -1581,7 +1581,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         </thead>
         <tbody>
           {this.state.data?.records.map((row, rowIndex) => {
-            return <tr>
+            return <tr key={rowIndex}>
               {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
                 const val = row['_LOOKUP[' + colName + ']'] ?? row[colName];
                 return <td className='border-none'>{
@@ -1632,7 +1632,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           : null}
 
           <div className="table-body grow" id={"hubleto-table-body-" + this.props.uid}>
-            {this.renderDataView()}
+            {this.renderRecords()}
           </div>
         </div>
       </div>
