@@ -125,7 +125,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
               </div>
             </div></div>
           </div>
-        </div> : <div className='flex gap-2'>
+        </div> : <div className='flex gap-2 max-h-8 overflow-auto md:max-h-none'>
           <div className='flex flex-col'>
             <div className='flex items-center flex-col items-start'>
               {steps && steps.length > 0 ? <>

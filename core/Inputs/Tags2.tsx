@@ -168,7 +168,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
 
   }
 
-  renderValueElement() {
+  renderValueElement(): JSX.Element {
     const options: Array<any> = this.convertValueToOptionList(this.state.value);
 
     if (options) {
@@ -187,7 +187,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
           </button>
         );
       }
-      return items;
+      return <>{items}</>;
     } else {
       return <span className='no-value'></span>;
     }

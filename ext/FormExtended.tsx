@@ -264,36 +264,38 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     const manager = globalThis.hubleto.users ? globalThis.hubleto.users[idManager] : null;
 
     return <div className='p-2 flex flex-col'>
-      <div className='btn-group flex-col'>
+      <div className='btn-group border-primary'>
         <div className='btn btn-transparent' onClick={() => { this.setState({showOwnerManagerSelector: !this.state.showOwnerManagerSelector})}}>
           <span className="text flex gap-2">{owner ? <>
-            <span className='text-xs text-gray-500'>Owner</span>
+            {/* <span className='text-xs text-gray-500'>Owner</span> */}
             {owner.photo ?
               <img
                 src={globalThis.hubleto.config.uploadUrl + '/' + owner.photo}
                 className='max-w-4 max-h-4 rounded-xl'
               />
             : null}
-            <span className='text-xs'>{
-              (Array.from(owner.first_name ?? '')[0]).toString()
-              + (Array.from(owner.last_name ?? '')[0]).toString()
-              + (owner.id == globalThis.hubleto.idUser ? ' (you) ' : '')
+            <span className='text-xs text-primary'>{
+              owner.nick ? owner.nick :
+                (Array.from(owner.first_name ?? '')[0]).toString()
+                + (Array.from(owner.last_name ?? '')[0]).toString()
+                + (owner.id == globalThis.hubleto.idUser ? ' (you) ' : '')
             }</span>
           </> : '-'}</span>
         </div>
         <div className='btn btn-transparent' onClick={() => { this.setState({showOwnerManagerSelector: !this.state.showOwnerManagerSelector})}}>
           <span className="text flex gap-2">{manager ? <>
-            <span className='text-xs text-gray-500'>Manager</span>
+            {/* <span className='text-xs text-gray-500'>Manager</span> */}
             {manager.photo ?
               <img
                 src={globalThis.hubleto.config.uploadUrl + '/' + manager.photo}
                 className='max-w-4 max-h-4 rounded-xl'
               />
             : null}
-            <span className='text-xs'>{
-              (Array.from(manager.first_name ?? '')[0]).toString()
-              + (Array.from(manager.last_name ?? '')[0]).toString()
-              + (manager.id == globalThis.hubleto.idUser ? ' (you) ' : '')
+            <span className='text-xs text-primary'>{
+              manager.nick ? manager.nick :
+                (Array.from(manager.first_name ?? '')[0]).toString()
+                + (Array.from(manager.last_name ?? '')[0]).toString()
+                + (manager.id == globalThis.hubleto.idUser ? ' (you) ' : '')
             }</span>
           </> : '-'}</span>
         </div>
