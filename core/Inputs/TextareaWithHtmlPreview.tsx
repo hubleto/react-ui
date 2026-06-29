@@ -12,6 +12,7 @@ interface TextareaWithHtmlPreviewInputState extends InputState {
   textareaValue: string,
   previewInvalidated: boolean
   isFullscreen: boolean;
+  showPreview: boolean;
 }
 
 export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaWithHtmlPreviewInputState> {
@@ -36,6 +37,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
       textareaValue: this.state.value,
       previewInvalidated: false,
       isFullscreen: false,
+      showPreview: true,
     };
   }
 
@@ -44,48 +46,81 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
       overflow: 'auto',
       fontFamily: 'monospace',
       fontSize: 11,
-      maxWidth: '600px',
+      maxWidth: '1200px',
     };
     let wrapperStyle: any = {};
 
-    if (this.state.isFullscreen) {
-      wrapperStyle.position = 'fixed';
-      wrapperStyle.left = '0px';
-      wrapperStyle.top = '0px';
-      wrapperStyle.width = '100vw';
-      wrapperStyle.height = '100vh';
-      wrapperStyle.background = 'white';
-      wrapperStyle.padding = '1em';
-      wrapperStyle.zIndex = 9999999;
-    }
-    return <div
-      className='flex gap-2 w-full'
-      style={wrapperStyle}
-    >
-      <div className='w-1/2 card'>
+    // if (this.state.isFullscreen) {
+    //   wrapperStyle.position = 'absolute';
+    //   wrapperStyle.left = '0px';
+    //   wrapperStyle.top = '0px';
+    //   wrapperStyle.width = '100%';
+    //   // wrapperStyle.height = '100vh';
+    //   wrapperStyle.background = 'white';
+    //   wrapperStyle.padding = '1em';
+    //   wrapperStyle.zIndex = 9999999;
+    //   // editorStyle.height = 'calc(100vh - 10em)';
+    // } else {
+    //   wrapperStyle.width = '100%';
+    // }
+
+    if (this.state.showPreview) {
+      return <div className='card w-full'>
         <div className='card-header'>
-          HTML content
+          <div>
+            {this.translate('Preview', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\TextareaWithHtmlPreview')}
+            <button
+              className='btn btn-small btn-transparent ml-2'
+              onClick={() => { this.setState({showPreview: false}); }}
+            >
+              <span className='icon'><i className='fas fa-code'></i></span>
+              <span className='text'>{this.translate('Show source', 'Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
+            </button>
+          </div>
+          {/* <div>
+            <button
+              className='btn btn-small btn-transparent'
+              onClick={() => { this.setState({isFullscreen: !this.state.isFullscreen}); }}
+            >
+              <span className='icon'><i className='fas fa-expand'></i></span>
+              <span className='text'>{this.translate('Toggle fullscreen', 'Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
+            </button>
+          </div> */}
+        </div>
+        <div className='card-body min-h-96 w-full'>
+          <HtmlFrame
+            ref={this.refPreview}
+            className='w-full min-h-96 '
+            content={this.state.textareaValue}
+          />
+        </div>
+      </div>;
+    } else {
+      return <div className='card h-full'>
+        <div className='card-header'>
+          <div>
+            {this.translate('Source', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\TextareaWithHtmlPreview')}
+            <button
+              className='btn btn-small btn-transparent ml-2'
+              onClick={() => { this.setState({showPreview: true}); }}
+            >
+              <span className='icon'><i className='fas fa-eye'></i></span>
+              <span className='text'>{this.translate('Show preview', 'Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
+            </button>
+          </div>
           <div>
             <button
               className='btn btn-small btn-transparent'
               onClick={() => { this.setState({isFullscreen: !this.state.isFullscreen}); }}
             >
               <span className='icon'><i className='fas fa-expand'></i></span>
-              <span className='text'>{this.translate('Toggle fullscreen','Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
+              <span className='text'>{this.translate('Toggle fullscreen', 'Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
             </button>
           </div>
         </div>
         <div className='card-body flex flex-col overflow-y-auto'>
-          {/* <textarea
-            className='w-full min-h-[15em]'
-            style={{fontFamily: 'courier', whiteSpace: 'nowrap', padding: '0.5em'}}
-            value={this.state.textareaValue}
-            onChange={(e) => {
-              this.setState({textareaValue: e.target.value});
-            }}
-          /> */}
           <Editor
-            className="bg-slate-100 w-full overflow-y"
+            className="w-full overflow-y"
             value={this.state.textareaValue ?? ''}
             onValueChange={(newValue) => {
               this.setState({textareaValue: newValue});
@@ -96,19 +131,7 @@ export default class TextareaWithHtmlPreview extends Input<InputProps, TextareaW
             style={editorStyle}
           />
         </div>
-      </div>
-      <div className={'w-1/2 card ' + (this.state.previewInvalidated ? 'card-danger' : '')}>
-        <div className='card-header'>
-          {this.translate('Preview','Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}
-        </div>
-        <div className='card-body'>
-          <HtmlFrame
-            ref={this.refPreview}
-            className='w-full h-full'
-            content={this.state.textareaValue}
-          />
-        </div>
-      </div>
-    </div>;
+      </div>;
+    }
   }
 }
