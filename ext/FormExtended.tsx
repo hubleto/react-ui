@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Form, { FormDescription, FormProps, FormState } from "@hubleto/react-ui/core/Form";
 import request from '@hubleto/react-ui/core/Request';
 import App from '@hubleto/react-ui/core/App';
-import UserSelect from '@hubleto/react-ui/core/Inputs/UserSelect';
+import ModalSimple from "@hubleto/react-ui/core/ModalSimple";
 import HtmlFrame from "@hubleto/react-ui/core/HtmlFrame";
 
 //@ts-ignore
@@ -25,6 +25,7 @@ export interface FormExtendedProps extends FormProps {
 export interface FormExtendedState extends FormState {
   icon?: string,
   showOwnerManagerSelector?: boolean,
+  showPreviewUi?: boolean,
   htmlPreview?: any,
 }
 
@@ -62,9 +63,9 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
 
   getTabsRight() {
     let tabs = [];
-    if (this.props.renderPreviewUi) {
-      tabs.push({ uid: 'preview', icon: 'fas fa-print', cssClass: 'btn-violet', position: 'right' });
-    }
+    // if (this.props.renderPreviewUi) {
+    //   tabs.push({ uid: 'preview', icon: 'fas fa-print', cssClass: 'btn-violet', position: 'right' });
+    // }
 
     return tabs;
   }
@@ -137,7 +138,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
           this.updateRecord({
             idDocument: result.idDocument,
             pdf: result.pdfFile,
-          });
+          }, () => { this.saveRecord(); });
         }
       }
     );
@@ -182,7 +183,30 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
       <div className='flex gap-2 items-center'>
         <div className='hidden md:block'>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
         <div className='flex flex-col gap-2'>
-          <div className='flex'>{super.renderHeaderLeft()}</div>
+          <div className='flex gap-2'>
+            {super.renderHeaderLeft()}
+            {this.props.renderPreviewUi ? <>
+              <button
+                onClick={(e: any) => {
+                  this.setState({showPreviewUi: true})
+                }}
+                className={"btn btn-transparent"}
+              >
+                <span className="icon"><i className="fas fa-print"></i></span>
+                <span className="text">
+                  {this.translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+                </span>
+              </button>
+              {this.state.record && this.state.record.pdf ?
+                <a href={globalThis.hubleto.config.uploadUrl + '/' + this.state.record.pdf}
+                  className="btn btn-transparent" target="_blank"
+                  title={this.translate("Download PDF", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+                >
+                  <span className="icon"><i className="fas fa-file-pdf"></i></span>
+                </a>
+              : null}
+            </> : null}
+          </div>
         </div>
       </div>
     </>;
@@ -415,82 +439,166 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     }
   }
 
-  renderTab(tabUid: string) {
-    const R = this.state.record;
+  // renderTab(tabUid: string) {
+  //   const R = this.state.record;
 
-    switch (tabUid) {
-      case 'preview':
-        return <div className='flex gap-2 h-full'>
-          <div className='flex-1 w-72 flex flex-col gap-2'>
-            <div className='grow'>
-              {this.inputWrapper('id_template', {
-                uiStyle: 'buttons-vertical',
-                onChange: (input: any) => {
-                  this.updatePreview(input.state.value);
-                }
-              })}
+  //   switch (tabUid) {
+  //     case 'preview':
+  //       return <div className='flex gap-2 h-full'>
+  //         <div className='flex-1 w-72 flex flex-col gap-2'>
+  //           <div className='grow'>
+  //             {this.inputWrapper('id_template', {
+  //               uiStyle: 'buttons-vertical',
+  //               onChange: (input: any) => {
+  //                 this.updatePreview(input.state.value);
+  //               }
+  //             })}
+  //           </div>
+  //           {this.inputWrapper('id_document', {readonly: true})}
+  //         </div>
+  //         <div className='flex-3 flex flex-col'>
+  //           <div className='flex gap-2 align-center justify-end'>
+  //             <div>
+  //               {this.input('pdf', {readonly: true})}
+  //             </div>
+  //             <div className='flex gap-2'>
+  //               <button
+  //                 className='btn btn-transparent mb-4'
+  //                 onClick={() => {
+  //                   this.generatePdf();
+  //                 }}
+  //               >
+  //                 <span className='icon'><i className='fas fa-download'></i></span>
+  //                 <span className='text'>{this.translate('Export to PDF')}</span>
+  //               </button>
+  //               <button
+  //                 className='btn btn-transparent mb-4'
+  //                 onClick={() => {
+  //                   const iframe = window.frames[this.props.uid + '_preview'];
+  //                   const origDocumentTitle = document.title;
+
+  //                   document.title += this.getTitleAsText();
+
+  //                   iframe.contentWindow.focus();
+  //                   iframe.contentWindow.print();
+
+  //                   document.title = origDocumentTitle;
+  //                 }}
+  //               >
+  //                 <span className='icon'><i className='fas fa-print'></i></span>
+  //                 <span className='text'>{this.translate('Print')}</span>
+  //               </button>
+  //             </div>
+  //           </div>
+  //           <div className='w-full h-full card mt-2'>
+  //             <div className="card-body">
+  //               <HtmlFrame
+  //                 className='w-full h-full'
+  //                 iframeId={this.props.uid + '_preview'}
+  //                 content={this.state.htmlPreview}
+  //               />
+  //             </div>
+  //             <div className='card-footer'>
+  //               <a
+  //                 href='#'
+  //                 onClick={() => {
+  //                   this.showPreviewVars();
+  //                 }}
+  //               >{this.translate('Show variables available in template')}</a>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>;
+  //     break;
+
+  //     default:
+  //       return super.renderTab(tabUid);
+  //     break;
+  //   }
+  // }
+
+  renderContent() {
+    return <>
+      {super.renderContent()}
+      {this.state.showPreviewUi ? 
+        <ModalSimple
+          uid='projects_table_discussions_modal'
+          isOpen={true}
+          type='centered large theme-secondary'
+          showHeader={true}
+          title={<>
+            <h2>{this.translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</h2>
+          </>}
+          onClose={(modal: ModalSimple) => { this.setState({showPreviewUi: false}); }}
+        >
+          <div className='flex gap-2 h-full'>
+            <div className='flex-1 w-72 flex flex-col gap-2'>
+              <div className='grow'>
+                {this.inputWrapper('id_template', {
+                  uiStyle: 'buttons-vertical',
+                  onChange: (input: any) => {
+                    this.updatePreview(input.state.value);
+                  }
+                })}
+                <div className='flex flex-col gap-2'>
+                  <button
+                    className='btn btn-add-outline btn-large'
+                    onClick={() => {
+                      this.generatePdf();
+                    }}
+                  >
+                    <span className='icon'><i className='fas fa-file-pdf'></i></span>
+                    <span className='text'>{this.translate('Generate PDF')}</span>
+                  </button>
+                  <button
+                    className='btn btn-add-outline btn-large'
+                    onClick={() => {
+                      const iframe = window.frames[this.props.uid + '_preview'];
+                      const origDocumentTitle = document.title;
+
+                      document.title += this.getTitleAsText();
+
+                      iframe.contentWindow.focus();
+                      iframe.contentWindow.print();
+
+                      document.title = origDocumentTitle;
+                    }}
+                  >
+                    <span className='icon'><i className='fas fa-print'></i></span>
+                    <span className='text'>{this.translate('Print')}</span>
+                  </button>
+                </div>
+              </div>
+              {this.inputWrapper('id_document', {readonly: true})}
             </div>
-            {this.inputWrapper('id_document', {readonly: true})}
+            <div className='flex-3 flex flex-col'>
+              <div className='flex gap-2 align-center justify-end'>
+                <div>
+                  {this.input('pdf', {readonly: true})}
+                </div>
+              </div>
+              <div className='w-full h-full card mt-2'>
+                <div className="card-body">
+                  <HtmlFrame
+                    className='w-full h-full'
+                    iframeId={this.props.uid + '_preview'}
+                    content={this.state.htmlPreview}
+                  />
+                </div>
+                <div className='card-footer'>
+                  <a
+                    href='#'
+                    onClick={() => {
+                      this.showPreviewVars();
+                    }}
+                  >{this.translate('Show variables available in template')}</a>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className='flex-3 flex flex-col'>
-            <div className='flex gap-2 align-center justify-end'>
-              <div>
-                {this.input('pdf', {readonly: true})}
-              </div>
-              <div className='flex gap-2'>
-                <button
-                  className='btn btn-transparent mb-4'
-                  onClick={() => {
-                    this.generatePdf();
-                  }}
-                >
-                  <span className='icon'><i className='fas fa-download'></i></span>
-                  <span className='text'>{this.translate('Export to PDF')}</span>
-                </button>
-                <button
-                  className='btn btn-transparent mb-4'
-                  onClick={() => {
-                    const iframe = window.frames[this.props.uid + '_preview'];
-                    const origDocumentTitle = document.title;
-
-                    document.title += this.getTitleAsText();
-
-                    iframe.contentWindow.focus();
-                    iframe.contentWindow.print();
-
-                    document.title = origDocumentTitle;
-                  }}
-                >
-                  <span className='icon'><i className='fas fa-print'></i></span>
-                  <span className='text'>{this.translate('Print')}</span>
-                </button>
-              </div>
-            </div>
-            <div className='w-full h-full card mt-2'>
-              <div className="card-body">
-                <HtmlFrame
-                  className='w-full h-full'
-                  iframeId={this.props.uid + '_preview'}
-                  content={this.state.htmlPreview}
-                />
-              </div>
-              <div className='card-footer'>
-                <a
-                  href='#'
-                  onClick={() => {
-                    this.showPreviewVars();
-                  }}
-                >{this.translate('Show variables available in template')}</a>
-              </div>
-            </div>
-          </div>
-        </div>;
-      break;
-
-      default:
-        return super.renderTab(tabUid);
-      break;
-    }
+        </ModalSimple>
+      : null}
+    </>;
   }
 
 }

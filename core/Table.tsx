@@ -162,6 +162,7 @@ export interface TableProps {
   filters?: any,
   view?: string,
   invalidInputs?: Array<InvalidInput>,
+  crudController?: string,
 }
 
 // Laravel pagination
@@ -212,6 +213,7 @@ export interface TableState {
   tableUpdateIteration: number,
   myRootUrl: string,
   editMode: string,
+  crudController?: string,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -285,6 +287,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       tableUpdateIteration: 0,
       editMode: '',
       myRootUrl: window.location.protocol + "//" + window.location.host + window.location.pathname,
+      crudController: props.crudController ?? '',
     };
 
     if (props.description) state.description = props.description;
@@ -358,6 +361,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
       filterBy: this.state.filterBy,
       model: this.model,
+      crudController: this.state.crudController,
       orderBy: this.state.description?.ui?.orderBy ?? { field: 'id', direction: 'desc' },
       page: this.state.page ?? 0,
       itemsPerPage: this.state.itemsPerPage ?? 35,
@@ -1300,7 +1304,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     let columnSearch: any = this.state.columnSearch;
 
     if (value === null) delete columnSearch[columnName];
-    else columnSearch[columnName] = value;
+    else columnSearch[columnName] = ['OR', value];
 
     this.applyColumnSearch(columnSearch);
 

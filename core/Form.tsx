@@ -1030,13 +1030,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             if (!e.isFromDropdownMenu) this.saveRecord({closeAfterSave: false});
           }}
           className={"btn " + (this.state.recordChanged ? (this.state.savedSuccessfully ? "btn-success" : "btn-add") : "btn-disabled")}
+          title="Save: Ctrl+S"
         >
           {this.state.updatingRecord
             ? <>
-              <span className="icon">
-                <i className={saveIcon}></i>
-                <span className="shortcut">Ctrl+S</span>
-              </span>
+              <span className="icon"><i className={saveIcon}></i></span>
               <span className="text">
                 {this.state.savedSuccessfully
                   ? this.translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
@@ -1044,10 +1042,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
                 }
               </span>
             </> : <>
-              <span className="icon">
-                <i className="fas fa-plus"></i>
-                <span className="shortcut">Ctrl+S</span>
-              </span>
+              <span className="icon"><i className="fas fa-plus"></i></span>
               <span className="text">
                 {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
               </span>
