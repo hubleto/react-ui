@@ -7,11 +7,14 @@ import CreatableSelect from "react-select/creatable";
 import Select from "react-select";
 
 interface Tags2InputProps extends InputProps {
+  params?: any,
   model?: string
   endpoint?: string,
   targetColumn: string,
   sourceColumn: string,
   colorColumn?: string,
+  showSelect?: boolean,
+  showTagButtons?: boolean,
   onNewTag?: (title: string) => object,
 }
 
@@ -22,6 +25,8 @@ interface Tags2InputState extends InputState {
   targetColumn: string,
   sourceColumn: string,
   colorColumn: string,
+  showSelect?: boolean,
+  showTagButtons?: boolean,
 }
 
 export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
@@ -29,6 +34,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
     inputClassName: 'tags',
     uid: uuid.v4(),
     id: uuid.v4(),
+    showSelect: true,
   }
 
   props: Tags2InputProps;
@@ -55,6 +61,8 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
       options: [],
       targetColumn: props.targetColumn,
       sourceColumn: props.sourceColumn,
+      showSelect: props.showSelect,
+      showTagButtons: props.showTagButtons,
     };
   }
 
@@ -123,8 +131,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
     };
   }
 
-  loadOptions(callback = () => {
-  }) {
+  loadOptions(callback = () => {}) {
     request.post(
       this.getEndpointUrl(),
       this.getEndpointParams(),
@@ -194,6 +201,8 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   renderInputElement() {
+    const convertedValue = this.convertValueToOptionList(this.state.value);
+
     if (!(this.props.onNewTag ?? false)) {
       return <Select
         ref={this.refInput}
@@ -205,14 +214,59 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
         onChange={(selectedOptions: any) => this.handleChange(selectedOptions)}
       />;
     }
-    return <CreatableSelect
-      ref={this.refInput}
-      value={this.convertValueToOptionList(this.state.value)}
-      isMulti
-      options={Object.values(this.state.options)}
-      className="hubleto-lookup"
-      onChange={(selectedOptions: any) => this.handleChange(selectedOptions)}
-      onCreateOption={(inputValue: string) => this.addNewTag(inputValue)}
-    />;
+
+    return <div className='flex flex-col gap-2'>
+      {this.state.showTagButtons ? <div className='flex gap-4'>
+        {Object.keys(this.state.options).map((key) => {
+          const option = this.state.options[key];
+          const isSelected = this.state.value ? this.state.value.filter((item) => item.id_tag == option.value).length > 0 : false;
+
+          return <div className='flex gap-1'>
+            <span className='text-sm' style={{color: option.color}}><i className='fas fa-tag'></i></span>
+            <button
+              key={key}
+              className={'btn btn-small ' + (isSelected ? 'btn-primary' : 'btn-transparent')}
+              style={{borderLeftWidth: '3px', borderLeftColor: option.color ?? ''}}
+              onClick={() => {
+                let newValue = this.state.value ?? [];
+
+                if (isSelected) {
+                  newValue = newValue.filter((item) => {
+                    return item[this.props.sourceColumn] != option.value
+                  });
+                } else {
+                  newValue.push({
+                    id: -1,
+                    [this.props.targetColumn]: {_useMasterRecordId_: true},
+                    [this.props.sourceColumn]: option.value,
+                  });
+                }
+
+                this.onChange(newValue);
+              }}
+            >
+              <span className='text text-sm text-nowrap'>{option.label ?? '-'}</span>
+            </button>
+          </div>;
+        })}
+        <button
+            className='btn btn-small btn-transparent'
+            onClick={() => { this.setState({showSelect: true}); }}
+          >
+            <span className='icon'><i className='fas fa-plus'></i></span>
+          </button>
+      </div>: null}
+      {this.state.showSelect ?
+        <CreatableSelect
+          ref={this.refInput}
+          value={convertedValue}
+          isMulti
+          options={Object.values(this.state.options)}
+          className="hubleto-lookup"
+          onChange={(selectedOptions: any) => this.handleChange(selectedOptions)}
+          onCreateOption={(inputValue: string) => this.addNewTag(inputValue)}
+        />
+      : null}
+    </div>;
   }
 }

@@ -220,6 +220,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   static defaultProps = {
     itemsPerPage: 35,
     descriptionSource: 'both',
+    model: '',
   }
 
   props: TableProps;
@@ -1141,24 +1142,26 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             else cellValueElement = <span className="text-red-600" style={{fontSize: '1.2em'}}>✕</span>
           break;
           case 'date':
-            cellValueElement = <>
+            cellValueElement = <span className='text-stone-700'>
               {/* <i className='fas fa-calendar mr-2 text-gray-300'></i> */}
               {cellContent == '0000-00-00' ? '' : dateToEUFormat(cellContent)}
-            </>;
+            </span>;
           break;
           case 'datetime':
             const date = cellContent?.slice(0, 10) ?? "N/A";
             const time = cellContent?.slice(11) ?? "N/A";
 
-            cellValueElement = <div className='flex gap-2'>
-              <div>
+            cellValueElement = <div className='flex gap-1'>
+              <span className='text-stone-700'>{dateToEUFormat(date)}</span>
+              <span className='text-stone-400'>{time}</span>
+              {/* <div>
                 <i className='fas fa-calendar mr-2 text-gray-300'></i>
                 <span>{dateToEUFormat(date)}</span>
               </div>
               <div>
                 <i className='fas fa-clock mr-2 text-gray-300'></i>
                 <span>{time}</span>
-              </div>
+              </div> */}
             </div>;
           break;
           case 'tags':
@@ -1777,7 +1780,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (row._PERMISSIONS && !row._PERMISSIONS[1]) return; // cannot read
     if (this.state.isInlineEditing) return; // doing nothing when inline editing
 
-      if (this.props.externalCallbacks && this.props.externalCallbacks.onRowClick) {
+    if (this.props.externalCallbacks && this.props.externalCallbacks.onRowClick) {
       window[this.props.externalCallbacks.onRowClick](this, row.id ?? 0);
     } if (this.props.onRowClick) {
       this.props.onRowClick(this, row);
