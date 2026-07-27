@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
-import { InputSwitch } from 'primereact/inputswitch';
+import { ToggleSwitch } from 'primereact/toggleswitch';
 import * as uuid from 'uuid';
+
+interface BooleanInputProps extends InputProps { }
+interface BooleanInputState extends InputState { }
 
 export default class Boolean extends Input<InputProps, InputState> {
   static defaultProps = {
@@ -10,15 +13,18 @@ export default class Boolean extends Input<InputProps, InputState> {
     id: uuid.v4(),
   }
 
-  constructor(props: InputProps) {
-    super(props);
+  props: BooleanInputProps = null;
+  state: BooleanInputState = null;
 
+  constructor(props: BooleanInputProps) {
+    super(props);
+    this.props = props;
     this.state = this.getStateFromProps(props);
   }
 
-  getStateFromProps(props: InputProps) {
+  getStateFromProps(props: BooleanInputProps) {
     return {
-      ...this.state, // Parent state
+      ...super.getStateFromProps(props),
       isInitialized: true,
     };
   }
@@ -58,7 +64,16 @@ export default class Boolean extends Input<InputProps, InputState> {
 
   renderInputElement() {
     return <>
-      <InputSwitch
+      {/* <ToggleSwitch
+        disabled={this.state.readonly}
+        checked={this.isChecked(this.state.value)}
+        onChange={(e) => {
+          this.onChange(this.toggleValue(this.state.value));
+        }}
+        ref={this.refInput}
+      /> */}
+      <input
+        type="checkbox"
         disabled={this.state.readonly}
         checked={this.isChecked(this.state.value)}
         onChange={(e) => {

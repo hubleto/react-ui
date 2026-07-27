@@ -27,8 +27,14 @@ export default class SharedWith extends LookupInput<SharedWithInputProps, Shared
     uiStyle: 'default',
   }
 
-  props: SharedWithInputProps;
-  state: SharedWithInputState;
+  props: SharedWithInputProps = null;
+  state: SharedWithInputState = null;
+
+  constructor(props: SharedWithInputProps) {
+    super(props);
+    this.props = props;
+    this.state = this.getStateFromProps(props);
+  }
 
   getEndpointUrl() {
     return 'api/get-users';

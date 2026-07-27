@@ -3,8 +3,7 @@ import Compact from '@uiw/react-color-compact';
 import * as uuid from 'uuid';
 import { Input, InputProps, InputState } from '../Input'
 
-interface ColorInputProps extends InputProps {
-}
+interface ColorInputProps extends InputProps { }
 
 interface ColorInputState extends InputState {
   showColorSelector: boolean
@@ -17,20 +16,18 @@ export default class Color extends Input<ColorInputProps, ColorInputState> {
     id: uuid.v4(),
   }
 
-  props: ColorInputProps;
-  state: ColorInputState;
+  props: ColorInputProps = null;
+  state: ColorInputState = null;
 
-  constructor(props: ColorInputProps) {
-    super(props);
-
-    this.state = {
-      ...this.state, // Parent state
+  getStateFromProps(props: ColorInputProps) {
+    return {
+      ...super.getStateFromProps(props),
       isInitialized: true,
       showColorSelector: false,
     };
   }
 
-  renderValueElement(): JSX.Element {
+  renderValueElement(): React.JSX.Element {
     if (this.state.value) {
       return <span style={{backgroundColor: this.state.value}}>&nbsp;&nbsp;&nbsp;&nbsp;</span>
     } else {

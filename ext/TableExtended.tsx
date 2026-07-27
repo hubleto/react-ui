@@ -30,8 +30,8 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     formUseModalSimple: true,
   }
 
-  props: TableExtendedProps;
-  state: TableExtendedState;
+  declare props: TableExtendedProps;
+  declare state: TableExtendedState;
 
   refExportCsvModal: any;
   refImportCsvModal: any;
@@ -52,6 +52,8 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     this.refImportCsvForm = React.createRef();
     this.refColumnsConfigScreen = React.createRef();
   }
+
+  setState(newState: any, onSuccess?: any) { super.setState(newState, onSuccess); }
 
   getStateFromProps(props: TableExtendedProps) {
     return {
@@ -96,7 +98,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     } else return {...super.getFormModalProps()}
   }
 
-  renderSidebarFilter(): null|JSX.Element {
+  renderSidebarFilter(): null|React.JSX.Element {
     if (this.state?.description?.ui?.filters && ! this.state.sidebarFilterHidden) {
       return <div className="flex flex-col gap-2 text-nowrap">
         {Object.keys(this.state.description.ui.filters).map((filterName) => {
@@ -165,12 +167,12 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     }
   }
 
-  renderForm(): JSX.Element {
+  renderForm(): React.JSX.Element {
     let formProps: FormExtendedProps = this.getFormProps();
     return <FormExtended {...formProps}/>;
   }
 
-  renderTree(nodes: any, idParent: number = 0, level: number = 0): JSX.Element {
+  renderTree(nodes: any, idParent: number = 0, level: number = 0): React.JSX.Element {
     if (nodes.length && nodes.length > 0) {
       return <div className='list'>
         {nodes.map((node, index) => {
@@ -233,7 +235,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     }
   }
 
-  renderRecords(): JSX.Element {
+  renderRecords(): React.JSX.Element {
     // console.log('this.state.description?.ui?.dataView', this.state.description?.ui);
     switch (this.state.description?.ui?.dataView) {
       case 'tree':
@@ -245,7 +247,7 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
     }
   }
 
-  renderContent(): JSX.Element {
+  renderContent(): React.JSX.Element {
     return <>
       {super.renderContent()}
       {this.state.showExportCsvScreen ?

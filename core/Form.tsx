@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import * as uuid from 'uuid';
 
-import { ProgressBar } from 'primereact/progressbar';
-import { Tooltip } from 'primereact/tooltip';
 import request from "./Request";
+import Spinner from "@hubleto/react-ui/core/Spinner";
 
 import { deepObjectMerge } from "./Helper";
 
@@ -70,13 +69,13 @@ export interface FormDescription {
 
 export interface FormTab {
   uid: string,
-  title?: string|JSX.Element,
+  title?: string|React.JSX.Element,
   icon?: string,
   cssClass?: string,
   showCountFor?: string,
   isCustom?: boolean,
   subTabs?: Array<FormTab>,
-  onRender?: (form: any) => JSX.Element,
+  onRender?: (form: any) => React.JSX.Element,
 }
 
 export interface FormProps {
@@ -165,8 +164,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     showFooter: true,
   }
 
-  props: FormProps;
-  state: FormState;
+  declare props: FormProps;
+  declare state: FormState;
 
   newState: any;
 
@@ -254,9 +253,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       recordChanged: false,
       deleteButtonDisabled: false,
       permissions: this.calculatePermissions(),
-      tabs: this.props.tabs,
-      activeTab: this.props.activeTab,
-      activeTabUid: this.props.activeTabUid,
+      tabs: props.tabs,
+      activeTab: props.activeTab,
+      activeTabUid: props.activeTabUid,
       savedSuccessfully: false,
       saveError: null,
       loadRecordError: null,
@@ -492,6 +491,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     (this.state.record._RELATIONS ?? []).map((relName: any) => {
       if (!(this.state.description?.includeRelations ?? []).includes(relName)) {
+        //@ts-ignore
         delete record[relName];
       }
     });
@@ -633,7 +633,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return '';
   }
 
-  renderCustomInputs(): JSX.Element|Array<JSX.Element> {
+  renderCustomInputs(): React.JSX.Element|Array<React.JSX.Element> {
     let customInputs: any = [];
 
     if (this.state?.description?.inputs) {
@@ -648,7 +648,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return customInputs;
   }
 
-  renderTabTitle(tabIndex: number): JSX.Element {
+  renderTabTitle(tabIndex: number): React.JSX.Element {
     const tab = this.state.tabs ? this.state.tabs[tabIndex] : null;
     if (tab) {
       const R = this.state.record;
@@ -692,7 +692,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </button>
   }
 
-  renderTopMenu(): null|JSX.Element {
+  renderTopMenu(): null|React.JSX.Element {
     if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
       const tabs = this.state.tabs ?? [];
       return <div className="top-menu-wrapper">
@@ -716,7 +716,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderTemplateElement(elRenderer: string, elData: any): JSX.Element {
+  renderTemplateElement(elRenderer: string, elData: any): React.JSX.Element {
     switch (elRenderer) {
       case 'form.columns':
         if (!elData.props) elData.props = {};
@@ -743,8 +743,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderFromTemplate(template: any): Array<JSX.Element> {
-    let content: Array<JSX.Element> = [];
+  renderFromTemplate(template: any): Array<React.JSX.Element> {
+    let content: Array<React.JSX.Element> = [];
     Object.keys(template).map((elDefinition: string) => {
       let tmp = elDefinition.split('#');
       let elRenderer = tmp[0] ?? '';
@@ -757,7 +757,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return content;
   }
 
-  renderTab(tab: string): null|JSX.Element {
+  renderTab(tab: string): null|React.JSX.Element {
     let template: any = {};
 
     if (this.state.description?.ui?.templateJson) {
@@ -794,7 +794,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   /**
    * Render content
    */
-  renderContent(): null|JSX.Element {
+  renderContent(): null|React.JSX.Element {
     let tabs: Array<FormTab> = this.state.tabs ?? [];
     let tabUid = this.state.activeTabUid ?? '';
 
@@ -911,7 +911,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   /**
    * Render different input types
    */
-  input(inputName: string, customInputProps?: any): JSX.Element {
+  input(inputName: string, customInputProps?: any): React.JSX.Element {
     const inputProps = this.getInputProps(inputName, customInputProps);
 
     return InputFactory(inputProps);
@@ -926,22 +926,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       inputProps.description?.title ?? '',
       <>
         {this.input(inputName, customInputProps)}
-        {inputProps.description?.info
-          ? <>
-            <Tooltip target={'#' + this.props.uid + '_' + inputName + ' .input-info'} />
-            <i
-              className="input-info fas fa-info"
-              data-pr-tooltip={inputProps.description.info}
-              data-pr-position="top"
-            ></i>
-          </>
-          : null
-        }
+        {inputProps.description?.info}
       </>
     );
   }
 
-  inputWrapperCustom(inputName: string, inputProps: any, label: string|JSX.Element, body: string|JSX.Element): JSX.Element {
+  inputWrapperCustom(inputName: string, inputProps: any, label: string|React.JSX.Element, body: string|React.JSX.Element): React.JSX.Element {
     return <>
       <div
         id={this.props.uid + '_' + inputName}
@@ -975,11 +965,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  divider(content: any): JSX.Element {
+  divider(content: any): React.JSX.Element {
     return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
   }
 
-  renderHeaderButtons(): null|JSX.Element {
+  renderHeaderButtons(): null|React.JSX.Element {
     const headerButtons = Form.getFormHeaderButtons(this.constructor.name);
     if (headerButtons && headerButtons.length > 0) {
       return headerButtons.map((button: any, key: any) => {
@@ -996,7 +986,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderFooterButtons(): null|JSX.Element {
+  renderFooterButtons(): null|React.JSX.Element {
     const footerButtons = Form.getFormFooterButtons(this.constructor.name);
     if (footerButtons && footerButtons.length > 0) {
       return footerButtons.map((button: any, key: any) => {
@@ -1014,7 +1004,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderSaveButton(): null|JSX.Element {
+  renderSaveButton(): null|React.JSX.Element {
     let showButton =
       this.state.description?.ui?.showSaveButton
       && (
@@ -1069,7 +1059,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderCopyButton(): null|JSX.Element {
+  renderCopyButton(): null|React.JSX.Element {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
@@ -1083,7 +1073,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderDeleteButton(): null|JSX.Element {
+  renderDeleteButton(): null|React.JSX.Element {
     return <>
       {this.state.updatingRecord && this.state.description?.ui?.showDeleteButton && this.state.permissions.canDelete ? <button
         onClick={() => {
@@ -1112,7 +1102,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderPrevRecordButton(): null|JSX.Element {
+  renderPrevRecordButton(): null|React.JSX.Element {
     const prevId = this.state?.prevId ?? 0;
 
     return (
@@ -1128,7 +1118,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  renderNextRecordButton(): null|JSX.Element {
+  renderNextRecordButton(): null|React.JSX.Element {
     const nextId = this.state?.nextId ?? 0;
 
     return (
@@ -1144,7 +1134,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  renderEditButton(): null|JSX.Element {
+  renderEditButton(): null|React.JSX.Element {
     return <>
       {this.state.permissions.canUpdate ? <button
         onClick={() => this.setState({ isInlineEditing: true })}
@@ -1156,7 +1146,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderFullscreenButton(): null|JSX.Element {
+  renderFullscreenButton(): null|React.JSX.Element {
     return (
       <button
         className="btn btn-transparent hidden md:block"
@@ -1174,7 +1164,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  renderCloseButton(): null|JSX.Element {
+  renderCloseButton(): null|React.JSX.Element {
     return (
       <button
         className="btn btn-close"
@@ -1193,13 +1183,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  renderHeaderLeft(): null|JSX.Element {
+  renderHeaderLeft(): null|React.JSX.Element {
     return <>
       {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
     </>;
   }
 
-  renderHeaderRight(): null|JSX.Element {
+  renderHeaderRight(): null|React.JSX.Element {
     return <>
       {this.props.modal ? <>
         {this.renderFullscreenButton()}
@@ -1208,7 +1198,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderFooter(): null|JSX.Element {
+  renderFooter(): null|React.JSX.Element {
     const prevId = this.state?.prevId ?? 0;
     const nextId = this.state?.nextId ?? 0;
 
@@ -1225,7 +1215,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </div>;
   }
 
-  renderSubTitle(): null|JSX.Element {
+  renderSubTitle(): null|React.JSX.Element {
     let subTitle = this.state.description?.ui?.subTitle;
     if (subTitle) {
       return <small>{subTitle}</small>;
@@ -1234,7 +1224,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderTitle(): null|JSX.Element {
+  renderTitle(): null|React.JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
         ? this.translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (this.state.record?.id ?? '-')
@@ -1248,7 +1238,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>
   }
 
-  renderWarningsOrErrors(): null|JSX.Element {
+  renderWarningsOrErrors(): null|React.JSX.Element {
     if (this.state.recordDeleted) {
       return <>
         <div className="alert alert-danger m-1">
@@ -1258,11 +1248,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
 
     if (!this.state.isInitialized || !this.state.record) {
-      return (
-        <div className="p-4 h-full flex items-center">
-          <ProgressBar mode="indeterminate" style={{ flex: 1, height: '30px' }}></ProgressBar>
-        </div>
-      );
+      return <Spinner content="Loading..." />;
     }
 
     if (this.state.invalidRecordId) {
@@ -1284,7 +1270,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderSaveErrorMessage(): null|JSX.Element{
+  renderSaveErrorMessage(): null|React.JSX.Element{
     return this.state.saveError && this.state.saveError.message
       ? <div className='text-white bg-red-300 p-2 whitespace-pre-line'>{this.state.saveError.message}</div>
       : null

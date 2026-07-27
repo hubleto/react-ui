@@ -7,6 +7,7 @@ interface EnumValuesInputProps extends InputProps {
   enumCssClasses?: {};
   uiStyle?: 'select' | 'buttons' | 'buttons-vertical';
 }
+interface EnumValuesInputState extends InputState {}
 
 export default class EnumValues extends Input<EnumValuesInputProps, InputState> {
   static defaultProps = {
@@ -16,10 +17,13 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
     uiStyle: 'select',
   }
 
-  props: EnumValuesInputProps;
+  props: EnumValuesInputProps = null;
+  state: EnumValuesInputState = null;
 
   constructor(props: EnumValuesInputProps) {
     super(props);
+
+    this.props = props;
 
     if (props.enumValues && !props.enumValues[this.state.value]) {
       this.state.value = Object.keys(props.enumValues)[0];
@@ -35,12 +39,12 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
 
   getStateFromProps(props: InputProps) {
     return {
-      ...this.state, // Parent state
+      ...super.getStateFromProps(props),
       isInitialized: true,
     };
   }
 
-  _renderOption(key: string|number): JSX.Element {
+  _renderOption(key: string|number): React.JSX.Element {
     if (this.props.enumValues == undefined) return <></>;
     return <option key={key} value={key}>{this.props.enumValues[key] ?? ''}</option>
   }

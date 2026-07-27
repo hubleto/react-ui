@@ -15,11 +15,17 @@ export default class Image extends Input<InputProps, ImageInputState> {
     id: uuid.v4(),
   }
 
+  state: ImageInputState;
+
   constructor(props: InputProps) {
     super(props);
+    this.props = props;
+    this.state = this.getStateFromProps(props);
+  }
 
-    this.state = {
-      ...this.state, // Parent state
+  getStateFromProps(props: InputProps) {
+    return {
+      ...super.getStateFromProps(props),
       images: [],
       showImageLarge: false,
       isInitialized: true,

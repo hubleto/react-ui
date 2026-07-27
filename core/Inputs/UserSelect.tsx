@@ -29,8 +29,14 @@ export default class UserSelect extends LookupInput<UserSelectInputProps, UserSe
     uiStyle: 'default',
   }
 
-  props: UserSelectInputProps;
-  state: UserSelectInputState;
+  props: UserSelectInputProps = null;
+  state: UserSelectInputState = null;
+
+  constructor(props: UserSelectInputProps) {
+    super(props);
+    this.props = props;
+    this.state = this.getStateFromProps(props);
+  }
 
   getEndpointUrl() {
     return 'api/get-users';

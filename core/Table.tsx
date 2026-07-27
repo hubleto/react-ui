@@ -2,6 +2,7 @@ declare global { var hubleto: any; }
 
 import React, { Component, ChangeEvent, createRef } from 'react';
 
+// 
 import { setUrlParam, deleteUrlParam } from "./Helper";
 import { ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
@@ -9,40 +10,50 @@ import ModalForm from "./ModalForm";
 import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
 import TranslatedComponent from "./TranslatedComponent";
-import { SelectButton } from 'primereact/selectbutton';
-import { addLocale, locale } from 'primereact/api';
+import Spinner from "@hubleto/react-ui/core/Spinner";
+//import { SelectButton } from 'primereact/selectbutton';
 
-const primeReactLocaleMap = {
-  sk: { choose: 'Vybrať' },
-  cs: { choose: 'Vybrat' },
-  pl: { choose: 'Wybierz' },
-  de: { choose: 'Auswählen' },
-  ro: { choose: 'Alege' },
-  it: { choose: 'Scegli' },
-  es: { choose: 'Elegir' },
-  fr: { choose: 'Choisir' },
-};
+// const primeReactLocaleMap = {
+//   sk: { choose: 'Vybrať' },
+//   cs: { choose: 'Vybrat' },
+//   pl: { choose: 'Wybierz' },
+//   de: { choose: 'Auswählen' },
+//   ro: { choose: 'Alege' },
+//   it: { choose: 'Scegli' },
+//   es: { choose: 'Elegir' },
+//   fr: { choose: 'Choisir' },
+// };
 
-import {
-  DataTable,
-  DataTableRowClickEvent,
-  DataTableSelectEvent,
-  DataTableUnselectEvent,
-  DataTablePageEvent,
-  DataTableSortEvent,
-  SortOrder,
-} from 'primereact/datatable';
-import { Column, ColumnEvent } from 'primereact/column';
-import { ProgressBar } from 'primereact/progressbar';
-import { OverlayPanel } from 'primereact/overlaypanel';
+// import {
+//   DataTableCellProps,
+//   DataTableEmptyTBodyProps,
+//   DataTableFooterProps,
+//   DataTableHeaderProps,
+//   DataTableLoadingProps,
+//   DataTablePaginationProps,
+//   DataTableRootProps,
+//   DataTableRowProps,
+//   DataTableSortIndicatorProps,
+//   DataTableSortOrderProps,
+//   DataTableSortProps,
+//   DataTableTBodyProps,
+//   DataTableTFootCellProps,
+//   DataTableTFootProps,
+//   DataTableTFootRowProps,
+//   DataTableTHeadCellProps,
+//   DataTableTHeadProps,
+//   DataTableTHeadRowProps,
+//   DataTableTableContainerProps,
+//   DataTableTableProps,
+// } from '@primereact/types/primitive/datatable';
+
+// import { PrimeReactProvider } from '@primereact/core';
+// import { DataTable } from 'primereact/datatable';
+// import type { DataTableSortOrderInstance } from 'primereact/datatable';
 import { InputFactory } from "./InputFactory";
 import { dateToEUFormat, datetimeToEUFormat } from "./Inputs/DateTime";
-
-
 import { deepObjectMerge } from "./Helper";
 import request from "./Request";
-import { classNames } from 'primereact/utils';
-import { css } from 'jquery';
 
 export interface TableEndpoint {
   describeTable: string,
@@ -228,16 +239,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     model: '',
   }
 
-  props: TableProps;
-  state: TableState;
+  props: TableProps = null;
+  state: TableState = null;
 
   model: string;
   refFulltextSearchInput: any = null;
   refForm: any = null;
   refFormModal: any = null;
 
-
-  dt = createRef<DataTable<any[]>>();
+  dt = createRef();
 
   constructor(props: TableProps) {
     super(props);
@@ -247,10 +257,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     globalThis.hubleto.reactElements[this.props.uid] = this;
 
     const lang = globalThis.hubleto.language;
-    // if (lang && primeReactLocaleMap[lang]) {
-    //   addLocale(lang, primeReactLocaleMap[lang]);
-    //   locale(lang);
-    // }
 
     this.refFulltextSearchInput = React.createRef();
     this.refForm = React.createRef();
@@ -305,7 +311,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   componentDidMount() {
-    if (this.state.async) {
+    if (this.state?.async) {
       this.loadTableDescription(() => {;
         this.loadData();
       });
@@ -397,12 +403,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return this.props.selectionMode ?? this.state.description?.ui?.selectionMode ?? '';
   }
 
-  getTableProps(): Object {
-    const sortOrders = {asc: 1, desc: -1};
-    const totalRecords = this.state.data?.total ?? 0;
-    const showColumnSearch = this.state.description?.ui?.showColumnSearch;
+  getRecordsToDisplay(): any {
     const showInsertRow = this.state.description?.ui?.showInsertRow;
-    const selectionMode = this.getSelectionMode();
 
     let records = this.state.data?.records ?? [];
 
@@ -414,6 +416,17 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       });
     }
 
+    return records;
+  }
+
+  getTableProps(): Object {
+    const sortOrders = {asc: 1, desc: -1};
+    const totalRecords = this.state.data?.total ?? 0;
+    const showColumnSearch = this.state.description?.ui?.showColumnSearch;
+    const selectionMode = this.getSelectionMode();
+
+    let records = this.getRecordsToDisplay();
+
     let tableProps: any = {
 
       resizableColumns: true,
@@ -423,7 +436,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       // invalidInputs: this.props.invalidInputs,
       key: this.state.tableUpdateIteration,
       ref: this.dt,
-      value: records,
+      // value: records,
       dataKey: "id",
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
@@ -435,11 +448,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       rowsPerPageOptions: [5, 15, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000],
       paginatorTemplate: "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown",
       currentPageReportTemplate: "{first}-{last} / {totalRecords}",
-      onRowClick: (data: DataTableRowClickEvent) => this.onRowClick(data.data),
-      onRowSelect: (event: DataTableSelectEvent) => this.onRowSelect(event),
-      onRowUnselect: (event: DataTableUnselectEvent) => this.onRowUnselect(event),
-      onPage: (event: DataTablePageEvent) => this.onPaginationChangeCustom(event),
-      onSort: (event: DataTableSortEvent) => this.onOrderByChangeCustom(event),
+      // onRowClick: (data: any) => this.onRowClick(data.data),
+      // onRowSelect: (event: any) => this.onRowSelect(event),
+      // onRowUnselect: (event: any) => this.onRowUnselect(event),
+      onPage: (event: any) => this.onPaginationChangeCustom(event),
+      // onSort: (event: any) => this.onOrderByChangeCustom(event),
       sortOrder: sortOrders[(this.state.description?.ui?.orderBy?.direction ?? 'desc') as keyof typeof sortOrders],
       sortField: this.state.description?.ui?.orderBy?.field ?? 'id',
       rowClassName: (rowData: any) => this.rowClassName(rowData),
@@ -546,7 +559,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     if (this.state.recordDefaultValues) {
       description.defaultValues = description.defaultValues ?? {};
       description.defaultValues = { ...description.defaultValues, ...this.state.recordDefaultValues };
-      console.log('getfprops', this.state.recordDefaultValues, description);
     }
     return {
       // isInitialized: false,
@@ -688,7 +700,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  renderAddButton(forEmptyMessage?: boolean): JSX.Element {
+  renderAddButton(forEmptyMessage?: boolean): React.JSX.Element {
     return (
       <button
         key="add-btn"
@@ -709,7 +721,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  renderMoreActionsButton(): JSX.Element {
+  renderMoreActionsButton(): React.JSX.Element {
     let moreActions = {
       showHideFilter: {
         title: this.translate('Show/Hide filter', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
@@ -798,8 +810,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     </button>;
   }
 
-  renderHeaderButtons(): Array<JSX.Element> {
-    let buttons: Array<JSX.Element> = [];
+  renderHeaderButtons(): Array<React.JSX.Element> {
+    let buttons: Array<React.JSX.Element> = [];
     if (this.showAddButton()) buttons.push(this.renderAddButton());
     if (this.showMoreActionsButton()) buttons.push(this.renderMoreActionsButton());
 
@@ -818,7 +830,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return buttons;
   }
 
-  renderHeaderLeft(): Array<JSX.Element> {
+  renderHeaderLeft(): Array<React.JSX.Element> {
     if (this.state.description?.ui?.showHeader) {
       return [
         ...this.renderHeaderButtons(),
@@ -829,11 +841,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  renderHeaderTitle(): JSX.Element {
+  renderHeaderTitle(): React.JSX.Element {
     return this.state.description?.ui?.title ? <>{this.state.description?.ui?.title}</> : <></>;
   }
 
-  renderFulltextSearch(): JSX.Element {
+  renderFulltextSearch(): React.JSX.Element {
     if (this.state.description?.ui?.showFulltextSearch) {
       return <div className="table-header-search" key="fulltext-search">
         <input
@@ -868,13 +880,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  renderHeaderRight(): Array<JSX.Element> {
-    let elements: Array<JSX.Element> = [];
+  renderHeaderRight(): Array<React.JSX.Element> {
+    let elements: Array<React.JSX.Element> = [];
     // elements.push(this.renderFulltextSearch());
     return elements;
   }
 
-  renderHeader(): JSX.Element {
+  renderHeader(): React.JSX.Element {
     const left = this.renderHeaderLeft();
     const right = this.renderHeaderRight();
 
@@ -906,15 +918,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     </>
   }
 
-  renderFilter(): JSX.Element {
+  renderFilter(): React.JSX.Element {
     return <></>;
   }
 
-  renderSidebarFilter(): null|JSX.Element {
+  renderSidebarFilter(): null|React.JSX.Element {
     return null;
   }
 
-  renderFooter(): JSX.Element {
+  renderFooter(): React.JSX.Element {
     return <></>;
   }
 
@@ -988,7 +1000,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  renderDeleteConfirmModal(): JSX.Element {
+  renderDeleteConfirmModal(): React.JSX.Element {
     let hasRecordsToDelete: boolean = false;
     let i: any;
 
@@ -1031,7 +1043,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  renderFormModal(): JSX.Element {
+  renderFormModal(): React.JSX.Element {
     if (this.state.recordId) {
       return <ModalForm {...this.getFormModalProps()}>{this.renderForm()}</ModalForm>;
     } else {
@@ -1039,7 +1051,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  renderForm(): JSX.Element {
+  renderForm(): React.JSX.Element {
     if (this.props.formReactComponent) {
       return globalThis.hubleto.renderReactElement(this.props.formReactComponent, this.getFormProps()) ?? <></>;
     } else {
@@ -1101,7 +1113,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     } else {
 
-      let cellValueElement: JSX.Element|null = null;
+      let cellValueElement: React.JSX.Element|null = null;
 
       if (cellContent === null) {
         switch (column.type) {
@@ -1258,14 +1270,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         }
       }
 
-      let op = createRef<OverlayPanel>();
-
       if (options.renderEditor) {
         return <>
           {cellValueElement}
           <div className='absolute w-full top-0 left-0'>{InputFactory({
             ...inputProps,
-            onInlineEditCancel: () => { op.current?.hide(); },
             onChange: (input: any, value: any) => {
               if (this.state.data) {
                 let data: TableData = this.state.data;
@@ -1417,12 +1426,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     this.applyColumnSearch(columnSearch);
   }
 
-  renderColumns(): JSX.Element[] {
-    let columns: JSX.Element[] = [];
+  getColumns(): any {
+    let columns: any = {}
     const selectionMode = this.getSelectionMode();
 
     if (selectionMode) {
-      columns.push(<Column selectionMode={selectionMode}></Column>);
+      columns['__selection'] = {
+        key: '__selection',
+        onClick: null,
+      }
     }
 
     Object.keys(this.state.description?.columns ?? {}).map((columnName: string) => {
@@ -1448,21 +1460,21 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           //     options={{mode: 'range'}}
           //   />
           // break;
-          case 'boolean':
-            columnSearchInput = <SelectButton
-              value={columnSearchValue}
-              onChange={(event) => {
-                this.setColumnSearch(columnName, event.value);
-              }}
-              itemTemplate={(option: any) => <button className='btn btn-transparent'>
-                <span className='text'>{option.label}</span>
-              </button>}
-              options={[
-                {label: 'Y', value: true, className: 'p-0'},
-                {label: 'N', value: false, className: 'p-0'},
-              ]}
-            />
-          break;
+          // case 'boolean':
+          //   columnSearchInput = <SelectButton
+          //     value={columnSearchValue}
+          //     onChange={(event) => {
+          //       this.setColumnSearch(columnName, event.value);
+          //     }}
+          //     itemTemplate={(option: any) => <button className='btn btn-transparent'>
+          //       <span className='text'>{option.label}</span>
+          //     </button>}
+          //     options={[
+          //       {label: 'Y', value: true, className: 'p-0'},
+          //       {label: 'N', value: false, className: 'p-0'},
+          //     ]}
+          //   />
+          // break;
           default:
             columnSearchInput = <input
               className='w-full'
@@ -1517,24 +1529,26 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         }
       }
 
-      columns.push(<Column
-        key={columnName}
-        field={columnName}
-        header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
-        filter={showColumnSearch}
-        showFilterMenu={false}
-        alignHeader={alignHeader}
-        filterElement={showColumnSearch ? (<>
-          <div className="column-search input-wrapper">
-            <div className="input-body"><div className="hubleto component input">
-              <div className="input-element grow">
-                {columnSearchInput}
-              </div>
-            </div></div>
-          </div>
-          {columnSearchValuePrettyfied}
-        </>) : null}
-        body={(data: any, options: any) => {
+      columns[columnName] = {
+        key: columnName,
+        field: columnName,
+        header: column.title + (column.unit ? ' [' + column.unit + ']' : ''),
+        showColumnSearch: showColumnSearch,
+        showFilterMenu: false,
+        alignHeader: alignHeader,
+        filter: (data: any, options: any) => {
+          return <>
+            <div className="column-search input-wrapper">
+              <div className="input-body"><div className="hubleto component input">
+                <div className="input-element grow">
+                  {columnSearchInput}
+                </div>
+              </div></div>
+            </div>
+            {columnSearchValuePrettyfied}
+          </>;
+        },
+        body: (data: any, options: any) => {
           if (data._PERMISSIONS && !data._PERMISSIONS[1]) { // can not read
             return <div className='text-nowrap'>Hidden record</div>;
           } else {
@@ -1589,8 +1603,8 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               </div>
             );
           }
-        }}
-        editor={column.readonly ? null : (options) => {
+        },
+        editor: column.readonly ? null : (options: any) => {
           const data = options.rowData;
           const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
 
@@ -1607,45 +1621,50 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           >
             {this.renderCell(columnName, column, data, {rowIndex: options.rowIndex, renderEditor: true})}
           </div>;
-        }}
-        onCellEditComplete={(e: ColumnEvent) => {
-          request.post(
-            this.getEndpointUrl('saveRecord'),
-            {
-              ...this.getEndpointParams(),
-              id: e.newRowData.id ?? null,
-              record: this.findRecordById(e.newRowData.id),
-            },
-            {},
-            (description: any) => {
-              this.setState({isInlineEditing: false}, () => {
-                this.reload();
-              });
-            }
-          );
+        },
+        onClick: (record: any) => this.onRowClick(record),
+        // onCellEditComplete={(e: ColumnEvent) => {
+        //   request.post(
+        //     this.getEndpointUrl('saveRecord'),
+        //     {
+        //       ...this.getEndpointParams(),
+        //       id: e.newRowData.id ?? null,
+        //       record: this.findRecordById(e.newRowData.id),
+        //     },
+        //     {},
+        //     (description: any) => {
+        //       this.setState({isInlineEditing: false}, () => {
+        //         this.reload();
+        //       });
+        //     }
+        //   );
 
-        }}
-        onCellEditCancel={(e: ColumnEvent) => {
-          setTimeout(() => this.setState({isInlineEditing: false}), 100);
-        }}
-        style={{ width: 'auto' }}
-        sortable
-      ></Column>);
+        // }}
+        // onCellEditCancel={(e: ColumnEvent) => {
+        //   setTimeout(() => this.setState({isInlineEditing: false}), 100);
+        // }}
+        style: { width: 'auto' },
+        sortable: true,
+      };
     });
 
-    columns.push(<Column
-      key='__actions'
-      field='__actions'
-      header=''
-      body={(data: any, options: any) => this.renderActionsColumn(data, options)}
-      style={{ width: 'auto' }}
-    ></Column>);
+    columns['__actions'] = {
+      key: '__actions',
+      field: '__actions',
+      header: '',
+      body: (data: any, options: any) => this.renderActionsColumn(data, options),
+      onClick: null,
+      style: { width: 'auto' },
+    };
 
     return columns;
   }
 
-  renderRecords(): JSX.Element {
-    if (this.state.description?.ui?.showAsPlainTable) {
+  renderRecords(): React.JSX.Element {
+    const showColumnSearch = this.state.description?.ui?.showColumnSearch ?? false;
+    const showAsPlainTable = this.state.description?.ui?.showAsPlainTable ?? false;
+    
+    if (showAsPlainTable) {
       const columns = this.state.description?.columns ?? {};
 
       return <table className='table-default dense'>
@@ -1671,15 +1690,118 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         </tbody>
       </table>;
     } else {
-      return <>
-        <DataTable {...this.getTableProps()}>
-          {this.renderColumns()}
-        </DataTable>
-      </>;
+      const records = this.getRecordsToDisplay();
+      const columns = this.getColumns();
+      const columnKeys = Object.keys(columns);
+
+      let orderBy = this.state.description?.ui?.orderBy ?? null;
+      if (!orderBy) orderBy = {field: '', direction: ''};
+
+      // return <PrimeReactProvider>
+      //   <DataTable.Root {...this.getTableProps()}>
+      //     <DataTable.TableContainer>
+      //         <DataTable.Table>
+      //             <DataTable.THead>
+      //               <DataTable.THeadRow>
+      //                 {columnKeys.map((key: any) => {
+      //                   const column = columns[key];
+      //                   return <DataTable.THeadCell>
+      //                     {column.title}
+      //                   </DataTable.THeadCell>
+      //                 })}
+      //               </DataTable.THeadRow>
+      //             </DataTable.THead>
+      //             <DataTable.TBody>
+      //                 {records.map((record: any) => {
+      //                   return columnKeys.map((key: any, rowIndex: number) => {
+      //                     const column = columns[key];
+      //                     return <DataTable.THeadCell>
+      //                       {column.body(
+      //                         record,
+      //                         {
+      //                           rowIndex: rowIndex,
+      //                           renderEditor: false,
+      //                         }
+      //                       )}
+      //                     </DataTable.THeadCell>
+      //                   });
+      //                 })}
+      //             </DataTable.TBody>
+      //             {/* <DataTable.EmptyTBody>
+      //               Wait, I am loading your data...
+      //             </DataTable.EmptyTBody> */}
+      //         </DataTable.Table>
+      //     </DataTable.TableContainer>
+      //     {/* {this.getColumns()} */}
+      //   </DataTable.Root>
+      // </PrimeReactProvider>;
+
+      return <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              {columnKeys.map((columnKey) => {
+                const column = columns[columnKey];
+                return <th><div>
+                  <div className="title">{column.header}</div>
+                  <div
+                    className="btn btn-transparent btn-small"
+                    onClick={() => {
+                      let newOrderBy = orderBy;
+                      if (newOrderBy.field == columnKey) {
+                        newOrderBy.direction = (newOrderBy.direction == 'asc' ? 'desc' : 'asc');
+                      } else {
+                        newOrderBy = {
+                          field: columnKey,
+                          direction: 'asc',
+                        };
+                      }
+
+                      this.onOrderByChange(newOrderBy);
+                    }}
+                  >
+                    <span className={"icon " + (orderBy.field == columnKey ? "text-primary" : "text-gray-200")}>
+                      {orderBy.field == columnKey ?
+                        <i className={'fas fa-sort' + (orderBy.direction == 'desc' ? '-down' : orderBy.direction == 'asc' ? '-up' : '')}></i>
+                      : <i className={'fas fa-sort'}></i>}
+                    </span>
+                  </div>
+                </div></th>
+              })}
+            </tr>
+            {showColumnSearch ? <tr>
+              {columnKeys.map((columnKey: any) => {
+                const column = columns[columnKey];
+                return <th>{column.filter ? column.filter(records, {}) : null}</th>
+              })}
+            </tr> : null}
+          </thead>
+          <tbody>
+            {records.map((record: any) => {
+              return <tr>
+                {columnKeys.map((key: any, rowIndex: number) => {
+                  const column = columns[key];
+                  return <td
+                    onClick={() => column.onClick(record)}
+                  >
+                    {column.body(
+                      record,
+                      {
+                        rowIndex: rowIndex,
+                        renderEditor: false,
+                      }
+                    )}
+                  </td>
+                })}
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>;
     }
   }
 
-  renderContent(): JSX.Element {
+  renderContent(): React.JSX.Element {
     const sidebarFilter = this.renderSidebarFilter();
 
     return <>
@@ -1718,11 +1840,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   render() {
+    if (!this.state) return null;
+
     try {
       globalThis.hubleto.setTranslationContext(this.translationContext);
 
       if (!this.state.data) {
-        return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
+        return <Spinner content="Loading..." />;
       }
 
       const fallback: any = <div className="alert alert-danger">Failed to render table. Check console for error log.</div>
@@ -1741,13 +1865,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
-  onPaginationChangeCustom(event: DataTablePageEvent) {
+  onPaginationChangeCustom(event: any) {
     const page: number = (event.page ?? 0) + 1;
     const itemsPerPage: number = event.rows;
     this.onPaginationChange(page, itemsPerPage);
   }
 
-  onOrderByChangeCustom(event: DataTableSortEvent) {
+  onOrderByChangeCustom(event: any) {
     let orderBy: TableOrderBy | null = null;
 
     // Icons in PrimeTable changing
@@ -1769,13 +1893,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     this.onOrderByChange(orderBy);
   }
 
-  onRowSelect(event: DataTableSelectEvent) {
-    // to be overriden
-  }
+  // onRowSelect(event: DataTableSelectEvent) {
+  //   // to be overriden
+  // }
 
-  onRowUnselect(event: DataTableUnselectEvent) {
-    // to be overriden
-  }
+  // onRowUnselect(event: DataTableUnselectEvent) {
+  //   // to be overriden
+  // }
 
   setRecordFormUrl(id: number) {
     const urlParams = new URLSearchParams(window.location.search);

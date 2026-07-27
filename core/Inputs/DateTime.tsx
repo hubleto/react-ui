@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
-import "flatpickr/dist/themes/material_blue.css";
+// import "flatpickr/dist/themes/material_blue.css";
 import Flatpickr from "react-flatpickr";
 import moment, { Moment } from "moment";
 import * as uuid from 'uuid';
@@ -34,6 +34,7 @@ interface DateTimeInputProps extends InputProps {
   type: 'date' | 'time' | 'datetime',
   showReadable?: boolean,
 }
+interface DateTimeInputState extends InputState { }
 
 export default class DateTime extends Input<DateTimeInputProps, InputState> {
   static defaultProps = {
@@ -42,7 +43,8 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
     id: uuid.v4(),
   }
 
-  props: DateTimeInputProps;
+  props: DateTimeInputProps = null;
+  state: DateTimeInputState = null;
 
   fp: any
 
@@ -63,6 +65,8 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
   constructor(props: DateTimeInputProps) {
     super(props);
+
+    this.props = props;
 
     switch (props.type) {
       case 'datetime':
@@ -91,7 +95,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
   getStateFromProps(props: InputProps) {
     return {
-      ...this.state, // Parent state
+      ...super.getStateFromProps(props),
       isInitialized: true,
     };
   }

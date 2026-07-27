@@ -18,15 +18,17 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
     type: 'text',
   }
 
+  state: VarcharInputState = null;
+
   constructor(props: InputProps) {
     super(props);
-
+    this.props = props;
     this.state = this.getStateFromProps(props);
   }
 
   getStateFromProps(props: InputProps) {
     return {
-      ...this.state, // Parent state
+      ...super.getStateFromProps(props),
       data: [],
       showPredefinedValues: true,
       isInitialized: true,

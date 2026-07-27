@@ -34,14 +34,15 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     ...Form.defaultProps
   };
 
-  props: FormExtendedProps;
-  state: FormExtendedState;
+  declare props: FormExtendedProps;
+  declare state: FormExtendedState;
 
-  parentApp: string|App;
+  parentApp: string|App = '';
 
   constructor(props: FormExtendedProps) {
     super(props);
 
+    this.props = props;
     this.state = this.getStateFromProps(props);
   }
 
@@ -62,11 +63,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
   }
 
   getTabsRight() {
-    let tabs = [];
-    // if (this.props.renderPreviewUi) {
-    //   tabs.push({ uid: 'preview', icon: 'fas fa-print', cssClass: 'btn-violet', position: 'right' });
-    // }
-
+    let tabs: any[] = [];
     return tabs;
   }
 
@@ -78,11 +75,11 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     ];
   }
 
-  getStateFromProps(props: FormProps) {
+  getStateFromProps(props: FormExtendedProps) {
     return {
       ...super.getStateFromProps(props),
       isInlineEditing: true,
-      icon: this.props.icon,
+      icon: props.icon,
       tabs: this.getTabs(),
     }
   }
@@ -154,7 +151,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
       break;
     }
   }
-  onAfterSaveRecord(saveResponse, customSaveOptions?: any) {
+  onAfterSaveRecord(saveResponse: any, customSaveOptions?: any) {
     super.onAfterSaveRecord(saveResponse, customSaveOptions);
     if (
       this.props.junctionSaveEndpoint
@@ -178,7 +175,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     }
   }
 
-  renderHeaderLeft(): null|JSX.Element {
+  renderHeaderLeft(): null|React.JSX.Element {
     return <>
       <div className='flex gap-2 items-center'>
         <div className='hidden md:block'>{this.state.icon ? <i className={this.state.icon + ' text-3xl text-primary/20 m-2'}></i> : null}</div>
@@ -212,7 +209,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     </>;
   }
 
-  renderFooter(): null|JSX.Element {
+  renderFooter(): null|React.JSX.Element {
     return <>
       {this.state.record.id > 0 ? <a
         className='btn btn-primary-outline'
@@ -281,6 +278,11 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     </div>);
   }
 
+  renderCalendarTodoList() {
+    return <>
+    </>;
+  }
+
   renderOwnerManagerUi() {
     const idOwner = this.state.record.id_owner;
     const owner = globalThis.hubleto.users ? globalThis.hubleto.users[idOwner] : null;
@@ -338,7 +340,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     </div>;
   }
 
-  renderTopMenu(): null|JSX.Element {
+  renderTopMenu(): null|React.JSX.Element {
     const topMenu = super.renderTopMenu();
     const dynamicMenu = globalThis.hubleto.injectDynamicContent(
       this.constructor.name + ':TopMenu',
@@ -381,14 +383,14 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     </div>
   }
 
-  renderTimeline(timelineConfig: any): null|JSX.Element {
-    let timeline = null;
-    let timelinePointsUnsorted = {};
+  renderTimeline(timelineConfig: any): null|React.JSX.Element {
+    let timeline: any = null;
+    let timelinePointsUnsorted: any = {};
 
-    timelineConfig.map((aboutEntry, key) => {
+    timelineConfig.map((aboutEntry: any, key: string) => {
       const entries = aboutEntry.data(this) ?? [];
       
-      entries.map((entry, key) => {
+      entries.map((entry: any, key: string) => {
         timelinePointsUnsorted[aboutEntry.timestampFormatter(entry)] = {
           icon: aboutEntry.icon,
           color: aboutEntry.color,
@@ -401,7 +403,7 @@ export default class FormExtended<P, S> extends Form<FormExtendedProps,FormExten
     let timelinePoints = Object.keys(timelinePointsUnsorted)
       .sort() // Sort the keys alphabetically
       .reverse()
-      .reduce((obj, key) => {
+      .reduce((obj: any, key: string) => {
         obj[key] = timelinePointsUnsorted[key]; // Rebuild the object with sorted keys
         return obj;
       }, {});

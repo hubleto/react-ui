@@ -19,14 +19,18 @@ export default class File extends Input<FileInputProps, FileInputState> {
     id: uuid.v4(),
   }
 
-  props: FileInputProps;
-  state: FileInputState;
+  props: FileInputProps = null;
+  state: FileInputState = null;
 
   constructor(props: FileInputProps) {
     super(props);
+    this.props = props;
+    this.state = this.getStateFromProps(props);
+  }
 
-    this.state = {
-      ...this.state, // Parent state
+  getStateFromProps(props: FileInputProps) {
+    return {
+      ...super.getStateFromProps(props),
       files: [],
       isInitialized: true,
     };

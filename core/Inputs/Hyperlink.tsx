@@ -18,7 +18,6 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
 
   constructor(props: InputProps) {
     super(props);
-
     this.state = this.getStateFromProps(props);
   }
 

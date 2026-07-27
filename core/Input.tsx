@@ -74,8 +74,8 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
     id: uuid.v4(),
   };
 
-  props: InputProps;
-  state: InputState;
+  props: InputProps = null;
+  state: InputState = null;
 
   refInputWrapper: any;
   refInputElement: any;
@@ -85,12 +85,21 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   constructor(props: InputProps) {
     super(props);
 
+    this.props = props;
+
     this.refInputWrapper = React.createRef();
     this.refInputElement = React.createRef();
     this.refValueElement = React.createRef();
     this.refInput = React.createRef();
 
-    globalThis.hubleto.reactElements[this.props.uid] = this;
+    if (this.props.uid) {
+      globalThis.hubleto.reactElements[this.props.uid] = this;
+    }
+
+    this.state = this.getStateFromProps(props);
+  }
+
+  getStateFromProps(props: InputProps) {
 
     const isModified: boolean = props.isModified ?? false;
     const isInitialized: boolean = props.isInitialized ?? false;
@@ -105,7 +114,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
     const cssStyle: object = props.cssStyle ?? {};
     const description: any = props.description ?? null;
 
-    this.state = {
+    return {
       isModified: isModified,
       isInitialized: isInitialized,
       isInlineEditing: isInlineEditing,

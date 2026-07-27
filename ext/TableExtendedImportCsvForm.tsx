@@ -15,47 +15,50 @@ export default class TableExtendedImportCsvForm<P, S> extends Form<TableExtended
     ...Form.defaultProps
   };
 
-  props: TableExtendedImportCsvFormProps;
-  state: TableExtendedImportCsvFormState;
+  props: TableExtendedImportCsvFormProps = null;
+  state: TableExtendedImportCsvFormState = null;
 
   refCsvFileInput: any;
 
   constructor(props: TableExtendedImportCsvFormProps) {
     super(props);
     this.refCsvFileInput = createRef();
-
-    this.state = {
-      ...this.getStateFromProps(props),
+    this.state = this.getStateFromProps(props);
+  }
+  
+  getStateFromProps(props) {
+    return {
+      ...super.getStateFromProps(props),
       csvData: '',
       testResult: null,
       importResult: null,
     };
   }
 
-  renderTitle(): JSX.Element {
+  renderTitle(): React.JSX.Element {
     return <>
       <h2>{this.translate('Import to CSV')}</h2>
       <small>{this.props.model}</small>
     </>;
   }
 
-  renderWarningsOrErrors(): null|JSX.Element {
+  renderWarningsOrErrors(): null|React.JSX.Element {
     return null;
   }
 
-  renderFooter(): JSX.Element {
+  renderFooter(): React.JSX.Element {
     return <></>;
   }
 
-  renderHeaderLeft(): JSX.Element {
+  renderHeaderLeft(): React.JSX.Element {
     return <></>;
   }
 
-  renderHeaderRight(): JSX.Element {
+  renderHeaderRight(): React.JSX.Element {
     return this.renderCloseButton();
   }
 
-  renderContent(): JSX.Element {
+  renderContent(): React.JSX.Element {
     const csvImportEndpointParams = this.props.parentTable.getCsvImportEndpointParams();
 
     if (this.props.parentTable.props.parentForm && !csvImportEndpointParams) {

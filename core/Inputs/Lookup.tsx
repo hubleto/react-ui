@@ -27,21 +27,24 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
     uiStyle: 'default',
   }
 
-  props: LookupInputProps;
-  state: LookupInputState;
+  props: LookupInputProps = null;
+  state: LookupInputState = null;
 
   constructor(props: LookupInputProps) {
     super(props);
+    this.props = props;
+    this.state = this.getStateFromProps(props);
+  }
 
-    this.state = {
-      ...this.state, // Parent state
-      endpoint:
-      props.endpoint
-          ? props.endpoint
-          : (props.description && props.description.endpoint
-            ? props.description.endpoint
-            : (globalThis.hubleto.config.defaultLookupEndpoint ?? 'api/record/lookup')
-          )
+  getStateFromProps(props: LookupInputProps) {
+    return {
+      ...super.getStateFromProps(props),
+      endpoint: props.endpoint
+        ? props.endpoint
+        : (props.description && props.description.endpoint
+          ? props.description.endpoint
+          : (globalThis.hubleto.config.defaultLookupEndpoint ?? 'api/record/lookup')
+        )
       ,
       model: props.model ? props.model : (props.description && props.description.model ? props.description.model : ''),
       data: [],
@@ -106,7 +109,7 @@ export default class Lookup<P, S> extends Input<LookupInputProps, LookupInputSta
     );
   }
 
-  _renderOption(key: number): JSX.Element {
+  _renderOption(key: number): React.JSX.Element {
     if (this.state.data == undefined) return <></>;
     return <option key={key} value={key}>{this.state.data[key]?._LOOKUP ?? ''}</option>
   }

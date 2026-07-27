@@ -15,10 +15,10 @@ export default class ModalForm extends Modal {
     type: 'centered',
   }
 
-  props: ModalFormProps;
-  state: ModalFormState;
+  declare props: ModalFormProps;
+  declare state: ModalFormState;
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     if (this.state.isOpen) {
       return <>
         <div

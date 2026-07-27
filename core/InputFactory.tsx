@@ -1,8 +1,5 @@
 import React, { Component } from 'react'
 
-// import ReactQuill, {Value} from 'react-quill';
-// import 'react-quill/dist/quill.snow.css';
-
 import InputLookup from "./Inputs/Lookup";
 import InputVarchar from "./Inputs/Varchar";
 import InputPassword from "./Inputs/Password";
