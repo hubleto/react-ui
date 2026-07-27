@@ -96,6 +96,7 @@ export interface FormProps {
   showHeader?: boolean,
   showFooter?: boolean,
   customEndpointParams?: any,
+  saveRecordWhenInitialized?: any,
 
   tabs?: Array<FormTab>,
   activeTab?: number,
@@ -169,12 +170,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   newState: any;
 
-  model: string;
+  model: string = '';
   components: Array<React.JSX.Element> = [];
-
-  // DEPRECATED
-  jsxContentRendered: boolean = false;
-  jsxContent: JSX.Element;
 
   inputs: any = {};
 
@@ -206,6 +203,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   constructor(props: FormProps) {
     super(props);
+
+    this.props = props;
 
     if (this.props.uid) {
       globalThis.hubleto.reactElements[this.props.uid] = this;
@@ -335,7 +334,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   getEndpointUrl(action: string) {
-    return this.state.endpoint[action] ?? '';
+    return this.state.endpoint[action as keyof FormEndpoint] ?? '';
   }
 
   getEndpointParams(): object {
@@ -440,7 +439,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  setRecord(record: any) {
+  setRecord(record: any, onSuccess?: any) {
     record = this.onAfterRecordLoaded(record);
     let p = this.calculatePermissions(record);
 
@@ -455,20 +454,20 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     });
   }
 
-  onBeforeSaveRecord(record) {
+  onBeforeSaveRecord(record: any) {
     // to be overriden
     return record;
   }
 
-  onAfterSaveRecord(saveResponse, customSaveOptions?: any) {
+  onAfterSaveRecord(saveResponse: any, customSaveOptions?: any) {
     if (this.props.onSaveCallback) this.props.onSaveCallback(this, saveResponse, customSaveOptions);
   }
 
-  onAfterCopyRecord(copyResponse) {
+  onAfterCopyRecord(copyResponse: any) {
     if (this.props.onCopyCallback) this.props.onCopyCallback(this, copyResponse);
   }
 
-  onAfterDeleteRecord(deleteResponse) {
+  onAfterDeleteRecord(deleteResponse: any) {
     if (this.props.onDeleteCallback) this.props.onDeleteCallback(this, deleteResponse);
   }
 
@@ -479,7 +478,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     let tabExists = (this.state.tabs && this.state.tabs.filter((t) => t.uid == tab).length > 0);
 
     if (tab == 'default' || !tabExists) urlParams.delete('tab');
-    else urlParams.set('tab', tab);
+    else urlParams.set('tab', tab ?? '');
 
     window.history.pushState({}, "", '?' + urlParams.toString());
 
@@ -491,7 +490,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     let record = { ...this.state.record, id: this.state.id };
 
-    (this.state.record._RELATIONS ?? []).map((relName) => {
+    (this.state.record._RELATIONS ?? []).map((relName: any) => {
       if (!(this.state.description?.includeRelations ?? []).includes(relName)) {
         delete record[relName];
       }
@@ -594,6 +593,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   onAfterFormInitialized() {
+    if (this.props.saveRecordWhenInitialized) {
+      this.saveRecord();
+    }
     this.onTabChange();
   }
 
@@ -636,8 +638,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     if (this.state?.description?.inputs) {
       Object.keys(this.state.description.inputs).map((inputName) => {
-        const inputDesc = this.state.description.inputs[inputName];
-        if (inputDesc.isCustom) {
+        const inputDesc: any = this.state.description?.inputs ? this.state.description?.inputs[inputName] : null;
+        if (inputDesc?.isCustom) {
           customInputs.push(this.inputWrapper(inputName));
         }
       });
@@ -647,7 +649,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   renderTabTitle(tabIndex: number): JSX.Element {
-    const tab = this.state.tabs[tabIndex];
+    const tab = this.state.tabs ? this.state.tabs[tabIndex] : null;
     if (tab) {
       const R = this.state.record;
       const title = tab.title;
@@ -656,7 +658,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         const count = tab.showCountFor && R[tab.showCountFor] ? R[tab.showCountFor].length : 0;
         return <>{title} ({count})</>;
       } else {
-        return title ? <>{title}</> : null;
+        return <>{title}</>;
       }
     } else {
       return <>?</>;
@@ -773,7 +775,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     let tabTemplate = template && template.tabs && template.tabs[tab] ? template.tabs[tab] : null;
 
     if (tab == 'default' && !tabTemplate) {
-      let tabInputs = {};
+      let tabInputs: any = {};
 
       Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
         tabInputs['form.input#' + inputName] = {input: inputName};
@@ -980,7 +982,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderHeaderButtons(): null|JSX.Element {
     const headerButtons = Form.getFormHeaderButtons(this.constructor.name);
     if (headerButtons && headerButtons.length > 0) {
-      return headerButtons.map((button, key) => {
+      return headerButtons.map((button: any, key: any) => {
         return <button
           key={key}
           className='btn btn-small btn-primary-outline'
@@ -997,7 +999,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderFooterButtons(): null|JSX.Element {
     const footerButtons = Form.getFormFooterButtons(this.constructor.name);
     if (footerButtons && footerButtons.length > 0) {
-      return footerButtons.map((button, key) => {
+      return footerButtons.map((button: any, key: any) => {
         return <button
           key={key}
           className='btn btn-primary'

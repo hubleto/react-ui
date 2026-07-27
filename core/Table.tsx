@@ -1,14 +1,14 @@
+declare global { var hubleto: any; }
+
 import React, { Component, ChangeEvent, createRef } from 'react';
 
 import { setUrlParam, deleteUrlParam } from "./Helper";
-import Modal, { ModalProps } from "./Modal";
+import { ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
 import ModalForm from "./ModalForm";
 import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
 import TranslatedComponent from "./TranslatedComponent";
-import Flatpickr from "react-flatpickr";
-import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 import { SelectButton } from 'primereact/selectbutton';
 import { addLocale, locale } from 'primereact/api';
 
@@ -88,6 +88,7 @@ export interface TableUi {
   showFulltextSearch?: boolean,
   showColumnSearch?: boolean,
   showAsPlainTable?: boolean,
+  showInsertRow?: boolean,
   emptyMessage?: any,
   filters?: any,
   customFilters?: any,
@@ -122,6 +123,7 @@ export interface TableProps {
   description?: TableDescription,
   descriptionSource?: 'props' | 'request' | 'both',
   recordId?: any,
+  recordDefaultValues?: any,
   formEndpoint?: FormEndpoint,
   formModal?: ModalProps,
   formProps?: FormProps,
@@ -190,6 +192,8 @@ export interface TableState {
   data?: TableData | null,
   filterBy?: any,
   recordId?: any,
+  recordDefaultValues?: any,
+  recordSaveAfterOpen?: boolean,
   recordPrevId?: any,
   recordNextId?: any,
   activeRowId?: any,
@@ -214,6 +218,7 @@ export interface TableState {
   myRootUrl: string,
   editMode: string,
   crudController?: string,
+  rowToInsert: any,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -237,13 +242,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   constructor(props: TableProps) {
     super(props);
 
+    this.props = props;
+
     globalThis.hubleto.reactElements[this.props.uid] = this;
 
     const lang = globalThis.hubleto.language;
-    if (lang && primeReactLocaleMap[lang]) {
-      addLocale(lang, primeReactLocaleMap[lang]);
-      locale(lang);
-    }
+    // if (lang && primeReactLocaleMap[lang]) {
+    //   addLocale(lang, primeReactLocaleMap[lang]);
+    //   locale(lang);
+    // }
 
     this.refFulltextSearchInput = React.createRef();
     this.refForm = React.createRef();
@@ -251,7 +258,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     this.model = this.props.model ?? '';
 
-    this.state = this.getStateFromProps(props);
+    this.state = this.getStateFromProps(this.props);
   }
 
   getStateFromProps(props: TableProps): TableState {
@@ -343,7 +350,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   // }
 
   getEndpointUrl(action: string) {
-    return this.state.endpoint[action] ?? '';
+    return this.state.endpoint[action as keyof TableEndpoint] ?? '';
   }
 
   getEndpointParams(): any {
@@ -351,7 +358,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     if (this.state.description?.ui?.filters) {
       Object.keys(this.state.description.ui.filters).map((filterName) => {
-        const filter = this.state.description.ui.filters[filterName];
+        const filter = this.state.description?.ui?.filters[filterName];
         if (!filters[filterName] && (filter.default ?? null) !== null) {
           filters[filterName] = filter.default;
         }
@@ -391,17 +398,32 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   getTableProps(): Object {
-    const sortOrders = {'asc': 1, 'desc': -1};
+    const sortOrders = {asc: 1, desc: -1};
     const totalRecords = this.state.data?.total ?? 0;
     const showColumnSearch = this.state.description?.ui?.showColumnSearch;
+    const showInsertRow = this.state.description?.ui?.showInsertRow;
     const selectionMode = this.getSelectionMode();
 
+    let records = this.state.data?.records ?? [];
+
+    if (showInsertRow) {
+      records = records.filter((record) => !record._isInsertRow_);
+      records.push({
+        _isInsertRow_: true,
+        ...(this.state.rowToInsert ?? {})
+      });
+    }
+
     let tableProps: any = {
+
+      resizableColumns: true,
+      showGridlines: true,
+
       // Dusan 19.11.2025: sposobovalo to konzolovu chybu, docasne zakomentovane
       // invalidInputs: this.props.invalidInputs,
       key: this.state.tableUpdateIteration,
       ref: this.dt,
-      value: this.state.data?.records,
+      value: records,
       dataKey: "id",
       first: (this.state.page - 1) * this.state.itemsPerPage,
       paginator: totalRecords > this.state.itemsPerPage,
@@ -418,7 +440,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       onRowUnselect: (event: DataTableUnselectEvent) => this.onRowUnselect(event),
       onPage: (event: DataTablePageEvent) => this.onPaginationChangeCustom(event),
       onSort: (event: DataTableSortEvent) => this.onOrderByChangeCustom(event),
-      sortOrder: sortOrders[this.state.description?.ui?.orderBy?.direction ?? 'desc'],
+      sortOrder: sortOrders[(this.state.description?.ui?.orderBy?.direction ?? 'desc') as keyof typeof sortOrders],
       sortField: this.state.description?.ui?.orderBy?.field ?? 'id',
       rowClassName: (rowData: any) => this.rowClassName(rowData),
       stripedRows: true,
@@ -487,7 +509,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           this.setState({description: description}, () => {
             if (successCallback) successCallback(description);
           });
-        } catch (err) {
+        } catch (err: any) {
           Notification.error(err.message);
         }
       }
@@ -520,6 +542,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   getFormProps(): FormProps {
+    let description = this.props.formProps?.description ?? {};
+    if (this.state.recordDefaultValues) {
+      description.defaultValues = description.defaultValues ?? {};
+      description.defaultValues = { ...description.defaultValues, ...this.state.recordDefaultValues };
+      console.log('getfprops', this.state.recordDefaultValues, description);
+    }
     return {
       // isInitialized: false,
       ref: this.refForm,
@@ -534,8 +562,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       prevId: this.state?.recordPrevId ?? 0,
       nextId: this.state?.recordNextId ?? 0,
       endpoint: this.state.formEndpoint,
+      // defaultValues: this.state.recordDefaultValues,
+      saveRecordWhenInitialized: this.state.recordSaveAfterOpen,
       showInModal: true,
-      description: this.props.formProps?.description,
+      description: description,
       ...this.props.formCustomProps ?? {},
       customEndpointParams: this.state.customEndpointParams ?? {},
       onClose: () => {
@@ -640,6 +670,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     if (rowData._PERMISSIONS && !rowData._PERMISSIONS[1]) cssClasses.push('hidden-record');
     if (rowData.id === this.state.activeRowId) cssClasses.push('highlighted');
+    if (rowData._isInsertRow_) cssClasses.push('insert-row');
 
     return cssClasses.join(' ');
   }
@@ -752,7 +783,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                 key={index}
                 className="btn btn-transparent btn-list-item"
                 onClick={() => {
-                  let newState = this.state;
+                  let newState: any = this.state;
                   newState[action.state] = action.value;
                   this.setState(newState);
                 }}
@@ -898,8 +929,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   findRecordById(id: number): any {
     let data: any = {};
+    let i: any;
 
-    for (let i in this.state.data?.records) {
+    for (i in this.state.data?.records) {
       if (this.state.data?.records[i].id == id) {
         data = this.state.data.records[i];
       }
@@ -910,15 +942,16 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   deleteRecord() {
     if (this.props.externalCallbacks && this.props.externalCallbacks.onDeleteRecord) {
-      window[this.props.externalCallbacks.onDeleteRecord](this);
+      window[this.props.externalCallbacks.onDeleteRecord as keyof typeof window](this);
     } if (this.props.onDeleteRecord) {
       this.props.onDeleteRecord(this);
     } else {
 
       let recordToDelete: any = null;
       let indexRecordToDelete: any = 0;
+      let i: any;
 
-      for (let i in this.state.data?.records) {
+      for (i in this.state.data?.records) {
         if (this.state.data?.records[i]._toBeDeleted_) {
           recordToDelete = this.state.data?.records[i];
           indexRecordToDelete = i;
@@ -957,7 +990,9 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderDeleteConfirmModal(): JSX.Element {
     let hasRecordsToDelete: boolean = false;
-    for (let i in this.state.data?.records) {
+    let i: any;
+
+    for (i in this.state.data?.records) {
       if (this.state.data?.records[i]._toBeDeleted_) {
         hasRecordsToDelete = true;
         break;
@@ -1047,6 +1082,23 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       return column.cellRenderer(this, data, options);
     } else if (typeof column.tableCellRenderer === 'string' && column.tableCellRenderer !== '') {
       return globalThis.hubleto.renderReactElement(column.tableCellRenderer, cellProps) ?? <></>;
+    } else if (data._isInsertRow_) {
+      let rowToInsert = this.state.rowToInsert ?? {};
+
+      return InputFactory({
+        uid: this.props.uid + '_insertRow_' + columnName,
+        inputName: columnName,
+        showInlineEditingButtons: false,
+        isInlineEditing: true,
+        value: rowToInsert[columnName] ?? null,
+        description: (this.state.description && this.state.description.inputs ? this.state.description?.inputs[columnName] : null),
+        onChange: (input: any, value: any) => {
+          let rowToInsert: any = this.state.rowToInsert ?? {};
+          rowToInsert[columnName] = value;
+          this.setState({rowToInsert: rowToInsert});
+        }
+      });
+
     } else {
 
       let cellValueElement: JSX.Element|null = null;
@@ -1120,7 +1172,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             let className = data['_LOOKUP_CLASS[' + columnName + ']'];
             let color = data['_LOOKUP_COLOR[' + columnName + ']'];
 
-            let style = {};
+            let style: any = {};
 
             if (color) {
               style['borderLeft'] = '0.5em solid ' + color;
@@ -1232,6 +1284,19 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
+  renderInsertButton(data: any, options: any) {
+    return <button
+      className="btn btn-add-outline"
+      onClick={(e) => {
+        e.preventDefault();
+        this.openForm(-1, data, true);
+        this.setState({rowToInsert: {}});
+      }}
+    >
+      <span className="icon"><i className="fas fa-plus"></i></span>
+    </button>;
+  }
+
   renderDeleteButton(data: any, options: any) {
     return data._toBeDeleted_
       ? <button
@@ -1275,11 +1340,15 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     const R = this.findRecordById(data.id);
 
     let moreActions = [];
+    let canCreate = !this.state.readonly && this.state.description?.permissions?.canCreate;
     let canDelete = !this.state.readonly && this.state.description?.permissions?.canDelete;
 
+    if (R._PERMISSIONS && !R._PERMISSIONS[1]) canCreate = false;
     if (R._PERMISSIONS && !R._PERMISSIONS[3]) canDelete = false;
 
-    if (canDelete) {
+    if (canCreate && data._isInsertRow_) {
+      moreActions.push(this.renderInsertButton(data, options));
+    } else if (canDelete) {
       moreActions.push(this.renderDeleteButton(data, options));
     }
 
@@ -1577,10 +1646,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   renderRecords(): JSX.Element {
     if (this.state.description?.ui?.showAsPlainTable) {
+      const columns = this.state.description?.columns ?? {};
+
       return <table className='table-default dense'>
         <thead>
           <tr>
-            {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
+            {Object.keys(columns).map((colName, columnIndex) => {
               const column = this.state.description?.columns[colName];
               return <th className='border-none'>{column.title}</th>;
             })}
@@ -1589,7 +1660,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         <tbody>
           {this.state.data?.records.map((row, rowIndex) => {
             return <tr key={rowIndex}>
-              {Object.keys(this.state.description?.columns).map((colName, columnIndex) => {
+              {Object.keys(columns).map((colName, columnIndex) => {
                 const val = row['_LOOKUP[' + colName + ']'] ?? row[colName];
                 return <td className='border-none'>{
                   (typeof val === 'object' && val !== null) ? val['_LOOKUP'] : val
@@ -1712,17 +1783,18 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     window.history.pushState({}, "", '?' + urlParams.toString());
   }
 
-  openForm(id: any) {
+  openForm(id: any, defaultValues?: any, saveAfterOpen?: boolean) {
     let prevId: any = null;
     let nextId: any = null;
     let prevRow: any = {};
     let saveNextId: boolean = false;
+    let i: any;
 
     let canRead = this.state.description?.permissions?.canRead;
 
     if (!canRead) return;
 
-    for (let i in this.state.data?.records) {
+    for (i in this.state.data?.records) {
       const row = this.state.data?.records[i];
       if (row && row.id) {
         if (saveNextId) {
@@ -1737,7 +1809,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
 
     if (this.props.externalCallbacks && this.props.externalCallbacks.openForm) {
-      window[this.props.externalCallbacks.openForm](this, id);
+      window[this.props.externalCallbacks.openForm as keyof typeof window](this, id);
     } else {
       if (!this.props.parentForm) {
         this.setRecordFormUrl(id);
@@ -1746,8 +1818,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       this.setState({ recordId: null, isInlineEditing: false }, () => {
         this.setState({
           recordId: id,
+          recordDefaultValues: defaultValues,
           recordPrevId: prevId,
           recordNextId: nextId,
+          recordSaveAfterOpen: saveAfterOpen,
           activeRowId: id,
         });
       });
@@ -1770,7 +1844,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
   onAddClick() {
     if (this.props.externalCallbacks && this.props.externalCallbacks.onAddClick) {
-      window[this.props.externalCallbacks.onAddClick](this);
+      window[this.props.externalCallbacks.onAddClick as keyof typeof window](this);
     } else {
       this.openForm(-1);
     }
@@ -1779,9 +1853,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   onRowClick(row: any) {
     if (row._PERMISSIONS && !row._PERMISSIONS[1]) return; // cannot read
     if (this.state.isInlineEditing) return; // doing nothing when inline editing
+    if (row._isInsertRow_) return;
 
     if (this.props.externalCallbacks && this.props.externalCallbacks.onRowClick) {
-      window[this.props.externalCallbacks.onRowClick](this, row.id ?? 0);
+      window[this.props.externalCallbacks.onRowClick as keyof typeof window](this, row.id ?? 0);
     } if (this.props.onRowClick) {
       this.props.onRowClick(this, row);
     } else {
@@ -1802,7 +1877,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   onOrderByChange(orderBy?: TableOrderBy | null, stateParams?: any) {
-    const getValue = (item) => {
+    const getValue = (item: any) => {
       const val = item;
       if (typeof val === 'string' && /^\d{1,3}(\.\d{3})*(,\d+)?$/.test(val)) {
         return parseFloat(val.replace(/\./g, '').replace(',', '.'));
@@ -1845,7 +1920,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       });
     } else {
       let updatedDescription = { ...this.state.description };
-      updatedDescription.ui.orderBy = orderBy;
+      if (orderBy && updatedDescription && updatedDescription.ui) {
+        updatedDescription.ui.orderBy = orderBy;
+      }
+
       this.setState({
         ...stateParams,
         description: updatedDescription,
