@@ -28,26 +28,26 @@ export default class TableExtendedExportCsvForm<P, S> extends Form<TableExtended
   }
 
 
-  renderTitle(): JSX.Element {
+  renderTitle(): React.JSX.Element {
     return <>
       <h2>{this.translate('Export to CSV')}</h2>
       <small>{this.props.model}</small>
     </>;
   }
 
-  renderWarningsOrErrors(): null|JSX.Element {
+  renderWarningsOrErrors(): null|React.JSX.Element {
     return null;
   }
 
-  renderFooter(): JSX.Element {
+  renderFooter(): React.JSX.Element {
     return <></>;
   }
 
-  renderHeaderLeft(): JSX.Element {
+  renderHeaderLeft(): React.JSX.Element {
     return <></>;
   }
 
-  renderHeaderRight(): JSX.Element {
+  renderHeaderRight(): React.JSX.Element {
     return this.renderCloseButton();
   }
 
@@ -58,7 +58,7 @@ export default class TableExtendedExportCsvForm<P, S> extends Form<TableExtended
     }
   }
 
-  renderContent(): JSX.Element {
+  renderContent(): React.JSX.Element {
     const qs = require('qs');
     return <div className="p-2">
       <div className="alert alert-info">

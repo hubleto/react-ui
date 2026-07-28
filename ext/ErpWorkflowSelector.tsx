@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-import { getUrlParam } from "@hubleto/react-ui/core/Helper";
 import TranslatedComponent from "@hubleto/react-ui/core/TranslatedComponent";
-import Lookup from '@hubleto/react-ui/core/Inputs/Lookup';
-import { ProgressBar } from 'primereact/progressbar';
+import Spinner from '@hubleto/react-ui/fc/Spinner';
 import request from "@hubleto/react-ui/core/Request";
 
 interface ErpWorkflowSelectorProps {
@@ -21,14 +19,15 @@ interface ErpWorkflowSelectorState {
 }
 
 export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWorkflowSelectorProps, ErpWorkflowSelectorState> {
-  props: ErpWorkflowSelectorProps;
-  state: ErpWorkflowSelectorState;
+  props: ErpWorkflowSelectorProps = null;
+  state: ErpWorkflowSelectorState = null;
 
   translationContext: string = 'Hubleto\\App\\Community\\Workflow\\Loader\\Loader';
   translationContextInner: string = 'Components\\ErpWorkflowSelector';
 
   constructor(props: ErpWorkflowSelectorProps) {
     super(props);
+    this.props = props;
     this.state = this.getStateFromProps(props);
   }
 
@@ -38,7 +37,7 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
       history: null,
       changeWorkflow: false,
       initialLoad: true,
-      readonly: this.props.readonly,
+      readonly: props.readonly,
     };
   }
 
@@ -96,9 +95,9 @@ export default class ErpWorkflowSelector<P, S> extends TranslatedComponent<ErpWo
     });
   }
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     if (!this.state.workflows) {
-      return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
+      return <Spinner size="xs" />;
     }
 
     const R = this.props.parentForm.state.record ?? {};

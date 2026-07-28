@@ -4,7 +4,7 @@ import AsyncCreatable from 'react-select/async-creatable'
 import LookupInput, { LookupInputProps, LookupInputState } from './Lookup'
 import request from '../Request'
 import * as uuid from 'uuid';
-import { ProgressBar } from 'primereact/progressbar';
+import Spinner from '@hubleto/react-ui/fc/Spinner';
 
 interface UserSelectInputProps extends LookupInputProps {
   model?: string

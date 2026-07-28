@@ -1,5 +1,4 @@
-import React, { RefObject, createRef } from 'react';
-import { FileUpload as FileUploadPrime, FileUploadErrorEvent, FileUploadUploadEvent, FileUploadRemoveEvent } from 'primereact/fileupload';
+import React from 'react';
 import Notification from "../Notification";
 import * as uuid from 'uuid';
 import { Input, InputProps, InputState } from '../Input'
@@ -38,8 +37,13 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
     id: uuid.v4(),
   }
 
+  props: FileUploadInputProps = null;
+  state: FileUploadInputState = null;
+
   constructor(props: FileUploadInputProps) {
     super(props);
+
+    this.props = props;
 
     let files: Array<string> = [];
 
@@ -48,16 +52,19 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
       else errorJsx("Multiselect value must be type of Array");
     } else if (props.value) files.push(props.value);
 
-    this.state = {
-      ...this.state,
-      files: files,
+    this.state = this.getStateFromProps(props);
+  }
+
+  getStateFromProps(props: FileUploadInputProps) {
+    return {
+      ...super.getStateFromProps(props),
+      files: null,
       isInitialized: true,
       endpoint: globalThis.hubleto.config.projectUrl + '/components/inputs/fileupload/upload?__IS_AJAX__=1'
         + (props.folderPath ? '&folderPath=' + props.folderPath : '')
         + (props.renamePattern ? '&renamePattern=' + props.renamePattern : '')
         + (props.accept ? '&accept=' + props.accept : '')
     };
-
   }
 
   onSuccess(event: FileUploadUploadEvent) {
@@ -175,7 +182,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
     </div>;
   }
 
-  renderFileIcon(fileFullPath: string): JSX.Element {
+  renderFileIcon(fileFullPath: string): React.JSX.Element {
     const extension = this.getFileExtension(fileFullPath);
 
     switch (extension) {
@@ -226,7 +233,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
           </div>
         )}
         <div className="card">
-          <FileUploadPrime
+          {/* <FileUploadPrime
             ref={this.refInput}
             name="upload[]"
             auto={true}
@@ -236,7 +243,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
             onError={(event: FileUploadErrorEvent) => this.onError(event)}
             accept={this.props.accept}
             maxFileSize={1000000}
-            emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+            emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} /> */}
         </div>
       </div>
     );

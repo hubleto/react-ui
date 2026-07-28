@@ -15,13 +15,6 @@ export class HubletoReactUi {
   reactElements: Object = {};
   renderedModals: Array<Modal> = [];
 
-  primeReactTailwindTheme: any = {
-    dataTable: {
-      // root: { className: 'bg-primary' },
-      headerRow: { className: 'bg-primary' },
-    },
-  };
-
   dictionary: any = null;
   lastShownDialogRef: any;
   defaultTranslationContext: string = 'app';
@@ -149,7 +142,7 @@ export class HubletoReactUi {
     });
   }
 
-  getValidationErrorMessage(messageString: string): JSX.Element {
+  getValidationErrorMessage(messageString: string): React.JSX.Element {
     return <>
       <b>{this.translate('Some inputs need your attention', 'Hubleto\\Erp\\Loader', 'HubletoReactUi')}</b><br/>
       <br/>
@@ -157,7 +150,7 @@ export class HubletoReactUi {
     </>;
   }
 
-  getDuplicateEntryErrorMessage(message: string): JSX.Element {
+  getDuplicateEntryErrorMessage(message: string): React.JSX.Element {
     return <>
       <b>{this.translate('Duplicate entry error', 'Hubleto\\Erp\\Loader', 'HubletoReactUi')}</b><br/>
       <br/>
@@ -165,7 +158,7 @@ export class HubletoReactUi {
     </>;
   }
 
-  getGenericErrorMessage(message: string, code: number, details?: string): JSX.Element {
+  getGenericErrorMessage(message: string, code: number, details?: string): React.JSX.Element {
     return <>
       <pre className='text-red-800 text-base'>{message}</pre>
       <div className='text-xs mt-4 text-gray-400'>
@@ -175,7 +168,7 @@ export class HubletoReactUi {
     </>;
   }
 
-  showDialog(content: JSX.Element, props?: any) {
+  showDialog(content: React.JSX.Element, props?: any) {
     const root = createRoot(document.getElementById('app-dialogs'));
     this.lastShownDialogRef = React.createRef();
 
@@ -184,16 +177,13 @@ export class HubletoReactUi {
 
     root.render(<>
       <Dialog
-        ref={this.lastShownDialogRef}
         uid={'app_dialog_' + uuid.v4().replace('-', '_')}
-        visible
-        style={{minWidth: '50vw'}}
         {...props}
       >{content}</Dialog>
     </>);
   }
 
-  showDialogDanger(content: JSX.Element, props?: any) {
+  showDialogDanger(content: React.JSX.Element, props?: any) {
     let defaultProps: any = {
       headerClassName: 'dialog-danger-header',
       contentClassName: 'dialog-danger-content',
@@ -219,7 +209,7 @@ export class HubletoReactUi {
     this.showDialog(content, props);
   }
 
-  showDialogWarning(content: JSX.Element, props?: any) {
+  showDialogWarning(content: React.JSX.Element, props?: any) {
     let defaultProps: any = {
       headerClassName: 'dialog-warning-header',
       contentClassName: 'dialog-warning-content',
@@ -245,7 +235,7 @@ export class HubletoReactUi {
     this.showDialog(content, props);
   }
 
-  showDialogConfirm(content: JSX.Element, props?: any) {
+  showDialogConfirm(content: React.JSX.Element, props?: any) {
     const propsCloned = {...props};
     let defaultProps = {
       headerClassName: 'dialog-confirm-header',
@@ -475,9 +465,9 @@ export class HubletoReactUi {
     this.dynamicContentInjectors[contentGroup].push(injector);
   }
 
-  injectDynamicContent(contentGroup: string, injectorProps: any): Array<JSX.Element>|null {
+  injectDynamicContent(contentGroup: string, injectorProps: any): Array<React.JSX.Element>|null {
     if (this.dynamicContentInjectors && this.dynamicContentInjectors[contentGroup]) {
-      let dynamicContent: Array<JSX.Element> = [];
+      let dynamicContent: Array<React.JSX.Element> = [];
       for (let i in this.dynamicContentInjectors[contentGroup]) {
         dynamicContent.push(
           React.createElement(

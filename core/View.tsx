@@ -1,6 +1,6 @@
 import request from "./Request";
 import React, { Component, RefObject, useRef, useEffect } from 'react';
-import { ProgressBar } from 'primereact/progressbar';
+import Spinner from '@hubleto/react-ui/fc/Spinner';
 
 interface ViewProps {
   uid: string,
@@ -69,7 +69,7 @@ export default class View extends Component<ViewProps> {
 
   render() {
 
-    if (this.state.html == '') return <ProgressBar mode="indeterminate" style={{ height: '30px' }}></ProgressBar>;
+    if (this.state.html == '') return <Spinner size="xl" />;
 ;
 
     return (

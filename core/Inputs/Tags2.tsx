@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
 import request from '../Request'
 import * as uuid from 'uuid';
-import { ProgressBar } from 'primereact/progressbar';
+import Spinner from '@hubleto/react-ui/fc/Spinner';
 import CreatableSelect from "react-select/creatable";
 import Select from "react-select";
 
@@ -175,7 +175,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
 
   }
 
-  renderValueElement(): JSX.Element {
+  renderValueElement(): React.JSX.Element {
     const options: Array<any> = this.convertValueToOptionList(this.state.value);
 
     if (options) {

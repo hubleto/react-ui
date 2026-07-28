@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
-import { ToggleSwitch } from 'primereact/toggleswitch';
 import * as uuid from 'uuid';
 
 interface BooleanInputProps extends InputProps { }

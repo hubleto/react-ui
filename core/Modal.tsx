@@ -74,7 +74,7 @@ export default class Modal extends Component<ModalProps> {
     if (this.props.onClose) this.props.onClose(this);
   }
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     return <></>;
   } 
 }

@@ -14,7 +14,7 @@ export default class Select extends Input<SelectInputProps, InputState> {
     id: uuid.v4(),
   }
 
-  renderOption(key: string|number): JSX.Element {
+  renderOption(key: string|number): React.JSX.Element {
     if (this.props.options == undefined) return <></>;
     return <option key={key} value={key}>{this.props.options[key] ?? ''}</option>
   }

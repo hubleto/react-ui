@@ -8,7 +8,7 @@ export default class ModalSimple extends Modal {
     type: 'centered',
   }
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     if (this.state.isOpen) {
       return <>
         <div

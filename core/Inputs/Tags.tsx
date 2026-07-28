@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 import { Input, InputProps, InputState } from '../Input'
 import { WithContext as ReactTags } from 'react-tag-input';
 import request from "../Request";
-import { ProgressBar } from 'primereact/progressbar';
+import Spinner from '@hubleto/react-ui/fc/Spinner';
 import Swal, { SweetAlertOptions } from 'sweetalert2';
 
 // import '../../Assets/Css/Components/Inputs/Tags.css';
@@ -190,7 +190,7 @@ export default class Tags extends Input<TagsInputProps, TagsInputState> {
 
   renderInputElement() {
     if (!this.state.isInitialized) {
-      return <ProgressBar mode="indeterminate" style={{ height: '3px' }}></ProgressBar>;
+      return <Spinner size="sm" />;
     }
 
     return (

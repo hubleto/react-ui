@@ -47,7 +47,7 @@ export function deepObjectMerge(target: any, source: any): Object {
   return result;
 }
 
-export function errorJsx(message: string): JSX.Element {
+export function errorJsx(message: string): React.JSX.Element {
   console.error('HubletoReactUi: ' + message);
 
   return (

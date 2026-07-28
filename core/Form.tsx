@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as uuid from 'uuid';
 
 import request from "./Request";
-import Spinner from "@hubleto/react-ui/core/Spinner";
+import Spinner from "@hubleto/react-ui/fc/Spinner";
 
 import { deepObjectMerge } from "./Helper";
 
@@ -164,8 +164,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     showFooter: true,
   }
 
-  declare props: FormProps;
-  declare state: FormState;
+  props: FormProps = null;
+  state: FormState = null;
 
   newState: any;
 
@@ -187,7 +187,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   static getFormHeaderButtons(formClass: string) {
     return this.formHeaderButtons[formClass] ?? [];
   }
-
 
   static addFormFooterButton(title: string, icon: string, onClick: any) {
     if (!this.formFooterButtons[this.name]) {
@@ -364,8 +363,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       (description: any) => {
 
         if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
-
-        // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
         description = this.onAfterLoadFormDescription(description);
 

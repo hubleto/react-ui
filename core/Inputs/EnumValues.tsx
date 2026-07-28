@@ -25,7 +25,9 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
 
     this.props = props;
 
-    if (props.enumValues && !props.enumValues[this.state.value]) {
+    this.state = this.getStateFromProps(props);
+
+    if (props.enumValues && this.state.value && !props.enumValues[this.state.value]) {
       this.state.value = Object.keys(props.enumValues)[0];
       if (props.parentForm && props.inputName) {
         let record = { ...props.parentForm.state.record };
@@ -34,7 +36,6 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
       }
     }
 
-    this.state = this.getStateFromProps(props);
   }
 
   getStateFromProps(props: InputProps) {

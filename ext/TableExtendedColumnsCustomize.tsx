@@ -110,11 +110,11 @@ export default class TableExtendedColumnsCustomize<P, S> extends TranslatedCompo
     this.setState({ draggedKey: null });
   };
 
-  renderTitle(): JSX.Element {
+  renderTitle(): React.JSX.Element {
     return <>Customize Columns</>;
   }
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     return (
       <>
         <div className="modal-header active">

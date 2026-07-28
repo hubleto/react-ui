@@ -76,7 +76,7 @@ export default class ErpSearch<P, S> extends Component<ErpSearchProps, ErpSearch
     // this.setState({query: query});
   }
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     // console.log('q', this.state.query);
     return <>
       <AsyncSelect

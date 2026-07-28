@@ -1,25 +1,22 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
-import { Input, InputProps, InputState } from './Input';
-import { Tooltip } from 'primereact/tooltip';
 
 export interface FormInputProps {
   children: any,
-  title?: string|JSX.Element,
+  title?: string|React.JSX.Element,
   description?: string,
   required?: boolean,
 }
 
 interface FormInputState {
   uid: string,
-  title?: string|JSX.Element,
+  title?: string|React.JSX.Element,
   description: string,
   required: boolean,
 }
 
 export default class FormInput extends Component<FormInputProps> {
-  state: FormInputState;
+  state: FormInputState = null;
 
   constructor(props: FormInputProps) {
     super(props);
@@ -32,7 +29,7 @@ export default class FormInput extends Component<FormInputProps> {
     };
   }
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     return <>
       <div
         id={this.state.uid}
@@ -51,11 +48,9 @@ export default class FormInput extends Component<FormInputProps> {
 
         {this.state.description
           ? <>
-            <Tooltip target={'#' + this.state.uid + ' .input-description'} />
             <i
               className="input-description fas fa-info"
-              data-pr-tooltip={this.state.description}
-              data-pr-position="top"
+              title={this.state.description}
             ></i>
           </>
           : null

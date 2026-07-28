@@ -4,7 +4,7 @@ import { Bar, Doughnut, Pie, Line, Scatter } from "react-chartjs-2";
 import 'chartjs-adapter-date-fns';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Filler, BarController, BarElement, CategoryScale, LinearScale, PointElement, LineElement, LineController, TimeScale } from "chart.js";
 import request from "@hubleto/react-ui/core/Request";
-import { ProgressBar } from 'primereact/progressbar';
+import Spinner from '@hubleto/react-ui/fc/Spinner';
 
 ChartJS.register(ArcElement, Tooltip, Legend, Filler, BarController, BarElement, CategoryScale, LinearScale, TimeScale, PointElement, LineElement, LineController);
 
@@ -64,9 +64,9 @@ export default class HubletoChart<P, S> extends Component<HubletoChartProps,Hubl
     );
   }
 
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     if (!this.state.data) {
-      return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
+      return <Spinner></Spinner>;
     }
 
     const data = this.state.data;

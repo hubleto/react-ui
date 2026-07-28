@@ -8,7 +8,7 @@ import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
 import TranslatedComponent from "./TranslatedComponent";
 
-import { ProgressBar } from 'primereact/progressbar';
+import Spinner from '@hubleto/react-ui/fc/Spinner';
 
 import { deepObjectMerge } from "./Helper";
 import request from "./Request";
@@ -285,7 +285,7 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
     }
   }
 
-  renderFulltextSearch(): JSX.Element {
+  renderFulltextSearch(): React.JSX.Element {
     if (this.state.description?.ui?.showFulltextSearch) {
       return <div className="table-header-search">
         <input
@@ -313,7 +313,7 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
     }
   }
 
-  renderFormModal(): JSX.Element {
+  renderFormModal(): React.JSX.Element {
     if (this.state.recordId) {
       return <ModalForm {...this.getFormModalProps()}>{this.renderForm()}</ModalForm>;
     } else {
@@ -321,7 +321,7 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
     }
   }
 
-  renderForm(): JSX.Element {
+  renderForm(): React.JSX.Element {
     if (this.props.formReactComponent) {
       return globalThis.hubleto.renderReactElement(this.props.formReactComponent, this.getFormProps()) ?? <></>;
     } else {
@@ -345,7 +345,7 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
     </>;
   }
 
-  renderTree(nodes: any = null, idParent: number = 0, level: number = 0): JSX.Element {
+  renderTree(nodes: any = null, idParent: number = 0, level: number = 0): React.JSX.Element {
     if (nodes === null) {
       nodes = this.state.data.nodes;
     }
@@ -404,7 +404,7 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
     }
   }
 
-  renderContent(): JSX.Element {
+  renderContent(): React.JSX.Element {
 
     return <>
       {this.renderFormModal()}
@@ -425,7 +425,7 @@ export default class Tree<P, S> extends TranslatedComponent<TreeProps, TreeState
       globalThis.hubleto.setTranslationContext(this.translationContext);
 
       if (!this.state.data) {
-        return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
+        return <Spinner />;
       }
 
       const fallback: any = <div className="alert alert-danger">Failed to render table. Check console for error log.</div>

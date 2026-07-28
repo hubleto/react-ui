@@ -13,8 +13,8 @@ import InputTags from "./Inputs/Tags";
 import InputDateTime from "./Inputs/DateTime";
 import InputEnumValues from "./Inputs/EnumValues";
 
-export function InputFactory(inputProps: any): JSX.Element {
-  let inputToRender: JSX.Element = <></>;
+export function InputFactory(inputProps: any): React.JSX.Element {
+  let inputToRender: React.JSX.Element = <></>;
   let description: any = inputProps.description;
 
   if (!description) {

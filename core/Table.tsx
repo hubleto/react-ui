@@ -11,45 +11,7 @@ import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
 import TranslatedComponent from "./TranslatedComponent";
 import Spinner from "@hubleto/react-ui/core/Spinner";
-//import { SelectButton } from 'primereact/selectbutton';
 
-// const primeReactLocaleMap = {
-//   sk: { choose: 'Vybrať' },
-//   cs: { choose: 'Vybrat' },
-//   pl: { choose: 'Wybierz' },
-//   de: { choose: 'Auswählen' },
-//   ro: { choose: 'Alege' },
-//   it: { choose: 'Scegli' },
-//   es: { choose: 'Elegir' },
-//   fr: { choose: 'Choisir' },
-// };
-
-// import {
-//   DataTableCellProps,
-//   DataTableEmptyTBodyProps,
-//   DataTableFooterProps,
-//   DataTableHeaderProps,
-//   DataTableLoadingProps,
-//   DataTablePaginationProps,
-//   DataTableRootProps,
-//   DataTableRowProps,
-//   DataTableSortIndicatorProps,
-//   DataTableSortOrderProps,
-//   DataTableSortProps,
-//   DataTableTBodyProps,
-//   DataTableTFootCellProps,
-//   DataTableTFootProps,
-//   DataTableTFootRowProps,
-//   DataTableTHeadCellProps,
-//   DataTableTHeadProps,
-//   DataTableTHeadRowProps,
-//   DataTableTableContainerProps,
-//   DataTableTableProps,
-// } from '@primereact/types/primitive/datatable';
-
-// import { PrimeReactProvider } from '@primereact/core';
-// import { DataTable } from 'primereact/datatable';
-// import type { DataTableSortOrderInstance } from 'primereact/datatable';
 import { InputFactory } from "./InputFactory";
 import { dateToEUFormat, datetimeToEUFormat } from "./Inputs/DateTime";
 import { deepObjectMerge } from "./Helper";
@@ -285,14 +247,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       formActiveTabUid: 'default',
       loadingData: false,
       page: 1,
-      itemsPerPage: this.props.itemsPerPage,
+      itemsPerPage: props.itemsPerPage,
       inlineEditingEnabled: props.inlineEditingEnabled ? props.inlineEditingEnabled : false,
       isInlineEditing: props.isInlineEditing ? props.isInlineEditing : false,
       isUsedAsInput: props.isUsedAsInput ? props.isUsedAsInput : false,
       selection: props.selection ?? [],
       async: props.async ?? true,
       readonly: props.readonly ?? false,
-      customEndpointParams: this.props.customEndpointParams ?? {},
+      customEndpointParams: props.customEndpointParams ?? {},
       fulltextSearch: props.fulltextSearch ?? '',
       columnSearch: props.columnSearch ?? {},
       filters: props.filters ?? {},
@@ -451,14 +413,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       // onRowClick: (data: any) => this.onRowClick(data.data),
       // onRowSelect: (event: any) => this.onRowSelect(event),
       // onRowUnselect: (event: any) => this.onRowUnselect(event),
-      onPage: (event: any) => this.onPaginationChangeCustom(event),
-      // onSort: (event: any) => this.onOrderByChangeCustom(event),
       sortOrder: sortOrders[(this.state.description?.ui?.orderBy?.direction ?? 'desc') as keyof typeof sortOrders],
       sortField: this.state.description?.ui?.orderBy?.field ?? 'id',
       rowClassName: (rowData: any) => this.rowClassName(rowData),
       stripedRows: true,
-      //globalFilter={globalFilter}
-      //header={header}
       emptyMessage: this.props.description?.ui?.emptyMessage || <>
         <div className="p-2">{this.translate('No data.', 'Hubleto\\Erp\\Loader', 'Components\\Table')}</div>
       </>,
@@ -1060,7 +1018,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   /*
-   * Render body for Column (PrimeReact column)
+   * Render body of table cell
    */
   renderCell(columnName: string, column: any, data: any, options: any) {
     const columnValue: any = data[columnName]; // this.getColumnValue(columnName, column, data);
@@ -1694,47 +1652,21 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       const columns = this.getColumns();
       const columnKeys = Object.keys(columns);
 
+      const currentPage = this.state?.data?.current_page ?? 0;
+      const lastPage = this.state?.data?.last_page ?? 0;
+      const itemsPerPage = this.state?.data?.per_page ?? 0;
+      const itemsFrom = this.state?.data?.from ?? 0;
+      const itemsTo = this.state?.data?.to ?? 0;
+      const itemsTotal = this.state?.data?.total ?? 0;
+
+      let previousPages: any = [];
+      for (let i = Math.max(currentPage - 5, 1); i < currentPage; i++) previousPages.push(i);
+
+      let nextPages: any = [];
+      for (let i = currentPage + 1; i <= Math.min(currentPage + 5, lastPage); i++) nextPages.push(i);
+
       let orderBy = this.state.description?.ui?.orderBy ?? null;
       if (!orderBy) orderBy = {field: '', direction: ''};
-
-      // return <PrimeReactProvider>
-      //   <DataTable.Root {...this.getTableProps()}>
-      //     <DataTable.TableContainer>
-      //         <DataTable.Table>
-      //             <DataTable.THead>
-      //               <DataTable.THeadRow>
-      //                 {columnKeys.map((key: any) => {
-      //                   const column = columns[key];
-      //                   return <DataTable.THeadCell>
-      //                     {column.title}
-      //                   </DataTable.THeadCell>
-      //                 })}
-      //               </DataTable.THeadRow>
-      //             </DataTable.THead>
-      //             <DataTable.TBody>
-      //                 {records.map((record: any) => {
-      //                   return columnKeys.map((key: any, rowIndex: number) => {
-      //                     const column = columns[key];
-      //                     return <DataTable.THeadCell>
-      //                       {column.body(
-      //                         record,
-      //                         {
-      //                           rowIndex: rowIndex,
-      //                           renderEditor: false,
-      //                         }
-      //                       )}
-      //                     </DataTable.THeadCell>
-      //                   });
-      //                 })}
-      //             </DataTable.TBody>
-      //             {/* <DataTable.EmptyTBody>
-      //               Wait, I am loading your data...
-      //             </DataTable.EmptyTBody> */}
-      //         </DataTable.Table>
-      //     </DataTable.TableContainer>
-      //     {/* {this.getColumns()} */}
-      //   </DataTable.Root>
-      // </PrimeReactProvider>;
 
       return <div className="table-container">
         <table>
@@ -1797,6 +1729,81 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             })}
           </tbody>
         </table>
+        <div className="table-paginator">
+          {currentPage > 1 ?
+            <div
+              className="btn btn-transparent"
+              onClick={() => this.onPaginationChange(currentPage - 1, itemsPerPage)}
+            >
+              <span className="icon"><i className="fas fa-arrow-left"></i></span>
+            </div>
+          : null}
+          {previousPages[0] > 1 ? <>
+            <div
+              className="btn btn-transparent"
+              onClick={() => this.onPaginationChange(1, itemsPerPage)}
+            >
+              <span className="text">1</span>
+            </div>
+            <div>...</div>
+          </> : null}
+          {previousPages.map((page: number) => {
+            return <div
+              className="btn btn-transparent"
+              onClick={() => this.onPaginationChange(page, itemsPerPage)}
+            >
+              <span className="text">{page}</span>
+            </div>
+          })}
+          <div
+            className="btn btn-transparent"
+            onClick={() => this.onPaginationChange(currentPage, itemsPerPage)}
+          >
+            <span className="text font-bold">{currentPage}</span>
+            <span className="text">({itemsFrom} - {itemsTo} / {itemsTotal})</span>
+          </div>
+          {nextPages.map((page: number) => {
+            return <div
+              className="btn btn-transparent"
+              onClick={() => this.onPaginationChange(page, itemsPerPage)}
+            >
+              <span className="text">{page}</span>
+            </div>
+          })}
+          {nextPages[nextPages.length - 1] < lastPage ? <>
+            <div>...</div>
+            <div
+              className="btn btn-transparent"
+              onClick={() => this.onPaginationChange(lastPage, itemsPerPage)}
+            >
+              <span className="text">{lastPage}</span>
+            </div>
+          </> : null}
+          {currentPage < lastPage ?
+            <div
+              className="btn btn-transparent"
+              onClick={() => this.onPaginationChange(currentPage + 1, itemsPerPage)}
+            >
+              <span className="icon"><i className="fas fa-arrow-right"></i></span>
+            </div>
+          : null}
+          <div>
+            <select
+              value={itemsPerPage}
+              onChange={(event) => {
+                this.onPaginationChange(currentPage, parseInt(event.currentTarget.value));
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={35}>35</option>
+              <option value={100}>100</option>
+              <option value={300}>300</option>
+              <option value={500}>500</option>
+              <option value={1000}>1000</option>
+            </select>
+          </div>
+        </div>
       </div>;
     }
   }
@@ -1892,14 +1899,6 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     this.onOrderByChange(orderBy);
   }
-
-  // onRowSelect(event: DataTableSelectEvent) {
-  //   // to be overriden
-  // }
-
-  // onRowUnselect(event: DataTableUnselectEvent) {
-  //   // to be overriden
-  // }
 
   setRecordFormUrl(id: number) {
     const urlParams = new URLSearchParams(window.location.search);
