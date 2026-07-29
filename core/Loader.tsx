@@ -4,8 +4,8 @@ import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
 import {isValidJson, kebabToPascal, camelToKebab, deepObjectMerge} from './Helper';
-import Dialog from "./Dialog";
-import Modal from "./Modal";
+import Dialog from "../components/cc/Dialog";
+import Modal from "../components/cc/Modal";
 
 export class HubletoReactUi {
   config: object = {};

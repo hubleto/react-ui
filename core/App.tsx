@@ -1,4 +1,4 @@
-import { FormTab } from './Form';
+import { FormTab } from '../components/cc/Form';
 
 export type AppType = 'community' | 'external' | 'custom';
 

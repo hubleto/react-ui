@@ -1,0 +1,1353 @@
+import React, { Component } from 'react';
+import * as uuid from 'uuid';
+
+import request from "../../core/Request";
+import Spinner from "./Spinner";
+
+import { deepObjectMerge } from "../../core/Helper";
+
+import TranslatedComponent from "./TranslatedComponent";
+import { InputProps } from "./Input";
+import { InputFactory } from "../../core/InputFactory";
+
+interface Content {
+  [key: string]: ContentCard | any;
+}
+
+interface ContentCard {
+  title: string
+}
+
+interface InvalidInput {
+  name: string,
+  id: number,
+}
+
+export interface FormEndpoint {
+  describeForm: string,
+  getRecord: string,
+  saveRecord: string,
+  deleteRecord: string,
+}
+
+export interface FormPermissions {
+  canCreate?: boolean,
+  canRead?: boolean,
+  canUpdate?: boolean,
+  canDelete?: boolean,
+}
+
+export interface FormInputs {
+  [key: string]: any;
+}
+
+export interface FormRecord {
+  [key: string]: any;
+}
+
+export interface FormUi {
+  templateJson?: string,
+  title?: string,
+  subTitle?: string,
+  showSaveButton?: boolean;
+  showCopyButton?: boolean;
+  showDeleteButton?: boolean;
+  saveButtonText?: string,
+  addButtonText?: string,
+  copyButtonText?: string,
+  deleteButtonText?: string,
+  headerClassName?: string,
+}
+
+export interface FormDescription {
+  inputs?: FormInputs,
+  defaultValues?: FormRecord,
+  permissions?: FormPermissions,
+  ui?: FormUi,
+  includeRelations?: Array<string>,
+}
+
+export interface FormTab {
+  uid: string,
+  title?: string|React.JSX.Element,
+  icon?: string,
+  cssClass?: string,
+  showCountFor?: string,
+  isCustom?: boolean,
+  subTabs?: Array<FormTab>,
+  onRender?: (form: any) => React.JSX.Element,
+}
+
+export interface FormProps {
+  modal?: any,
+  isInitialized?: boolean,
+  parentTable?: any,
+  uid?: string,
+  model: string,
+  id?: any,
+  prevId?: any,
+  nextId?: any,
+  readonly?: boolean,
+  content?: Content,
+  hideOverlay?: boolean,
+  showInModal?: boolean,
+  isInlineEditing?: boolean,
+  showHeader?: boolean,
+  showFooter?: boolean,
+  customEndpointParams?: any,
+  saveRecordWhenInitialized?: any,
+
+  tabs?: Array<FormTab>,
+  activeTab?: number,
+  activeTabUid?: string,
+
+  tag?: string,
+  context?: any,
+  children?: any,
+
+  description?: FormDescription,
+  descriptionSource?: 'props' | 'request' | 'both',
+  endpoint?: FormEndpoint,
+
+  onChange?: (input: any, value: any) => void,
+  onClose?: () => void,
+  onSaveCallback?: (form: Form<FormProps, FormState>, saveResponse: any, customSaveOptions?: any) => void,
+  onCopyCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
+  onDeleteCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
+  onTabChangeCallback?: (form: Form<FormProps, FormState>) => void,
+}
+
+export interface FormState {
+  isInitialized: boolean,
+  id?: any,
+  prevId?: any,
+  nextId?: any,
+  readonly?: boolean,
+  content?: Content,
+
+  tabs?: Array<FormTab>,
+  activeTab?: number,
+  activeTabUid?: string,
+
+  description: FormDescription,
+  originalRecord: FormRecord,
+  record: FormRecord,
+  endpoint: FormEndpoint,
+  customEndpointParams: any,
+
+  creatingRecord: boolean,
+  updatingRecord: boolean,
+  deletingRecord: boolean,
+  recordDeleted: boolean,
+  deleteButtonDisabled: boolean,
+  isInlineEditing: boolean,
+  isFullscreen: boolean,
+  invalidInputs: Array<InvalidInput>,
+  folderUrl?: string,
+  params: any,
+  invalidRecordId: boolean,
+  loadRecordError: any,
+
+  recordChanged: boolean,
+
+  permissions: FormPermissions,
+
+  savedSuccessfully: boolean,
+  saveError: any,
+}
+
+export default class Form<P, S> extends TranslatedComponent<FormProps, FormState> {
+  static defaultProps = {
+    uid: '_form_' + uuid.v4().replace('-', '_'),
+    descriptionSource: 'both',
+    showHeader: true,
+    showFooter: true,
+  }
+
+  props: FormProps = null;
+  state: FormState = null;
+
+  newState: any;
+
+  model: string = '';
+  components: Array<React.JSX.Element> = [];
+
+  inputs: any = {};
+
+  static formHeaderButtons: any = {};
+  static formFooterButtons: any = {};
+
+  static addFormHeaderButton(title: string, icon: string, onClick: any) {
+    if (!this.formHeaderButtons[this.name]) {
+      this.formHeaderButtons[this.name] = [];
+    }
+    this.formHeaderButtons[this.name].push({ title: title, icon: icon, onClick: onClick });
+  }
+
+  static getFormHeaderButtons(formClass: string) {
+    return this.formHeaderButtons[formClass] ?? [];
+  }
+
+  static addFormFooterButton(title: string, icon: string, onClick: any) {
+    if (!this.formFooterButtons[this.name]) {
+      this.formFooterButtons[this.name] = [];
+    }
+    this.formFooterButtons[this.name].push({ title: title, icon: icon, onClick: onClick });
+  }
+
+  static getFormFooterButtons(formClass: string) {
+    return this.formFooterButtons[formClass] ?? [];
+  }
+
+  constructor(props: FormProps) {
+    super(props);
+
+    this.props = props;
+
+    if (this.props.uid) {
+      globalThis.hubleto.reactElements[this.props.uid] = this;
+    }
+
+    this.state = this.getStateFromProps(props);
+  }
+
+  isCreatingRecord(id: any): boolean
+  {
+    return id ? id == -1 : false;
+  }
+
+  getStateFromProps(props: FormProps) {
+    const isCreatingRecord: boolean = this.isCreatingRecord(props.id);
+    return {
+      isInitialized: false,
+      endpoint: props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? {
+        describeForm: 'api/form/describe',
+        saveRecord: 'api/record/save',
+        deleteRecord: 'api/record/delete',
+        getRecord: 'api/record/get',
+      }),
+      id: props.id,
+      prevId: props.prevId,
+      nextId: props.nextId,
+      readonly: props.readonly,
+      description: props.description ?? {
+        inputs: {},
+        defaultValues: {},
+        permissions: this.calculatePermissions(),
+        ui: {},
+      },
+      content: props.content,
+      creatingRecord: isCreatingRecord,
+      updatingRecord: !isCreatingRecord,
+      deletingRecord: false,
+      recordDeleted: false,
+      isInlineEditing: props.isInlineEditing ? props.isInlineEditing : isCreatingRecord,
+      isFullscreen: false,
+      invalidInputs: [],
+      originalRecord: {},
+      record: {},
+      params: null,
+      invalidRecordId: false,
+      customEndpointParams: props.customEndpointParams ?? {},
+      recordChanged: false,
+      deleteButtonDisabled: false,
+      permissions: this.calculatePermissions(),
+      tabs: props.tabs,
+      activeTab: props.activeTab,
+      activeTabUid: props.activeTabUid,
+      savedSuccessfully: false,
+      saveError: null,
+      loadRecordError: null,
+    };
+  }
+
+  calculatePermissions(record?: any) {
+    if (!this.state?.record) return {
+      canCreate: true,
+      canRead: true,
+      canUpdate: true,
+      canDelete: true,
+    };
+
+    if (!record) record = this.state?.record;
+
+    let permissions = { canCreate: false, canRead: false, canUpdate: false, canDelete: false };
+
+    permissions.canCreate = record._PERMISSIONS ? record._PERMISSIONS[0] ?? true : true;
+    permissions.canRead = record._PERMISSIONS ? record._PERMISSIONS[1] ?? true : true;
+    permissions.canUpdate = record._PERMISSIONS ? record._PERMISSIONS[2] ?? true : true;
+    permissions.canDelete = record._PERMISSIONS ? record._PERMISSIONS[3] ?? true : true;
+
+    if (this.state?.description?.permissions) {
+      const p = this.state.description.permissions;
+      permissions.canCreate = permissions.canCreate && (p.canCreate ?? true);
+      permissions.canRead = permissions.canRead && (p.canRead ?? true);
+      permissions.canUpdate = permissions.canUpdate && (p.canUpdate ?? true);
+      permissions.canDelete = permissions.canDelete && (p.canDelete ?? true);
+    }
+
+    if (this.props?.description?.permissions) {
+      const p = this.props.description.permissions;
+      permissions.canCreate = permissions.canCreate && (p.canCreate ?? true);
+      permissions.canRead = permissions.canRead && (p.canRead ?? true);
+      permissions.canUpdate = permissions.canUpdate && (p.canUpdate ?? true);
+      permissions.canDelete = permissions.canDelete && (p.canDelete ?? true);
+    }
+
+    return permissions;
+  }
+
+  /**
+   * This function trigger if something change, for Form id of record
+   */
+  componentDidUpdate(prevProps: FormProps, prevState: FormState) {
+    let newState: any = {};
+    let setNewState: boolean = false;
+
+    if (this.props.isInitialized != prevProps.isInitialized) {
+      newState.isInitialized = this.props.isInitialized;
+      setNewState = true;
+    }
+
+    if (prevProps.id !== this.props.id) {
+      newState = this.getStateFromProps(this.props);
+      newState.id = this.props.id;
+
+      // this.checkIfIsEdit();
+      this.loadFormDescription();
+
+      newState.invalidInputs = {};
+      newState.creatingRecord = this.isCreatingRecord(this.props.id);
+      newState.updatingRecord = !newState.creatingRecord;
+      setNewState = true;
+    }
+
+    if (setNewState) {
+      this.setState(newState);
+    }
+  }
+
+  componentDidMount() {
+    this.loadFormDescription();
+  }
+
+  getEndpointUrl(action: string) {
+    return this.state.endpoint[action as keyof FormEndpoint] ?? '';
+  }
+
+  getEndpointParams(): object {
+    return {
+      model: this.props.model,
+      id: this.state.id ? this.state.id : 0,
+      tag: this.props.tag,
+      includeRelations: this.state.description?.includeRelations,
+      __IS_AJAX__: '1',
+      ...this.state.customEndpointParams
+    };
+  }
+
+  getRecordFormUrl(): string {
+    return '';
+  }
+
+  onAfterLoadFormDescription(description: FormDescription): FormDescription {
+    return description;
+  }
+
+  loadFormDescription() {
+
+    request.post(
+      this.getEndpointUrl('describeForm'),
+      this.getEndpointParams(),
+      {},
+      (description: any) => {
+
+        if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
+
+        description = this.onAfterLoadFormDescription(description);
+
+        let permissions = this.calculatePermissions();
+
+        let tabs = this.state.tabs;
+        let hasCustomColumns = false;
+        let inputs = description?.inputs;
+
+        if (inputs) {
+          Object.keys(inputs).map((inpName, index) => {
+            if (inputs[inpName].isCustom) hasCustomColumns = true;
+          });
+        }
+
+        if (tabs && hasCustomColumns) {
+          tabs.push({
+            uid: '__custom_columns',
+            title: 'Custom',
+            onRender: (form: any) => {
+              // const inputs = form.state.description?.inputs;
+              // return <>{Object.keys(inputs).map((inpName, index) => {
+              //   if (inputs[inpName].isCustom) {
+              //     return form.inputWrapper(inpName);
+              //   }
+              // })}</>;
+              return form.renderCustomInputs();
+            }
+          });
+        }
+
+        this.setState({
+          description: description,
+          tabs: tabs,
+          readonly: !(permissions.canUpdate || permissions.canCreate),
+          permissions: permissions,
+        }, () => {
+          if (this.state.id == -1) {
+            this.setRecord(description.defaultValues ?? {});
+          } else {
+            this.loadRecord();
+          }
+        });
+      }
+    );
+  }
+
+  reload() {
+    this.setState({isInitialized: false}, () => {
+      this.loadFormDescription();
+    });
+  }
+
+  loadRecord() {
+    request.post(
+      this.getEndpointUrl('getRecord'),
+      this.getEndpointParams(),
+      {},
+      (record: any) => {
+        if (this.state.id != -1 && !record.id) {
+          this.setState({isInitialized: true, invalidRecordId: true});
+        } else {
+          this.setState({originalRecord: record});
+          this.setRecord(record);
+        }
+      },
+      (error) => {
+        this.setState({loadRecordError: error.data});
+      }
+    );
+  }
+
+  setRecord(record: any, onSuccess?: any) {
+    record = this.onAfterRecordLoaded(record);
+    let p = this.calculatePermissions(record);
+
+    this.setState({
+      isInitialized: true,
+      record: record,
+      originalRecord: JSON.parse(JSON.stringify(record)),
+      permissions: p,
+      readonly: !(p.canUpdate || p.canCreate),
+    }, () => {
+      this.onAfterFormInitialized();
+    });
+  }
+
+  onBeforeSaveRecord(record: any) {
+    // to be overriden
+    return record;
+  }
+
+  onAfterSaveRecord(saveResponse: any, customSaveOptions?: any) {
+    if (this.props.onSaveCallback) this.props.onSaveCallback(this, saveResponse, customSaveOptions);
+  }
+
+  onAfterCopyRecord(copyResponse: any) {
+    if (this.props.onCopyCallback) this.props.onCopyCallback(this, copyResponse);
+  }
+
+  onAfterDeleteRecord(deleteResponse: any) {
+    if (this.props.onDeleteCallback) this.props.onDeleteCallback(this, deleteResponse);
+  }
+
+  onTabChange() {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    let tab = this.state.activeTabUid;
+    let tabExists = (this.state.tabs && this.state.tabs.filter((t) => t.uid == tab).length > 0);
+
+    if (tab == 'default' || !tabExists) urlParams.delete('tab');
+    else urlParams.set('tab', tab ?? '');
+
+    window.history.pushState({}, "", '?' + urlParams.toString());
+
+    if (this.props.onTabChangeCallback) this.props.onTabChangeCallback(this);
+  }
+
+  saveRecord(customSaveOptions?: any) {
+    this.setState({invalidInputs: []});
+
+    let record = { ...this.state.record, id: this.state.id };
+
+    (this.state.record._RELATIONS ?? []).map((relName: any) => {
+      if (!(this.state.description?.includeRelations ?? []).includes(relName)) {
+        //@ts-ignore
+        delete record[relName];
+      }
+    });
+
+    record = this.onBeforeSaveRecord(record);
+
+    request.post(
+      this.getEndpointUrl('saveRecord'),
+      { ...this.getEndpointParams(), record: record },
+      {},
+      (saveResponse: any) => {
+        if (this.state.creatingRecord && this.props.parentTable && this.props.parentTable.setRecordFormUrl) {
+          this.props.parentTable.setRecordFormUrl(saveResponse.savedRecord?.id);
+        }
+        this.setState({
+          savedSuccessfully: true,
+          saveError: null,
+          record: saveResponse.savedRecord,
+          id: saveResponse.savedRecord?.id,
+          recordChanged: false,
+          updatingRecord: true,
+          creatingRecord: false,
+        }, () => {
+          this.onAfterSaveRecord(saveResponse, customSaveOptions);
+        });
+      },
+      (err: any) => {
+        this.setState({saveError: err.data});
+        if (err.data?.invalidInputs != undefined) {
+          this.setState({invalidInputs: err.data.invalidInputs});
+        }
+      }
+    );
+  }
+
+  prepareRecordCopy() {
+    return { ...this.state.record, id: -1 };
+  }
+
+  copyRecord() {
+    let newRecord = this.prepareRecordCopy();
+    this.setState({
+      id: -1,
+      record: newRecord,
+      updatingRecord: false,
+      creatingRecord: true,
+      recordChanged: true,
+    }, () => {
+      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + this.getRecordFormUrl());
+      this.onAfterCopyRecord(newRecord);
+    });
+    // request.post(
+    //   this.getEndpointUrl('saveRecord'),
+    //   { ...this.getEndpointParams(), record: { ...this.state.record, id: -1 } },
+    //   {},
+    //   (saveResponse: any) => { this.onAfterCopyRecord(saveResponse); },
+    //   (err: any) => {
+    //     alert('An error ocured while copying the record.');
+    //   }
+    // );
+  }
+
+  deleteRecord() {
+    request.post(
+      this.getEndpointUrl('deleteRecord'),
+      {
+        ...this.getEndpointParams(),
+        hash: this.state.record._idHash_ ?? '',
+      },
+      {},
+      (saveResponse: any) => {
+        this.setState({deletingRecord: false, recordDeleted: true});
+        this.onAfterDeleteRecord(saveResponse);
+      },
+      (err: any) => {
+        this.setState({deletingRecord: false});
+        const message = err?.data?.message;
+        if (message) globalThis.hubleto.showDialogWarning(message);
+      }
+    );
+  }
+
+  normalizeRecord(record: any): any {
+    return record;
+  }
+
+  updateRecord(changedValues: any, onSuccess?: any) {
+    const record = this.normalizeRecord(this.state.record);
+    const newRecord = deepObjectMerge({...record}, changedValues);
+    this.setState({
+      recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(newRecord)),
+      savedSuccessfully: false,
+      record: newRecord
+    }, onSuccess);
+  }
+
+  onAfterRecordLoaded(record: any) {
+    return record;
+  }
+
+  onAfterFormInitialized() {
+    if (this.props.saveRecordWhenInitialized) {
+      this.saveRecord();
+    }
+    this.onTabChange();
+  }
+
+  closeForm() {
+    let ok = true;
+    if (this.state.recordChanged) ok = confirm(this.translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
+    if (ok) {
+
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.delete('tab');
+      window.history.pushState({}, "", '?' + urlParams.toString());
+
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    }
+  }
+
+  openNextRecord() {
+    const nextId = this.state?.nextId ?? 0;
+    if (nextId && this.props.parentTable) {
+      this.props.parentTable.openForm(nextId);
+    }
+  }
+
+  openPrevRecord() {
+    const prevId = this.state?.prevId ?? 0;
+    if (prevId && this.props.parentTable) {
+      this.props.parentTable.openForm(prevId);
+    }
+  }
+
+  contentClassName(): string
+  {
+    return '';
+  }
+
+  renderCustomInputs(): React.JSX.Element|Array<React.JSX.Element> {
+    let customInputs: any = [];
+
+    if (this.state?.description?.inputs) {
+      Object.keys(this.state.description.inputs).map((inputName) => {
+        const inputDesc: any = this.state.description?.inputs ? this.state.description?.inputs[inputName] : null;
+        if (inputDesc?.isCustom) {
+          customInputs.push(this.inputWrapper(inputName));
+        }
+      });
+    }
+
+    return customInputs;
+  }
+
+  renderTabTitle(tabIndex: number): React.JSX.Element {
+    const tab = this.state.tabs ? this.state.tabs[tabIndex] : null;
+    if (tab) {
+      const R = this.state.record;
+      const title = tab.title;
+
+      if (tab.showCountFor) {
+        const count = tab.showCountFor && R[tab.showCountFor] ? R[tab.showCountFor].length : 0;
+        return <>{title} ({count})</>;
+      } else {
+        return <>{title}</>;
+      }
+    } else {
+      return <>?</>;
+    }
+  }
+
+  renderTopMenuButton(index: number) {
+    let tabs = this.state.tabs ?? [];
+    let tabUid = this.state.activeTabUid ?? '';
+    if (tabUid == '') tabUid = 'default';
+    let mainTabUid = tabUid.split('.')[0] ?? 'default';
+
+    let tabTitle = this.renderTabTitle(index);
+    let tab = tabs[index];
+
+    const isActive = tab['uid'] == mainTabUid;
+
+    return <button
+      key={index}
+      className={"btn " + (isActive ? "btn-primary" : (tab.cssClass ?? "btn-transparent"))}
+      onClick={() => {
+        const tab = this.state.tabs ? this.state.tabs[index] : null;
+        const tabUid = (tab ? tab.uid : 'default');
+        this.setState({activeTab: index, activeTabUid: tabUid}, () => {
+          this.onTabChange();
+        });
+      }}
+    >
+      {tab.icon ? <span className="icon"><i className={tab.icon}></i></span> : null}
+      {tabTitle ? <span className={"text " + (tab.isCustom ? "italic" : "")}>{tabTitle}</span> : null}
+    </button>
+  }
+
+  renderTopMenu(): null|React.JSX.Element {
+    if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
+      const tabs = this.state.tabs ?? [];
+      return <div className="top-menu-wrapper">
+        <div>
+          {tabs.map((item: any, index: number) => {
+            if (item.position != 'right') {
+              return this.renderTopMenuButton(index);
+            }
+          })}
+        </div>
+        <div>
+          {tabs.map((item: any, index: number) => {
+            if (item.position == 'right') {
+              return this.renderTopMenuButton(index);
+            }
+          })}
+        </div>
+      </div>;
+    } else {
+      return null;
+    }
+  }
+
+  renderTemplateElement(elRenderer: string, elData: any): React.JSX.Element {
+    switch (elRenderer) {
+      case 'form.columns':
+        if (!elData.props) elData.props = {};
+        elData.props.className = (elData.props?.className ?? '') + ' flex gap-2 flex-col md:flex-row';
+        return React.createElement('div', elData.props, this.renderFromTemplate(elData.columns));
+      break;
+      case 'form.column':
+        if (!elData.props) elData.props = {};
+        elData.props.className = (elData.props?.className ?? '') + ' w-full flex gap-2 flex-col';
+        return React.createElement('div', elData.props, this.renderFromTemplate(elData.items));
+      break;
+      case 'form.text':
+        return <div>{elData}</div>;
+      break;
+      case 'form.divider':
+        return this.divider(elData.text);
+      break;
+      case 'form.input':
+        return this.inputWrapper(elData.input);
+      break;
+      default:
+        return <>Unknown element renderer: {elRenderer}</>;
+      break;
+    }
+  }
+
+  renderFromTemplate(template: any): Array<React.JSX.Element> {
+    let content: Array<React.JSX.Element> = [];
+    Object.keys(template).map((elDefinition: string) => {
+      let tmp = elDefinition.split('#');
+      let elRenderer = tmp[0] ?? '';
+      let elId = tmp[1] ?? '';
+      let elData = template[elDefinition] ?? null;
+
+      content.push(this.renderTemplateElement(elRenderer, { elId, ...elData }));
+    });
+
+    return content;
+  }
+
+  renderTab(tab: string): null|React.JSX.Element {
+    let template: any = {};
+
+    if (this.state.description?.ui?.templateJson) {
+      try {
+        template = JSON.parse(this.state.description?.ui?.templateJson);
+      } catch(ex) {
+        console.error('Failed to render form from template.');
+        console.error(this.state.description?.ui?.templateJson);
+        return <div>Failed to render form from template. Check console for more details.</div>;
+      }
+    } else {
+      template = null;
+    }
+
+    let tabTemplate = template && template.tabs && template.tabs[tab] ? template.tabs[tab] : null;
+
+    if (tab == 'default' && !tabTemplate) {
+      let tabInputs: any = {};
+
+      Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
+        tabInputs['form.input#' + inputName] = {input: inputName};
+      });
+      tabTemplate = {'form.column': { items: tabInputs } };
+    }
+
+    if (!tabTemplate) {
+      return <></>;
+    } else {
+      //@ts-ignore
+      return this.renderFromTemplate(tabTemplate);
+    }
+  }
+
+  /**
+   * Render content
+   */
+  renderContent(): null|React.JSX.Element {
+    let tabs: Array<FormTab> = this.state.tabs ?? [];
+    let tabUid = this.state.activeTabUid ?? '';
+
+    if (tabUid == '') tabUid = 'default';
+
+    let mainTabUid = tabUid.split('.')[0] ?? '';
+    if (mainTabUid == '') mainTabUid = 'default';
+
+    let mainTab: FormTab = tabs.filter((t) => t['uid'] == mainTabUid)[0] ?? null;
+
+    let subTabUid = tabUid.split('.')[1] ?? (mainTab?.subTabs ? mainTab?.subTabs[0]?.uid ?? '' : '');
+
+    if (mainTab && typeof mainTab.onRender === 'function') {
+      const tabContent = mainTab.onRender(this);
+      return tabContent;
+    } else {
+      const tabContent = this.renderTab(mainTabUid + (subTabUid ? '.' + subTabUid : ''));
+
+      if (mainTab && mainTab.subTabs && mainTab.subTabs.length > 0) {
+
+        return <div className='flex h-full gap-2'>
+          <div className='btn-group vertical flex-1'>{mainTab.subTabs.map((subTab, index) => {
+            return <button
+              key={index}
+              className={'btn ' + (subTab.uid == subTabUid ? 'btn-primary' : (subTab.cssClass ?? 'btn-transparent'))}
+              onClick={() => {
+                this.setState({activeTab: index, activeTabUid: mainTab.uid + '.' + subTab.uid}, () => {
+                  this.onTabChange();
+                });
+              }}
+            >
+              {subTab.icon ? <span className='icon'><i className={subTab.icon}></i></span> : null}
+              <span className='text text-nowrap'>{subTab.title}</span>
+            </button>
+          })}</div>
+          <div className='flex-5'>{tabContent}</div>
+        </div>;
+      } else {
+        return tabContent;
+      }
+    }
+  }
+
+  getInputProps(inputName: string, customInputProps?: any): InputProps {
+    const originalRecord = this.state.originalRecord ?? {};
+    const record = this.state.record ?? {};
+    const inputs = this.state.description?.inputs ?? {};
+    const inputDescription = inputs[inputName] ?? {};
+    const formDescription = this.state.description;
+    const inputType = inputDescription.type ?? '';
+    const enumValues = inputDescription.enumValues
+
+    const lastIndexOfBackslash = this.props.model.lastIndexOf('/');
+    const rawModelName = this.props.model.substring(lastIndexOfBackslash + 1);
+    const modelInputName = rawModelName + '.' + inputName;
+
+    const invalid = Array.isArray(this.state.invalidInputs) ? this.state.invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (this.state.record.id ?? -1)) : false;
+
+    // let customInputPropsWithoutOnchange = customInputProps;
+    // delete customInputPropsWithoutOnchange.onChange;
+
+    if (!customInputProps) customInputProps = {};
+
+    let value = null;
+    if (this.state.updatingRecord) value = record[inputName];
+    else value = record[inputName] ?? (formDescription.defaultValues ? formDescription.defaultValues[inputName] : null);
+
+    if (
+      !customInputProps.wrapperCssClass
+      && (
+        ['boolean', 'date', 'datetime', 'decimal'].indexOf(inputType) >= 0
+        || (inputType == 'int' && !enumValues)
+      )
+    ) {
+      customInputProps.wrapperCssClass = 'flex gap-2';
+    }
+
+    return {
+      inputName: inputName,
+      inputClassName: '',
+      record: record,
+      description: inputDescription,
+      value: value,
+      cssClass: inputs[inputName]?.cssClass,
+      readonly: this.props.readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
+      uid: this.props.uid + '_' + uuid.v4(),
+      parentForm: this,
+      context: this.props.context ? this.props.context : this.props.uid,
+      isModified: record[inputName] !== originalRecord[inputName],
+      isInitialized: false,
+      isInlineEditing: this.state.isInlineEditing,
+      showInlineEditingButtons: false, // !this.state.isInlineEditing,
+      invalid: invalid,
+      ...inputs[inputName]?.inputProps,
+      ...customInputProps,
+      onInlineEditCancel: () => { },
+      onInlineEditSave: () => { this.saveRecord(); },
+      onChange: (input: any, value: any) => {
+        let record = {...this.state.record};
+        if (value === '') value = null;
+        record[inputName] = value;
+        this.setState({
+          record: record,
+          recordChanged: (JSON.stringify(this.state.originalRecord) !== JSON.stringify(record)),
+          savedSuccessfully: false,
+        }, () => {
+          if (this.props.onChange) this.props.onChange(input, value);
+          if (customInputProps && customInputProps.onChange) customInputProps.onChange(input, value);
+        });
+      },
+    };
+  }
+
+  /**
+   * Render different input types
+   */
+  input(inputName: string, customInputProps?: any): React.JSX.Element {
+    const inputProps = this.getInputProps(inputName, customInputProps);
+
+    return InputFactory(inputProps);
+  }
+
+  inputWrapper(inputName: string, customInputProps?: any) {
+    const inputProps = this.getInputProps(inputName, customInputProps);
+
+    return this.inputWrapperCustom(
+      inputName,
+      inputProps,
+      inputProps.description?.title ?? '',
+      <>
+        {this.input(inputName, customInputProps)}
+        {inputProps.description?.info}
+      </>
+    );
+  }
+
+  inputWrapperCustom(inputName: string, inputProps: any, label: string|React.JSX.Element, body: string|React.JSX.Element): React.JSX.Element {
+    return <>
+      <div
+        id={this.props.uid + '_' + inputName}
+        className={
+          "input-wrapper"
+          + (inputProps.wrapperCssClass ? " " + inputProps.wrapperCssClass : "")
+          + (inputProps.description?.required == true ? " required" : "")
+          + (inputProps.isModified == true ? " modified" : "")
+        }
+        key={inputName}
+      >
+        <label className="input-label" htmlFor={this.props.uid + '_' + inputName}>
+          {label}
+        </label>
+
+        <div className="input-body" key={inputName}>
+          {inputProps.description?.icon ?
+            <div className='input-icon'>
+              <i className={inputProps.description?.icon}></i>
+            </div>
+          : null}
+
+          {body}
+        </div>
+
+        {inputProps.description?.description
+          ? <div className="input-description">{inputProps.description?.description}</div>
+          : null
+        }
+      </div>
+    </>;
+  }
+
+  divider(content: any): React.JSX.Element {
+    return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
+  }
+
+  renderHeaderButtons(): null|React.JSX.Element {
+    const headerButtons = Form.getFormHeaderButtons(this.constructor.name);
+    if (headerButtons && headerButtons.length > 0) {
+      return headerButtons.map((button: any, key: any) => {
+        return <button
+          key={key}
+          className='btn btn-small btn-primary-outline'
+          onClick={() => { button.onClick(this); }}
+        >
+          <span className='text'>{button.title}</span>
+        </button>;
+      });
+    } else {
+      return null;
+    }
+  }
+
+  renderFooterButtons(): null|React.JSX.Element {
+    const footerButtons = Form.getFormFooterButtons(this.constructor.name);
+    if (footerButtons && footerButtons.length > 0) {
+      return footerButtons.map((button: any, key: any) => {
+        return <button
+          key={key}
+          className='btn btn-primary'
+          onClick={() => { button.onClick(this); }}
+        >
+          {button.icon == '' ? null : <span className='icon'><i className={button.icon}></i></span>}
+          <span className='text'>{button.title}</span>
+        </button>;
+      });
+    } else {
+      return null;
+    }
+  }
+
+  renderSaveButton(): null|React.JSX.Element {
+    let showButton =
+      this.state.description?.ui?.showSaveButton
+      && (
+        this.state.creatingRecord && this.state.permissions.canCreate
+        || this.state.updatingRecord && this.state.permissions.canUpdate
+      )
+    ;
+
+    const saveIcon = "fas " + (this.state.savedSuccessfully ? "fa-check" : "fa-save");
+
+    return <>
+      {showButton ? <>
+        <button
+          onClick={(e: any) => {
+            if (!e.isFromDropdownMenu) this.saveRecord({closeAfterSave: false});
+          }}
+          className={"btn " + (this.state.recordChanged ? (this.state.savedSuccessfully ? "btn-success" : "btn-add") : "btn-disabled")}
+          title="Save: Ctrl+S"
+        >
+          {this.state.updatingRecord
+            ? <>
+              <span className="icon"><i className={saveIcon}></i></span>
+              <span className="text">
+                {this.state.savedSuccessfully
+                  ? this.translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+                  : (this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form'))
+                }
+              </span>
+            </> : <>
+              <span className="icon"><i className="fas fa-plus"></i></span>
+              <span className="text">
+                {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+              </span>
+            </>
+          }
+        </button>
+        {/* {this.state.recordChanged ? <>
+          <button
+            className="btn btn-add-outline ml-2"
+            onClick={(e: any) => {
+              e.isFromDropdownMenu = true;
+              this.saveRecord({closeAfterSave: true});
+            }}
+          >
+            <span className="icon">
+              <i className={saveIcon}></i>
+            </span>
+            <span className="text">{this.translate('Save and close')}</span>
+          </button>
+        </> : null} */}
+      </> : null}
+    </>;
+  }
+
+  renderCopyButton(): null|React.JSX.Element {
+    let id = this.state.id ? this.state.id : 0;
+
+    return <>
+      {this.state.updatingRecord && this.state.description?.ui?.showCopyButton && this.state.permissions.canCreate ? <button
+        onClick={() => this.copyRecord()}
+        className={"btn btn-transparent"}
+      >
+        <span className="icon"><i className="fas fa-save"></i></span>
+        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
+      </button> : null}
+    </>;
+  }
+
+  renderDeleteButton(): null|React.JSX.Element {
+    return <>
+      {this.state.updatingRecord && this.state.description?.ui?.showDeleteButton && this.state.permissions.canDelete ? <button
+        onClick={() => {
+          if (!this.state.deleteButtonDisabled) {
+            if (this.state.deletingRecord) this.deleteRecord();
+            else {
+              this.setState({deletingRecord: true, deleteButtonDisabled: true});
+              setTimeout(() => this.setState({deleteButtonDisabled: false}), 1000);
+            }
+          }
+        }}
+        className={
+          "btn "
+          + (this.state.deletingRecord ? "font-bold" : "") + " " + (this.state.deleteButtonDisabled ? "btn-light" : "btn-delete")
+          + " hidden md:flex"
+        }
+      >
+        <span className="icon"><i className="fas fa-trash-alt"></i></span>
+        <span className="text text-nowrap">
+          {this.state.deletingRecord ?
+            this.translate("Confirm delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+            : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+          }
+        </span>
+      </button> : null}
+    </>;
+  }
+
+  renderPrevRecordButton(): null|React.JSX.Element {
+    const prevId = this.state?.prevId ?? 0;
+
+    return (
+      <button
+        onClick={() => { this.openPrevRecord(); }}
+        className={"btn btn-transparent" + (prevId ? "" : " btn-disabled")}
+      >
+        <span className="icon">
+          <i className="fas fa-angle-left"></i>
+        </span>
+        <span className="shortcut">Ctrl+Shift+PgUp</span>
+      </button>
+    );
+  }
+
+  renderNextRecordButton(): null|React.JSX.Element {
+    const nextId = this.state?.nextId ?? 0;
+
+    return (
+      <button
+        onClick={() => { this.openNextRecord() }}
+        className={"btn btn-transparent" + (nextId ? "" : " btn-disabled")}
+      >
+        <span className="icon">
+          <i className="fas fa-angle-right"></i>
+        </span>
+        <span className="shortcut">Ctrl+Shift+PgDn</span>
+      </button>
+    );
+  }
+
+  renderEditButton(): null|React.JSX.Element {
+    return <>
+      {this.state.permissions.canUpdate ? <button
+        onClick={() => this.setState({ isInlineEditing: true })}
+        className="btn btn-edit"
+      >
+        <span className="icon"><i className="fas fa-pencil-alt"></i></span>
+        <span className="text">{this.translate('Edit', 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
+      </button> : null}
+    </>;
+  }
+
+  renderFullscreenButton(): null|React.JSX.Element {
+    return (
+      <button
+        className="btn btn-transparent hidden md:block"
+        type="button"
+        aria-label="Fullscreen"
+        onClick={() => {
+          this.setState({isFullscreen: !this.state.isFullscreen});
+          this.props.modal.current.setState({isFullscreen: !this.props.modal.current.state.isFullscreen});
+        }}
+      >
+        <span className="icon">
+          <i className={"fas fa-" + (this.state.isFullscreen ? "compress" : "expand")}></i>
+        </span>
+      </button>
+    );
+  }
+
+  renderCloseButton(): null|React.JSX.Element {
+    return (
+      <button
+        className="btn btn-close"
+        type="button"
+        data-dismiss="modal"
+        aria-label="Close"
+        onClick={() => {
+          this.closeForm();
+        }}
+      >
+        <span className="icon">
+          <i className="fas fa-xmark"></i>
+          <span className="shortcut">Esc</span>
+        </span>
+      </button>
+    );
+  }
+
+  renderHeaderLeft(): null|React.JSX.Element {
+    return <>
+      {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
+    </>;
+  }
+
+  renderHeaderRight(): null|React.JSX.Element {
+    return <>
+      {this.props.modal ? <>
+        {this.renderFullscreenButton()}
+        {this.renderCloseButton()}
+      </> : null}
+    </>;
+  }
+
+  renderFooter(): null|React.JSX.Element {
+    const prevId = this.state?.prevId ?? 0;
+    const nextId = this.state?.nextId ?? 0;
+
+    return <div className='flex gap-2 w-full'>
+      <div>
+        {prevId || nextId ? <div className="pr-4">
+          {this.renderPrevRecordButton()}
+          {this.renderNextRecordButton()}
+        </div> : null}
+      </div>
+      <div>
+        {this.renderDeleteButton()}
+      </div>
+    </div>;
+  }
+
+  renderSubTitle(): null|React.JSX.Element {
+    let subTitle = this.state.description?.ui?.subTitle;
+    if (subTitle) {
+      return <small>{subTitle}</small>;
+    } else {
+      return <></>;
+    }
+  }
+
+  renderTitle(): null|React.JSX.Element {
+    let title = this.state.description?.ui?.title ??
+      (this.state.updatingRecord
+        ? this.translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (this.state.record?.id ?? '-')
+        : this.translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
+      )
+    ;
+
+    return <>
+      <h2>{title}</h2>
+      {this.renderSubTitle()}
+    </>
+  }
+
+  renderWarningsOrErrors(): null|React.JSX.Element {
+    if (this.state.recordDeleted) {
+      return <>
+        <div className="alert alert-danger m-1">
+          Record has been deleted.
+        </div>
+      </>
+    }
+
+    if (!this.state.isInitialized || !this.state.record) {
+      return <Spinner content="Loading..." />;
+    }
+
+    if (this.state.invalidRecordId) {
+      return <>
+        <div className="alert alert-danger m-1">
+          Unable to load record.
+        </div>
+      </>
+    }
+
+    return null;
+  }
+
+  renderErrorAlert(message: string) {
+    return <>
+      <div className="alert alert-danger m-1">
+        {message ?? "An error occured while performing the last operation."}
+      </div>
+    </>;
+  }
+
+  renderSaveErrorMessage(): null|React.JSX.Element{
+    return this.state.saveError && this.state.saveError.message
+      ? <div className='text-white bg-red-300 p-2 whitespace-pre-line'>{this.state.saveError.message}</div>
+      : null
+    ;
+  }
+
+  render() {
+    if (this.state.loadRecordError) {
+      return <>
+        <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
+        <div className="m-4"><code>{this.state.loadRecordError.message}</code></div>
+      </>
+    } else {
+      try {
+        globalThis.hubleto.setTranslationContext(this.translationContext);
+
+        const warningsOrErrors = this.renderWarningsOrErrors();
+        const saveErrorMessage = this.renderSaveErrorMessage();
+
+        const formTitle = this.renderTitle();
+        const formContentClassName = this.contentClassName();
+        const formContent = (warningsOrErrors ? warningsOrErrors : this.renderContent());
+        const formFooter = this.renderFooter();
+        const formTopMenu = (this.state.isInitialized ? this.renderTopMenu() : null);
+        const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
+        const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
+        const headerButtons = this.renderHeaderButtons();
+        const footerButtons = this.renderFooterButtons();
+
+        if (this.props.modal && this.props.modal.current) {
+          return <>
+            {this.props.showHeader ? <>
+              <div className={"modal-header " + (this.props.modal.current.state.isActive ? "active" : "") + " " + this.state.description?.ui?.headerClassName}>
+                <div className="modal-header-left">{headerLeft}</div>
+                <div className="modal-header-title">{formTitle}</div>
+                <div className="modal-header-right">{headerRight}</div>
+              </div>
+              {headerButtons ? <div className='modal-header-buttons'>{headerButtons}</div> : null}
+            </> : null}
+            {saveErrorMessage}
+            {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
+            <div className={"modal-body " + formContentClassName}>
+              {/* {
+                Array.isArray(this.state.invalidInputs) && this.state.invalidInputs.length != 0
+                ? this.renderErrorAlert('Following inputs contain invalid values: ' + this.state.invalidInputs.map((item) => item.name + ' '))
+                : ''
+              } */}
+              {formContent}
+            </div>
+            {footerButtons ? <div className='modal-footer-buttons'>{footerButtons}</div> : null}
+            {this.props.showFooter ? <>
+              {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+            </> : null}
+          </>;
+        } else {
+          return <>
+            <div id={"hubleto-form-" + this.props.uid} className="hubleto component form">
+              {this.props.showHeader ? <>
+                <div className="form-header">
+                  <div className="form-header-left">{headerLeft}</div>
+                  <div className="form-header-title">{formTitle}</div>
+                  <div className="form-header-right">{headerRight}</div>
+                </div>
+              </> : null}
+              {saveErrorMessage}
+              {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
+              <div className={"form-body" + formContentClassName}>
+                {formContent}
+              </div>
+              {this.props.showFooter ? <>
+                {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+              </> : null}
+            </div>
+          </>;
+        }
+      } catch(e) {
+        console.error('Failed to render form.');
+        console.error(e);
+        return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
+      }
+    }
+  }
+}

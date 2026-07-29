@@ -1,5 +1,4 @@
 import React from 'react';
-import Notification from "./Notification";
 
 export function setUrlParam(paramName, paramValue) {
   const qs = require('qs');

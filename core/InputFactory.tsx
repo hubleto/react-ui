@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
 
-import InputLookup from "./Inputs/Lookup";
-import InputVarchar from "./Inputs/Varchar";
-import InputPassword from "./Inputs/Password";
-import InputTextarea from "./Inputs/Textarea";
-import InputInt from "./Inputs/Int";
-import InputBoolean from "./Inputs/Boolean";
-import InputColor from "./Inputs/Color";
-import InputFile from "./Inputs/File";
-import InputImage from "./Inputs/Image";
-import InputTags from "./Inputs/Tags";
-import InputDateTime from "./Inputs/DateTime";
-import InputEnumValues from "./Inputs/EnumValues";
+import InputLookup from "../components/cc/Inputs/Lookup";
+import InputVarchar from "../components/cc/Inputs/Varchar";
+import InputPassword from "../components/cc/Inputs/Password";
+import InputTextarea from "../components/cc/Inputs/Textarea";
+import InputInt from "../components/cc/Inputs/Int";
+import InputBoolean from "../components/cc/Inputs/Boolean";
+import InputColor from "../components/cc/Inputs/Color";
+import InputFile from "../components/cc/Inputs/File";
+import InputImage from "../components/cc/Inputs/Image";
+import InputTags from "../components/cc/Inputs/Tags2";
+import InputDateTime from "../components/cc/Inputs/DateTime";
+import InputEnumValues from "../components/cc/Inputs/EnumValues";
 
 export function InputFactory(inputProps: any): React.JSX.Element {
   let inputToRender: React.JSX.Element = <></>;
