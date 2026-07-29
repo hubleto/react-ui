@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import InputLookup from "../components/cc/Inputs/Lookup";
-import InputVarchar from "../components/cc/Inputs/Varchar";
+import InputVarchar from "../components/fc/Inputs/Varchar";
 import InputPassword from "../components/cc/Inputs/Password";
 import InputTextarea from "../components/cc/Inputs/Textarea";
 import InputInt from "../components/cc/Inputs/Int";
