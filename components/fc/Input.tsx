@@ -139,7 +139,7 @@ export interface InputHandle<S extends InputState = InputState> {
 //
 // and gets back the same state/handlers the class version exposed as
 // `this.state` / `this.setState` / `this.onChange` / etc.
-export function useInput<S extends InputState = InputState>(
+export function useInput<S extends InputState>(
   props: InputProps,
   options: UseInputOptions<S> = {}
 ): InputHandle<S> {
