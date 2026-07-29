@@ -19,6 +19,12 @@ export default class Color extends Input<ColorInputProps, ColorInputState> {
   props: ColorInputProps = null;
   state: ColorInputState = null;
 
+  constructor(props: InputProps) {
+    super(props);
+    this.props = props;
+    this.state = this.getStateFromProps(props);
+  }
+
   getStateFromProps(props: ColorInputProps) {
     return {
       ...super.getStateFromProps(props),

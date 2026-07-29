@@ -80,7 +80,7 @@ export function getInputHandle(props: InputProps): InputHandle {
   const [readonly, setReadonly] = useState(props.readonly ?? false);
   const [invalid, setInvalid] = useState(props.invalid ?? false);
   const [value, setValue] = useState(props.value ?? null);
-  const [origValue, setOrigValue] = useState(null);
+  const [origValue, setOrigValue] = useState(props.value ?? null);
   const [changed, setChanged] = useState(false);
   const [cssClass, setCssClass] = useState(props.cssClass ?? '');
   const [cssStyle, setCssStyle] = useState(props.cssStyle ?? {});
@@ -114,18 +114,15 @@ export function getInputHandle(props: InputProps): InputHandle {
     refValueElement,
     refInput,
 
+    onChange: props.onChange,
+
   };
 }
 
-export default function Input(handle: InputHandle) {
+const Input = (handle: InputHandle) => {
 
   const _this = this;
   const { translate } = useTranslation(handle.translationContext, handle.translationContextInner);
-
-  useEffect(() => {
-    handle.setChanged(false);
-    handle.setOrigValue(handle.value);
-  }, []);
 
   useEffect(() => {
     handle.setInvalid(false);
@@ -209,5 +206,6 @@ export default function Input(handle: InputHandle) {
     console.error(e);
     return <div className="alert alert-danger">{errMsg} Check console for error log.</div>
   }
-}
+};
 
+export default Input;

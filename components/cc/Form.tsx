@@ -8,7 +8,19 @@ import { deepObjectMerge } from "../../core/Helper";
 
 import TranslatedComponent from "./TranslatedComponent";
 import { InputProps } from "./Input";
-import { InputFactory } from "../../core/InputFactory";
+
+import InputLookup from "./Inputs/Lookup";
+import InputVarchar from "../fc/Inputs/Varchar";
+import InputPassword from "./Inputs/Password";
+import InputTextarea from "./Inputs/Textarea";
+import InputInt from "../fc/Inputs/Int";
+import InputBoolean from "./Inputs/Boolean";
+import InputColor from "./Inputs/Color";
+import InputFile from "./Inputs/File";
+import InputImage from "./Inputs/Image";
+import InputTags from "./Inputs/Tags2";
+import InputDateTime from "./Inputs/DateTime";
+import InputEnumValues from "./Inputs/EnumValues";
 
 interface Content {
   [key: string]: ContentCard | any;
@@ -911,7 +923,45 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   input(inputName: string, customInputProps?: any): React.JSX.Element {
     const inputProps = this.getInputProps(inputName, customInputProps);
 
-    return InputFactory(inputProps);
+    let inputToRender: React.JSX.Element = <></>;
+    let description: any = inputProps.description;
+
+    if (!description) {
+      return <div className="alert alert-warning">No description for input [{inputProps.inputName}]. Check console for error log.</div>
+    }
+
+    try {
+      if (description.enumValues) {
+        inputToRender = <InputEnumValues {...inputProps} enumValues={description.enumValues} enumCssClasses={description.enumCssClasses}/>
+      } else {
+        if (typeof description.reactComponent === 'string' && description.reactComponent !== '') {
+          inputToRender = globalThis.hubleto.renderReactElement(description.reactComponent, inputProps) ?? <></>;
+        } else {
+          switch (description.type ?? '') {
+            case 'varchar': inputToRender = <InputVarchar {...inputProps} data={null} />; break;
+            case 'password': inputToRender = <InputPassword {...inputProps} />; break;
+            case 'text': inputToRender = <InputTextarea {...inputProps} />; break;
+            case 'json': inputToRender = <InputTextarea {...inputProps} />; break;
+            case 'decimal': case 'int': case 'currency': inputToRender = <InputInt {...inputProps} data={null} />; break;
+            case 'boolean': inputToRender = <InputBoolean {...inputProps} />; break;
+            case 'lookup': inputToRender = <InputLookup {...inputProps} />; break;
+            case 'color': inputToRender = <InputColor {...inputProps} />; break;
+            //@ts-ignore
+            case 'tags': inputToRender = <InputTags {...inputProps} model={description.model} recordId={inputProps.record.id} />; break;
+            case 'file': inputToRender = <InputFile {...inputProps} />; break;
+            case 'image': inputToRender = <InputImage {...inputProps} />; break;
+            case 'datetime': case 'date': case 'time': inputToRender = <InputDateTime {...inputProps} type={description.type} />; break;
+            default: inputToRender = <InputVarchar {...inputProps} data={null} />;
+          }
+        }
+      }
+    } catch (e) {
+      inputToRender = <div className="alert alert-danger">Failed to initialize input [{inputProps.inputName}]. Check console for error log.</div>
+      console.error('Failed to initialize input for ' + inputProps.inputName);
+      console.error(e);
+    }
+
+    return inputToRender;
   }
 
   inputWrapper(inputName: string, customInputProps?: any) {

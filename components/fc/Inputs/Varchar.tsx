@@ -4,8 +4,7 @@ import AsyncCreatable from 'react-select/async-creatable'
 import request from '@hubleto/react-ui/core/Request'
 import Input, { getInputHandle, InputProps } from '../Input'
 
-export default function Varchar(props: InputProps) {
-// console.log('a', props);
+export default React.memo((props: InputProps) => {
   const handle = getInputHandle(props);
 
   const [showPredefinedValues, setShowPredefinedValues] = useState(false);
@@ -38,7 +37,6 @@ export default function Varchar(props: InputProps) {
   }, []);
 
   const renderInputElement = useCallback((): React.JSX.Element => {
-    console.log('render', handle);
     if (props.description?.autocomplete) {
       let selectProps = {
         value: {
@@ -66,7 +64,9 @@ export default function Varchar(props: InputProps) {
           ref={handle.refInput}
           type='text'
           value={handle.value ?? ''}
-          onChange={(e) => handle.setValue(handle.refInput.current.value)}
+          onChange={(e) => {
+            handle.setValue(handle.refInput.current.value)}
+          }
           placeholder={props.placeholder}
           className={
             (handle.invalid ? 'is-invalid' : '')
@@ -103,4 +103,4 @@ export default function Varchar(props: InputProps) {
     isInitialized={true}
     renderInputElement={() => renderInputElement()}
   />;
-}
+}, (origProps: InputProps, newProps: InputProps) => true);

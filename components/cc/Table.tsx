@@ -7,7 +7,7 @@ import { setUrlParam, deleteUrlParam } from "../../core/Helper";
 import { ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
 import ModalForm from "./ModalForm";
-import Form, { FormEndpoint, FormProps, FormState } from "./Form";
+import Form, { FormEndpoint, FormProps } from "../fc/Form";
 import TranslatedComponent from "./TranslatedComponent";
 import Spinner from "./Spinner";
 
@@ -106,7 +106,7 @@ export interface TableProps {
   customEndpointParams?: any,
   model: string,
   // parentRecordId?: any,
-  parentForm?: Form<FormProps, FormState>,
+  parentForm?: any,
   // parentFormModel?: string,
   tag?: string,
   context?: string,
@@ -540,7 +540,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       onClose: () => {
        this.closeForm();
       },
-      onSaveCallback: (form: Form<FormProps, FormState>, saveResponse: any) => {
+      onAfterSaveRecord: (form: any, saveResponse: any) => {
         this.reload();
         if (this.props.closeFormAfterSave ?? false) {
           this.closeForm();

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Table, { TableProps, TableState } from './Table';
-import FormExtended, { FormExtendedProps, FormExtendedState } from './FormExtended';
+import Form, { FormProps } from '../fc/Form';
 import TableExtendedExportCsvForm from './TableExtendedExportCsvForm';
 import TableExtendedImportCsvForm from './TableExtendedImportCsvForm';
 import { getUrlParam } from '../../core/Helper';
@@ -168,8 +168,8 @@ export default class TableExtended<P, S> extends Table<TableExtendedProps, Table
   }
 
   renderForm(): React.JSX.Element {
-    let formProps: FormExtendedProps = this.getFormProps();
-    return <FormExtended {...formProps}/>;
+    let formProps: FormProps = this.getFormProps();
+    return <Form {...formProps}/>;
   }
 
   renderTree(nodes: any, idParent: number = 0, level: number = 0): React.JSX.Element {

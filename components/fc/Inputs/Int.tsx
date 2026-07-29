@@ -1,43 +1,48 @@
-import React from 'react'
-import { useInput, InputProps, InputState, InputChrome } from '../Input'
+import React, { useCallback, useState, useEffect, useContext } from 'react'
+import request from '@hubleto/react-ui/core/Request'
+import Input, { getInputHandle, InputProps } from '../Input'
 
 export interface IntInputProps extends InputProps {
-  unit?: string
+  step?: number,
+  decimals?: number,
+  unit?: number,
 }
 
-export default function Int(rawProps: IntInputProps) {
-  const props: IntInputProps = { inputClassName: 'int', ...rawProps };
+const InputInt = (props: IntInputProps) => {
+  const handle = getInputHandle(props);
 
-  const input = useInput<InputState>(props, {
-    getStateFromProps: (p, base) => ({
-      ...base,
-      isInitialized: true,
-    }),
-  });
+  const [step, setStep] = useState(props.step);
+  const [decimals, setDecimals] = useState(props.decimals);
+  const [unit, setUnit] = useState(props.unit);
 
-  const renderInputElement = () => {
-    const decimals = props.description?.decimals ?? 0;
-    const step = props.description?.step ?? 1;
+  const renderInputElement = useCallback((): React.JSX.Element => {
     return <div className='flex gap-2'>
       <input
-        ref={input.refInput}
+        ref={handle.refInput}
         type="number"
         step={step}
-        value={input.state.value}
-        onChange={(e) => input.onChange(e.currentTarget.value.replace('e', ''))}
+        value={handle.value}
+        onChange={(e) => handle.setValue(e.currentTarget.value.replace('e', ''))}
         placeholder={props.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
         className={
           "form-control"
-          + " " + (input.state.invalid ? 'is-invalid' : '')
-          + " " + (props.cssClass ?? "")
-          + " " + (input.state.readonly ? "bg-muted" : "")
+          + " " + (handle.invalid ? 'is-invalid' : '')
+          + " " + (handle.cssClass ?? "")
+          + " " + (handle.readonly ? "bg-muted" : "")
           + " max-w-40"
         }
-        disabled={input.state.readonly}
+        disabled={handle.readonly}
       />
-      {props.unit ? <div>{props.unit}</div> : null}
+      {unit ? <div>{unit}</div> : null}
     </div>;
-  };
+  }, [handle]);
 
-  return <InputChrome input={input} renderInputElement={renderInputElement} />;
-}
+  return <Input
+    {...props}
+    {...handle}
+    isInitialized={true}
+    renderInputElement={() => renderInputElement()}
+  />;
+};
+
+export default InputInt;

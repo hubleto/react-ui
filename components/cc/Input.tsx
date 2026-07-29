@@ -82,6 +82,10 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   refValueElement: any;
   refInput: any;
 
+  shouldComponentUpdate(nextProps) {
+    return nextProps.value !== this.props.value;
+  }
+
   constructor(props: InputProps) {
     super(props);
 
@@ -282,7 +286,8 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   }
 
   render() {
-    if (!this.state.isInitialized) return this.renderLoadingInfo();
+
+    if (!this.state || !this.state.isInitialized) return this.renderLoadingInfo();
 
     try {
       globalThis.hubleto.setTranslationContext(this.translationContext);
