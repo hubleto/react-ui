@@ -30,7 +30,7 @@ const UserSelectInput = (props: UserSelectInputProps) => {
               + " " + (input.value == userId ? "btn-primary" : "btn-white")
             }
             onClick={() => {
-              if (!input.readonly) input.setValue((input.value == userId ? null : userId));
+              if (!input.readonly) input.changeValue((input.value == userId ? null : userId));
             }}
           >
             <span className="text flex gap-2">

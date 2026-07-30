@@ -7,9 +7,9 @@ export interface IntInputProps extends InputProps {
   unit?: number,
 }
 
-const IntInput = (props: IntInputProps) => {
+const IntInput = React.memo((props: IntInputProps) => {
 
-  const normalizedProps = {
+  const normalizedProps: IntInputProps = {
     ...props,
     inputClassName: 'int',
   };
@@ -27,7 +27,7 @@ const IntInput = (props: IntInputProps) => {
           type="number"
           step={step}
           value={input.value}
-          onChange={(e) => input.setValue(e.currentTarget.value.replace('e', ''))}
+          onChange={(e) => input.changeValue(e.currentTarget.value.replace('e', ''))}
           placeholder={props.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
           className={
             "form-control"
@@ -42,6 +42,6 @@ const IntInput = (props: IntInputProps) => {
       </div>;
     }}
   />;
-};
+}, () => true);
 
 export default IntInput;

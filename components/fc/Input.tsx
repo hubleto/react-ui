@@ -35,8 +35,10 @@ export interface InputProps {
   value?: any,
   origValue?: any,
   changed?: any,
+  changeValue?: (input: any, newValue: any) => void,
   renderValueElement?: (input: any) => React.JSX.Element,
   renderInputElement?: (input: any) => React.JSX.Element,
+  serialize?: (input: any) => string,
   loadData?: () => void,
   onChange?: (input: any, value: any) => void,
   onInit?: (input: any) => void,
@@ -77,7 +79,7 @@ export interface InputHandle extends InputProps {
   refInput: any,
 }
 
-const Input = (props: InputProps) => {
+const Input = React.memo((props: InputProps) => {
 
   const translate = (orig: string, context?: string, contextInner?: string, vars?: any): string => {
     try {
@@ -143,8 +145,14 @@ const Input = (props: InputProps) => {
   }, [changed, invalid, readonly, isInlineEditing, isModified]);
 
   const serialize = useCallback((): string => {
+    if (props.serialize) props.serialize(_this);
     return value ? value.toString() : '';
   }, []);
+
+  const changeValue = (newValue: any): void => {
+    if (props.changeValue) props.changeValue(_this, newValue);
+    setValue(newValue);
+  };
 
   const renderInputElement = (input: any): React.JSX.Element => {
     if (props.renderInputElement) return props.renderInputElement(_this);
@@ -181,8 +189,10 @@ const Input = (props: InputProps) => {
 
     onChange: props.onChange,
 
+    changeValue,
     renderInputElement,
-    renderValueElement
+    renderValueElement,
+    translate
   }
 
   if (!isInitialized) return <Spinner size="xs" />;
@@ -226,6 +236,6 @@ const Input = (props: InputProps) => {
     console.error(e);
     return <div className="alert alert-danger">{errMsg} Check console for error log.</div>
   }
-};
+}, () => true);
 
 export default Input;

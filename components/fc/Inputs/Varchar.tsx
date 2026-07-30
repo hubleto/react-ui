@@ -1,12 +1,11 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import AsyncSelect from 'react-select/async'
 import AsyncCreatable from 'react-select/async-creatable'
 import request from '@hubleto/react-ui/core/Request'
 import Input, { InputProps } from '../Input'
 
-const InputVarchar = (props: InputProps) => {
+const VarcharInput = React.memo((props: InputProps) => {
 
-  const refTextInput = useRef(null);
   const [showPredefinedValues, setShowPredefinedValues] = useState(false);
 
   const getEndpointUrl = (input: any): string => {
@@ -51,7 +50,7 @@ const InputVarchar = (props: InputProps) => {
           defaultOptions: input.data,
           getOptionLabel: (option: any) => { return option.label },
           getOptionValue: (option: any) => { return option.value },
-          onChange: (item: any) => { input.setValue(item?.value ?? ''); },
+          onChange: (item: any) => { input.changeValue(item?.value ?? ''); },
           placeholder: props.description?.placeholder,
           className: 'hubleto-lookup',
           styles: { menuPortal: (base) => ({ ...base, zIndex: 9999 }) },
@@ -63,12 +62,9 @@ const InputVarchar = (props: InputProps) => {
       } else {
         return <div className="flex gap-2 w-full">
           <input
-            ref={refTextInput}
             type='text'
             value={input.value ?? ''}
-            onChange={(e) => {
-              input.setValue(refTextInput.current.value)}
-            }
+            onChange={(e) => { input.changeValue(e.currentTarget.value)} }
             placeholder={props.placeholder}
             className={
               (input.invalid ? 'is-invalid' : '')
@@ -82,7 +78,7 @@ const InputVarchar = (props: InputProps) => {
             showPredefinedValues ?
               <div>
                 <select className='h-full'
-                  onChange={(e) => { input.setValue(e.currentTarget.value); }}
+                  onChange={(e) => { input.changeValue(e.currentTarget.value); }}
                 >
                   <option value=''></option>
                   {props.description?.predefinedValues.map((item: string, index: any) => {
@@ -99,6 +95,6 @@ const InputVarchar = (props: InputProps) => {
       }
     }}
   />;
-};
+}, () => true);
 
-export default InputVarchar;
+export default VarcharInput;

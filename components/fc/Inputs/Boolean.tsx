@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import Input, { InputProps } from '../Input'
 
-const BooleanInput = (props: InputProps) => {
+const BooleanInput = React.memo((props: InputProps) => {
 
-  const normalizedProps = {
+  const normalizedProps: InputProps = {
     ...props,
     inputClassName: 'boolean',
   };
@@ -21,19 +21,19 @@ const BooleanInput = (props: InputProps) => {
       return <div className='list horizontal'>
         <div
           className={'btn btn-list-item btn-small ' + (input.value ? 'btn-success' : 'btn-transparent')}
-          onClick={() => { if (!input.readonly) input.setValue(true)}}
+          onClick={() => { if (!input.readonly) input.changeValue(true)}}
         >
           <span className='icon text-sm'><i className='fas fa-check'></i></span>
         </div>
         <div
           className={'btn btn-list-item btn-small ' + (input.value ? 'btn-transparent' : 'btn-danger')}
-          onClick={() => { if (!input.readonly) input.setValue(false)}}
+          onClick={() => { if (!input.readonly) input.changeValue(false)}}
         >
           <span className='icon text-sm'><i className='fas fa-times'></i></span>
         </div>
       </div>;
     }}
   />;
-};
+}, () => true);
 
 export default BooleanInput;

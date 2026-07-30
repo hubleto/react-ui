@@ -1,20 +1,20 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Input, { InputProps } from '../Input'
 
-const TextareaInput = (props: InputProps) => {
+const TextareaInput = React.memo((props: InputProps) => {
 
-  const normalizedProps = {
+  const normalizedProps: InputProps = {
     ...props,
     inputClassName: 'textarea',
+    isInitialized: true,
   };
 
   return <Input
     {...normalizedProps}
     renderInputElement={(input: any): React.JSX.Element => {
       return <textarea
-        ref={input.refInput}
         value={input.value ?? ''}
-        onChange={(e) => input.setValue(input.refInput.current.value) }
+        onChange={(e) => input.changeValue(e.currentTarget.value) }
         aria-describedby="passwordHelpInline"
         rows={5}
         placeholder={input.description?.placeholder ?? input.description?.title}
@@ -29,6 +29,6 @@ const TextareaInput = (props: InputProps) => {
       />;
       }}
   />;
-};
+}, () => true);
 
 export default TextareaInput;

@@ -11,8 +11,8 @@ export interface LookupInputProps extends InputProps {
   uiStyle?: 'default' | 'select' | 'buttons' | 'buttons-vertical';
 }
 
-const LookupInput = (props: LookupInputProps) => {
-  const normalizedProps = {
+const LookupInput = React.memo((props: LookupInputProps) => {
+  const normalizedProps: LookupInputProps = {
     ...props,
     inputClassName: 'int',
     uiStyle: 'default',
@@ -104,7 +104,7 @@ const LookupInput = (props: LookupInputProps) => {
           <select
             ref={input.refInput}
             value={value}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => input.setValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => input.changeValue(e.target.value)}
             className={
               (input.invalid ? 'is-invalid' : '')
               + " " + (input.cssClass ?? "")
@@ -133,7 +133,7 @@ const LookupInput = (props: LookupInputProps) => {
                 + " " + (input.value == value ? "btn-primary" : "btn-transparent")
               }
               style={{borderLeft: (color ? "0.5em solid " + color : "")}}
-              onClick={() => { if (!input.readonly) input.setValue((input.value == value ? null : value)); }}
+              onClick={() => { if (!input.readonly) input.changeValue((input.value == value ? null : value)); }}
             >
               <span className="text">{lookup}</span>
             </button>
@@ -153,7 +153,7 @@ const LookupInput = (props: LookupInputProps) => {
             defaultOptions={Object.values(input.data ?? {})}
             getOptionLabel={(option: any) => { return option._LOOKUP }}
             getOptionValue={(option: any) => { return option.id }}
-            onChange={(item: any) => { input.setValue(item?.id ?? 0); }}
+            onChange={(item: any) => { input.changeValue(item?.id ?? 0); }}
             placeholder={input.description?.placeholder}
             className="hubleto-lookup"
             // allowCreateWhileLoading={false}
@@ -174,9 +174,6 @@ const LookupInput = (props: LookupInputProps) => {
     }
   }
   />;
-};
+}, () => true);
 
 export default LookupInput;
-
-
-

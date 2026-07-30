@@ -19,13 +19,13 @@ import InputColor from "./Inputs/Color";
 import InputVarchar from "./Inputs/Varchar";
 import InputTextarea from "./Inputs/Textarea";
 import InputBoolean from "./Inputs/Boolean";
+import InputEnumValues from "./Inputs/EnumValues";
+import InputDateTime from "./Inputs/DateTime";
 
 import InputPassword from "../cc/Inputs/Password";
 import InputFile from "../cc/Inputs/File";
 import InputImage from "../cc/Inputs/Image";
 import InputTags from "../cc/Inputs/Tags2";
-import InputDateTime from "../cc/Inputs/DateTime";
-import InputEnumValues from "../cc/Inputs/EnumValues";
 
 interface Content {
   [key: string]: ContentCard | any;

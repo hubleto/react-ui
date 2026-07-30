@@ -24,7 +24,7 @@ const ColorInput = (props: InputProps) => {
             style={{backgroundColor: color}}
             tabIndex={0}
             key={idx}
-            onClick={(e) => input.setValue(color)}
+            onClick={(e) => input.changeValue(color)}
           >{isSelected ? '✓' : null}</div>;
         }) : null}
       </div>;
