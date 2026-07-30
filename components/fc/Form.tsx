@@ -14,7 +14,7 @@ import ModalSimple from "../cc/ModalSimple";
 import HtmlFrame from "../cc/HtmlFrame";
 
 import { InputProps } from "./Input";
-import InputLookup from "../cc/Inputs/Lookup";
+import InputLookup from "../fc/Inputs/Lookup";
 import InputVarchar from "./Inputs/Varchar";
 import InputPassword from "../cc/Inputs/Password";
 import InputTextarea from "../cc/Inputs/Textarea";
@@ -112,6 +112,7 @@ export interface FormProps {
   endpoint?: FormEndpoint,
   folderUrl?: string,
   getRecordFormUrl?: (form: any) => string,
+  getTabs?: (form: any) => FormTabs,
   hideOverlay?: boolean,
   id?: any,
   invalidInputs: Array<InvalidInput>,
@@ -152,9 +153,10 @@ export interface FormProps {
   showFooter?: boolean,
   showHeader?: boolean,
   showInModal?: boolean,
-  tabs?: Array<FormTab>,
+  tabs?: FormTabs,
   tag?: string,
   uid?: string,
+  urlSlug?: string,
   updatingRecord: boolean,
   translationContext?: string,
   translationContextInner?: string,
@@ -206,13 +208,26 @@ export class FormCustomizer {
 
 }
 
-export default React.memo((props: FormProps) => {
+const Form = (props: FormProps) => {
 
   const isCreatingRecord = (id: any): boolean => { return id ? id == -1 : false; };
   const getCallback = (callback: string): any => {
     return (props[callback] ?? defaultCallbacks[callback]);
   }
-  const { translate } = useTranslation(props.translationContext, props.translationContextInner);
+
+  const translate = (orig: string, context?: string, contextInner?: string, vars?: any): string => {
+    try {
+      return globalThis.hubleto.translate(
+        orig,
+        context ?? props.translationContext,
+        contextInner ?? props.translationContextInner,
+        vars
+      );
+    } catch (e) {
+      return orig;
+    }
+  };
+
   const calculatePermissions = (record: any) => {
     if (!record) return {
       canCreate: true,
@@ -268,7 +283,7 @@ export default React.memo((props: FormProps) => {
   }
 
   const getTabsLeft = (): FormTabs => {
-    return props.tabs ?? [];
+    return [];
   }
 
   const getCustomTabs = (): FormTabs => {
@@ -280,6 +295,8 @@ export default React.memo((props: FormProps) => {
   }
 
   const getTabs = (): FormTabs => {
+    if (props.getTabs) return props.getTabs(_this);
+
     return [
       ...getTabsLeft(),
       ...getCustomTabs(),
@@ -292,7 +309,9 @@ export default React.memo((props: FormProps) => {
   }
 
   const getRecordFormUrl = (): string => {
-    return props.getRecordFormUrl ? props.getRecordFormUrl(_this) : '';
+    if (props.getRecordFormUrl) return props.getRecordFormUrl(_this);
+    if (props.urlSlug != '') return props.urlSlug + '/' + (record.id > 0 ? record.id : 'add');
+    return '';
   }
 
   const defaultCallbacks = {
@@ -336,7 +355,7 @@ export default React.memo((props: FormProps) => {
 
   const defaultState = {
     activeTab: props.activeTab,
-    activeTabUid: props.activeTabUid,
+    activeTabUid: 'default',
     content: props.content,
     creatingRecord: isCreatingRecord(props.id),
     customEndpointParams: props.customEndpointParams ?? {},
@@ -385,14 +404,15 @@ export default React.memo((props: FormProps) => {
     showInModal: true,
     showOwnerManagerSelector: false,
     showPreviewUi: false,
-    tabs: getTabs(),
+    tabs: null,
     tag: '',
     uid: '_form_' + uuid.v4().replace('-', '_'),
+    urlSlug: '',
     updatingRecord: !isCreatingRecord(props.id),
   };
 
   const [activeTab, setActiveTab] = useState(props.activeTab ?? defaultState.activeTab);
-  const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid ?? defaultState.activeTabUid);
+  const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' ? defaultState.activeTabUid : props.activeTabUid);
   const [content, setContent] = useState(props.content ?? defaultState.content);
   const [creatingRecord, setCreatingRecord] = useState(props.creatingRecord ?? defaultState.creatingRecord);
   const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? defaultState.customEndpointParams);
@@ -432,6 +452,7 @@ export default React.memo((props: FormProps) => {
   const [tabs, setTabs] = useState(props.tabs ?? defaultState.tabs);
   const [tag, setTag] = useState(props.tag ?? defaultState.tag);
   const [uid, setUid] = useState(props.uid ?? defaultState.uid);
+  const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? defaultState.urlSlug);
   const [updatingRecord, setUpdatingRecord] = useState(props.updatingRecord ?? defaultState.updatingRecord);
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = _this; }, [uid]);
@@ -506,8 +527,6 @@ export default React.memo((props: FormProps) => {
 
 
 
-
-
   const onAfterLoadDescription = (description: FormDescription): FormDescription => {
     return description;
   }
@@ -526,7 +545,7 @@ export default React.memo((props: FormProps) => {
 
         let permissions = calculatePermissions(record);
 
-        let newTabs = tabs;
+        let newTabs = getTabs();
         let hasCustomColumns = false;
         let inputs = description?.inputs;
 
@@ -1080,15 +1099,10 @@ export default React.memo((props: FormProps) => {
   const renderContent = (): null|React.JSX.Element => {
     if (props.renderContent) return props.renderContent(_this);
 
-    let tabUid = activeTabUid ?? '';
-    if (tabUid == '') tabUid = 'default';
+    const mainTabUid = activeTabUid.split('.')[0] ?? '';
+    const mainTab: FormTab = tabs?.filter((t) => t['uid'] == mainTabUid)[0] ?? null;
+    const subTabUid = activeTabUid.split('.')[1] ?? (mainTab?.subTabs ? mainTab?.subTabs[0]?.uid ?? '' : '');
 
-    let mainTabUid = tabUid.split('.')[0] ?? '';
-    if (mainTabUid == '') mainTabUid = 'default';
-
-    let mainTab: FormTab = tabs.filter((t) => t['uid'] == mainTabUid)[0] ?? null;
-
-    let subTabUid = tabUid.split('.')[1] ?? (mainTab?.subTabs ? mainTab?.subTabs[0]?.uid ?? '' : '');
     let mainContent = null;
 
     if (mainTab && typeof mainTab.onRender === 'function') {
@@ -1157,6 +1171,7 @@ export default React.memo((props: FormProps) => {
     }
 
     return {
+      // key: uid + '_input_' + inputName,
       inputName: inputName,
       inputClassName: '',
       record: record,
@@ -1214,7 +1229,7 @@ export default React.memo((props: FormProps) => {
             case 'decimal': case 'int': case 'currency': inputToRender = <InputInt {...inputProps} data={null} />; break;
             case 'boolean': inputToRender = <InputBoolean {...inputProps} />; break;
             case 'lookup': inputToRender = <InputLookup {...inputProps} />; break;
-            case 'color': inputToRender = <InputColor {...inputProps} />; break;
+            case 'color':  inputToRender = <InputColor {...inputProps} />; break;
             //@ts-ignore
             case 'tags': inputToRender = <InputTags {...inputProps} model={description.model} recordId={inputProps.record.id} />; break;
             case 'file': inputToRender = <InputFile {...inputProps} />; break;
@@ -1754,10 +1769,14 @@ export default React.memo((props: FormProps) => {
     tabs,
     tag,
     uid,
+    urlSlug,
     updatingRecord,
 
+    getCustomTabs,
     renderDivider,
     renderInputWrapper,
+    renderTab,
+    translate,
   };
 
 
@@ -1839,4 +1858,6 @@ export default React.memo((props: FormProps) => {
       return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
     }
   }
-});
+};
+
+export default Form;

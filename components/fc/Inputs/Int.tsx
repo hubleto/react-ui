@@ -1,6 +1,5 @@
-import React, { useCallback, useState, useEffect, useContext } from 'react'
-import request from '@hubleto/react-ui/core/Request'
-import Input, { getInputHandle, InputProps } from '../Input'
+import React, { useState } from 'react'
+import Input, { InputProps } from '../Input'
 
 export interface IntInputProps extends InputProps {
   step?: number,
@@ -8,41 +7,37 @@ export interface IntInputProps extends InputProps {
   unit?: number,
 }
 
-const InputInt = (props: IntInputProps) => {
-  const handle = getInputHandle(props);
+const IntInput = (props: IntInputProps) => {
 
   const [step, setStep] = useState(props.step);
   const [decimals, setDecimals] = useState(props.decimals);
   const [unit, setUnit] = useState(props.unit);
 
-  const renderInputElement = useCallback((): React.JSX.Element => {
-    return <div className='flex gap-2'>
-      <input
-        ref={handle.refInput}
-        type="number"
-        step={step}
-        value={handle.value}
-        onChange={(e) => handle.setValue(e.currentTarget.value.replace('e', ''))}
-        placeholder={props.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
-        className={
-          "form-control"
-          + " " + (handle.invalid ? 'is-invalid' : '')
-          + " " + (handle.cssClass ?? "")
-          + " " + (handle.readonly ? "bg-muted" : "")
-          + " max-w-40"
-        }
-        disabled={handle.readonly}
-      />
-      {unit ? <div>{unit}</div> : null}
-    </div>;
-  }, [handle]);
-
   return <Input
     {...props}
-    {...handle}
-    isInitialized={true}
-    renderInputElement={() => renderInputElement()}
+    inputClassName='int'
+    renderInputElement={(input: any): React.JSX.Element => {
+      return <div className='flex gap-2'>
+        <input
+          ref={input.refInput}
+          type="number"
+          step={step}
+          value={input.value}
+          onChange={(e) => input.setValue(e.currentTarget.value.replace('e', ''))}
+          placeholder={props.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
+          className={
+            "form-control"
+            + " " + (input.invalid ? 'is-invalid' : '')
+            + " " + (input.cssClass ?? "")
+            + " " + (input.readonly ? "bg-muted" : "")
+            + " max-w-40"
+          }
+          disabled={input.readonly}
+        />
+        {unit ? <div>{unit}</div> : null}
+      </div>;
+    }}
   />;
 };
 
-export default InputInt;
+export default IntInput;
