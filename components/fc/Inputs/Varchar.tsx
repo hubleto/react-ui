@@ -7,7 +7,6 @@ import Input, { InputProps } from '../Input'
 const InputVarchar = (props: InputProps) => {
 
   const refTextInput = useRef(null);
-
   const [showPredefinedValues, setShowPredefinedValues] = useState(false);
 
   const getEndpointUrl = (input: any): string => {

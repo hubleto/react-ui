@@ -4,23 +4,23 @@ import * as uuid from 'uuid';
 import moment from "moment";
 
 import request from "../../core/Request";
-import Spinner from "../cc/Spinner";
+import Spinner from "./Spinner";
 import App from '../../core/App';
 
 import { deepObjectMerge } from "../../core/Helper";
-import { useTranslation } from './TranslatedComponent';
 import ErpWorkflowSelector from '../cc/ErpWorkflowSelector';
 import ModalSimple from "../cc/ModalSimple";
 import HtmlFrame from "../cc/HtmlFrame";
 
 import { InputProps } from "./Input";
-import InputLookup from "../fc/Inputs/Lookup";
-import InputVarchar from "./Inputs/Varchar";
-import InputPassword from "../cc/Inputs/Password";
-import InputTextarea from "../cc/Inputs/Textarea";
+import InputLookup from "./Inputs/Lookup";
 import InputInt from "./Inputs/Int";
-import InputBoolean from "../cc/Inputs/Boolean";
-import InputColor from "../fc/Inputs/Color";
+import InputColor from "./Inputs/Color";
+import InputVarchar from "./Inputs/Varchar";
+import InputTextarea from "./Inputs/Textarea";
+import InputBoolean from "./Inputs/Boolean";
+
+import InputPassword from "../cc/Inputs/Password";
 import InputFile from "../cc/Inputs/File";
 import InputImage from "../cc/Inputs/Image";
 import InputTags from "../cc/Inputs/Tags2";
@@ -1697,7 +1697,7 @@ const Form = (props: FormProps) => {
     }
 
     if (!isInitialized || !record) {
-      return <Spinner content="Loading..." />;
+      return <Spinner>{translate('Loading record, please wait.')}</Spinner>;
     }
 
     if (invalidRecordId) {
@@ -1822,7 +1822,7 @@ const Form = (props: FormProps) => {
             {headerButtons ? <div className='modal-header-buttons'>{headerButtons}</div> : null}
           </> : null}
           {saveErrorMessage}
-          {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
+          {formTopMenu ? <div className="modal-top-menu shadow-lg">{formTopMenu}</div> : null}
           <div className={"modal-body " + formContentClassName}>
             {formContent}
           </div>

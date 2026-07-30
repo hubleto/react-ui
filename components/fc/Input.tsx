@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, Dispatch } from 'react'
-import { useTranslation } from './TranslatedComponent';
+import Spinner from "./Spinner";
 
 export interface InputDescription {
   type?: string,
@@ -79,7 +79,18 @@ export interface InputHandle extends InputProps {
 
 const Input = (props: InputProps) => {
 
-  const { translate } = useTranslation(props.translationContext, props.translationContextInner);
+  const translate = (orig: string, context?: string, contextInner?: string, vars?: any): string => {
+    try {
+      return globalThis.hubleto.translate(
+        orig,
+        context ?? props.translationContext,
+        contextInner ?? props.translationContextInner,
+        vars
+      );
+    } catch (e) {
+      return orig;
+    }
+  };
 
   const [changed, setChanged] = useState(false);
   const [cssClass, setCssClass] = useState(props.cssClass ?? '');
@@ -153,8 +164,6 @@ const Input = (props: InputProps) => {
     else return <span>{serialize()}</span>;
   };
 
-
-
   const _this = {
     changed, setChanged,
     cssClass, setCssClass,
@@ -176,7 +185,7 @@ const Input = (props: InputProps) => {
     renderValueElement
   }
 
-  if (!isInitialized) return <div className="badge badge-warning">[...]</div>;
+  if (!isInitialized) return <Spinner size="xs" />;
 
   try {
     return (
@@ -184,7 +193,7 @@ const Input = (props: InputProps) => {
         ref={refInputWrapper}
         className={getClassName()}
         style={cssStyle}
-      ><div className="inner">
+      ><div className="inner border-l border-l-primary border-l-1 pl-0.5">
         {isInlineEditing
           ? <>
             <input

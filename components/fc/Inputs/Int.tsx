@@ -9,13 +9,17 @@ export interface IntInputProps extends InputProps {
 
 const IntInput = (props: IntInputProps) => {
 
+  const normalizedProps = {
+    ...props,
+    inputClassName: 'int',
+  };
+
   const [step, setStep] = useState(props.step);
   const [decimals, setDecimals] = useState(props.decimals);
   const [unit, setUnit] = useState(props.unit);
 
   return <Input
-    {...props}
-    inputClassName='int'
+    {...normalizedProps}
     renderInputElement={(input: any): React.JSX.Element => {
       return <div className='flex gap-2'>
         <input

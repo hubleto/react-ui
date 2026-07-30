@@ -9,7 +9,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import ModalForm from "./ModalForm";
 import Form, { FormEndpoint, FormProps } from "../fc/Form";
 import TranslatedComponent from "./TranslatedComponent";
-import Spinner from "./Spinner";
+import Spinner from "../fc/Spinner";
 
 import { InputFactory } from "../../core/InputFactory";
 import { dateToEUFormat, datetimeToEUFormat } from "./Inputs/DateTime";
@@ -1852,7 +1852,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       globalThis.hubleto.setTranslationContext(this.translationContext);
 
       if (!this.state.data) {
-        return <Spinner content="Loading..." />;
+        return <Spinner>Loading data, please wait.</Spinner>;
       }
 
       const fallback: any = <div className="alert alert-danger">Failed to render table. Check console for error log.</div>
