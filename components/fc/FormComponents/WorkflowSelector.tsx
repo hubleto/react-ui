@@ -17,7 +17,7 @@ const translate = new Translator(
 
 const WorkflowSelector = (props: WorkflowSelectorProps) => {
   const description = React.useContext(FormDescriptionContext);
-  const meta = React.useContext(FormMetaContext);
+  const form = React.useContext(FormMetaContext);
   const R = useRecordField(r => r);
   const changeRecord = useChangeRecord();
 
@@ -27,14 +27,14 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
   const [history, setHistory] = useState(null);
   const [changeWorkflow, setChangeWorkflow] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [readonly, setReadonly] = useState(meta.readonly);
+  const [readonly, setReadonly] = useState(form.readonly);
 
   const loadData = (onSuccess?: any): void => {
 
     request.post(
       'workflow/api/get-workflows',
       {
-        model: meta.model,
+        model: form.model,
         recordId: R.id,
       },
       {},

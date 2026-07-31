@@ -1,4 +1,4 @@
-import React, { Component, useState, useCallback, useEffect, useRef } from 'react';
+import React, {  useState, useEffect } from 'react';
 import * as uuid from 'uuid';
 import moment from "moment";
 
@@ -12,6 +12,9 @@ import ModalSimple from "../cc/ModalSimple";
 import HtmlFrame from "../cc/HtmlFrame";
 import Translator from "../../core/Translator";
 import FormCustomizer from "../../core/FormCustomizer";
+
+import FormSaveButton from './FormComponents/SaveButton';
+import FormCloseButton from './FormComponents/CloseButton';
 
 import { InputProps } from "./Input";
 import FormInput from './FormComponents/Input';
@@ -36,9 +39,16 @@ import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './Fo
 
 
 export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
-export const FormMetaContext = React.createContext<FormProps & {
+export const FormMetaContext = React.createContext<{
+  readonly, model, uid,
   originalRecord: FormRecord,
   invalidInputs: FormInvalidInputs,
+  creatingRecord,
+  updatingRecord,
+  permissions,
+  recordChanged,
+  savedSuccessfully,
+  translate, saveRecord, closeForm
 }>(null);
 
 
@@ -51,7 +61,7 @@ export const FormMetaContext = React.createContext<FormProps & {
  *
  * @var [type]
  */
-const Form = React.memo((props: FormProps) => {
+const Form = (props: FormProps) => {
 
   const storeRef = React.useRef<FormRecordStore>(null);
   if (!storeRef.current) storeRef.current = createRecordStore(props.record ?? {});
@@ -479,24 +489,7 @@ const Form = React.memo((props: FormProps) => {
           });
         }
 
-        // if (newTabs && hasCustomColumns) {
-        //   newTabs.push({
-        //     uid: '__custom_columns',
-        //     title: 'Custom',
-        //     onRender: (form: any) => {
-        //       // const inputs = form.state.description?.inputs;
-        //       // return <>{Object.keys(inputs).map((inpName, index) => {
-        //       //   if (inputs[inpName].isCustom) {
-        //       //     return form.inputWrapper(inpName);
-        //       //   }
-        //       // })}</>;
-        //       return form.renderCustomInputs();
-        //     }
-        //   });
-        // }
-
         setDescription(description);
-        // setTabs(newTabs);
         setReadonly(!(permissions.canUpdate || permissions.canCreate));
         setPermissions(permissions);
 
@@ -639,7 +632,7 @@ const Form = React.memo((props: FormProps) => {
     if (onSuccess) onSuccess(changedRecord);
   }
 
-  const closeForm = useCallback((): void => {
+  const closeForm = (): void => {
     let ok = true;
     if (recordChanged) ok = confirm(translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
     if (ok) {
@@ -650,36 +643,21 @@ const Form = React.memo((props: FormProps) => {
 
       getCallback('onClose')(_this);
     }
-  }, []);
+  };
 
-  const openNextRecord = useCallback((): void => {
+  const openNextRecord = (): void => {
     if (nextId && parentTable) {
       parentTable.openForm(nextId);
     }
-  }, [nextId, parentTable]);
+  };
 
-  const openPrevRecord = useCallback((): void => {
+  const openPrevRecord = (): void => {
     if (prevId && parentTable) {
       parentTable.openForm(prevId);
     }
-  }, [prevId, parentTable]);
+  };
 
-  const renderCustomInputs = useCallback((): React.JSX.Element|Array<React.JSX.Element> => {
-    let customInputs: any = [];
-
-    if (description?.inputs) {
-      Object.keys(description.inputs).map((inputName) => {
-        const inputDesc: any = description?.inputs ? description?.inputs[inputName] : null;
-        if (inputDesc?.isCustom) {
-          customInputs.push(<FormInput name={inputName} />);
-        }
-      });
-    }
-
-    return customInputs;
-  }, [isInitialized]);
-
-  const renderTopMenuButton = useCallback((tabUid: string): React.JSX.Element => {
+  const renderTopMenuButton = (tabUid: string): React.JSX.Element => {
     if (tabUid == '') tabUid = 'default';
 
     const tabs: FormTabs = props.uiComponents?.tabs;
@@ -702,9 +680,9 @@ const Form = React.memo((props: FormProps) => {
       {tab.icon ? <span className="icon"><i className={tab.icon}></i></span> : null}
       {tab.title ? <span className={"text " + (tab.isCustom ? "italic" : "")}>{tab.title}</span> : null}
     </button>
-  }, [isInitialized, activeTab, activeTabUid]);
+  };
 
-  const renderTopMenu = useCallback((): null|React.JSX.Element => {
+  const renderTopMenu = (): null|React.JSX.Element => {
     let topMenu = null;
     const tabs: FormTabs = props.uiComponents?.tabs;
 
@@ -754,9 +732,9 @@ const Form = React.memo((props: FormProps) => {
         }
       </div>
     </div>
-  }, [isInitialized, description, activeTab, activeTabUid]);
+  };
 
-  const renderTimeline = useCallback((timelineConfig: any): null|React.JSX.Element => {
+  const renderTimeline = (timelineConfig: any): null|React.JSX.Element => {
     let timeline: any = null;
     let timelinePointsUnsorted: any = {};
 
@@ -812,95 +790,20 @@ const Form = React.memo((props: FormProps) => {
     } else {
       return null;
     }
-  }, [isInitialized, description]);
+  };
 
-  // const renderTemplateElement = useCallback((elRenderer: string, elData: any): React.JSX.Element => {
-  //   switch (elRenderer) {
-  //     case 'form.columns':
-  //       if (!elData.props) elData.props = {};
-  //       elData.props.className = (elData.props?.className ?? '') + ' flex gap-2 flex-col md:flex-row';
-  //       return React.createElement('div', elData.props, renderFromTemplate(elData.columns));
-  //     break;
-  //     case 'form.column':
-  //       if (!elData.props) elData.props = {};
-  //       elData.props.className = (elData.props?.className ?? '') + ' w-full flex gap-2 flex-col';
-  //       return React.createElement('div', elData.props, renderFromTemplate(elData.items));
-  //     break;
-  //     case 'form.text':
-  //       return <div>{elData}</div>;
-  //     break;
-  //     case 'form.divider':
-  //       return renderDivider(elData.text);
-  //     break;
-  //     case 'form.input':
-  //       return <FormInput name={elData.input} />
-  //     break;
-  //     default:
-  //       return <>Unknown element renderer: {elRenderer}</>;
-  //     break;
-  //   }
-  // }, []);
-
-  // const renderFromTemplate = useCallback((template: any): Array<React.JSX.Element> => {
-  //   let content: Array<React.JSX.Element> = [];
-  //   Object.keys(template).map((elDefinition: string) => {
-  //     let tmp = elDefinition.split('#');
-  //     let elRenderer = tmp[0] ?? '';
-  //     let elId = tmp[1] ?? '';
-  //     let elData = template[elDefinition] ?? null;
-
-  //     content.push(renderTemplateElement(elRenderer, { elId, ...elData }));
-  //   });
-
-  //   return content;
-  // }, []);
-
-  const renderTab = useCallback((tab: string): null|React.JSX.Element => {
+  const renderTab = (tab: string): null|React.JSX.Element => {
     if (props.uiComponents?.tabs && props.uiComponents?.tabs[tab]) {
       return props.uiComponents.tabs[tab].content();
     }
 
     return <>{Object.keys(description?.inputs ?? {}).map((inputName: string) => {
       return <FormInput name={inputName} />
-      // if (!elData.props) elData.props = {};
-      // elData.props.className = (elData.props?.className ?? '') + ' flex gap-2 flex-col md:flex-row';
-      // return React.createElement('div', elData.props, renderFromTemplate(elData.columns));
-      // tabInputs['form.input#' + inputName] = {input: inputName};
     })}</>;
 
-    // let template: any = {};
+  };
 
-    // if (description?.ui?.templateJson) {
-    //   try {
-    //     template = JSON.parse(description?.ui?.templateJson);
-    //   } catch(ex) {
-    //     console.error('Failed to render form from template.');
-    //     console.error(description?.ui?.templateJson);
-    //     return <div>Failed to render form from template. Check console for more details.</div>;
-    //   }
-    // } else {
-    //   template = null;
-    // }
-
-    // let tabTemplate = template && template.tabs && template.tabs[tab] ? template.tabs[tab] : null;
-
-    // if (tab == 'default' && !tabTemplate) {
-    //   let tabInputs: any = {};
-
-    //   Object.keys(description?.inputs ?? {}).map((inputName: string) => {
-    //     tabInputs['form.input#' + inputName] = {input: inputName};
-    //   });
-    //   tabTemplate = {'form.column': { items: tabInputs } };
-    // }
-
-    // if (!tabTemplate) {
-    //   return <></>;
-    // } else {
-    //   return <>{renderFromTemplate(tabTemplate)}</>;
-    // }
-  }, [isInitialized, description]);
-
-  const renderPreviewUi = useCallback((): null|React.JSX.Element => {
+  const renderPreviewUi = (): null|React.JSX.Element => {
     return <ModalSimple
       uid='projects_table_discussions_modal'
       isOpen={true}
@@ -978,22 +881,18 @@ const Form = React.memo((props: FormProps) => {
         </div>
       </div>
     </ModalSimple>;
-  }, []);
+  };
 
-  const renderContent = useCallback((): null|React.JSX.Element => {
+  const renderContent = (): null|React.JSX.Element => {
     if (props.renderContent) return props.renderContent(_this);
 
     return <>
       {renderTab(activeTabUid)}
       {showPreviewUi ? renderPreviewUi() : null}
     </>;
-  }, [isInitialized, permissions, record, activeTabUid, description]);
+  };
 
-  const renderDivider = useCallback((content: any): React.JSX.Element => {
-    return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
-  }, [description, permissions]);
-
-  const renderHeaderButtons = useCallback((): null|React.JSX.Element => {
+  const renderHeaderButtons = (): null|React.JSX.Element => {
     const headerButtons = FormCustomizer.getFormHeaderButtons(props.componentName);
     if (headerButtons && headerButtons.length > 0) {
       return headerButtons.map((button: any, key: any) => {
@@ -1008,9 +907,9 @@ const Form = React.memo((props: FormProps) => {
     } else {
       return null;
     }
-  }, [description, permissions]);
+  };
 
-  const renderFooterButtons = useCallback((): null|React.JSX.Element => {
+  const renderFooterButtons = (): null|React.JSX.Element => {
     const footerButtons = FormCustomizer.getFormFooterButtons(props.componentName);
     if (footerButtons && footerButtons.length > 0) {
       return footerButtons.map((button: any, key: any) => {
@@ -1026,50 +925,14 @@ const Form = React.memo((props: FormProps) => {
     } else {
       return null;
     }
-  }, [description, permissions]);
+  };
 
-  const renderSaveButton = useCallback((): null|React.JSX.Element => {
-    let showButton =
-      description?.ui?.showSaveButton
-      && (
-        creatingRecord && permissions.canCreate
-        || updatingRecord && permissions.canUpdate
-      )
-    ;
+  const renderSaveButton = (): null|React.JSX.Element => {
+    if (props.uiComponents.saveButton) return props.uiComponents.saveButton();
+    return <FormSaveButton></FormSaveButton>;
+  };
 
-    const saveIcon = "fas " + (savedSuccessfully ? "fa-check" : "fa-save");
-
-    return <>
-      {showButton ? <>
-        <button
-          onClick={(e: any) => {
-            if (!e.isFromDropdownMenu) saveRecord({closeAfterSave: false});
-          }}
-          className={"btn " + (recordChanged ? (savedSuccessfully ? "btn-success" : "btn-add") : "btn-disabled")}
-          title="Save: Ctrl+S"
-        >
-          {updatingRecord
-            ? <>
-              <span className="icon"><i className={saveIcon}></i></span>
-              <span className="text">
-                {savedSuccessfully
-                  ? translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
-                  : (description?.ui?.saveButtonText ?? translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form'))
-                }
-              </span>
-            </> : <>
-              <span className="icon"><i className="fas fa-plus"></i></span>
-              <span className="text">
-                {description?.ui?.addButtonText ?? translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
-              </span>
-            </>
-          }
-        </button>
-      </> : null}
-    </>;
-  }, [description, permissions, savedSuccessfully, updatingRecord, creatingRecord]);
-
-  const renderCopyButton = useCallback((): null|React.JSX.Element => {
+  const renderCopyButton = (): null|React.JSX.Element => {
     return <>
       {updatingRecord && description?.ui?.showCopyButton && permissions.canCreate ? <button
         onClick={() => copyRecord()}
@@ -1079,9 +942,9 @@ const Form = React.memo((props: FormProps) => {
         <span className="text"> {description?.ui?.copyButtonText ?? translate("Copy", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
-  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
+  };
 
-  const renderDeleteButton = useCallback((): null|React.JSX.Element => {
+  const renderDeleteButton = (): null|React.JSX.Element => {
     return <>
       {updatingRecord && description?.ui?.showDeleteButton && permissions.canDelete ? <button
         onClick={() => {
@@ -1109,9 +972,9 @@ const Form = React.memo((props: FormProps) => {
         </span>
       </button> : null}
     </>;
-  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
+  };
 
-  const renderPrevRecordButton = useCallback((): null|React.JSX.Element => {
+  const renderPrevRecordButton = (): null|React.JSX.Element => {
     return (
       <button
         onClick={() => { openPrevRecord(); }}
@@ -1123,9 +986,9 @@ const Form = React.memo((props: FormProps) => {
         <span className="shortcut">Ctrl+Shift+PgUp</span>
       </button>
     );
-  }, [description, permissions]);
+  };
 
-  const renderNextRecordButton = useCallback((): null|React.JSX.Element => {
+  const renderNextRecordButton = (): null|React.JSX.Element => {
     return (
       <button
         onClick={() => { openNextRecord() }}
@@ -1137,9 +1000,9 @@ const Form = React.memo((props: FormProps) => {
         <span className="shortcut">Ctrl+Shift+PgDn</span>
       </button>
     );
-  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
+  };
 
-  const renderEditButton = useCallback((): null|React.JSX.Element => {
+  const renderEditButton = (): null|React.JSX.Element => {
     return <>
       {permissions.canUpdate ? <button
         onClick={() => setIsInlineEditing(true)}
@@ -1149,9 +1012,9 @@ const Form = React.memo((props: FormProps) => {
         <span className="text">{translate('Edit', 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
-  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
+  };
 
-  const renderFullscreenButton = useCallback((): null|React.JSX.Element => {
+  const renderFullscreenButton = (): null|React.JSX.Element => {
     return (
       <button
         className="btn btn-transparent hidden md:block"
@@ -1159,7 +1022,6 @@ const Form = React.memo((props: FormProps) => {
         aria-label="Fullscreen"
         onClick={() => {
           setIsFullscreen(!isFullscreen);
-          // modal.current.setState({isFullscreen: !this.props.modal.current.state.isFullscreen});
         }}
       >
         <span className="icon">
@@ -1167,28 +1029,14 @@ const Form = React.memo((props: FormProps) => {
         </span>
       </button>
     );
-  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
+  };
 
-  const renderCloseButton = useCallback((): null|React.JSX.Element => {
-    return (
-      <button
-        className="btn btn-close"
-        type="button"
-        data-dismiss="modal"
-        aria-label="Close"
-        onClick={() => {
-          closeForm();
-        }}
-      >
-        <span className="icon">
-          <i className="fas fa-xmark"></i>
-          <span className="shortcut">Esc</span>
-        </span>
-      </button>
-    );
-  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
+  const renderCloseButton = (): null|React.JSX.Element => {
+    if (props.uiComponents.closeButton) return props.uiComponents.closeButton();
+    return <FormCloseButton></FormCloseButton>;
+  };
 
-  const renderHeaderLeft = useCallback((): null|React.JSX.Element => {
+  const renderHeaderLeft = (): null|React.JSX.Element => {
     return <div className='flex gap-2 items-center'>
       <div className='flex flex-col gap-2'>
         <div className='flex gap-2'>
@@ -1217,16 +1065,16 @@ const Form = React.memo((props: FormProps) => {
         </div>
       </div>
     </div>;
-  }, [description, creatingRecord, updatingRecord]);
+  };
 
-  const renderHeaderRight = useCallback((): null|React.JSX.Element => {
+  const renderHeaderRight = (): null|React.JSX.Element => {
     return modal ? <>
       {renderFullscreenButton()}
       {renderCloseButton()}
     </> : null;
-  }, [description, creatingRecord, updatingRecord]);
+  };
 
-  const renderFooter = useCallback((): null|React.JSX.Element => {
+  const renderFooter = (): null|React.JSX.Element => {
     return <>
       {record.id > 0 ? <a
         className='btn btn-primary-outline'
@@ -1276,7 +1124,7 @@ const Form = React.memo((props: FormProps) => {
         </div>
       </div>
     </>;
-  }, []);
+  };
 
   const renderTitle = (): null|React.JSX.Element => {
     if (props.uiComponents?.title) return props.uiComponents.title();
@@ -1294,7 +1142,7 @@ const Form = React.memo((props: FormProps) => {
     </>;
   };
 
-  const renderWorkflowUi = useCallback((): React.JSX.Element => {
+  const renderWorkflowUi = (): React.JSX.Element => {
     return (id <= 0 ? null : <div className='flex grow p-2 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800'>
       <div className='flex-2'>
         <FormWorkflowSelector></FormWorkflowSelector>
@@ -1304,18 +1152,18 @@ const Form = React.memo((props: FormProps) => {
         : null
       }
     </div>);
-  }, [record.id_workflow, record.id_workflow_step]);
+  };
 
-  const renderCalendar = useCallback((): React.JSX.Element => {
+  const renderCalendar = (): React.JSX.Element => {
     return <></>;
-  }, [record.ACTIVITIES]);
+  };
 
-  const renderCalendarTodoList = useCallback((): React.JSX.Element => {
+  const renderCalendarTodoList = (): React.JSX.Element => {
     return <>
     </>;
-  }, [record]);
+  };
 
-  const renderOwnerManagerUi = useCallback((): React.JSX.Element => {
+  const renderOwnerManagerUi = (): React.JSX.Element => {
     const idOwner = record.id_owner;
     const owner = globalThis.hubleto.users ? globalThis.hubleto.users[idOwner] : null;
     const idManager = record.id_manager;
@@ -1369,9 +1217,9 @@ const Form = React.memo((props: FormProps) => {
         </div>
       </div> : null}
     </div>;
-  }, [record.id_owner, record.id_manager]);
+  };
 
-  const renderWarningsOrErrors = useCallback((): null|React.JSX.Element => {
+  const renderWarningsOrErrors = (): null|React.JSX.Element => {
     if (recordDeleted) {
       return <>
         <div className="alert alert-danger m-1">
@@ -1385,7 +1233,7 @@ const Form = React.memo((props: FormProps) => {
     }
 
     return null;
-  }, [isInitialized, recordDeleted]);
+  };
 
   const renderErrorAlert = (message: string) => {
     return <>
@@ -1403,61 +1251,6 @@ const Form = React.memo((props: FormProps) => {
   };
 
   const _this = this;
-  //@ts-ignore
-  const x_this: FormContext = {
-    activeTab,
-    activeTabUid,
-    creatingRecord,
-    customEndpointParams,
-    deleteButtonDisabled,
-    deletingRecord,
-    description,
-    descriptionSource,
-    endpoint,
-    hideOverlay,
-    htmlPreview,
-    id,
-    invalidInputs,
-    isFullscreen,
-    isInitialized,
-    isInlineEditing,
-    loadRecordError,
-    modal,
-    model,
-    nextId,
-    originalRecord,
-    parentTable,
-    permissions,
-    prevId,
-    readonly,
-    record,
-    recordChanged,
-    recordDeleted,
-    savedSuccessfully,
-    saveError,
-    saveRecordWhenInitialized,
-    showFooter,
-    showHeader,
-    showInModal,
-    showOwnerManagerSelector,
-    showPreviewUi,
-    tag,
-    uid,
-    urlSlug,
-    updatingRecord,
-
-
-    getEndpointParams,
-    getEndpointUrl,
-    getRecordFormUrl,
-    getInputProps,
-
-    renderDivider,
-    renderTab,
-
-    changeRecord,
-    loadRecord,
-  };
 
 
 
@@ -1467,12 +1260,10 @@ const Form = React.memo((props: FormProps) => {
 
 
 
-
-
-  let returnValue = null;
+  let finalContent = null;
 
   if (loadRecordError) {
-    returnValue = <>
+    finalContent = <>
       <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
       <div className="m-4"><code>{loadRecordError.message}</code></div>
     </>
@@ -1492,7 +1283,7 @@ const Form = React.memo((props: FormProps) => {
       const footerButtons = renderFooterButtons();
 
       if (modal && modal.current) {
-        returnValue = <>
+        finalContent = <>
           {showHeader ? <>
             <div className={"modal-header " + (modal.current.state.isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
               <div className="modal-header-left">{headerLeft}</div>
@@ -1512,7 +1303,7 @@ const Form = React.memo((props: FormProps) => {
           </> : null}
         </>;
       } else {
-        returnValue = <>
+        finalContent = <>
           <div id={"hubleto-form-" + uid} className="hubleto component form">
             {showHeader ? <>
               <div className="form-header">
@@ -1535,21 +1326,25 @@ const Form = React.memo((props: FormProps) => {
     } catch(e) {
       console.error('Failed to render form.');
       console.error(e);
-      returnValue = <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
+      finalContent = <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
     }
-
-  // returnValue = <div><Form;
   }
 
   return (
     <FormRecordStoreContext.Provider value={recordStore}>
       <FormDescriptionContext.Provider value={description}>
-        <FormMetaContext.Provider value={{...props, originalRecord, invalidInputs}}>
-          {returnValue}
+        <FormMetaContext.Provider value={{
+          uid, readonly, model,
+          originalRecord, invalidInputs,
+          creatingRecord, updatingRecord,
+          permissions, recordChanged, savedSuccessfully,
+          translate, saveRecord, closeForm
+        }}>
+          {finalContent}
         </FormMetaContext.Provider>
       </FormDescriptionContext.Provider>
     </FormRecordStoreContext.Provider>
   );
-}, () => true);
+};
 
 export default Form;

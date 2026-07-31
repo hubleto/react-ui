@@ -51,7 +51,6 @@ export interface FormDescription {
 }
 
 export interface FormTab {
-  uid: string,
   title?: string|React.JSX.Element,
   icon?: string,
   cssClass?: string,
@@ -65,6 +64,8 @@ export interface FormTab {
 export interface FormUiComponents {
   title?: () => React.JSX.Element;
   tabs?: FormTabs,
+  saveButton?: () => React.JSX.Element;
+  closeButton?: () => React.JSX.Element;
 }
 
 export interface FormProps {

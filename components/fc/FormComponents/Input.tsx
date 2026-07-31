@@ -21,23 +21,23 @@ import InputTags from "../../cc/Inputs/Tags2";
 
 const Input = ({ name, cssClass, renderOnlyInputField, customInputProps }: any) => {
   const description = React.useContext(FormDescriptionContext);
-  const meta = React.useContext(FormMetaContext);
+  const form = React.useContext(FormMetaContext);
   const value = useRecordField(r => r[name]);
   const changeRecord = useChangeRecord();
 
   const inputDescription = description?.inputs?.[name] ?? {};
-  const isModified = useRecordField(r => r[name] !== meta?.originalRecord[name]);
+  const isModified = useRecordField(r => r[name] !== form.originalRecord[name]);
   const isInlineEditing = true;
 
   const inputProps: InputProps = {
     inputName: name,
     value,
     description: inputDescription,
-    readonly: meta?.readonly || inputDescription.readonly || inputDescription.disabled,
+    readonly: form.readonly || inputDescription.readonly || inputDescription.disabled,
     isModified,
     isInlineEditing,
-    uid: meta?.uid + '_' + name, // stable, no uuid.v4() per render
-    invalid: meta?.invalidInputs.some(
+    uid: form.uid + '_' + name, // stable, no uuid.v4() per render
+    invalid: form.invalidInputs.some(
       (v) => v.name.toLowerCase() === name.toLowerCase()
     ) ?? false,
     ...inputDescription,
@@ -78,14 +78,14 @@ const Input = ({ name, cssClass, renderOnlyInputField, customInputProps }: any) 
 
   if (renderOnlyInputField) return input;
   else return <div
-    id={meta?.uid + '_' + name}
+    id={form.uid + '_' + name}
     className={
       'input-wrapper'
       + (cssClass ? ' ' + cssClass : '')
       + (inputDescription.required ? ' required' : '')
     }
   >
-    <label className="input-label" htmlFor={meta?.uid + '_' + name}>
+    <label className="input-label" htmlFor={form.uid + '_' + name}>
       {inputDescription.title ?? ''}
     </label>
     <div className="input-body">
