@@ -123,13 +123,13 @@ const Input = React.memo((props: InputProps) => {
     }
   }, []);
 
-  useEffect(() => {
-    setInvalid(false);
-    if (props.onChange) {
-      props.onChange(_this, value);
-    }
-    setChanged(origValue != value);
-  }, [value]);
+  // useEffect(() => {
+  //   setInvalid(false);
+  //   if (props.onChange) {
+  //     props.onChange(_this, value);
+  //   }
+  //   setChanged(origValue != value);
+  // }, [value]);
 
   const getClassName = useCallback((): string => {
     return (
@@ -144,17 +144,20 @@ const Input = React.memo((props: InputProps) => {
     );
   }, [changed, invalid, readonly, isInlineEditing, isModified]);
 
-  const serialize = useCallback((): string => {
+  const serialize = (): string => {
     if (props.serialize) props.serialize(_this);
     return value ? value.toString() : '';
-  }, []);
+  };
 
   const changeValue = (newValue: any): void => {
     if (props.changeValue) props.changeValue(_this, newValue);
+
     setValue(newValue);
+    if (props.onChange) props.onChange(_this, value);
+    setChanged(origValue != value);
   };
 
-  const renderInputElement = (input: any): React.JSX.Element => {
+  const renderInputElement = useCallback((input: any): React.JSX.Element => {
     if (props.renderInputElement) return props.renderInputElement(_this);
 
     return <input
@@ -163,14 +166,14 @@ const Input = React.memo((props: InputProps) => {
       readOnly={readonly}
       ref={refInput}
     ></input>
-  };
+  }, [value, readonly, refInput, description, changed]);
 
-  const renderValueElement = (input: any): React.JSX.Element => {
+  const renderValueElement = useCallback((input: any): React.JSX.Element => {
     if (props.renderValueElement) return props.renderValueElement(_this);
     
     if (serialize() == '') return <span className="no-value"></span>;
     else return <span>{serialize()}</span>;
-  };
+  }, [value, readonly, refInput, description, changed]);
 
   const _this = {
     changed, setChanged,

@@ -95,7 +95,7 @@ export interface FormProps {
   isInitialized?: boolean,
   parentTable?: any,
   uid?: string,
-  model: string,
+  model?: string,
   id?: any,
   prevId?: any,
   nextId?: any,

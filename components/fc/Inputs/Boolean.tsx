@@ -20,13 +20,13 @@ const BooleanInput = React.memo((props: InputProps) => {
     renderInputElement={(input: any): React.JSX.Element => {
       return <div className='list horizontal'>
         <div
-          className={'btn btn-list-item btn-small ' + (input.value ? 'btn-success' : 'btn-transparent')}
+          className={'btn btn-list-item btn-extra-small ' + (input.value ? 'btn-success' : 'btn-transparent')}
           onClick={() => { if (!input.readonly) input.changeValue(true)}}
         >
           <span className='icon text-sm'><i className='fas fa-check'></i></span>
         </div>
         <div
-          className={'btn btn-list-item btn-small ' + (input.value ? 'btn-transparent' : 'btn-danger')}
+          className={'btn btn-list-item btn-extra-small ' + (input.value ? 'btn-transparent' : 'btn-danger')}
           onClick={() => { if (!input.readonly) input.changeValue(false)}}
         >
           <span className='icon text-sm'><i className='fas fa-times'></i></span>

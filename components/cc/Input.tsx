@@ -267,7 +267,7 @@ export class Input<P, S> extends TranslatedComponent<InputProps, InputState> {
   }
 
   renderLoadingInfo() {
-    return <div className="badge badge-warning">[loading]</div>;
+    return <div className="badge badge-warning">[loading {this.props.inputName}]</div>;
   }
 
   renderInputElement() {

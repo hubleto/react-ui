@@ -1,5 +1,4 @@
 import React, { Component, useState, useCallback, useEffect, useRef } from 'react';
-import { flushSync } from 'react-dom';
 import * as uuid from 'uuid';
 import moment from "moment";
 
@@ -8,9 +7,11 @@ import Spinner from "./Spinner";
 import App from '../../core/App';
 
 import { deepObjectMerge } from "../../core/Helper";
-import ErpWorkflowSelector from '../cc/ErpWorkflowSelector';
+import WorkflowSelector from './FormComponents/WorkflowSelector';
 import ModalSimple from "../cc/ModalSimple";
 import HtmlFrame from "../cc/HtmlFrame";
+import Translator from "../../core/Translator";
+import FormCustomizer from "../../core/FormCustomizer";
 
 import { InputProps } from "./Input";
 import InputLookup from "./Inputs/Lookup";
@@ -26,6 +27,7 @@ import InputPassword from "../cc/Inputs/Password";
 import InputFile from "../cc/Inputs/File";
 import InputImage from "../cc/Inputs/Image";
 import InputTags from "../cc/Inputs/Tags2";
+import { FormInputProps } from '../cc/FormInput';
 
 interface Content {
   [key: string]: ContentCard | any;
@@ -95,8 +97,6 @@ export interface FormTab {
   onRender?: (form: any) => React.JSX.Element,
 }
 
-export type FormTabs = Array<FormTab>;
-
 export interface FormProps {
   activeTab?: number,
   activeTabUid?: string,
@@ -108,24 +108,32 @@ export interface FormProps {
   deleteButtonDisabled: boolean,
   deletingRecord: boolean,
   description?: FormDescription,
-  descriptionSource?: 'props' | 'request' | 'both',
+  descriptionSource?: FormDescriptionSource,
   endpoint?: FormEndpoint,
   folderUrl?: string,
+  getContentClassName?: (form: any) => string,
+  getEndpointParams?: (form: any) => object,
+  getEndpointUrl?: (form: any) => string,
+  getInputProps?: (form: any, inputName: string, customInputProps?: any) => InputProps,
   getRecordFormUrl?: (form: any) => string,
   getTabs?: (form: any) => FormTabs,
   hideOverlay?: boolean,
+  htmlPreview?: any,
   id?: any,
-  invalidInputs: Array<InvalidInput>,
-  invalidRecordId: boolean,
+  invalidInputs: FormInvalidInputs,
   isFullscreen: boolean,
   isInitialized?: boolean,
   isInlineEditing?: boolean,
+  junctionDestinationColumn?: string,
+  junctionModel?: string,
+  junctionSaveEndpoint?: string,
+  junctionSourceColumn?: string,
+  junctionSourceRecordId?: number,
+  junctionTitle?: string,
   loadRecordError: any,
   modal?: any,
   model: string,
   nextId?: any,
-  onChange?: (form: any, changedRecord: FormRecord) => void,
-  onClose?: (form: any) => void,
   onAfterCopyRecord?: (form: any, record: FormRecord) => void,
   onAfterDeleteRecord?: (form: any, saveResponse: any) => void,
   onAfterFormInitialized?: (form: any) => void,
@@ -133,9 +141,11 @@ export interface FormProps {
   onAfterSaveRecord?: (form: any, saveResponse: any, customSaveOptions?: any) => void,
   onBeforeCopyRecord?: (form: any, record: FormRecord) => FormRecord,
   onBeforeSaveRecord?: (form: any, record: FormRecord) => FormRecord,
+  onChange?: (form: any, changedRecord: FormRecord) => void,
+  onClose?: (form: any) => void,
   onTabChange?: (form: any) => void,
   originalRecord: FormRecord,
-  params: any,
+  parentApp?: any,
   parentTable?: any,
   permissions: FormPermissions,
   prevId?: any,
@@ -144,89 +154,62 @@ export interface FormProps {
   recordChanged: boolean,
   recordDeleted: boolean,
   renderContent?: (form: any) => any,
+  renderSubTitle?: (form: any) => any,
   renderTab?: (form: any) => any,
   renderTitle?: (form: any) => any,
-  renderSubTitle?: (form: any) => any,
-  saveRecordWhenInitialized?: any,
   savedSuccessfully: boolean,
   saveError: any,
+  saveRecordWhenInitialized?: any,
   showFooter?: boolean,
   showHeader?: boolean,
   showInModal?: boolean,
+  showOwnerManagerSelector?: boolean,
+  showOwnerManagerUi?: boolean,
+  showWorkflowUi?: boolean,
+  showPreviewUi?: boolean,
   tabs?: FormTabs,
   tag?: string,
-  uid?: string,
-  urlSlug?: string,
-  updatingRecord: boolean,
+  timeline?: Array<any>,
   translationContext?: string,
   translationContextInner?: string,
-
-  junctionTitle?: string,
-  junctionModel?: string,
-  junctionSourceColumn?: string,
-  junctionDestinationColumn?: string,
-  junctionSourceRecordId?: number,
-  junctionSaveEndpoint?: string,
-  renderWorkflowUi?: boolean,
-  renderOwnerManagerUi?: boolean,
-  renderPreviewUi?: boolean,
-  timeline?: Array<any>,
-
-  showOwnerManagerSelector?: boolean,
-  showPreviewUi?: boolean,
-  htmlPreview?: any,
-
-  parentApp?: any,
+  uid?: string,
+  updatingRecord: boolean,
+  urlSlug?: string,
 }
 
-export class FormCustomizer {
-
-  static formHeaderButtons: any = {};
-  static formFooterButtons: any = {};
-
-  static addFormHeaderButton(componentName: string, title: string, icon: string, onClick: any) {
-    if (!this.formHeaderButtons[componentName]) {
-      this.formHeaderButtons[componentName] = [];
-    }
-    this.formHeaderButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
-  }
-
-  static getFormHeaderButtons(componentName: string) {
-    return this.formHeaderButtons[componentName] ?? [];
-  }
-
-  static addFormFooterButton(componentName: string, title: string, icon: string, onClick: any) {
-    if (!this.formFooterButtons[componentName]) {
-      this.formFooterButtons[componentName] = [];
-    }
-    this.formFooterButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
-  }
-
-  static getFormFooterButtons(componentName: string) {
-    return this.formFooterButtons[componentName] ?? [];
-  }
-
+export interface FormContext extends FormProps {
+  getCustomTabs: () => FormTabs,
+  getEndpointParams: () => object,
+  getEndpointUrl: (action: string) => string,
+  getRecordFormUrl: () => string,
+  getInputProps: (inputName: string, customInputProps?: any) => InputProps,
+  renderDivider: (content: any) => React.JSX.Element,
+  renderInputWrapper: (inputName: string, customInputProps?: any) => React.JSX.Element,
+  renderTab: (tab: string) => null|React.JSX.Element,
+  changeRecord: (changedValues: any, onSuccess?: any) => void,
+  loadRecord: () => void;
 }
 
-const Form = (props: FormProps) => {
+export type FormTabs = Array<FormTab>;
+export type FormDescriptionSource = 'props' | 'request' | 'both';
+export type FormInvalidInputs = Array<InvalidInput>;
+
+/**
+ * Form
+ *
+ * @var [type]
+ */
+const Form = React.memo((props: FormProps) => {
 
   const isCreatingRecord = (id: any): boolean => { return id ? id == -1 : false; };
   const getCallback = (callback: string): any => {
     return (props[callback] ?? defaultCallbacks[callback]);
   }
 
-  const translate = (orig: string, context?: string, contextInner?: string, vars?: any): string => {
-    try {
-      return globalThis.hubleto.translate(
-        orig,
-        context ?? props.translationContext,
-        contextInner ?? props.translationContextInner,
-        vars
-      );
-    } catch (e) {
-      return orig;
-    }
-  };
+  const translate = new Translator(
+    props.translationContext ?? 'Hubleto\\ReactUi',
+    props.translationContextInner ?? 'Components\\Form'
+  ).translate;
 
   const calculatePermissions = (record: any) => {
     if (!record) return {
@@ -262,11 +245,14 @@ const Form = (props: FormProps) => {
     return permissions;
   }
 
-  const getEndpointUrl = (action: string) => {
+  const getEndpointUrl = (action: string): string => {
+    if (props.getEndpointUrl) return props.getEndpointUrl(_this);
     return endpoint[action as keyof FormEndpoint] ?? '';
   }
 
   const getEndpointParams = (): object => {
+    if (props.getEndpointParams) return props.getEndpointParams(_this);
+
     return {
       model: model,
       id: id,
@@ -313,6 +299,72 @@ const Form = (props: FormProps) => {
     if (props.urlSlug != '') return props.urlSlug + '/' + (record.id > 0 ? record.id : 'add');
     return '';
   }
+
+  const getContentClassName = (): string => {
+    if (props.getContentClassName) props.getContentClassName(_this);
+    return '';
+  }
+
+  const getInputProps = (inputName: string, customInputProps?: any): InputProps => {
+    if (props.getInputProps) props.getInputProps(Form, inputName, customInputProps);
+
+    const inputs = description?.inputs ?? {};
+    const inputDescription = inputs[inputName] ?? {};
+    const inputType = inputDescription.type ?? '';
+    const enumValues = inputDescription.enumValues;
+    const lastIndexOfBackslash = model.lastIndexOf('/');
+    const rawModelName = model.substring(lastIndexOfBackslash + 1);
+    const modelInputName = rawModelName + '.' + inputName;
+    const invalid = Array.isArray(invalidInputs) ? invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (record.id ?? -1)) : false;
+
+    if (!customInputProps) customInputProps = {};
+
+    let value = null;
+    if (updatingRecord) value = record[inputName];
+    else value = record[inputName] ?? (description.defaultValues ? description.defaultValues[inputName] : null);
+
+    if (
+      !customInputProps.wrapperCssClass
+      && (
+        ['boolean', 'date', 'datetime', 'decimal'].indexOf(inputType) >= 0
+        || (inputType == 'int' && !enumValues)
+      )
+    ) {
+      customInputProps.wrapperCssClass = 'flex gap-2';
+    }
+
+    return {
+      // key: uid + '_input_' + inputName,
+      inputName: inputName,
+      inputClassName: '',
+      record: record,
+      description: inputDescription,
+      value: value,
+      cssClass: inputs[inputName]?.cssClass,
+      readonly: readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
+      uid: uid + '_' + uuid.v4(),
+      parentForm: this,
+      isModified: record[inputName] !== originalRecord[inputName],
+      isInitialized: false,
+      isInlineEditing: isInlineEditing,
+      showInlineEditingButtons: false, // !this.state.isInlineEditing,
+      invalid: invalid,
+      ...inputs[inputName]?.inputProps,
+      ...customInputProps,
+      onInlineEditCancel: () => { },
+      onInlineEditSave: () => { saveRecord(); },
+      onChange: (input: any, value: any) => {
+        let changedValues = {};
+        if (value === '') value = null;
+        changedValues[inputName] = value;
+
+        changeRecord(changedValues, (changedRecord: FormRecord) => {
+          getCallback('onChange')(_this, changedRecord);
+        });
+
+      },
+    };
+  };
 
   const defaultCallbacks = {
     onChange: (form: any, changedRecord: FormRecord) => {},
@@ -367,7 +419,7 @@ const Form = (props: FormProps) => {
       permissions: calculatePermissions(null),
       ui: {},
     },
-    descriptionSource: 'both',
+    descriptionSource: 'both' as FormDescriptionSource,
     endpoint: props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? {
       describeForm: 'api/form/describe',
       saveRecord: 'api/record/save',
@@ -378,8 +430,7 @@ const Form = (props: FormProps) => {
     hideOverlay: true,
     htmlPreview: '',
     id: props.id,
-    invalidInputs: {},
-    invalidRecordId: false,
+    invalidInputs: [],
     isFullscreen: false,
     isInitialized: false,
     isInlineEditing: props.isInlineEditing ? props.isInlineEditing : true,
@@ -396,19 +447,20 @@ const Form = (props: FormProps) => {
     record: {},
     recordChanged: false,
     recordDeleted: false,
-    saveRecordWhenInitialized: false,
     savedSuccessfully: false,
     saveError: null,
+    saveRecordWhenInitialized: false,
     showFooter: true,
     showHeader: true,
     showInModal: true,
     showOwnerManagerSelector: false,
+    showOwnerManagerUi: false,
     showPreviewUi: false,
     tabs: null,
     tag: '',
     uid: '_form_' + uuid.v4().replace('-', '_'),
-    urlSlug: '',
     updatingRecord: !isCreatingRecord(props.id),
+    urlSlug: '',
   };
 
   const [activeTab, setActiveTab] = useState(props.activeTab ?? defaultState.activeTab);
@@ -425,7 +477,6 @@ const Form = (props: FormProps) => {
   const [htmlPreview, setHtmlPreview] = useState(props.htmlPreview ?? defaultState.htmlPreview);
   const [id, setId] = useState(props.id ?? defaultState.id);
   const [invalidInputs, setInvalidInputs] = useState(props.invalidInputs ?? defaultState.invalidInputs);
-  const [invalidRecordId, setInvalidRecordId] = useState(props.invalidRecordId ?? defaultState.invalidRecordId);
   const [isFullscreen, setIsFullscreen] = useState(props.isFullscreen ?? defaultState.isFullscreen);
   const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? defaultState.isInitialized);
   const [isInlineEditing, setIsInlineEditing] = useState(props.isInlineEditing ?? defaultState.isInlineEditing);
@@ -452,8 +503,8 @@ const Form = (props: FormProps) => {
   const [tabs, setTabs] = useState(props.tabs ?? defaultState.tabs);
   const [tag, setTag] = useState(props.tag ?? defaultState.tag);
   const [uid, setUid] = useState(props.uid ?? defaultState.uid);
-  const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? defaultState.urlSlug);
   const [updatingRecord, setUpdatingRecord] = useState(props.updatingRecord ?? defaultState.updatingRecord);
+  const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? defaultState.urlSlug);
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = _this; }, [uid]);
   useEffect(() => { loadDescription(); }, []);
@@ -465,16 +516,19 @@ const Form = (props: FormProps) => {
 
   useEffect(() => {
     if (id == -1) {
-      updateRecord(description.defaultValues ?? {});
+      changeRecord(description.defaultValues ?? {});
     } else {
       loadRecord();
     }
   }, [id]);
 
+  useEffect(() => {
+    setIsInitialized(JSON.stringify(record) !== '{}');
 
-
-
-
+    if (isInitialized) {
+      setRecordChanged(true);
+    }
+  }, [record])
 
   const updatePreview = (idTemplate: number) => {
     request.post(
@@ -525,10 +579,24 @@ const Form = (props: FormProps) => {
     );
   }
 
-
-
   const onAfterLoadDescription = (description: FormDescription): FormDescription => {
     return description;
+  }
+
+  const onTabChange = (): void => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabExists = (tabs && tabs.filter((t) => t.uid == activeTabUid).length > 0);
+
+    if (activeTabUid == 'default' || !tabExists) urlParams.delete('tab');
+    else urlParams.set('tab', activeTabUid ?? '');
+
+    window.history.pushState({}, "", '?' + urlParams.toString());
+
+    if (activeTabUid == 'preview') {
+      updatePreview(record.id_template);
+    }
+
+    getCallback('onTabChange')(_this);
   }
 
   const loadDescription = (): void => {
@@ -580,21 +648,9 @@ const Form = (props: FormProps) => {
     );
   }
 
-  const updateRecord = (record: any, onSuccess?: any) => {
-    record = getCallback('onAfterRecordLoaded')(record);
-    let p = calculatePermissions(record);
-
-    setIsInitialized(true);
-    setRecord(record);
-    setOriginalRecord(JSON.parse(JSON.stringify(record)));
-    setPermissions(p);
-    setReadonly(!(p.canUpdate || p.canCreate));
-
-    if (onSuccess) onSuccess(record);
-  }
-
   const reload = (): void => {
-    setIsInitialized(false);
+    setRecord({});
+    loadRecord();
   }
 
   const loadRecord = (): void => {
@@ -603,33 +659,26 @@ const Form = (props: FormProps) => {
       getEndpointParams(),
       {},
       (record: any) => {
+        if (!record) return;
+
+        if (!isInitialized) {
+          setOriginalRecord(JSON.parse(JSON.stringify(record)));
+        }
+
         if (id != -1 && !record.id) {
-          setIsInitialized(true);
-          setInvalidRecordId(true);
+          setLoadRecordError('ERROR: Loading failed.');
         } else {
-          updateRecord(record);
+          let p = calculatePermissions(record);
+          setPermissions(p);
+          setReadonly(!(p.canUpdate || p.canCreate));
+
+          changeRecord(record);
         }
       },
       (error) => {
         setLoadRecordError(error.data);
       }
     );
-  }
-
-  const onTabChange = (): void => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabExists = (tabs && tabs.filter((t) => t.uid == activeTabUid).length > 0);
-
-    if (activeTabUid == 'default' || !tabExists) urlParams.delete('tab');
-    else urlParams.set('tab', activeTabUid ?? '');
-
-    window.history.pushState({}, "", '?' + urlParams.toString());
-
-    if (activeTabUid == 'preview') {
-      updatePreview(record.id_template);
-    }
-
-    getCallback('onTabChange')(_this);
   }
 
 
@@ -646,6 +695,8 @@ const Form = (props: FormProps) => {
 
     recordToSave = getCallback('onBeforeSaveRecord')(_this, recordToSave);
 
+    console.log('saverecord', record, recordToSave);
+
     request.post(
       getEndpointUrl('saveRecord'),
       { ...getEndpointParams(), record: recordToSave },
@@ -657,7 +708,7 @@ const Form = (props: FormProps) => {
 
         setSavedSuccessfully(true);
         setSaveError(null);
-        setRecord(saveResponse.savedRecord);
+        // setRecord(saveResponse.savedRecord);
         setId(saveResponse.savedRecord?.id);
         setRecordChanged(false);
         setUpdatingRecord(true);
@@ -678,7 +729,7 @@ const Form = (props: FormProps) => {
     let newRecord = getCallback('onBeforeCopyRecord')(_this, record);
 
     setId(-1);
-    setRecord(newRecord);
+    setRecord(prev => newRecord);
     setUpdatingRecord(false);
     setCreatingRecord(false);
     setRecordChanged(true);
@@ -716,18 +767,18 @@ const Form = (props: FormProps) => {
     return record;
   }
 
-  const changeRecord = (changedValues: any, onSuccess?: any) => {
-    const normalizedRecord = normalizeRecord(record);
-    const changedRecord = deepObjectMerge({...normalizedRecord}, changedValues);
-    
+  const changeRecord = (changedValues: any, onSuccess?: any): void => {
+    let changedRecord = normalizeRecord(record);
+    Object.keys(changedValues).map((key: string) => changedRecord[key] = changedValues[key]);
+
     setRecordChanged(JSON.stringify(originalRecord) !== JSON.stringify(changedRecord));
     setSavedSuccessfully(false);
-    setRecord(changedRecord);
+    setRecord(prev => ({...changedRecord}));
 
     if (onSuccess) onSuccess(changedRecord);
   }
 
-  const closeForm = (): void => {
+  const closeForm = useCallback((): void => {
     let ok = true;
     if (recordChanged) ok = confirm(translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
     if (ok) {
@@ -738,25 +789,21 @@ const Form = (props: FormProps) => {
 
       getCallback('onClose')(_this);
     }
-  }
+  }, []);
 
-  const openNextRecord = (): void => {
+  const openNextRecord = useCallback((): void => {
     if (nextId && parentTable) {
       parentTable.openForm(nextId);
     }
-  }
+  }, [nextId, parentTable]);
 
-  const openPrevRecord = (): void => {
+  const openPrevRecord = useCallback((): void => {
     if (prevId && parentTable) {
       parentTable.openForm(prevId);
     }
-  }
+  }, [prevId, parentTable]);
 
-  const contentClassName = (): string => {
-    return '';
-  }
-
-  const renderCustomInputs = (): React.JSX.Element|Array<React.JSX.Element> => {
+  const renderCustomInputs = useCallback((): React.JSX.Element|Array<React.JSX.Element> => {
     let customInputs: any = [];
 
     if (description?.inputs) {
@@ -769,9 +816,9 @@ const Form = (props: FormProps) => {
     }
 
     return customInputs;
-  }
+  }, [isInitialized]);
 
-  const renderTabTitle = (tabIndex: number): React.JSX.Element => {
+  const renderTabTitle = useCallback((tabIndex: number): React.JSX.Element => {
     const tab = tabs ? tabs[tabIndex] : null;
     if (tab) {
       const R = record;
@@ -786,9 +833,9 @@ const Form = (props: FormProps) => {
     } else {
       return <>?</>;
     }
-  }
+  }, [isInitialized]);
 
-  const renderTopMenuButton = (index: number): React.JSX.Element => {
+  const renderTopMenuButton = useCallback((index: number): React.JSX.Element => {
     let tabUid = activeTabUid ?? '';
     if (tabUid == '') tabUid = 'default';
     let mainTabUid = tabUid.split('.')[0] ?? 'default';
@@ -805,10 +852,8 @@ const Form = (props: FormProps) => {
         const tab = tabs ? tabs[index] : null;
         const tabUid = (tab ? tab.uid : 'default');
 
-        flushSync(() => {
-          setActiveTab(index);
-          setActiveTabUid(tabUid);
-        })
+        setActiveTab(index);
+        setActiveTabUid(tabUid);
 
         onTabChange();
       }}
@@ -816,9 +861,9 @@ const Form = (props: FormProps) => {
       {tab.icon ? <span className="icon"><i className={tab.icon}></i></span> : null}
       {tabTitle ? <span className={"text " + (tab.isCustom ? "italic" : "")}>{tabTitle}</span> : null}
     </button>
-  }
+  }, [isInitialized, tabs, activeTab, activeTabUid]);
 
-  const renderTopMenu = (): null|React.JSX.Element => {
+  const renderTopMenu = useCallback((): null|React.JSX.Element => {
     let topMenu = null;
 
     if (tabs && Object.keys(tabs).length > 1) {
@@ -850,18 +895,6 @@ const Form = (props: FormProps) => {
       topMenuWithDynamicMenu = <>{topMenu} {dynamicMenu}</>;
     }
 
-    let workflowUi = null;
-
-    if (props.renderWorkflowUi) {
-      workflowUi = renderWorkflowUi();
-    }
-
-    let ownerManagerUi = null;
-
-    if (props.renderOwnerManagerUi) {
-      ownerManagerUi = renderOwnerManagerUi();
-    }
-
     return <div className='flex flex-col'>
       <div className='flex'>
         {topMenuWithDynamicMenu}
@@ -871,17 +904,17 @@ const Form = (props: FormProps) => {
         }
       </div>
       <div className='flex justify-between'>
-        {ownerManagerUi}
-        {workflowUi}
+        {props.showOwnerManagerUi ? renderOwnerManagerUi() : null}
+        {props.showWorkflowUi ? renderWorkflowUi() : null}
         {description && description.inputs && description.inputs.shared_with
           ? <div className="p-2">{renderInput('shared_with')}</div>
           : null
         }
       </div>
     </div>
-  }
+  }, [isInitialized, description, tabs, activeTab, activeTabUid]);
 
-  const renderTimeline = (timelineConfig: any): null|React.JSX.Element => {
+  const renderTimeline = useCallback((timelineConfig: any): null|React.JSX.Element => {
     let timeline: any = null;
     let timelinePointsUnsorted: any = {};
 
@@ -937,9 +970,9 @@ const Form = (props: FormProps) => {
     } else {
       return null;
     }
-  }
+  }, [isInitialized, description]);
 
-  const renderTemplateElement = (elRenderer: string, elData: any): React.JSX.Element => {
+  const renderTemplateElement = useCallback((elRenderer: string, elData: any): React.JSX.Element => {
     switch (elRenderer) {
       case 'form.columns':
         if (!elData.props) elData.props = {};
@@ -964,9 +997,9 @@ const Form = (props: FormProps) => {
         return <>Unknown element renderer: {elRenderer}</>;
       break;
     }
-  }
+  }, []);
 
-  const renderFromTemplate = (template: any): Array<React.JSX.Element> => {
+  const renderFromTemplate = useCallback((template: any): Array<React.JSX.Element> => {
     let content: Array<React.JSX.Element> = [];
     Object.keys(template).map((elDefinition: string) => {
       let tmp = elDefinition.split('#');
@@ -978,9 +1011,9 @@ const Form = (props: FormProps) => {
     });
 
     return content;
-  }
+  }, []);
 
-  const renderTab = (tab: string): null|React.JSX.Element => {
+  const renderTab = useCallback((tab: string): null|React.JSX.Element => {
     if (props.renderTab) return props.renderTab(_this);
 
     let template: any = {};
@@ -1013,9 +1046,9 @@ const Form = (props: FormProps) => {
     } else {
       return <>{renderFromTemplate(tabTemplate)}</>;
     }
-  }
+  }, [isInitialized, description]);
 
-  const renderPreviewUi = (): null|React.JSX.Element => {
+  const renderPreviewUi = useCallback((): null|React.JSX.Element => {
     return <ModalSimple
       uid='projects_table_discussions_modal'
       isOpen={true}
@@ -1093,10 +1126,9 @@ const Form = (props: FormProps) => {
         </div>
       </div>
     </ModalSimple>;
+  }, []);
 
-  }
-
-  const renderContent = (): null|React.JSX.Element => {
+  const renderContent = useCallback((): null|React.JSX.Element => {
     if (props.renderContent) return props.renderContent(_this);
 
     const mainTabUid = activeTabUid.split('.')[0] ?? '';
@@ -1119,11 +1151,8 @@ const Form = (props: FormProps) => {
               key={index}
               className={'btn ' + (subTab.uid == subTabUid ? 'btn-primary' : (subTab.cssClass ?? 'btn-transparent'))}
               onClick={() => {
-                flushSync(() => {
-                  setActiveTab(index);
-                  setActiveTabUid( mainTab.uid + '.' + subTab.uid);
-                });
-
+                setActiveTab(index);
+                setActiveTabUid( mainTab.uid + '.' + subTab.uid);
                 onTabChange();
               }}
             >
@@ -1142,69 +1171,9 @@ const Form = (props: FormProps) => {
       {mainContent}
       {showPreviewUi ? renderPreviewUi() : null}
     </>;
-  }
+  }, [isInitialized, permissions, record, tabs, activeTabUid, description]);
 
-  const getInputProps = (inputName: string, customInputProps?: any): InputProps => {
-    const inputs = description?.inputs ?? {};
-    const inputDescription = inputs[inputName] ?? {};
-    const inputType = inputDescription.type ?? '';
-    const enumValues = inputDescription.enumValues;
-    const lastIndexOfBackslash = model.lastIndexOf('/');
-    const rawModelName = model.substring(lastIndexOfBackslash + 1);
-    const modelInputName = rawModelName + '.' + inputName;
-    const invalid = Array.isArray(invalidInputs) ? invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (record.id ?? -1)) : false;
-
-    if (!customInputProps) customInputProps = {};
-
-    let value = null;
-    if (updatingRecord) value = record[inputName];
-    else value = record[inputName] ?? (description.defaultValues ? description.defaultValues[inputName] : null);
-
-    if (
-      !customInputProps.wrapperCssClass
-      && (
-        ['boolean', 'date', 'datetime', 'decimal'].indexOf(inputType) >= 0
-        || (inputType == 'int' && !enumValues)
-      )
-    ) {
-      customInputProps.wrapperCssClass = 'flex gap-2';
-    }
-
-    return {
-      // key: uid + '_input_' + inputName,
-      inputName: inputName,
-      inputClassName: '',
-      record: record,
-      description: inputDescription,
-      value: value,
-      cssClass: inputs[inputName]?.cssClass,
-      readonly: readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
-      uid: uid + '_' + uuid.v4(),
-      parentForm: this,
-      isModified: record[inputName] !== originalRecord[inputName],
-      isInitialized: false,
-      isInlineEditing: isInlineEditing,
-      showInlineEditingButtons: false, // !this.state.isInlineEditing,
-      invalid: invalid,
-      ...inputs[inputName]?.inputProps,
-      ...customInputProps,
-      onInlineEditCancel: () => { },
-      onInlineEditSave: () => { saveRecord(); },
-      onChange: (input: any, value: any) => {
-        let changedRecord = {...record};
-        if (value === '') value = null;
-        changedRecord[inputName] = value;
-
-        setRecord(changedRecord);
-        setRecordChanged(JSON.stringify(originalRecord) !== JSON.stringify(changedRecord));
-        setSavedSuccessfully(false);
-
-        getCallback('onChange')(_this, changedRecord);
-      },
-    };
-  }
-
-  const renderInput = (inputName: string, customInputProps?: any): React.JSX.Element => {
+  const renderInput = useCallback((inputName: string, customInputProps?: any): React.JSX.Element => {
     const inputProps = getInputProps(inputName, customInputProps);
 
     let inputToRender: React.JSX.Element = <></>;
@@ -1246,9 +1215,9 @@ const Form = (props: FormProps) => {
     }
 
     return inputToRender;
-  }
+  }, [record]);
 
-  const renderInputWrapper = (inputName: string, customInputProps?: any) => {
+  const renderInputWrapper = useCallback((inputName: string, customInputProps?: any): React.JSX.Element => {
     const inputProps = getInputProps(inputName, customInputProps);
 
     return renderInputWrapperCustom(
@@ -1260,9 +1229,9 @@ const Form = (props: FormProps) => {
         {inputProps.description?.info}
       </>
     );
-  }
+  }, [record]);
 
-  const renderInputWrapperCustom = (inputName: string, inputProps: any, label: string|React.JSX.Element, body: string|React.JSX.Element): React.JSX.Element => {
+  const renderInputWrapperCustom = useCallback((inputName: string, inputProps: any, label: string|React.JSX.Element, body: string|React.JSX.Element): React.JSX.Element => {
     return <div
       id={uid + '_' + inputName}
       className={
@@ -1292,13 +1261,13 @@ const Form = (props: FormProps) => {
         : null
       }
     </div>;
-  }
+  }, [record]);
 
-  const renderDivider = (content: any): React.JSX.Element => {
+  const renderDivider = useCallback((content: any): React.JSX.Element => {
     return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
-  }
+  }, [description, permissions]);
 
-  const renderHeaderButtons = (): null|React.JSX.Element => {
+  const renderHeaderButtons = useCallback((): null|React.JSX.Element => {
     const headerButtons = FormCustomizer.getFormHeaderButtons(props.componentName);
     if (headerButtons && headerButtons.length > 0) {
       return headerButtons.map((button: any, key: any) => {
@@ -1313,9 +1282,9 @@ const Form = (props: FormProps) => {
     } else {
       return null;
     }
-  }
+  }, [description, permissions]);
 
-  const renderFooterButtons = (): null|React.JSX.Element => {
+  const renderFooterButtons = useCallback((): null|React.JSX.Element => {
     const footerButtons = FormCustomizer.getFormFooterButtons(props.componentName);
     if (footerButtons && footerButtons.length > 0) {
       return footerButtons.map((button: any, key: any) => {
@@ -1331,9 +1300,9 @@ const Form = (props: FormProps) => {
     } else {
       return null;
     }
-  }
+  }, [description, permissions]);
 
-  const renderSaveButton = (): null|React.JSX.Element => {
+  const renderSaveButton = useCallback((): null|React.JSX.Element => {
     let showButton =
       description?.ui?.showSaveButton
       && (
@@ -1372,9 +1341,9 @@ const Form = (props: FormProps) => {
         </button>
       </> : null}
     </>;
-  }
+  }, [description, permissions, savedSuccessfully, updatingRecord, creatingRecord]);
 
-  const renderCopyButton = (): null|React.JSX.Element => {
+  const renderCopyButton = useCallback((): null|React.JSX.Element => {
     return <>
       {updatingRecord && description?.ui?.showCopyButton && permissions.canCreate ? <button
         onClick={() => copyRecord()}
@@ -1384,19 +1353,17 @@ const Form = (props: FormProps) => {
         <span className="text"> {description?.ui?.copyButtonText ?? translate("Copy", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
-  }
+  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
 
-  const renderDeleteButton = (): null|React.JSX.Element => {
+  const renderDeleteButton = useCallback((): null|React.JSX.Element => {
     return <>
       {updatingRecord && description?.ui?.showDeleteButton && permissions.canDelete ? <button
         onClick={() => {
           if (!deleteButtonDisabled) {
             if (deletingRecord) deleteRecord();
             else {
-              flushSync(() => {
-                setDeletingRecord(true);
-                setDeleteButtonDisabled(true);
-              });
+              setDeletingRecord(true);
+              setDeleteButtonDisabled(true);
               setTimeout(() => setDeleteButtonDisabled(false), 1000);
             }
           }
@@ -1416,9 +1383,9 @@ const Form = (props: FormProps) => {
         </span>
       </button> : null}
     </>;
-  }
+  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
 
-  const renderPrevRecordButton = (): null|React.JSX.Element => {
+  const renderPrevRecordButton = useCallback((): null|React.JSX.Element => {
     return (
       <button
         onClick={() => { openPrevRecord(); }}
@@ -1430,9 +1397,9 @@ const Form = (props: FormProps) => {
         <span className="shortcut">Ctrl+Shift+PgUp</span>
       </button>
     );
-  }
+  }, [description, permissions]);
 
-  const renderNextRecordButton = (): null|React.JSX.Element => {
+  const renderNextRecordButton = useCallback((): null|React.JSX.Element => {
     return (
       <button
         onClick={() => { openNextRecord() }}
@@ -1444,9 +1411,9 @@ const Form = (props: FormProps) => {
         <span className="shortcut">Ctrl+Shift+PgDn</span>
       </button>
     );
-  }
+  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
 
-  const renderEditButton = (): null|React.JSX.Element => {
+  const renderEditButton = useCallback((): null|React.JSX.Element => {
     return <>
       {permissions.canUpdate ? <button
         onClick={() => setIsInlineEditing(true)}
@@ -1456,9 +1423,9 @@ const Form = (props: FormProps) => {
         <span className="text">{translate('Edit', 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
-  }
+  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
 
-  const renderFullscreenButton = (): null|React.JSX.Element => {
+  const renderFullscreenButton = useCallback((): null|React.JSX.Element => {
     return (
       <button
         className="btn btn-transparent hidden md:block"
@@ -1474,9 +1441,9 @@ const Form = (props: FormProps) => {
         </span>
       </button>
     );
-  }
+  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
 
-  const renderCloseButton = (): null|React.JSX.Element => {
+  const renderCloseButton = useCallback((): null|React.JSX.Element => {
     return (
       <button
         className="btn btn-close"
@@ -1493,14 +1460,14 @@ const Form = (props: FormProps) => {
         </span>
       </button>
     );
-  }
+  }, [description, permissions, updatingRecord, creatingRecord, id, record]);
 
-  const renderHeaderLeft = (): null|React.JSX.Element => {
+  const renderHeaderLeft = useCallback((): null|React.JSX.Element => {
     return <div className='flex gap-2 items-center'>
       <div className='flex flex-col gap-2'>
         <div className='flex gap-2'>
           {isInlineEditing ? renderSaveButton() : renderEditButton()}
-          {props.renderPreviewUi ? <>
+          {props.showPreviewUi ? <>
             <button
               onClick={(e: any) => {
                 setShowPreviewUi(true);
@@ -1524,16 +1491,16 @@ const Form = (props: FormProps) => {
         </div>
       </div>
     </div>;
-  }
+  }, [description, creatingRecord, updatingRecord]);
 
-  const renderHeaderRight = (): null|React.JSX.Element => {
+  const renderHeaderRight = useCallback((): null|React.JSX.Element => {
     return modal ? <>
       {renderFullscreenButton()}
       {renderCloseButton()}
     </> : null;
-  }
+  }, [description, creatingRecord, updatingRecord]);
 
-  const renderFooter = (): null|React.JSX.Element => {
+  const renderFooter = useCallback((): null|React.JSX.Element => {
     return <>
       {record.id > 0 ? <a
         className='btn btn-primary-outline'
@@ -1583,9 +1550,9 @@ const Form = (props: FormProps) => {
         </div>
       </div>
     </>;
-  }
+  }, []);
 
-  const renderSubTitle = (): null|React.JSX.Element => {
+  const renderSubTitle = useCallback((): null|React.JSX.Element => {
     if (props.renderSubTitle) return props.renderSubTitle(_this);
 
     if (description?.ui?.subTitle) {
@@ -1593,9 +1560,9 @@ const Form = (props: FormProps) => {
     } else {
       return <></>;
     }
-  }
+  }, [record]);
 
-  const renderTitle = (): null|React.JSX.Element => {
+  const renderTitle = useCallback((): null|React.JSX.Element => {
     if (props.renderTitle) return props.renderTitle(_this);
 
     let title = description?.ui?.title ??
@@ -1609,29 +1576,33 @@ const Form = (props: FormProps) => {
       <h2>{title}</h2>
       {renderSubTitle()}
     </>
-  }
+  }, [record]);
 
-  const renderWorkflowUi = (): React.JSX.Element => {
+  const renderWorkflowUi = useCallback((): React.JSX.Element => {
     return (id <= 0 ? null : <div className='flex grow p-2 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800'>
       <div className='flex-2'>
-        <ErpWorkflowSelector
-          parentForm={this}
+        <WorkflowSelector
+          parentForm={_this}
           readonly={readonly}
-        ></ErpWorkflowSelector>
+        ></WorkflowSelector>
       </div>
       {description && description.inputs && description.inputs.is_closed
         ? <div className='text-right'>{renderInputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
         : null
       }
     </div>);
-  }
+  }, [record.id_workflow, record.id_workflow_step]);
 
-  const renderCalendarTodoList = (): React.JSX.Element => {
+  const renderCalendar = useCallback((): React.JSX.Element => {
+    return <></>;
+  }, [record.ACTIVITIES]);
+
+  const renderCalendarTodoList = useCallback((): React.JSX.Element => {
     return <>
     </>;
-  }
+  }, [record]);
 
-  const renderOwnerManagerUi = (): React.JSX.Element => {
+  const renderOwnerManagerUi = useCallback((): React.JSX.Element => {
     const idOwner = record.id_owner;
     const owner = globalThis.hubleto.users ? globalThis.hubleto.users[idOwner] : null;
     const idManager = record.id_manager;
@@ -1685,9 +1656,9 @@ const Form = (props: FormProps) => {
         </div>
       </div> : null}
     </div>;
-  }
+  }, [record.id_owner, record.id_manager]);
 
-  const renderWarningsOrErrors = (): null|React.JSX.Element => {
+  const renderWarningsOrErrors = useCallback((): null|React.JSX.Element => {
     if (recordDeleted) {
       return <>
         <div className="alert alert-danger m-1">
@@ -1696,20 +1667,12 @@ const Form = (props: FormProps) => {
       </>
     }
 
-    if (!isInitialized || !record) {
+    if (!isInitialized) {
       return <Spinner>{translate('Loading record, please wait.')}</Spinner>;
     }
 
-    if (invalidRecordId) {
-      return <>
-        <div className="alert alert-danger m-1">
-          Unable to load record.
-        </div>
-      </>
-    }
-
     return null;
-  }
+  }, [isInitialized, recordDeleted]);
 
   const renderErrorAlert = (message: string) => {
     return <>
@@ -1717,17 +1680,17 @@ const Form = (props: FormProps) => {
         {message ?? "An error occured while performing the last operation."}
       </div>
     </>;
-  }
+  };
 
   const renderSaveErrorMessage = (): null|React.JSX.Element => {
     return saveError && saveError.message
       ? <div className='text-white bg-red-300 p-2 whitespace-pre-line'>{saveError.message}</div>
       : null
     ;
-  }
+  };
 
 
-  const _this = {
+  const _this: FormContext = {
     activeTab,
     activeTabUid,
     content,
@@ -1742,7 +1705,6 @@ const Form = (props: FormProps) => {
     htmlPreview,
     id,
     invalidInputs,
-    invalidRecordId,
     isFullscreen,
     isInitialized,
     isInlineEditing,
@@ -1772,11 +1734,19 @@ const Form = (props: FormProps) => {
     urlSlug,
     updatingRecord,
 
+
     getCustomTabs,
+    getEndpointParams,
+    getEndpointUrl,
+    getRecordFormUrl,
+    getInputProps,
+
     renderDivider,
     renderInputWrapper,
     renderTab,
-    translate,
+
+    changeRecord,
+    loadRecord,
   };
 
 
@@ -1802,7 +1772,7 @@ const Form = (props: FormProps) => {
       const saveErrorMessage = renderSaveErrorMessage();
 
       const formTitle = renderTitle();
-      const formContentClassName = contentClassName();
+      const formContentClassName = getContentClassName();
       const formContent = (warningsOrErrors ? warningsOrErrors : renderContent());
       const formFooter = renderFooter();
       const formTopMenu = (isInitialized ? renderTopMenu() : null);
@@ -1858,6 +1828,6 @@ const Form = (props: FormProps) => {
       return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
     }
   }
-};
+}, () => true);
 
 export default Form;
