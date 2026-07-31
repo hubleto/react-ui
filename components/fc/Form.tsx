@@ -14,185 +14,39 @@ import Translator from "../../core/Translator";
 import FormCustomizer from "../../core/FormCustomizer";
 
 import { InputProps } from "./Input";
-import InputLookup from "./Inputs/Lookup";
-import InputInt from "./Inputs/Int";
-import InputColor from "./Inputs/Color";
-import InputVarchar from "./Inputs/Varchar";
-import InputTextarea from "./Inputs/Textarea";
-import InputBoolean from "./Inputs/Boolean";
-import InputEnumValues from "./Inputs/EnumValues";
-import InputDateTime from "./Inputs/DateTime";
+import FormInput from './FormComponents/Input';
 
-import InputPassword from "../cc/Inputs/Password";
-import InputFile from "../cc/Inputs/File";
-import InputImage from "../cc/Inputs/Image";
-import InputTags from "../cc/Inputs/Tags2";
-import { FormInputProps } from '../cc/FormInput';
+import {
+  FormEndpoint,
+  FormPermissions,
+  FormUi,
+  FormRecord,
+  FormDescription,
+  FormInvalidInputs,
+  FormTab,
+  FormUiComponents,
+  FormProps,
+  FormContext,
+  FormTabs,
+  FormDescriptionSource,
+} from "./FormInterfaces"
 
-interface Content {
-  [key: string]: ContentCard | any;
-}
+import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './FormRecordStore';
 
-interface ContentCard {
-  title: string
-}
 
-interface InvalidInput {
-  name: string,
-  id: number,
-}
 
-export interface FormEndpoint {
-  describeForm: string,
-  getRecord: string,
-  saveRecord: string,
-  deleteRecord: string,
-}
+export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
+export const FormMetaContext = React.createContext<{
+  readonly: boolean;
+  invalidInputs: FormInvalidInputs;
+  originalRecord: FormRecord;
+  uid: string;
+} | null>(null);
 
-export interface FormPermissions {
-  canCreate?: boolean,
-  canRead?: boolean,
-  canUpdate?: boolean,
-  canDelete?: boolean,
-}
 
-export interface FormInputs {
-  [key: string]: any;
-}
 
-export interface FormRecord {
-  [key: string]: any;
-}
 
-export interface FormUi {
-  templateJson?: string,
-  title?: string,
-  subTitle?: string,
-  showSaveButton?: boolean;
-  showCopyButton?: boolean;
-  showDeleteButton?: boolean;
-  saveButtonText?: string,
-  addButtonText?: string,
-  copyButtonText?: string,
-  deleteButtonText?: string,
-  headerClassName?: string,
-}
 
-export interface FormDescription {
-  inputs?: FormInputs,
-  defaultValues?: FormRecord,
-  permissions?: FormPermissions,
-  ui?: FormUi,
-  includeRelations?: Array<string>,
-}
-
-export interface FormTab {
-  uid: string,
-  title?: string|React.JSX.Element,
-  icon?: string,
-  cssClass?: string,
-  showCountFor?: string,
-  isCustom?: boolean,
-  subTabs?: Array<FormTab>,
-  onRender?: (form: any) => React.JSX.Element,
-}
-
-export interface FormProps {
-  activeTab?: number,
-  activeTabUid?: string,
-  children?: any,
-  componentName?: string,
-  content?: Content,
-  creatingRecord: boolean,
-  customEndpointParams?: any,
-  deleteButtonDisabled: boolean,
-  deletingRecord: boolean,
-  description?: FormDescription,
-  descriptionSource?: FormDescriptionSource,
-  endpoint?: FormEndpoint,
-  folderUrl?: string,
-  getContentClassName?: (form: any) => string,
-  getEndpointParams?: (form: any) => object,
-  getEndpointUrl?: (form: any) => string,
-  getInputProps?: (form: any, inputName: string, customInputProps?: any) => InputProps,
-  getRecordFormUrl?: (form: any) => string,
-  getTabs?: (form: any) => FormTabs,
-  hideOverlay?: boolean,
-  htmlPreview?: any,
-  id?: any,
-  invalidInputs: FormInvalidInputs,
-  isFullscreen: boolean,
-  isInitialized?: boolean,
-  isInlineEditing?: boolean,
-  junctionDestinationColumn?: string,
-  junctionModel?: string,
-  junctionSaveEndpoint?: string,
-  junctionSourceColumn?: string,
-  junctionSourceRecordId?: number,
-  junctionTitle?: string,
-  loadRecordError: any,
-  modal?: any,
-  model: string,
-  nextId?: any,
-  onAfterCopyRecord?: (form: any, record: FormRecord) => void,
-  onAfterDeleteRecord?: (form: any, saveResponse: any) => void,
-  onAfterFormInitialized?: (form: any) => void,
-  onAfterRecordLoaded: (record: FormRecord) => FormRecord,
-  onAfterSaveRecord?: (form: any, saveResponse: any, customSaveOptions?: any) => void,
-  onBeforeCopyRecord?: (form: any, record: FormRecord) => FormRecord,
-  onBeforeSaveRecord?: (form: any, record: FormRecord) => FormRecord,
-  onChange?: (form: any, changedRecord: FormRecord) => void,
-  onClose?: (form: any) => void,
-  onTabChange?: (form: any) => void,
-  originalRecord: FormRecord,
-  parentApp?: any,
-  parentTable?: any,
-  permissions: FormPermissions,
-  prevId?: any,
-  readonly?: boolean,
-  record?: any,
-  recordChanged: boolean,
-  recordDeleted: boolean,
-  renderContent?: (form: any) => any,
-  renderSubTitle?: (form: any) => any,
-  renderTab?: (form: any) => any,
-  renderTitle?: (form: any) => any,
-  savedSuccessfully: boolean,
-  saveError: any,
-  saveRecordWhenInitialized?: any,
-  showFooter?: boolean,
-  showHeader?: boolean,
-  showInModal?: boolean,
-  showOwnerManagerSelector?: boolean,
-  showOwnerManagerUi?: boolean,
-  showWorkflowUi?: boolean,
-  showPreviewUi?: boolean,
-  tabs?: FormTabs,
-  tag?: string,
-  timeline?: Array<any>,
-  translationContext?: string,
-  translationContextInner?: string,
-  uid?: string,
-  updatingRecord: boolean,
-  urlSlug?: string,
-}
-
-export interface FormContext extends FormProps {
-  getCustomTabs: () => FormTabs,
-  getEndpointParams: () => object,
-  getEndpointUrl: (action: string) => string,
-  getRecordFormUrl: () => string,
-  getInputProps: (inputName: string, customInputProps?: any) => InputProps,
-  renderDivider: (content: any) => React.JSX.Element,
-  renderInputWrapper: (inputName: string, customInputProps?: any) => React.JSX.Element,
-  renderTab: (tab: string) => null|React.JSX.Element,
-  changeRecord: (changedValues: any, onSuccess?: any) => void,
-  loadRecord: () => void;
-}
-
-export type FormTabs = Array<FormTab>;
-export type FormDescriptionSource = 'props' | 'request' | 'both';
-export type FormInvalidInputs = Array<InvalidInput>;
 
 /**
  * Form
@@ -200,6 +54,10 @@ export type FormInvalidInputs = Array<InvalidInput>;
  * @var [type]
  */
 const Form = React.memo((props: FormProps) => {
+
+  const storeRef = React.useRef<FormRecordStore>(null);
+  if (!storeRef.current) storeRef.current = createRecordStore(props.record ?? {});
+  const recordStore = storeRef.current;
 
   const isCreatingRecord = (id: any): boolean => { return id ? id == -1 : false; };
   const getCallback = (callback: string): any => {
@@ -342,7 +200,7 @@ const Form = React.memo((props: FormProps) => {
       value: value,
       cssClass: inputs[inputName]?.cssClass,
       readonly: readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
-      uid: uid + '_' + uuid.v4(),
+      uid: uid + '_' + inputName,
       parentForm: this,
       isModified: record[inputName] !== originalRecord[inputName],
       isInitialized: false,
@@ -408,7 +266,6 @@ const Form = React.memo((props: FormProps) => {
   const defaultState = {
     activeTab: props.activeTab,
     activeTabUid: 'default',
-    content: props.content,
     creatingRecord: isCreatingRecord(props.id),
     customEndpointParams: props.customEndpointParams ?? {},
     deleteButtonDisabled: false,
@@ -465,7 +322,6 @@ const Form = React.memo((props: FormProps) => {
 
   const [activeTab, setActiveTab] = useState(props.activeTab ?? defaultState.activeTab);
   const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' ? defaultState.activeTabUid : props.activeTabUid);
-  const [content, setContent] = useState(props.content ?? defaultState.content);
   const [creatingRecord, setCreatingRecord] = useState(props.creatingRecord ?? defaultState.creatingRecord);
   const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? defaultState.customEndpointParams);
   const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(props.deleteButtonDisabled ?? defaultState.deleteButtonDisabled);
@@ -650,6 +506,7 @@ const Form = React.memo((props: FormProps) => {
 
   const reload = (): void => {
     setRecord({});
+    recordStore.setRecord(prev => ({}));
     loadRecord();
   }
 
@@ -685,7 +542,9 @@ const Form = React.memo((props: FormProps) => {
   const saveRecord = (customSaveOptions?: any): void => {
     setInvalidInputs([]);
 
-    let recordToSave = { ...record, id: id };
+    // let recordToSave = { ...record, id: id };
+
+    let recordToSave = recordStore.getRecord(); 
 
     (recordToSave._RELATIONS ?? []).map((relName: any) => {
       if (!(description?.includeRelations ?? []).includes(relName)) {
@@ -730,6 +589,7 @@ const Form = React.memo((props: FormProps) => {
 
     setId(-1);
     setRecord(prev => newRecord);
+    recordStore.setRecord(prev => (newRecord));
     setUpdatingRecord(false);
     setCreatingRecord(false);
     setRecordChanged(true);
@@ -774,6 +634,7 @@ const Form = React.memo((props: FormProps) => {
     setRecordChanged(JSON.stringify(originalRecord) !== JSON.stringify(changedRecord));
     setSavedSuccessfully(false);
     setRecord(prev => ({...changedRecord}));
+    recordStore.setRecord(prev => ({ ...changedRecord }));
 
     if (onSuccess) onSuccess(changedRecord);
   }
@@ -810,7 +671,7 @@ const Form = React.memo((props: FormProps) => {
       Object.keys(description.inputs).map((inputName) => {
         const inputDesc: any = description?.inputs ? description?.inputs[inputName] : null;
         if (inputDesc?.isCustom) {
-          customInputs.push(renderInputWrapper(inputName));
+          customInputs.push(<FormInput name={inputName} />);
         }
       });
     }
@@ -899,7 +760,7 @@ const Form = React.memo((props: FormProps) => {
       <div className='flex'>
         {topMenuWithDynamicMenu}
         {description && description.inputs && description.inputs.color
-          ? <div className="p-2">{renderInput('color')}</div>
+          ? <div className="p-2"><FormInput name='color' renderOnlyInputField /></div>
           : null
         }
       </div>
@@ -907,7 +768,7 @@ const Form = React.memo((props: FormProps) => {
         {props.showOwnerManagerUi ? renderOwnerManagerUi() : null}
         {props.showWorkflowUi ? renderWorkflowUi() : null}
         {description && description.inputs && description.inputs.shared_with
-          ? <div className="p-2">{renderInput('shared_with')}</div>
+          ? <div className="p-2"><FormInput name='shared_with' renderOnlyInputField /></div>
           : null
         }
       </div>
@@ -991,7 +852,7 @@ const Form = React.memo((props: FormProps) => {
         return renderDivider(elData.text);
       break;
       case 'form.input':
-        return renderInputWrapper(elData.input);
+        return <FormInput name={elData.input} />
       break;
       default:
         return <>Unknown element renderer: {elRenderer}</>;
@@ -1014,7 +875,9 @@ const Form = React.memo((props: FormProps) => {
   }, []);
 
   const renderTab = useCallback((tab: string): null|React.JSX.Element => {
-    if (props.renderTab) return props.renderTab(_this);
+    return <div>aaa</div>;
+    if (props.uiComponents?.tabContent) return props.uiComponents.tabContent();
+    // if (props.renderTab) return props.renderTab(_this);
 
     let template: any = {};
 
@@ -1062,12 +925,12 @@ const Form = React.memo((props: FormProps) => {
       <div className='flex gap-2 h-full'>
         <div className='flex-1 w-72 flex flex-col gap-2'>
           <div className='grow'>
-            {renderInputWrapper('id_template', {
+            <FormInput name='id_template' customInputProps={{
               uiStyle: 'buttons-vertical',
               onChange: (input: any) => {
                 updatePreview(input.state.value);
               }
-            })}
+            }} />
             <div className='flex flex-col gap-2'>
               <button
                 className='btn btn-add-outline btn-large'
@@ -1097,12 +960,12 @@ const Form = React.memo((props: FormProps) => {
               </button>
             </div>
           </div>
-          {renderInputWrapper('id_document', {readonly: true})}
+          <FormInput name='id_document' readonly={true} />
         </div>
         <div className='flex-3 flex flex-col'>
           <div className='flex gap-2 align-center justify-end'>
             <div>
-              {renderInput('pdf', {readonly: true})}
+              <FormInput name='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
             </div>
           </div>
           <div className='w-full h-full card mt-2'>
@@ -1172,96 +1035,6 @@ const Form = React.memo((props: FormProps) => {
       {showPreviewUi ? renderPreviewUi() : null}
     </>;
   }, [isInitialized, permissions, record, tabs, activeTabUid, description]);
-
-  const renderInput = useCallback((inputName: string, customInputProps?: any): React.JSX.Element => {
-    const inputProps = getInputProps(inputName, customInputProps);
-
-    let inputToRender: React.JSX.Element = <></>;
-    let description: any = inputProps.description;
-
-    if (!description) {
-      return <div className="alert alert-warning">No description for input [{inputProps.inputName}]. Check console for error log.</div>
-    }
-
-    try {
-      if (description.enumValues) {
-        inputToRender = <InputEnumValues {...inputProps} enumValues={description.enumValues} enumCssClasses={description.enumCssClasses}/>
-      } else {
-        if (typeof description.reactComponent === 'string' && description.reactComponent !== '') {
-          inputToRender = globalThis.hubleto.renderReactElement(description.reactComponent, inputProps) ?? <></>;
-        } else {
-          switch (description.type ?? '') {
-            case 'varchar': inputToRender = <InputVarchar {...inputProps} data={null} />; break;
-            case 'password': inputToRender = <InputPassword {...inputProps} />; break;
-            case 'text': inputToRender = <InputTextarea {...inputProps} />; break;
-            case 'json': inputToRender = <InputTextarea {...inputProps} />; break;
-            case 'decimal': case 'int': case 'currency': inputToRender = <InputInt {...inputProps} data={null} />; break;
-            case 'boolean': inputToRender = <InputBoolean {...inputProps} />; break;
-            case 'lookup': inputToRender = <InputLookup {...inputProps} />; break;
-            case 'color':  inputToRender = <InputColor {...inputProps} />; break;
-            //@ts-ignore
-            case 'tags': inputToRender = <InputTags {...inputProps} model={description.model} recordId={inputProps.record.id} />; break;
-            case 'file': inputToRender = <InputFile {...inputProps} />; break;
-            case 'image': inputToRender = <InputImage {...inputProps} />; break;
-            case 'datetime': case 'date': case 'time': inputToRender = <InputDateTime {...inputProps} type={description.type} />; break;
-            default: inputToRender = <InputVarchar {...inputProps} data={null} />;
-          }
-        }
-      }
-    } catch (e) {
-      inputToRender = <div className="alert alert-danger">Failed to initialize input [{inputProps.inputName}]. Check console for error log.</div>
-      console.error('Failed to initialize input for ' + inputProps.inputName);
-      console.error(e);
-    }
-
-    return inputToRender;
-  }, [record]);
-
-  const renderInputWrapper = useCallback((inputName: string, customInputProps?: any): React.JSX.Element => {
-    const inputProps = getInputProps(inputName, customInputProps);
-
-    return renderInputWrapperCustom(
-      inputName,
-      inputProps,
-      inputProps.description?.title ?? '',
-      <>
-        {renderInput(inputName, customInputProps)}
-        {inputProps.description?.info}
-      </>
-    );
-  }, [record]);
-
-  const renderInputWrapperCustom = useCallback((inputName: string, inputProps: any, label: string|React.JSX.Element, body: string|React.JSX.Element): React.JSX.Element => {
-    return <div
-      id={uid + '_' + inputName}
-      className={
-        "input-wrapper"
-        + (inputProps.wrapperCssClass ? " " + inputProps.wrapperCssClass : "")
-        + (inputProps.description?.required == true ? " required" : "")
-        + (inputProps.isModified == true ? " modified" : "")
-      }
-      key={inputName}
-    >
-      <label className="input-label" htmlFor={uid + '_' + inputName}>
-        {label}
-      </label>
-
-      <div className="input-body" key={inputName}>
-        {inputProps.description?.icon ?
-          <div className='input-icon'>
-            <i className={inputProps.description?.icon}></i>
-          </div>
-        : null}
-
-        {body}
-      </div>
-
-      {inputProps.description?.description
-        ? <div className="input-description">{inputProps.description?.description}</div>
-        : null
-      }
-    </div>;
-  }, [record]);
 
   const renderDivider = useCallback((content: any): React.JSX.Element => {
     return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
@@ -1552,18 +1325,8 @@ const Form = React.memo((props: FormProps) => {
     </>;
   }, []);
 
-  const renderSubTitle = useCallback((): null|React.JSX.Element => {
-    if (props.renderSubTitle) return props.renderSubTitle(_this);
-
-    if (description?.ui?.subTitle) {
-      return <small>{description?.ui?.subTitle}</small>;
-    } else {
-      return <></>;
-    }
-  }, [record]);
-
-  const renderTitle = useCallback((): null|React.JSX.Element => {
-    if (props.renderTitle) return props.renderTitle(_this);
+  const renderTitle = (): null|React.JSX.Element => {
+    if (props.uiComponents?.title) return props.uiComponents.title();
 
     let title = description?.ui?.title ??
       (updatingRecord
@@ -1574,9 +1337,9 @@ const Form = React.memo((props: FormProps) => {
 
     return <>
       <h2>{title}</h2>
-      {renderSubTitle()}
-    </>
-  }, [record]);
+      {description?.ui?.subTitle ? <small>{description?.ui?.subTitle}</small> : null}
+    </>;
+  };
 
   const renderWorkflowUi = useCallback((): React.JSX.Element => {
     return (id <= 0 ? null : <div className='flex grow p-2 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800'>
@@ -1587,7 +1350,7 @@ const Form = React.memo((props: FormProps) => {
         ></WorkflowSelector>
       </div>
       {description && description.inputs && description.inputs.is_closed
-        ? <div className='text-right'>{renderInputWrapper('is_closed', {wrapperCssClass: 'flex gap-2'})}</div>
+        ? <div className='text-right'><FormInput name='is_closed' cssClass='flex gap-2' /></div>
         : null
       }
     </div>);
@@ -1651,8 +1414,8 @@ const Form = React.memo((props: FormProps) => {
         <div
           className='mt-2 shadow min-w-64 border border-primary bg-white rounded'
         >
-          {renderInputWrapper('id_owner')}
-          {renderInputWrapper('id_manager')}
+          <FormInput name='id_owner' />
+          <FormInput name='id_manager' />
         </div>
       </div> : null}
     </div>;
@@ -1690,10 +1453,10 @@ const Form = React.memo((props: FormProps) => {
   };
 
 
+  //@ts-ignore
   const _this: FormContext = {
     activeTab,
     activeTabUid,
-    content,
     creatingRecord,
     customEndpointParams,
     deleteButtonDisabled,
@@ -1742,7 +1505,6 @@ const Form = React.memo((props: FormProps) => {
     getInputProps,
 
     renderDivider,
-    renderInputWrapper,
     renderTab,
 
     changeRecord,
@@ -1759,10 +1521,10 @@ const Form = React.memo((props: FormProps) => {
 
 
 
-
+  let returnValue = null;
 
   if (loadRecordError) {
-    return <>
+    returnValue = <>
       <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
       <div className="m-4"><code>{loadRecordError.message}</code></div>
     </>
@@ -1782,7 +1544,7 @@ const Form = React.memo((props: FormProps) => {
       const footerButtons = renderFooterButtons();
 
       if (modal && modal.current) {
-        return <>
+        returnValue = <>
           {showHeader ? <>
             <div className={"modal-header " + (modal.current.state.isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
               <div className="modal-header-left">{headerLeft}</div>
@@ -1802,7 +1564,7 @@ const Form = React.memo((props: FormProps) => {
           </> : null}
         </>;
       } else {
-        return <>
+        returnValue = <>
           <div id={"hubleto-form-" + uid} className="hubleto component form">
             {showHeader ? <>
               <div className="form-header">
@@ -1825,9 +1587,21 @@ const Form = React.memo((props: FormProps) => {
     } catch(e) {
       console.error('Failed to render form.');
       console.error(e);
-      return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
+      returnValue = <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
     }
+
+  // returnValue = <div><Form;
   }
+
+  return (
+    <FormRecordStoreContext.Provider value={recordStore}>
+      <FormDescriptionContext.Provider value={description}>
+        <FormMetaContext.Provider value={{ readonly, invalidInputs, originalRecord, uid }}>
+          {returnValue}
+        </FormMetaContext.Provider>
+      </FormDescriptionContext.Provider>
+    </FormRecordStoreContext.Provider>
+  );
 }, () => true);
 
 export default Form;

@@ -3,11 +3,12 @@ import request from "../../../core/Request";
 import moment from 'moment';
 import Calendar from './Calendar';
 import ModalForm from '@hubleto/react-ui/components/cc/ModalForm';
-import Form, { FormContext, FormRecord } from '../Form';
+import Form from '../Form';
+import { FormRecord } from '../FormInterfaces';
 import Translator from "../../../core/Translator";
 
 export interface CalendarTabProps {
-  parentForm: FormContext,
+  parentForm: any,
   showIdActivity: number,
   activityTime: string,
   activityDate: string,
@@ -28,7 +29,7 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
     'Components\\CalendarTab'
   ).translate;
   
-  const parentForm: FormContext = props.parentForm;
+  const parentForm = props.parentForm;
   const R: FormRecord = parentForm.record;
 
   const [showIdActivity, setShowIdActivity] = useState(props.showIdActivity ?? 0);
