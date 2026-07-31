@@ -90,7 +90,7 @@ const Input = ({ name, cssClass, renderOnlyInputField, customInputProps }: any) 
     </label>
     <div className="input-body">
       {inputDescription.icon && <div className="input-icon"><i className={inputDescription.icon}></i></div>}
-      <Input name={name} customInputProps={customInputProps} />
+      {input}
       {inputDescription.info}
     </div>
     {inputDescription.description && (

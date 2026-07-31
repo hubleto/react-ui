@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from "react";
 import Spinner from '../Spinner';
-import { FormContext } from '../Form';
+import { FormDescriptionContext, FormMetaContext } from "../Form";
+import { useRecordField, useChangeRecord } from "../FormRecordStore";
 import request from "../../../core/Request";
 import Translator from "../../../core/Translator";
 
 interface WorkflowSelectorProps {
-  parentForm: FormContext,
-  readonly?: boolean,
   onAfterWorkflowChange?: (idWorkflow: number, idWorkflowStep: number) => void,
   onAfterWorkflowStepChange?: (idWorkflowStep: number, step: any) => void,
 }
 
-const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
+const translate = new Translator(
+  'Hubleto\\ReactUi',
+  'Components\\WorkflowSelector'
+).translate;
 
-  const translate = new Translator(
-    'Hubleto\\ReactUi',
-    'Components\\WorkflowSelector'
-  ).translate;
-
-  const parentForm: FormContext = props.parentForm;
-  const R = parentForm.record ?? {};
+const WorkflowSelector = (props: WorkflowSelectorProps) => {
+  const description = React.useContext(FormDescriptionContext);
+  const meta = React.useContext(FormMetaContext);
+  const R = useRecordField(r => r);
+  const changeRecord = useChangeRecord();
 
   const [idWorkflow, setIdWorkflow] = useState(R.id_workflow ?? 0);
   const [idWorkflowStep, setIdWorkflowStep] = useState(R.id_workflow_step ?? 0);
@@ -27,20 +27,19 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
   const [history, setHistory] = useState(null);
   const [changeWorkflow, setChangeWorkflow] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [readonly, setReadonly] = useState(props.readonly);
+  const [readonly, setReadonly] = useState(meta.readonly);
 
   const loadData = (onSuccess?: any): void => {
-    const R = parentForm.record ?? {};
 
     request.post(
       'workflow/api/get-workflows',
       {
-        model: parentForm.model,
+        model: meta.model,
         recordId: R.id,
       },
       {},
       (data: any) => {
-        parentForm.changeRecord({...R, WORKFLOW_HISTORY: data.history});
+        changeRecord({...R, WORKFLOW_HISTORY: data.history});
         setIsInitialized(true);
         setWorkflows(data.workflows);
         setHistory(data.history);
@@ -59,7 +58,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
     setIdWorkflowStep(0);
     setChangeWorkflow(false);
 
-    parentForm.changeRecord({id_workflow: newIdWorkflow, id_workflow_step: 0});
+    changeRecord({id_workflow: newIdWorkflow, id_workflow_step: 0});
 
     if (props.onAfterWorkflowChange) {
       props.onAfterWorkflowChange(newIdWorkflow, 0);
@@ -71,7 +70,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
 
     setIdWorkflowStep(newIdWorkflowStep);
 
-    parentForm.changeRecord({id_workflow_step: newIdWorkflowStep});
+    changeRecord({id_workflow_step: newIdWorkflowStep});
 
     if (props.onAfterWorkflowStepChange) {
       props.onAfterWorkflowStepChange(newIdWorkflowStep, step);
@@ -157,7 +156,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
     </div>}
   </div>;
 
-}, () => true);
+};
 
 // export function updateFormWorkflowByTag(form: any, tag: string, onsuccess: any) {
 //   request.post(

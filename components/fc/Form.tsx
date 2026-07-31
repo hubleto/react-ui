@@ -7,7 +7,7 @@ import Spinner from "./Spinner";
 import App from '../../core/App';
 
 import { deepObjectMerge } from "../../core/Helper";
-import WorkflowSelector from './FormComponents/WorkflowSelector';
+import FormWorkflowSelector from './FormComponents/WorkflowSelector';
 import ModalSimple from "../cc/ModalSimple";
 import HtmlFrame from "../cc/HtmlFrame";
 import Translator from "../../core/Translator";
@@ -36,12 +36,10 @@ import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './Fo
 
 
 export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
-export const FormMetaContext = React.createContext<{
-  readonly: boolean;
-  invalidInputs: FormInvalidInputs;
-  originalRecord: FormRecord;
-  uid: string;
-} | null>(null);
+export const FormMetaContext = React.createContext<FormProps & {
+  originalRecord: FormRecord,
+  invalidInputs: FormInvalidInputs,
+}>(null);
 
 
 
@@ -126,27 +124,27 @@ const Form = React.memo((props: FormProps) => {
     else return props.parentApp;
   }
 
-  const getTabsLeft = (): FormTabs => {
-    return [];
-  }
+  // const getTabsLeft = (): FormTabs => {
+  //   return [];
+  // }
 
-  const getCustomTabs = (): FormTabs => {
-    return getParentApp()?.getCustomFormTabs() ?? [];
-  }
+  // const getCustomTabs = (): FormTabs => {
+  //   return getParentApp()?.getCustomFormTabs() ?? [];
+  // }
 
-  const getTabsRight = (): FormTabs => {
-    return [];
-  }
+  // const getTabsRight = (): FormTabs => {
+  //   return [];
+  // }
 
-  const getTabs = (): FormTabs => {
-    if (props.getTabs) return props.getTabs(_this);
+  // const getTabs = (): FormTabs => {
+  //   if (props.getTabs) return props.getTabs(_this);
 
-    return [
-      ...getTabsLeft(),
-      ...getCustomTabs(),
-      ...getTabsRight(),
-    ];
-  }
+  //   return [
+  //     ...getTabsLeft(),
+  //     ...getCustomTabs(),
+  //     ...getTabsRight(),
+  //   ];
+  // }
 
   const getTitleAsText = (): string => {
     return model.split('/').pop() + ' ' + record.id;
@@ -356,7 +354,7 @@ const Form = React.memo((props: FormProps) => {
   const [showInModal, setShowInModal] = useState(props.showInModal ?? defaultState.showInModal);
   const [showOwnerManagerSelector, setShowOwnerManagerSelector] = useState(props.showOwnerManagerSelector ?? defaultState.showOwnerManagerSelector);
   const [showPreviewUi, setShowPreviewUi] = useState(props.showPreviewUi ?? defaultState.showPreviewUi);
-  const [tabs, setTabs] = useState(props.tabs ?? defaultState.tabs);
+  // const [tabs, setTabs] = useState(props.tabs ?? defaultState.tabs);
   const [tag, setTag] = useState(props.tag ?? defaultState.tag);
   const [uid, setUid] = useState(props.uid ?? defaultState.uid);
   const [updatingRecord, setUpdatingRecord] = useState(props.updatingRecord ?? defaultState.updatingRecord);
@@ -440,8 +438,10 @@ const Form = React.memo((props: FormProps) => {
   }
 
   const onTabChange = (): void => {
+    const tabs = props.uiComponents?.tabs;
     const urlParams = new URLSearchParams(window.location.search);
-    const tabExists = (tabs && tabs.filter((t) => t.uid == activeTabUid).length > 0);
+    // const tabExists = (tabs && tabs.filter((t) => t.uid == activeTabUid).length > 0);
+    const tabExists = tabs[activeTabUid] !== null;
 
     if (activeTabUid == 'default' || !tabExists) urlParams.delete('tab');
     else urlParams.set('tab', activeTabUid ?? '');
@@ -469,7 +469,7 @@ const Form = React.memo((props: FormProps) => {
 
         let permissions = calculatePermissions(record);
 
-        let newTabs = getTabs();
+        // let newTabs = getTabs();
         let hasCustomColumns = false;
         let inputs = description?.inputs;
 
@@ -479,24 +479,24 @@ const Form = React.memo((props: FormProps) => {
           });
         }
 
-        if (newTabs && hasCustomColumns) {
-          newTabs.push({
-            uid: '__custom_columns',
-            title: 'Custom',
-            onRender: (form: any) => {
-              // const inputs = form.state.description?.inputs;
-              // return <>{Object.keys(inputs).map((inpName, index) => {
-              //   if (inputs[inpName].isCustom) {
-              //     return form.inputWrapper(inpName);
-              //   }
-              // })}</>;
-              return form.renderCustomInputs();
-            }
-          });
-        }
+        // if (newTabs && hasCustomColumns) {
+        //   newTabs.push({
+        //     uid: '__custom_columns',
+        //     title: 'Custom',
+        //     onRender: (form: any) => {
+        //       // const inputs = form.state.description?.inputs;
+        //       // return <>{Object.keys(inputs).map((inpName, index) => {
+        //       //   if (inputs[inpName].isCustom) {
+        //       //     return form.inputWrapper(inpName);
+        //       //   }
+        //       // })}</>;
+        //       return form.renderCustomInputs();
+        //     }
+        //   });
+        // }
 
         setDescription(description);
-        setTabs(newTabs);
+        // setTabs(newTabs);
         setReadonly(!(permissions.canUpdate || permissions.canCreate));
         setPermissions(permissions);
 
@@ -679,67 +679,48 @@ const Form = React.memo((props: FormProps) => {
     return customInputs;
   }, [isInitialized]);
 
-  const renderTabTitle = useCallback((tabIndex: number): React.JSX.Element => {
-    const tab = tabs ? tabs[tabIndex] : null;
-    if (tab) {
-      const R = record;
-      const title = tab.title;
-
-      if (tab.showCountFor) {
-        const count = tab.showCountFor && R[tab.showCountFor] ? R[tab.showCountFor].length : 0;
-        return <>{title} ({count})</>;
-      } else {
-        return <>{title}</>;
-      }
-    } else {
-      return <>?</>;
-    }
-  }, [isInitialized]);
-
-  const renderTopMenuButton = useCallback((index: number): React.JSX.Element => {
-    let tabUid = activeTabUid ?? '';
+  const renderTopMenuButton = useCallback((tabUid: string): React.JSX.Element => {
     if (tabUid == '') tabUid = 'default';
-    let mainTabUid = tabUid.split('.')[0] ?? 'default';
 
-    let tabTitle = renderTabTitle(index);
-    let tab = tabs[index];
+    const tabs: FormTabs = props.uiComponents?.tabs;
+    if (!tabs) return <></>;
 
-    const isActive = tab['uid'] == mainTabUid;
+    const tab = tabs[tabUid];
+
+    if (!tab) return <></>;
+
+    const isActive = tabUid == activeTabUid;
 
     return <button
-      key={index}
+      key={tabUid}
       className={"btn " + (isActive ? "btn-primary" : (tab.cssClass ?? "btn-transparent"))}
       onClick={() => {
-        const tab = tabs ? tabs[index] : null;
-        const tabUid = (tab ? tab.uid : 'default');
-
-        setActiveTab(index);
         setActiveTabUid(tabUid);
-
         onTabChange();
       }}
     >
       {tab.icon ? <span className="icon"><i className={tab.icon}></i></span> : null}
-      {tabTitle ? <span className={"text " + (tab.isCustom ? "italic" : "")}>{tabTitle}</span> : null}
+      {tab.title ? <span className={"text " + (tab.isCustom ? "italic" : "")}>{tab.title}</span> : null}
     </button>
-  }, [isInitialized, tabs, activeTab, activeTabUid]);
+  }, [isInitialized, activeTab, activeTabUid]);
 
   const renderTopMenu = useCallback((): null|React.JSX.Element => {
     let topMenu = null;
+    const tabs: FormTabs = props.uiComponents?.tabs;
 
     if (tabs && Object.keys(tabs).length > 1) {
       topMenu = <div className="top-menu-wrapper">
         <div>
-          {tabs.map((item: any, index: number) => {
-            if (item.position != 'right') {
-              return renderTopMenuButton(index);
+          {Object.keys(tabs).map((tabUid: string) => {
+            if (tabs[tabUid].position != 'right') {
+              return renderTopMenuButton(tabUid);
             }
           })}
         </div>
         <div>
-          {tabs.map((item: any, index: number) => {
-            if (item.position == 'right') {
-              return renderTopMenuButton(index);
+          {Object.keys(tabs).map((tabUid: string) => {
+            if (tabs[tabUid].position == 'right') {
+              return renderTopMenuButton(tabUid);
             }
           })}
         </div>
@@ -773,7 +754,7 @@ const Form = React.memo((props: FormProps) => {
         }
       </div>
     </div>
-  }, [isInitialized, description, tabs, activeTab, activeTabUid]);
+  }, [isInitialized, description, activeTab, activeTabUid]);
 
   const renderTimeline = useCallback((timelineConfig: any): null|React.JSX.Element => {
     let timeline: any = null;
@@ -833,82 +814,90 @@ const Form = React.memo((props: FormProps) => {
     }
   }, [isInitialized, description]);
 
-  const renderTemplateElement = useCallback((elRenderer: string, elData: any): React.JSX.Element => {
-    switch (elRenderer) {
-      case 'form.columns':
-        if (!elData.props) elData.props = {};
-        elData.props.className = (elData.props?.className ?? '') + ' flex gap-2 flex-col md:flex-row';
-        return React.createElement('div', elData.props, renderFromTemplate(elData.columns));
-      break;
-      case 'form.column':
-        if (!elData.props) elData.props = {};
-        elData.props.className = (elData.props?.className ?? '') + ' w-full flex gap-2 flex-col';
-        return React.createElement('div', elData.props, renderFromTemplate(elData.items));
-      break;
-      case 'form.text':
-        return <div>{elData}</div>;
-      break;
-      case 'form.divider':
-        return renderDivider(elData.text);
-      break;
-      case 'form.input':
-        return <FormInput name={elData.input} />
-      break;
-      default:
-        return <>Unknown element renderer: {elRenderer}</>;
-      break;
-    }
-  }, []);
+  // const renderTemplateElement = useCallback((elRenderer: string, elData: any): React.JSX.Element => {
+  //   switch (elRenderer) {
+  //     case 'form.columns':
+  //       if (!elData.props) elData.props = {};
+  //       elData.props.className = (elData.props?.className ?? '') + ' flex gap-2 flex-col md:flex-row';
+  //       return React.createElement('div', elData.props, renderFromTemplate(elData.columns));
+  //     break;
+  //     case 'form.column':
+  //       if (!elData.props) elData.props = {};
+  //       elData.props.className = (elData.props?.className ?? '') + ' w-full flex gap-2 flex-col';
+  //       return React.createElement('div', elData.props, renderFromTemplate(elData.items));
+  //     break;
+  //     case 'form.text':
+  //       return <div>{elData}</div>;
+  //     break;
+  //     case 'form.divider':
+  //       return renderDivider(elData.text);
+  //     break;
+  //     case 'form.input':
+  //       return <FormInput name={elData.input} />
+  //     break;
+  //     default:
+  //       return <>Unknown element renderer: {elRenderer}</>;
+  //     break;
+  //   }
+  // }, []);
 
-  const renderFromTemplate = useCallback((template: any): Array<React.JSX.Element> => {
-    let content: Array<React.JSX.Element> = [];
-    Object.keys(template).map((elDefinition: string) => {
-      let tmp = elDefinition.split('#');
-      let elRenderer = tmp[0] ?? '';
-      let elId = tmp[1] ?? '';
-      let elData = template[elDefinition] ?? null;
+  // const renderFromTemplate = useCallback((template: any): Array<React.JSX.Element> => {
+  //   let content: Array<React.JSX.Element> = [];
+  //   Object.keys(template).map((elDefinition: string) => {
+  //     let tmp = elDefinition.split('#');
+  //     let elRenderer = tmp[0] ?? '';
+  //     let elId = tmp[1] ?? '';
+  //     let elData = template[elDefinition] ?? null;
 
-      content.push(renderTemplateElement(elRenderer, { elId, ...elData }));
-    });
+  //     content.push(renderTemplateElement(elRenderer, { elId, ...elData }));
+  //   });
 
-    return content;
-  }, []);
+  //   return content;
+  // }, []);
 
   const renderTab = useCallback((tab: string): null|React.JSX.Element => {
-    return <div>aaa</div>;
-    if (props.uiComponents?.tabContent) return props.uiComponents.tabContent();
-    // if (props.renderTab) return props.renderTab(_this);
-
-    let template: any = {};
-
-    if (description?.ui?.templateJson) {
-      try {
-        template = JSON.parse(description?.ui?.templateJson);
-      } catch(ex) {
-        console.error('Failed to render form from template.');
-        console.error(description?.ui?.templateJson);
-        return <div>Failed to render form from template. Check console for more details.</div>;
-      }
-    } else {
-      template = null;
+    if (props.uiComponents?.tabs && props.uiComponents?.tabs[tab]) {
+      return props.uiComponents.tabs[tab].content();
     }
 
-    let tabTemplate = template && template.tabs && template.tabs[tab] ? template.tabs[tab] : null;
+    return <>{Object.keys(description?.inputs ?? {}).map((inputName: string) => {
+      return <FormInput name={inputName} />
+      // if (!elData.props) elData.props = {};
+      // elData.props.className = (elData.props?.className ?? '') + ' flex gap-2 flex-col md:flex-row';
+      // return React.createElement('div', elData.props, renderFromTemplate(elData.columns));
+      // tabInputs['form.input#' + inputName] = {input: inputName};
+    })}</>;
 
-    if (tab == 'default' && !tabTemplate) {
-      let tabInputs: any = {};
+    // let template: any = {};
 
-      Object.keys(description?.inputs ?? {}).map((inputName: string) => {
-        tabInputs['form.input#' + inputName] = {input: inputName};
-      });
-      tabTemplate = {'form.column': { items: tabInputs } };
-    }
+    // if (description?.ui?.templateJson) {
+    //   try {
+    //     template = JSON.parse(description?.ui?.templateJson);
+    //   } catch(ex) {
+    //     console.error('Failed to render form from template.');
+    //     console.error(description?.ui?.templateJson);
+    //     return <div>Failed to render form from template. Check console for more details.</div>;
+    //   }
+    // } else {
+    //   template = null;
+    // }
 
-    if (!tabTemplate) {
-      return <></>;
-    } else {
-      return <>{renderFromTemplate(tabTemplate)}</>;
-    }
+    // let tabTemplate = template && template.tabs && template.tabs[tab] ? template.tabs[tab] : null;
+
+    // if (tab == 'default' && !tabTemplate) {
+    //   let tabInputs: any = {};
+
+    //   Object.keys(description?.inputs ?? {}).map((inputName: string) => {
+    //     tabInputs['form.input#' + inputName] = {input: inputName};
+    //   });
+    //   tabTemplate = {'form.column': { items: tabInputs } };
+    // }
+
+    // if (!tabTemplate) {
+    //   return <></>;
+    // } else {
+    //   return <>{renderFromTemplate(tabTemplate)}</>;
+    // }
   }, [isInitialized, description]);
 
   const renderPreviewUi = useCallback((): null|React.JSX.Element => {
@@ -994,47 +983,11 @@ const Form = React.memo((props: FormProps) => {
   const renderContent = useCallback((): null|React.JSX.Element => {
     if (props.renderContent) return props.renderContent(_this);
 
-    const mainTabUid = activeTabUid.split('.')[0] ?? '';
-    const mainTab: FormTab = tabs?.filter((t) => t['uid'] == mainTabUid)[0] ?? null;
-    const subTabUid = activeTabUid.split('.')[1] ?? (mainTab?.subTabs ? mainTab?.subTabs[0]?.uid ?? '' : '');
-
-    let mainContent = null;
-
-    if (mainTab && typeof mainTab.onRender === 'function') {
-      const tabContent = mainTab.onRender(this);
-      mainContent = tabContent;
-    } else {
-      const tabContent = renderTab(mainTabUid + (subTabUid ? '.' + subTabUid : ''));
-
-      if (mainTab && mainTab.subTabs && mainTab.subTabs.length > 0) {
-
-        return <div className='flex h-full gap-2'>
-          <div className='btn-group vertical flex-1'>{mainTab.subTabs.map((subTab, index) => {
-            return <button
-              key={index}
-              className={'btn ' + (subTab.uid == subTabUid ? 'btn-primary' : (subTab.cssClass ?? 'btn-transparent'))}
-              onClick={() => {
-                setActiveTab(index);
-                setActiveTabUid( mainTab.uid + '.' + subTab.uid);
-                onTabChange();
-              }}
-            >
-              {subTab.icon ? <span className='icon'><i className={subTab.icon}></i></span> : null}
-              <span className='text text-nowrap'>{subTab.title}</span>
-            </button>
-          })}</div>
-          <div className='flex-5'>{tabContent}</div>
-        </div>;
-      } else {
-        return tabContent;
-      }
-    }
-
     return <>
-      {mainContent}
+      {renderTab(activeTabUid)}
       {showPreviewUi ? renderPreviewUi() : null}
     </>;
-  }, [isInitialized, permissions, record, tabs, activeTabUid, description]);
+  }, [isInitialized, permissions, record, activeTabUid, description]);
 
   const renderDivider = useCallback((content: any): React.JSX.Element => {
     return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
@@ -1344,10 +1297,7 @@ const Form = React.memo((props: FormProps) => {
   const renderWorkflowUi = useCallback((): React.JSX.Element => {
     return (id <= 0 ? null : <div className='flex grow p-2 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800'>
       <div className='flex-2'>
-        <WorkflowSelector
-          parentForm={_this}
-          readonly={readonly}
-        ></WorkflowSelector>
+        <FormWorkflowSelector></FormWorkflowSelector>
       </div>
       {description && description.inputs && description.inputs.is_closed
         ? <div className='text-right'><FormInput name='is_closed' cssClass='flex gap-2' /></div>
@@ -1452,9 +1402,9 @@ const Form = React.memo((props: FormProps) => {
     ;
   };
 
-
+  const _this = this;
   //@ts-ignore
-  const _this: FormContext = {
+  const x_this: FormContext = {
     activeTab,
     activeTabUid,
     creatingRecord,
@@ -1491,14 +1441,12 @@ const Form = React.memo((props: FormProps) => {
     showInModal,
     showOwnerManagerSelector,
     showPreviewUi,
-    tabs,
     tag,
     uid,
     urlSlug,
     updatingRecord,
 
 
-    getCustomTabs,
     getEndpointParams,
     getEndpointUrl,
     getRecordFormUrl,
@@ -1596,7 +1544,7 @@ const Form = React.memo((props: FormProps) => {
   return (
     <FormRecordStoreContext.Provider value={recordStore}>
       <FormDescriptionContext.Provider value={description}>
-        <FormMetaContext.Provider value={{ readonly, invalidInputs, originalRecord, uid }}>
+        <FormMetaContext.Provider value={{...props, originalRecord, invalidInputs}}>
           {returnValue}
         </FormMetaContext.Provider>
       </FormDescriptionContext.Provider>

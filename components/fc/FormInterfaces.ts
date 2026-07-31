@@ -1,3 +1,4 @@
+import React from "react";
 import { InputProps } from "./Input";
 
 export default interface FormInvalidInput {
@@ -57,12 +58,13 @@ export interface FormTab {
   showCountFor?: string,
   isCustom?: boolean,
   subTabs?: Array<FormTab>,
-  onRender?: (form: any) => React.JSX.Element,
+  position?: string,
+  content: () => React.JSX.Element,
 }
 
 export interface FormUiComponents {
   title?: () => React.JSX.Element;
-  tabContent?: () => React.JSX.Element;
+  tabs?: FormTabs,
 }
 
 export interface FormProps {
@@ -155,7 +157,7 @@ export interface FormContext extends FormProps {
   loadRecord: () => void;
 }
 
-export type FormTabs = Array<FormTab>;
+export type FormTabs = { [key: string]: FormTab; };
 export type FormDescriptionSource = 'props' | 'request' | 'both';
 export type FormInvalidInputs = Array<FormInvalidInput>;
 
