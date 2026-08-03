@@ -1,42 +1,48 @@
-import React, { useState } from 'react';
+import React, { JSX, useState } from 'react';
 import request from "../../../core/Request";
 import moment from 'moment';
 import Calendar from './Calendar';
 import ModalForm from '@hubleto/react-ui/components/cc/ModalForm';
-import Form from '../Form';
-import { FormRecord } from '../FormInterfaces';
 import Translator from "../../../core/Translator";
+import Form, { FormDescriptionContext, FormMetaContext } from "../Form";
+import { useRecordField, useChangeRecord, getRecord, FormRecordStoreContext } from "../FormRecordStore";
+import Divider from './Divider';
 
 export interface CalendarTabProps {
-  parentForm: any,
-  showIdActivity: number,
-  activityTime: string,
-  activityDate: string,
-  activitySubject: string,
-  activityAllDay: boolean,
-
+  showIdActivity?: number,
   renderActivityForm: (calendarTab: any) => React.JSX.Element,
+  children?: JSX.Element,
 }
 
-export interface CalendarTabContext extends CalendarTabProps {
-  setShowIdActivity: React.Dispatch<number>,
-}
+export const CalendarTabContext = React.createContext<{
+  showIdActivity,
+  activityTime,
+  activityDate,
+  activitySubject,
+  activityAllDay,
+  setShowIdActivity,
+}>(null);
 
-const CalendarTab = React.memo((props: CalendarTabProps) => {
+
+const ActivityFormRenderer = (p: { renderer: any, calendarTab: any }): React.JSX.Element => p.renderer(p.calendarTab);
+
+const CalendarTab = (props: CalendarTabProps) => {
+  const form = React.useContext(FormMetaContext);
+
+  const id = useRecordField(r => r.id);
+  const isClosed = useRecordField(r => r.is_closed);
+  const ACTIVITIES = useRecordField(r => r.ACTIVITIES);
 
   const translate = new Translator(
     'Hubleto\\ReactUi',
     'Components\\CalendarTab'
   ).translate;
   
-  const parentForm = props.parentForm;
-  const R: FormRecord = parentForm.record;
-
   const [showIdActivity, setShowIdActivity] = useState(props.showIdActivity ?? 0);
-  const [activityTime, setActivityTime] = useState(props.activityTime ?? '');
-  const [activityDate, setActivityDate] = useState(props.activityDate ?? '');
-  const [activitySubject, setActivitySubject] = useState(props.activitySubject ?? '');
-  const [activityAllDay, setActivityAllDay] = useState(props.activityAllDay ?? false);
+  const [activityTime, setActivityTime] = useState('');
+  const [activityDate, setActivityDate] = useState('');
+  const [activitySubject, setActivitySubject] = useState('');
+  const [activityAllDay, setActivityAllDay] = useState(false);
 
   const refLogActivityInput = React.createRef<HTMLInputElement>();
   const refActivityForm = React.createRef<typeof Form>();
@@ -45,11 +51,11 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
     request.get(
       'leads/api/log-activity',
       {
-        idLead: parentForm.record.id,
+        idLead: id,
         activity: refLogActivityInput.current.value,
       },
       (result: any) => {
-        parentForm.loadRecord();
+        form.loadRecord();
         refLogActivityInput.current.value = '';
       }
     );
@@ -64,11 +70,11 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
   }
 
   const tmpCalendarSmall = <Calendar
-    onCreateCallback={() => parentForm.loadRecord()}
-    readonly={R.is_closed}
+    onCreateCallback={() => form.loadRecord()}
+    readonly={isClosed}
     initialView='dayGridMonth'
     headerToolbar={{ start: 'title', center: '', end: 'prev,today,next' }}
-    eventsEndpoint={globalThis.hubleto.config.projectUrl + '/calendar/api/get-calendar-events?calendar=leads&idLead=' + R.id}
+    eventsEndpoint={globalThis.hubleto.config.projectUrl + '/calendar/api/get-calendar-events?calendar=leads&idLead=' + id}
     onDateClick={(date: any, time: any, info: any) => {
       setActivityDate(date);
       setActivityTime(time);
@@ -117,8 +123,8 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
           <span className="shortcut">{translate('Shift+Enter')}</span>
         </button>
       </div>
-      {parentForm.renderDivider(translate('Most recent activities'))}
-      {R.ACTIVITIES ? <div className="list">{R.ACTIVITIES.reverse().slice(0, 7).map((item: any, index: string) => {
+      <Divider>{translate('Most recent activities')}</Divider>
+      {ACTIVITIES ? <div className="list">{ACTIVITIES.reverse().slice(0, 7).map((item: any, index: string) => {
         return <>
           <button key={index} className={"btn btn-small btn-transparent btn-list-item " + (item.completed ? "bg-green-50" : "bg-red-50")}
             onClick={() => setShowIdActivity(item.id)}
@@ -135,11 +141,11 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
   </div>;
 
   const tmpCalendarLarge = <Calendar
-    onCreateCallback={() => parentForm.loadRecord()}
-    readonly={R.is_closed}
+    onCreateCallback={() => form.loadRecord()}
+    readonly={isClosed}
     initialView='timeGridWeek'
     views={"timeGridDay,timeGridWeek,dayGridMonth,listYear"}
-    eventsEndpoint={globalThis.hubleto.config.projectUrl + '/calendar/api/get-calendar-events?calendar=leads&idLead=' + R.id}
+    eventsEndpoint={globalThis.hubleto.config.projectUrl + '/calendar/api/get-calendar-events?calendar=leads&idLead=' + id}
     onDateClick={(date: any, time: any, info: any) => {
       setActivityDate(date);
       setActivityTime(time);
@@ -152,8 +158,8 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
     }}
   ></Calendar>;
 
-  const _this: CalendarTabContext = {
-    parentForm,
+  const _this: any = {
+    form,
     showIdActivity,
     activityTime,
     activityDate,
@@ -163,13 +169,20 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
     setShowIdActivity,
   }
 
-  return <>
+  return <CalendarTabContext.Provider value={{
+    showIdActivity,
+    activityTime,
+    activityDate,
+    activitySubject,
+    activityAllDay,
+    setShowIdActivity,
+  }}>
     <div className='flex gap-2 mt-2'>
       <div className='flex-2 w-2/3'>
         {tmpCalendarLarge}
       </div>
       <div className='flex-1 w-1/3'>
-        {parentForm.id > 0 ? recentActivitiesAndCalendar : null}
+        {form.id > 0 ? recentActivitiesAndCalendar : null}
       </div>
     </div>
     {showIdActivity == 0 ? null : <>
@@ -178,12 +191,12 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
         uid='activity_form'
         isOpen={true}
         type='right'
-      >{props.renderActivityForm(_this)}</ModalForm>
+      ><ActivityFormRenderer renderer={props.renderActivityForm} calendarTab={_this} /></ModalForm>
     </>}
-  </>;
+  </CalendarTabContext.Provider>;
 
 
 
-}, () => true);
+};
 
 export default CalendarTab;

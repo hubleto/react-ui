@@ -19,7 +19,7 @@ import InputImage from "../../cc/Inputs/Image";
 import InputTags from "../../cc/Inputs/Tags2";
 
 
-const Input = ({ name, cssClass, renderOnlyInputField, customInputProps }: any) => {
+const Input = ({ name, content, cssClass, renderOnlyInputField, customInputProps }: any) => {
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
   const value = useRecordField(r => r[name]);
@@ -76,8 +76,11 @@ const Input = ({ name, cssClass, renderOnlyInputField, customInputProps }: any) 
     default: input = <InputVarchar {...inputProps} />;
   }
 
-  if (renderOnlyInputField) return input;
-  else return <div
+  let finalContent = null;
+
+  if (content) finalContent = content;
+  else if (renderOnlyInputField) finalContent = input;
+  else finalContent = <div
     id={form.uid + '_' + name}
     className={
       'input-wrapper'
@@ -96,7 +99,9 @@ const Input = ({ name, cssClass, renderOnlyInputField, customInputProps }: any) 
     {inputDescription.description && (
       <div className="input-description">{inputDescription.description}</div>
     )}
-  </div>
+  </div>;
+
+  return finalContent;
 
 }
 

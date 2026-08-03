@@ -29,7 +29,6 @@ import {
   FormTab,
   FormUiComponents,
   FormProps,
-  FormContext,
   FormTabs,
   FormDescriptionSource,
 } from "./FormInterfaces"
@@ -48,7 +47,8 @@ export const FormMetaContext = React.createContext<{
   permissions,
   recordChanged,
   savedSuccessfully,
-  translate, saveRecord, closeForm
+  translate, saveRecord, closeForm,
+  loadRecord, id
 }>(null);
 
 
@@ -134,28 +134,6 @@ const Form = (props: FormProps) => {
     else return props.parentApp;
   }
 
-  // const getTabsLeft = (): FormTabs => {
-  //   return [];
-  // }
-
-  // const getCustomTabs = (): FormTabs => {
-  //   return getParentApp()?.getCustomFormTabs() ?? [];
-  // }
-
-  // const getTabsRight = (): FormTabs => {
-  //   return [];
-  // }
-
-  // const getTabs = (): FormTabs => {
-  //   if (props.getTabs) return props.getTabs(_this);
-
-  //   return [
-  //     ...getTabsLeft(),
-  //     ...getCustomTabs(),
-  //     ...getTabsRight(),
-  //   ];
-  // }
-
   const getTitleAsText = (): string => {
     return model.split('/').pop() + ' ' + record.id;
   }
@@ -213,7 +191,6 @@ const Form = (props: FormProps) => {
       isModified: record[inputName] !== originalRecord[inputName],
       isInitialized: false,
       isInlineEditing: isInlineEditing,
-      showInlineEditingButtons: false, // !this.state.isInlineEditing,
       invalid: invalid,
       ...inputs[inputName]?.inputProps,
       ...customInputProps,
@@ -272,12 +249,6 @@ const Form = (props: FormProps) => {
   }
 
   const defaultState = {
-    activeTab: props.activeTab,
-    activeTabUid: 'default',
-    creatingRecord: isCreatingRecord(props.id),
-    customEndpointParams: props.customEndpointParams ?? {},
-    deleteButtonDisabled: false,
-    deletingRecord: false,
     description: props.description ?? {
       inputs: {},
       defaultValues: {},
@@ -295,29 +266,19 @@ const Form = (props: FormProps) => {
     hideOverlay: true,
     htmlPreview: '',
     id: props.id,
-    invalidInputs: [],
-    isFullscreen: false,
     isInitialized: false,
     isInlineEditing: props.isInlineEditing ? props.isInlineEditing : true,
-    loadRecordError: null,
-    modal: true,
-    model: '',
     nextId: props.nextId,
-    originalRecord: {},
     params: null,
     parentTable: null,
     permissions: calculatePermissions(null),
     prevId: props.prevId,
     readonly: props.readonly,
-    record: {},
-    recordChanged: false,
-    recordDeleted: false,
     savedSuccessfully: false,
     saveError: null,
     saveRecordWhenInitialized: false,
     showFooter: true,
     showHeader: true,
-    showInModal: true,
     showOwnerManagerSelector: false,
     showOwnerManagerUi: false,
     showPreviewUi: false,
@@ -328,46 +289,43 @@ const Form = (props: FormProps) => {
     urlSlug: '',
   };
 
-  const [activeTab, setActiveTab] = useState(props.activeTab ?? defaultState.activeTab);
-  const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' ? defaultState.activeTabUid : props.activeTabUid);
-  const [creatingRecord, setCreatingRecord] = useState(props.creatingRecord ?? defaultState.creatingRecord);
-  const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? defaultState.customEndpointParams);
-  const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(props.deleteButtonDisabled ?? defaultState.deleteButtonDisabled);
-  const [deletingRecord, setDeletingRecord] = useState(props.deletingRecord ?? defaultState.deletingRecord);
+  const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid ?? 'default');
+  const [creatingRecord, setCreatingRecord] = useState(isCreatingRecord(props.id));
+  const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? {});
+  const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(false);
+  const [deletingRecord, setDeletingRecord] = useState(false);
   const [description, setDescription] = useState(props.description ?? defaultState.description);
   const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? defaultState.descriptionSource);
   const [endpoint, setEndpoint] = useState(props.endpoint ?? defaultState.endpoint);
-  const [hideOverlay, setHideOverlay] = useState(props.hideOverlay ?? defaultState.hideOverlay);
-  const [htmlPreview, setHtmlPreview] = useState(props.htmlPreview ?? defaultState.htmlPreview);
+  const [htmlPreview, setHtmlPreview] = useState('');
   const [id, setId] = useState(props.id ?? defaultState.id);
-  const [invalidInputs, setInvalidInputs] = useState(props.invalidInputs ?? defaultState.invalidInputs);
-  const [isFullscreen, setIsFullscreen] = useState(props.isFullscreen ?? defaultState.isFullscreen);
+  const [invalidInputs, setInvalidInputs] = useState([]);
+  const [isActive, setIsActive] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(props.isFullscreen ?? false);
   const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? defaultState.isInitialized);
   const [isInlineEditing, setIsInlineEditing] = useState(props.isInlineEditing ?? defaultState.isInlineEditing);
-  const [loadRecordError, setLoadRecordError] = useState(props.loadRecordError ?? defaultState.loadRecordError);
-  const [modal, setModal] = useState(props.modal ?? defaultState.modal);
-  const [model, setModel] = useState(props.model ?? defaultState.model);
+  const [loadRecordError, setLoadRecordError] = useState(null);
+  const [modal, setModal] = useState(true);
+  const [model, setModel] = useState(props.model ?? '');
   const [nextId, setNextId] = useState(props.nextId ?? defaultState.nextId);
-  const [originalRecord, setOriginalRecord] = useState(props.originalRecord ?? defaultState.originalRecord);
+  const [originalRecord, setOriginalRecord] = useState({} as FormRecord);
   const [parentTable, setParentTable] = useState(props.parentTable ?? defaultState.parentTable);
   const [permissions, setPermissions] = useState(props.permissions ?? defaultState.permissions);
   const [prevId, setPrevId] = useState(props.prevId ?? defaultState.prevId);
   const [readonly, setReadonly] = useState(props.readonly ?? defaultState.readonly);
-  const [record, setRecord] = useState(props.record ?? defaultState.record);
-  const [recordChanged, setRecordChanged] = useState(props.recordChanged ?? defaultState.recordChanged);
-  const [recordDeleted, setRecordDeleted] = useState(props.recordDeleted ?? defaultState.recordDeleted);
-  const [savedSuccessfully, setSavedSuccessfully] = useState(props.savedSuccessfully ?? defaultState.savedSuccessfully);
-  const [saveError, setSaveError] = useState(props.saveError ?? defaultState.saveError);
+  const [record, setRecord] = useState({} as FormRecord);
+  const [recordChanged, setRecordChanged] = useState(false);
+  const [recordDeleted, setRecordDeleted] = useState(false);
+  const [savedSuccessfully, setSavedSuccessfully] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [saveRecordWhenInitialized, setSaveRecordWhenInitialized] = useState(props.saveRecordWhenInitialized ?? defaultState.saveRecordWhenInitialized);
-  const [showFooter, setShowFooter] = useState(props.showFooter ?? defaultState.showFooter);
-  const [showHeader, setShowHeader] = useState(props.showHeader ?? defaultState.showHeader);
-  const [showInModal, setShowInModal] = useState(props.showInModal ?? defaultState.showInModal);
+  const [showFooter, setShowFooter] = useState(true);
+  const [showHeader, setShowHeader] = useState(true);
   const [showOwnerManagerSelector, setShowOwnerManagerSelector] = useState(props.showOwnerManagerSelector ?? defaultState.showOwnerManagerSelector);
   const [showPreviewUi, setShowPreviewUi] = useState(props.showPreviewUi ?? defaultState.showPreviewUi);
-  // const [tabs, setTabs] = useState(props.tabs ?? defaultState.tabs);
   const [tag, setTag] = useState(props.tag ?? defaultState.tag);
   const [uid, setUid] = useState(props.uid ?? defaultState.uid);
-  const [updatingRecord, setUpdatingRecord] = useState(props.updatingRecord ?? defaultState.updatingRecord);
+  const [updatingRecord, setUpdatingRecord] = useState(false);
   const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? defaultState.urlSlug);
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = _this; }, [uid]);
@@ -451,7 +409,7 @@ const Form = (props: FormProps) => {
     const tabs = props.uiComponents?.tabs;
     const urlParams = new URLSearchParams(window.location.search);
     // const tabExists = (tabs && tabs.filter((t) => t.uid == activeTabUid).length > 0);
-    const tabExists = tabs[activeTabUid] !== null;
+    const tabExists = tabs && tabs[activeTabUid] !== null;
 
     if (activeTabUid == 'default' || !tabExists) urlParams.delete('tab');
     else urlParams.set('tab', activeTabUid ?? '');
@@ -884,7 +842,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderContent = (): null|React.JSX.Element => {
-    if (props.renderContent) return props.renderContent(_this);
+    if (props.uiComponents?.content) return props.uiComponents.content();
 
     return <>
       {renderTab(activeTabUid)}
@@ -928,7 +886,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderSaveButton = (): null|React.JSX.Element => {
-    if (props.uiComponents.saveButton) return props.uiComponents.saveButton();
+    if (props.uiComponents?.saveButton) return props.uiComponents.saveButton;
     return <FormSaveButton></FormSaveButton>;
   };
 
@@ -1032,7 +990,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderCloseButton = (): null|React.JSX.Element => {
-    if (props.uiComponents.closeButton) return props.uiComponents.closeButton();
+    if (props.uiComponents?.closeButton) return props.uiComponents.closeButton;
     return <FormCloseButton></FormCloseButton>;
   };
 
@@ -1127,7 +1085,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderTitle = (): null|React.JSX.Element => {
-    if (props.uiComponents?.title) return props.uiComponents.title();
+    if (props.uiComponents?.title) return props.uiComponents.title;
 
     let title = description?.ui?.title ??
       (updatingRecord
@@ -1282,10 +1240,10 @@ const Form = (props: FormProps) => {
       const headerButtons = renderHeaderButtons();
       const footerButtons = renderFooterButtons();
 
-      if (modal && modal.current) {
+      if (modal) {
         finalContent = <>
           {showHeader ? <>
-            <div className={"modal-header " + (modal.current.state.isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
+            <div className={"modal-header " + (isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
               <div className="modal-header-left">{headerLeft}</div>
               <div className="modal-header-title">{formTitle}</div>
               <div className="modal-header-right">{headerRight}</div>
@@ -1338,7 +1296,8 @@ const Form = (props: FormProps) => {
           originalRecord, invalidInputs,
           creatingRecord, updatingRecord,
           permissions, recordChanged, savedSuccessfully,
-          translate, saveRecord, closeForm
+          translate, saveRecord, closeForm, loadRecord,
+          id
         }}>
           {finalContent}
         </FormMetaContext.Provider>

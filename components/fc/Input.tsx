@@ -151,10 +151,9 @@ const Input = React.memo((props: InputProps) => {
 
   const changeValue = (newValue: any): void => {
     if (props.changeValue) props.changeValue(_this, newValue);
-
     setValue(newValue);
-    if (props.onChange) props.onChange(_this, value);
-    setChanged(origValue != value);
+    if (props.onChange) props.onChange(_this, newValue);
+    setChanged(origValue != newValue);
   };
 
   const renderInputElement = useCallback((input: any): React.JSX.Element => {
