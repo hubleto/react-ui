@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, Dispatch } from 'react'
+import React, { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react'
 import Spinner from "./Spinner";
 
 export interface InputDescription {
@@ -59,7 +59,7 @@ export interface InputProps {
   data?: Array<any>,
 }
 
-export const InputMetaContext = React.createContext<{
+export interface InputMeta {
   setReadonly,
   setInvalid,
   setValue,
@@ -85,9 +85,11 @@ export const InputMetaContext = React.createContext<{
   invalid,
   cssClass,
   cssStyle,
-}>(null);
+};
 
-const Input = (props: InputProps) => {
+export const InputMetaContext = React.createContext<InputMeta>(null);
+
+const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
 
   const translate = (orig: string, context?: string, contextInner?: string, vars?: any): string => {
     try {
@@ -208,8 +210,42 @@ const Input = (props: InputProps) => {
     translate
   }
 
-  const valueComponent = renderValueComponent();
-  const inputComponent = renderInputComponent();
+  // Build the meta object once so both the context Provider (for
+  // descendants) and useImperativeHandle (for the parent via ref)
+  // expose the exact same shape.
+  const meta: InputMeta = {
+    setReadonly,
+    setInvalid,
+    setValue,
+    setOrigValue,
+    setChanged,
+    setCssClass,
+    setCssStyle,
+    setIsModified,
+    setIsInitialized,
+    setIsInlineEditing,
+    setData,
+    setDescription,
+    refInputWrapper,
+    refInputElement,
+    refValueElement,
+    refInput,
+    readonly,
+    value,
+    changeValue,
+    description,
+    isInitialized,
+    data,
+    invalid,
+    cssClass,
+    cssStyle,
+  };
+
+  // Expose `meta` imperatively to whoever holds a ref to <Input>.
+  // This lets a parent ABOVE the InputMetaContext.Provider (like Tags,
+  // which renders <Input> itself and therefore isn't a descendant of
+  // its own Provider) still call things like setIsInitialized(true).
+  useImperativeHandle(ref, () => meta);
 
   if (!isInitialized) return <Spinner size="xs" />;
 
@@ -258,7 +294,7 @@ const Input = (props: InputProps) => {
               readOnly={true}
             ></input>
             <div ref={refInputElement} className="input-element">
-              {inputComponent}
+              {renderInputComponent()}
               {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
             </div>
           </>
@@ -266,7 +302,7 @@ const Input = (props: InputProps) => {
             ref={refValueElement}
             className="value-element"
           >
-            {valueComponent}
+            {renderValueComponent()}
             {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
           </div>
         }
@@ -278,6 +314,6 @@ const Input = (props: InputProps) => {
     console.error(e);
     return <div className="alert alert-danger">{errMsg} Check console for error log.</div>
   }
-};
+});
 
 export default Input;

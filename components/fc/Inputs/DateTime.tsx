@@ -5,7 +5,7 @@ import moment, { Moment } from "moment";
 import Translator from "../../../core/Translator";
 
 export interface DateTimeInputProps extends InputProps {
-  type: 'date' | 'time' | 'datetime',
+  type?: 'date' | 'time' | 'datetime',
   showReadable?: boolean,
 }
 
@@ -147,7 +147,7 @@ const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
 
   return <div className="flex gap-2">
     <div className="flex gap-2 items-center">
-      <i className={icon}></i>
+      {/* <i className={icon}></i> */}
       <div style={{minWidth: "8em"}}>
         <input
           ref={input.refInput}

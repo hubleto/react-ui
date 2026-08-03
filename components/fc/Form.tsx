@@ -129,7 +129,7 @@ const Form = (props: FormProps) => {
       tag: tag,
       includeRelations: description?.includeRelations,
       __IS_AJAX__: '1',
-      ...customEndpointParams
+      ...props.customEndpointParams
     };
   }
 
@@ -292,7 +292,7 @@ const Form = (props: FormProps) => {
 
   const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' || !props.activeTabUid ? 'default' : props.activeTabUid);
   const [creatingRecord, setCreatingRecord] = useState(isCreatingRecord(props.id));
-  const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? {});
+  // const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? {});
   const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(false);
   const [deletingRecord, setDeletingRecord] = useState(false);
   const [description, setDescription] = useState(props.description ?? defaultState.description);

@@ -28,7 +28,7 @@ const ValueComponent = (props: InputProps) => {
 const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
   return <div className="w-full flex gap-2 items-center">
-    <i className="fas fa-link"></i>
+    {/* <i className="fas fa-link"></i> */}
     <VarcharInputComponent {...props} />
     <a
       href={input.value}

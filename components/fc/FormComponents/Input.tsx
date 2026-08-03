@@ -67,15 +67,11 @@ const Input = (props: any) => {
       case 'boolean': input = <InputBoolean {...inputProps} />; break;
       case 'lookup': input = <InputLookup {...inputProps} />; break;
       case 'color': input = <InputColor {...inputProps} />; break;
-
-      //@ts-ignore
-      case 'tags': input = <InputTags {...inputProps} recordId={value?.id} />; break;
-
       case 'file': input = <InputFile {...inputProps} />; break;
       case 'image': input = <InputImage {...inputProps} />; break;
-      case 'date': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
-      case 'time': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
-      case 'datetime': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
+      case 'date': input = <InputDateTime {...inputProps} />; break;
+      case 'time': input = <InputDateTime {...inputProps} />; break;
+      case 'datetime': input = <InputDateTime {...inputProps} />; break;
       default:
         if (children) {
           input = children;
