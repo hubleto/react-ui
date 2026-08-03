@@ -31,8 +31,6 @@ const Input = (props: any) => {
   const isModified = useRecordField(r => r[name] !== form.originalRecord[name]);
   const isInlineEditing = true;
 
-  if (debug) console.log('inputDebug', name, inputDescription);
-
   const inputProps: InputProps = {
     inputName: name,
     value,
@@ -82,7 +80,7 @@ const Input = (props: any) => {
     case 'time': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
     case 'datetime': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
     default:
-      console.log('Unknown input type ' + inputDescription.type + ' for input named ' + name + '. Rendering Varchar.');
+      console.warn('Unknown input type ' + inputDescription.type + ' for input named ' + name + '. Rendering Varchar.');
       input = <InputVarchar {...inputProps} />;
     break;
   }

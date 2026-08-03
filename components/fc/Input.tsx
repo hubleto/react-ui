@@ -103,6 +103,7 @@ export const InputMetaContext = React.createContext<{
   isInitialized,
   data,
   invalid,
+  cssClass,
 }>(null);
 
 const Input = React.memo((props: InputProps) => {
@@ -252,7 +253,8 @@ const Input = React.memo((props: InputProps) => {
       description,
       isInitialized,
       data,
-      invalid
+      invalid,
+      cssClass
     }}>
 
       <div

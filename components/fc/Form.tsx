@@ -285,7 +285,6 @@ const Form = (props: FormProps) => {
     tabs: null,
     tag: '',
     uid: '_form_' + uuid.v4().replace('-', '_'),
-    updatingRecord: !isCreatingRecord(props.id),
     urlSlug: '',
   };
 
@@ -325,7 +324,7 @@ const Form = (props: FormProps) => {
   const [showPreviewUi, setShowPreviewUi] = useState(props.showPreviewUi ?? defaultState.showPreviewUi);
   const [tag, setTag] = useState(props.tag ?? defaultState.tag);
   const [uid, setUid] = useState(props.uid ?? defaultState.uid);
-  const [updatingRecord, setUpdatingRecord] = useState(false);
+  const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
   const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? defaultState.urlSlug);
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = _this; }, [uid]);
@@ -447,7 +446,6 @@ const Form = (props: FormProps) => {
           });
         }
 
-        console.log('setting description', model, description);
         setDescription(description);
         setReadonly(!(permissions.canUpdate || permissions.canCreate));
         setPermissions(permissions);
@@ -505,8 +503,6 @@ const Form = (props: FormProps) => {
     });
 
     recordToSave = getCallback('onBeforeSaveRecord')(_this, recordToSave);
-
-    console.log('saverecord', record, recordToSave);
 
     request.post(
       getEndpointUrl('saveRecord'),

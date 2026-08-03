@@ -5,6 +5,8 @@ const SaveButton = ({ content }: any) => {
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
 
+
+  const id = form.id;
   const creatingRecord = form.creatingRecord;
   const updatingRecord = form.updatingRecord;
   const permissions = form.permissions;
