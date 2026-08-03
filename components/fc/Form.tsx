@@ -48,7 +48,7 @@ export const FormMetaContext = React.createContext<{
   recordChanged,
   savedSuccessfully,
   translate, saveRecord, closeForm,
-  loadRecord, id
+  loadRecord, id, getInputProps
 }>(null);
 
 
@@ -447,6 +447,7 @@ const Form = (props: FormProps) => {
           });
         }
 
+        console.log('setting description', model, description);
         setDescription(description);
         setReadonly(!(permissions.canUpdate || permissions.canCreate));
         setPermissions(permissions);
@@ -842,7 +843,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderContent = (): null|React.JSX.Element => {
-    if (props.uiComponents?.content) return props.uiComponents.content();
+    if (props.uiComponents?.content) return props.uiComponents.content;
 
     return <>
       {renderTab(activeTabUid)}
@@ -1106,7 +1107,7 @@ const Form = (props: FormProps) => {
         <FormWorkflowSelector></FormWorkflowSelector>
       </div>
       {description && description.inputs && description.inputs.is_closed
-        ? <div className='text-right'><FormInput name='is_closed' cssClass='flex gap-2' /></div>
+        ? <div className='text-right'><FormInput name='is_closed' cssClass='flex gap-2' debug /></div>
         : null
       }
     </div>);
@@ -1297,7 +1298,7 @@ const Form = (props: FormProps) => {
           creatingRecord, updatingRecord,
           permissions, recordChanged, savedSuccessfully,
           translate, saveRecord, closeForm, loadRecord,
-          id
+          id, getInputProps
         }}>
           {finalContent}
         </FormMetaContext.Provider>

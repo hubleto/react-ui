@@ -36,8 +36,8 @@ export interface InputProps {
   origValue?: any,
   changed?: any,
   changeValue?: (input: any, newValue: any) => void,
-  renderValueElement?: (input: any) => React.JSX.Element,
-  renderInputElement?: (input: any) => React.JSX.Element,
+  valueComponent?: React.JSX.Element,
+  inputComponent?: React.JSX.Element,
   serialize?: (input: any) => string,
   loadData?: () => void,
   onChange?: (input: any, value: any) => void,
@@ -59,25 +59,51 @@ export interface InputProps {
   data: Array<any>,
 }
 
-export interface InputHandle extends InputProps {
-  setReadonly: Dispatch<any>,
-  setInvalid: Dispatch<any>,
-  setValue: Dispatch<any>,
-  setOrigValue: Dispatch<any>,
-  setChanged: Dispatch<any>,
-  setCssClass: Dispatch<any>,
-  setCssStyle: Dispatch<any>,
-  setIsModified: Dispatch<any>,
-  setIsInitialized: Dispatch<any>,
-  setIsInlineEditing: Dispatch<any>,
-  setData: Dispatch<any>,
-  setDescription: Dispatch<any>,
+// export interface InputHandle extends InputProps {
+//   setReadonly: Dispatch<any>,
+//   setInvalid: Dispatch<any>,
+//   setValue: Dispatch<any>,
+//   setOrigValue: Dispatch<any>,
+//   setChanged: Dispatch<any>,
+//   setCssClass: Dispatch<any>,
+//   setCssStyle: Dispatch<any>,
+//   setIsModified: Dispatch<any>,
+//   setIsInitialized: Dispatch<any>,
+//   setIsInlineEditing: Dispatch<any>,
+//   setData: Dispatch<any>,
+//   setDescription: Dispatch<any>,
 
-  refInputWrapper: any,
-  refInputElement: any,
-  refValueElement: any,
-  refInput: any,
-}
+//   refInputWrapper: any,
+//   refInputElement: any,
+//   refValueElement: any,
+//   refInput: any,
+// }
+
+export const InputMetaContext = React.createContext<{
+  setReadonly,
+  setInvalid,
+  setValue,
+  setOrigValue,
+  setChanged,
+  setCssClass,
+  setCssStyle,
+  setIsModified,
+  setIsInitialized,
+  setIsInlineEditing,
+  setData,
+  setDescription,
+  refInputWrapper,
+  refInputElement,
+  refValueElement,
+  refInput,
+  readonly,
+  value,
+  changeValue,
+  description,
+  isInitialized,
+  data,
+  invalid,
+}>(null);
 
 const Input = React.memo((props: InputProps) => {
 
@@ -156,8 +182,8 @@ const Input = React.memo((props: InputProps) => {
     setChanged(origValue != newValue);
   };
 
-  const renderInputElement = useCallback((input: any): React.JSX.Element => {
-    if (props.renderInputElement) return props.renderInputElement(_this);
+  const renderInputComponent = (): React.JSX.Element => {
+    if (props.inputComponent) return props.inputComponent;
 
     return <input
       type="text"
@@ -165,14 +191,14 @@ const Input = React.memo((props: InputProps) => {
       readOnly={readonly}
       ref={refInput}
     ></input>
-  }, [value, readonly, refInput, description, changed]);
+  };
 
-  const renderValueElement = useCallback((input: any): React.JSX.Element => {
-    if (props.renderValueElement) return props.renderValueElement(_this);
+  const renderValueComponent = (): React.JSX.Element => {
+    if (props.valueComponent) return props.valueComponent;
     
     if (serialize() == '') return <span className="no-value"></span>;
     else return <span>{serialize()}</span>;
-  }, [value, readonly, refInput, description, changed]);
+  };
 
   const _this = {
     changed, setChanged,
@@ -192,15 +218,43 @@ const Input = React.memo((props: InputProps) => {
     onChange: props.onChange,
 
     changeValue,
-    renderInputElement,
-    renderValueElement,
+    // renderInputElement,
+    // renderValueElement,
     translate
   }
+
+  const valueComponent = renderValueComponent();
+  const inputComponent = renderInputComponent();
 
   if (!isInitialized) return <Spinner size="xs" />;
 
   try {
-    return (
+    return <InputMetaContext.Provider value={{
+      setReadonly,
+      setInvalid,
+      setValue,
+      setOrigValue,
+      setChanged,
+      setCssClass,
+      setCssStyle,
+      setIsModified,
+      setIsInitialized,
+      setIsInlineEditing,
+      setData,
+      setDescription,
+      refInputWrapper,
+      refInputElement,
+      refValueElement,
+      refInput,
+      readonly,
+      value,
+      changeValue,
+      description,
+      isInitialized,
+      data,
+      invalid
+    }}>
+
       <div
         ref={refInputWrapper}
         className={getClassName()}
@@ -218,7 +272,7 @@ const Input = React.memo((props: InputProps) => {
               readOnly={true}
             ></input>
             <div ref={refInputElement} className="input-element">
-              {renderInputElement(_this)}
+              {inputComponent}
               {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
             </div>
           </>
@@ -226,12 +280,12 @@ const Input = React.memo((props: InputProps) => {
             ref={refValueElement}
             className="value-element"
           >
-            {renderValueElement(_this)}
+            {valueComponent}
             {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
           </div>
         }
       </div></div>
-    );
+    </InputMetaContext.Provider>;
   } catch(e) {
     const errMsg = 'Failed to render input for ' + (description?.title ?? inputName) + '.';
     console.error(errMsg);

@@ -19,7 +19,9 @@ import InputImage from "../../cc/Inputs/Image";
 import InputTags from "../../cc/Inputs/Tags2";
 
 
-const Input = ({ name, content, cssClass, renderOnlyInputField, customInputProps }: any) => {
+const Input = (props: any) => {
+  const { name, content, cssClass, renderOnlyInputField, customInputProps, debug } = props;
+
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
   const value = useRecordField(r => r[name]);
@@ -28,6 +30,8 @@ const Input = ({ name, content, cssClass, renderOnlyInputField, customInputProps
   const inputDescription = description?.inputs?.[name] ?? {};
   const isModified = useRecordField(r => r[name] !== form.originalRecord[name]);
   const isInlineEditing = true;
+
+  if (debug) console.log('inputDebug', name, inputDescription);
 
   const inputProps: InputProps = {
     inputName: name,
@@ -58,22 +62,29 @@ const Input = ({ name, content, cssClass, renderOnlyInputField, customInputProps
   }
 
   switch (inputDescription.type ?? '') {
-    case 'varchar': input = <InputVarchar {...inputProps} />;
-    case 'password': input = <InputPassword {...inputProps} />;
-    case 'text': case 'json': input = <InputTextarea {...inputProps} />;
-    case 'decimal': case 'int': case 'currency': input = <InputInt {...inputProps} />;
-    case 'boolean': input = <InputBoolean {...inputProps} />;
-    case 'lookup': input = <InputLookup {...inputProps} />;
-    case 'color': input = <InputColor {...inputProps} />;
+    case 'varchar': input = <InputVarchar {...inputProps} />; break;
+    case 'password': input = <InputPassword {...inputProps} />; break;
+    case 'text': input = <InputTextarea {...inputProps} />; break;
+    case 'json': input = <InputTextarea {...inputProps} />; break;
+    case 'int': input = <InputInt {...inputProps} />; break;
+    case 'decimal': input = <InputInt {...inputProps} />; break;
+    case 'currency': input = <InputInt {...inputProps} />; break;
+    case 'boolean': input = <InputBoolean {...inputProps} />; break;
+    case 'lookup': input = <InputLookup {...inputProps} />; break;
+    case 'color': input = <InputColor {...inputProps} />; break;
 
     //@ts-ignore
-    case 'tags': input = <InputTags {...inputProps} recordId={value?.id} />;
+    case 'tags': input = <InputTags {...inputProps} recordId={value?.id} />; break;
 
-    case 'file': input = <InputFile {...inputProps} />;
-    case 'image': input = <InputImage {...inputProps} />;
-    case 'datetime': case 'date': case 'time':
-      input = <InputDateTime {...inputProps} type={inputDescription.type} />;
-    default: input = <InputVarchar {...inputProps} />;
+    case 'file': input = <InputFile {...inputProps} />; break;
+    case 'image': input = <InputImage {...inputProps} />; break;
+    case 'date': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
+    case 'time': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
+    case 'datetime': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
+    default:
+      console.log('Unknown input type ' + inputDescription.type + ' for input named ' + name + '. Rendering Varchar.');
+      input = <InputVarchar {...inputProps} />;
+    break;
   }
 
   let finalContent = null;
