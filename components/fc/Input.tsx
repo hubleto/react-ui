@@ -84,9 +84,10 @@ export const InputMetaContext = React.createContext<{
   data,
   invalid,
   cssClass,
+  cssStyle,
 }>(null);
 
-const Input = React.memo((props: InputProps) => {
+const Input = (props: InputProps) => {
 
   const translate = (orig: string, context?: string, contextInner?: string, vars?: any): string => {
     try {
@@ -105,7 +106,7 @@ const Input = React.memo((props: InputProps) => {
   const [cssClass, setCssClass] = useState(props.cssClass ?? '');
   const [cssStyle, setCssStyle] = useState(props.cssStyle ?? {});
   const [data, setData] = useState(props.data ?? []);
-  const [description, setDescription] = useState({} as InputDescription);
+  const [description, setDescription] = useState(props.description ?? {});
   const [inputClassName, setInputClassName] = useState(props.inputClassName ?? '');
   const [inputName, setInputName] = useState(props.inputName ?? '');
   const [invalid, setInvalid] = useState(props.invalid ?? false);
@@ -166,12 +167,15 @@ const Input = React.memo((props: InputProps) => {
   const renderInputComponent = (): React.JSX.Element => {
     if (props.inputComponent) return props.inputComponent;
 
-    return <input
-      type="text"
-      value={value ?? ''}
-      readOnly={readonly}
-      ref={refInput}
-    ></input>
+    return <>
+      <div className='badge'>[default input component]</div>
+      <input
+        type="text"
+        value={value ?? ''}
+        readOnly={readonly}
+        ref={refInput}
+      ></input>
+    </>;
   };
 
   const renderValueComponent = (): React.JSX.Element => {
@@ -199,8 +203,6 @@ const Input = React.memo((props: InputProps) => {
     onChange: props.onChange,
 
     changeValue,
-    // renderInputElement,
-    // renderValueElement,
     translate
   }
 
@@ -234,7 +236,8 @@ const Input = React.memo((props: InputProps) => {
       isInitialized,
       data,
       invalid,
-      cssClass
+      cssClass,
+      cssStyle
     }}>
       <div
         ref={refInputWrapper}
@@ -273,6 +276,6 @@ const Input = React.memo((props: InputProps) => {
     console.error(e);
     return <div className="alert alert-danger">{errMsg} Check console for error log.</div>
   }
-}, () => true);
+};
 
 export default Input;

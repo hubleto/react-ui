@@ -1,6 +1,12 @@
 import React, { useState } from 'react'
 import Input, { InputProps, InputMetaContext } from '../Input'
 
+export interface EnumValuesInputProps extends InputProps {
+  enumValues?: {};
+  enumCssClasses?: {};
+  uiStyle?: 'select' | 'buttons' | 'buttons-vertical';
+}
+
 const ValueComponent = () => {
   const input = React.useContext(InputMetaContext);
   const description = input.description;
@@ -22,12 +28,13 @@ const ValueComponent = () => {
   </>;
 }
 
-const InputComponent = (input: any) => {
+const InputComponent = () => {
+  const input = React.useContext(InputMetaContext);
   const description = input.description;
-  const uiStyle = description.uiStyle ?? 'select';
-  const enumValues = description.enumValues;
-  const enumCssClasses = description.enumCssClasses;
-console.log('EnumInput', input, description, uiStyle, enumValues);
+  const uiStyle = description?.uiStyle ?? 'select';
+  const enumValues = description?.enumValues;
+  const enumCssClasses = description?.enumCssClasses;
+
   if (!enumValues) return <></>;
 
   let value = input.value ?? null;

@@ -80,7 +80,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
  
   if (!isInitialized) return <Spinner size="xs" />;
 
-  const historyForCurrentStep = history.filter((item) => item.id_workflow_step == idWorkflowStep);
+  const historyForCurrentWorkflow = history.filter((item) => item.id_workflow == idWorkflow);
   const steps = workflows ? workflows[idWorkflow]?.STEPS : null;
 
   return <div className='flex flex-row flex-wrap'>
@@ -122,7 +122,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
                     }}
                   >
                   </div>
-                  <div className='text'>
+                  <div className='text text-xs p-1'>
                     {s.name}
                   </div>
                 </button>;
@@ -130,10 +130,10 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
             </div>
             <div className='text-xs text-gray-400 flex gap-2'>
               {readonly ? <i className='fas fa-lock'></i> : null}
-              {historyForCurrentStep[0] ? <>
+              {historyForCurrentWorkflow[0] ? <>
                 {translate('Last update: {{ date }} by {{ user }}', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')
-                  .replace('{{ date }}', historyForCurrentStep[0].datetime_change)
-                  .replace('{{ user }}', historyForCurrentStep[0].USER?.nick ?? translate('unknown', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector'))
+                  .replace('{{ date }}', historyForCurrentWorkflow[0].datetime_change)
+                  .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? translate('unknown', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector'))
                 }
               </> : null}                  
               {readonly ? null :

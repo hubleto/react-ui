@@ -1,34 +1,32 @@
 import React from 'react'
-import Input, { InputProps } from '../Input'
+import Input, { InputProps, InputMetaContext } from '../Input'
 
-const TextareaInput = React.memo((props: InputProps) => {
+const InputComponent = () => {
+  const input = React.useContext(InputMetaContext);
 
-  const normalizedProps: InputProps = {
-    ...props,
-    inputClassName: 'textarea',
-    isInitialized: true,
-  };
-
-  return <Input
-    {...normalizedProps}
-    renderInputElement={(input: any): React.JSX.Element => {
-      return <textarea
-        value={input.value ?? ''}
-        onChange={(e) => input.changeValue(e.currentTarget.value) }
-        aria-describedby="passwordHelpInline"
-        rows={5}
-        placeholder={input.description?.placeholder ?? input.description?.title}
-        className={
-          "bg-white"
-          + " " + (input.cssClass ?? "")
-          + " " + (input.invalid ? 'invalid' : '')
-          + " " + (input.readonly ? "readonly" : "")
-        }
-        style={{...input.cssStyle, fontFamily: 'Courier'}}
-        disabled={input.readonly}
-      />;
-      }}
+  return <textarea
+    value={input.value ?? ''}
+    onChange={(e) => input.changeValue(e.currentTarget.value) }
+    aria-describedby="passwordHelpInline"
+    rows={5}
+    placeholder={input.description?.placeholder ?? input.description?.title}
+    className={
+      "bg-white"
+      + " " + (input.cssClass ?? "")
+      + " " + (input.invalid ? 'invalid' : '')
+      + " " + (input.readonly ? "readonly" : "")
+    }
+    style={{...input.cssStyle, fontFamily: 'Courier'}}
+    disabled={input.readonly}
   />;
-}, () => true);
+}
+
+const TextareaInput = (props: InputProps) => {
+  return <Input
+    {...props}
+    isInitialized={true}
+    inputComponent={<InputComponent />}
+  />;
+};
 
 export default TextareaInput;

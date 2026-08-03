@@ -27,8 +27,6 @@ const Input = (props: any) => {
   const value = useRecordField(r => r[name]);
   const changeRecord = useChangeRecord();
 
-  if (debug) console.log(form);
-
   const inputDescription = description?.inputs?.[name] ?? {};
   const isModified = useRecordField(r => r[name] !== form.originalRecord[name]);
   const isInlineEditing = true;

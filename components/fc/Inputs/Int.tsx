@@ -1,47 +1,45 @@
 import React, { useState } from 'react'
-import Input, { InputProps } from '../Input'
+import Input, { InputProps, InputMetaContext } from '../Input'
 
-export interface IntInputProps extends InputProps {
-  step?: number,
-  decimals?: number,
-  unit?: number,
+// export interface IntInputProps extends InputProps {
+//   step?: number,
+//   decimals?: number,
+//   unit?: number,
+// }
+
+const InputComponent = () => {
+  const input = React.useContext(InputMetaContext);
+  const decimals = input.description.decimals ?? 0;
+  const unit = input.description.unit;
+  const step = input.description.step ?? 1;
+
+  return <div className='flex gap-2'>
+    <input
+      ref={input.refInput}
+      type="number"
+      step={step}
+      value={input.value}
+      onChange={(e) => input.changeValue(e.currentTarget.value.replace('e', ''))}
+      placeholder={input.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
+      className={
+        "form-control"
+        + " " + (input.invalid ? 'is-invalid' : '')
+        + " " + (input.cssClass ?? "")
+        + " " + (input.readonly ? "bg-muted" : "")
+        + " max-w-40"
+      }
+      disabled={input.readonly}
+    />
+    {unit ? <div>{unit}</div> : null}
+  </div>;
 }
 
-const IntInput = React.memo((props: IntInputProps) => {
-
-  const normalizedProps: IntInputProps = {
-    ...props,
-    inputClassName: 'int',
-  };
-
-  const [step, setStep] = useState(props.step);
-  const [decimals, setDecimals] = useState(props.decimals);
-  const [unit, setUnit] = useState(props.unit);
-
+const IntInput = (props: InputProps) => {
   return <Input
-    {...normalizedProps}
-    renderInputElement={(input: any): React.JSX.Element => {
-      return <div className='flex gap-2'>
-        <input
-          ref={input.refInput}
-          type="number"
-          step={step}
-          value={input.value}
-          onChange={(e) => input.changeValue(e.currentTarget.value.replace('e', ''))}
-          placeholder={props.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
-          className={
-            "form-control"
-            + " " + (input.invalid ? 'is-invalid' : '')
-            + " " + (input.cssClass ?? "")
-            + " " + (input.readonly ? "bg-muted" : "")
-            + " max-w-40"
-          }
-          disabled={input.readonly}
-        />
-        {unit ? <div>{unit}</div> : null}
-      </div>;
-    }}
+    {...props}
+    isInitialized={true}
+    inputComponent={<InputComponent />}
   />;
-}, () => true);
+};
 
 export default IntInput;
