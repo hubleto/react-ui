@@ -13,7 +13,7 @@ const ValueComponent = () => {
 const InputComponent = () => {
   const input = React.useContext(InputMetaContext);
 
-return <div className='list horizontal'>
+  return <div className='list horizontal'>
     <div
       className={'btn btn-list-item btn-small ' + (input.value ? 'btn-success' : 'btn-transparent')}
       onClick={() => { if (!input.readonly) input.changeValue(true)}}

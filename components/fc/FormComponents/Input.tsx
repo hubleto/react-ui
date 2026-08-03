@@ -20,7 +20,7 @@ import InputTags from "../../cc/Inputs/Tags2";
 
 
 const Input = (props: any) => {
-  const { name, content, cssClass, renderOnlyInputField, customInputProps, debug } = props;
+  const { name, content, cssClass, renderOnlyInputField, customInputProps, debug, children } = props;
 
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
@@ -53,36 +53,41 @@ const Input = (props: any) => {
 
   if (inputDescription.enumValues) {
     input = <InputEnumValues {...inputProps} enumValues={inputDescription.enumValues} />;
-  }
-
-  if (typeof inputDescription.reactComponent === 'string' && inputDescription.reactComponent !== '') {
+  } else if (typeof inputDescription.reactComponent === 'string' && inputDescription.reactComponent !== '') {
     input = globalThis.hubleto.renderReactElement(inputDescription.reactComponent, inputProps) ?? null;
-  }
+  } else {
+    switch (inputDescription.type ?? '') {
+      case 'varchar': input = <InputVarchar {...inputProps} />; break;
+      case 'password': input = <InputPassword {...inputProps} />; break;
+      case 'text': input = <InputTextarea {...inputProps} />; break;
+      case 'json': input = <InputTextarea {...inputProps} />; break;
+      case 'int': input = <InputInt {...inputProps} />; break;
+      case 'decimal': input = <InputInt {...inputProps} />; break;
+      case 'currency': input = <InputInt {...inputProps} />; break;
+      case 'boolean': input = <InputBoolean {...inputProps} />; break;
+      case 'lookup': input = <InputLookup {...inputProps} />; break;
+      case 'color': input = <InputColor {...inputProps} />; break;
 
-  switch (inputDescription.type ?? '') {
-    case 'varchar': input = <InputVarchar {...inputProps} />; break;
-    case 'password': input = <InputPassword {...inputProps} />; break;
-    case 'text': input = <InputTextarea {...inputProps} />; break;
-    case 'json': input = <InputTextarea {...inputProps} />; break;
-    case 'int': input = <InputInt {...inputProps} />; break;
-    case 'decimal': input = <InputInt {...inputProps} />; break;
-    case 'currency': input = <InputInt {...inputProps} />; break;
-    case 'boolean': input = <InputBoolean {...inputProps} />; break;
-    case 'lookup': input = <InputLookup {...inputProps} />; break;
-    case 'color': input = <InputColor {...inputProps} />; break;
+      //@ts-ignore
+      case 'tags': input = <InputTags {...inputProps} recordId={value?.id} />; break;
 
-    //@ts-ignore
-    case 'tags': input = <InputTags {...inputProps} recordId={value?.id} />; break;
-
-    case 'file': input = <InputFile {...inputProps} />; break;
-    case 'image': input = <InputImage {...inputProps} />; break;
-    case 'date': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
-    case 'time': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
-    case 'datetime': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
-    default:
-      console.warn('Unknown input type ' + inputDescription.type + ' for input named ' + name + '. Rendering Varchar.');
-      input = <InputVarchar {...inputProps} />;
-    break;
+      case 'file': input = <InputFile {...inputProps} />; break;
+      case 'image': input = <InputImage {...inputProps} />; break;
+      case 'date': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
+      case 'time': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
+      case 'datetime': input = <InputDateTime {...inputProps} type={inputDescription.type} />; break;
+      default:
+        if (children) {
+          input = children;
+        } else {
+          console.warn('Unknown input type ' + inputDescription.type + ' for input named ' + name + '. Rendering Varchar.');
+          input = <>
+            <div className='badge badge-error'>Unknown input type {inputDescription.type} for input named {name}. Rendering Varchar.</div>
+            <InputVarchar {...inputProps} />
+          </>;
+        }
+      break;
+    }
   }
 
   let finalContent = null;

@@ -288,7 +288,7 @@ const Form = (props: FormProps) => {
     urlSlug: '',
   };
 
-  const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid ?? 'default');
+  const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' || !props.activeTabUid ? 'default' : props.activeTabUid);
   const [creatingRecord, setCreatingRecord] = useState(isCreatingRecord(props.id));
   const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? {});
   const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(false);
@@ -349,7 +349,23 @@ const Form = (props: FormProps) => {
     if (isInitialized) {
       setRecordChanged(true);
     }
-  }, [record])
+  }, [record]);
+
+  useEffect(() => {
+    const tabs = props.uiComponents?.tabs;
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabExists = tabs && tabs[activeTabUid] !== null;
+
+    if (activeTabUid == 'default' || !tabExists) urlParams.delete('tab');
+    else urlParams.set('tab', activeTabUid ?? '');
+
+    window.history.pushState({}, "", '?' + urlParams.toString());
+
+    if (activeTabUid == 'preview') {
+      updatePreview(record.id_template);
+    }
+
+  }, [activeTabUid])
 
   const updatePreview = (idTemplate: number) => {
     request.post(
@@ -405,20 +421,6 @@ const Form = (props: FormProps) => {
   }
 
   const onTabChange = (): void => {
-    const tabs = props.uiComponents?.tabs;
-    const urlParams = new URLSearchParams(window.location.search);
-    // const tabExists = (tabs && tabs.filter((t) => t.uid == activeTabUid).length > 0);
-    const tabExists = tabs && tabs[activeTabUid] !== null;
-
-    if (activeTabUid == 'default' || !tabExists) urlParams.delete('tab');
-    else urlParams.set('tab', activeTabUid ?? '');
-
-    window.history.pushState({}, "", '?' + urlParams.toString());
-
-    if (activeTabUid == 'preview') {
-      updatePreview(record.id_template);
-    }
-
     getCallback('onTabChange')(_this);
   }
 
