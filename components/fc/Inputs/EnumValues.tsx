@@ -7,11 +7,10 @@ export interface EnumValuesInputProps extends InputProps {
   uiStyle?: 'select' | 'buttons' | 'buttons-vertical';
 }
 
-const ValueComponent = () => {
+const ValueComponent = (props: EnumValuesInputProps) => {
   const input = React.useContext(InputMetaContext);
-  const description = input.description;
-  const enumValues = description.enumValues;
-  const enumCssClasses = description.enumCssClasses;
+  const enumValues = props.enumValues;
+  const enumCssClasses = props.enumCssClasses;
 
   let value = enumValues ? enumValues[input.value] : null;
   let cssClass = enumCssClasses ? enumCssClasses[input.value] : null;
@@ -28,12 +27,11 @@ const ValueComponent = () => {
   </>;
 }
 
-const InputComponent = () => {
+const InputComponent = (props: EnumValuesInputProps) => {
   const input = React.useContext(InputMetaContext);
-  const description = input.description;
-  const uiStyle = description?.uiStyle ?? 'select';
-  const enumValues = description?.enumValues;
-  const enumCssClasses = description?.enumCssClasses;
+  const uiStyle = props.uiStyle ?? 'select';
+  const enumValues = props?.enumValues;
+  const enumCssClasses = props?.enumCssClasses;
 
   if (!enumValues) return <></>;
 
@@ -84,7 +82,7 @@ const InputComponent = () => {
     
 }
 
-const EnumValuesInput = (props: InputProps) => {
+const EnumValuesInput = (props: EnumValuesInputProps) => {
 
   return <Input
     {...props}
@@ -98,8 +96,8 @@ const EnumValuesInput = (props: InputProps) => {
       return '';
     }}
 
-    valueComponent={<ValueComponent />}
-    inputComponent={<InputComponent />}
+    valueComponent={<ValueComponent {...props} />}
+    inputComponent={<InputComponent {...props} />}
 
   />;
 };

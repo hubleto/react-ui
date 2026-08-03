@@ -56,7 +56,7 @@ export interface InputProps {
   parentForm?: any,
   children?: any,
   description?: InputDescription,
-  data: Array<any>,
+  data?: Array<any>,
 }
 
 export const InputMetaContext = React.createContext<{
@@ -158,6 +158,8 @@ const Input = (props: InputProps) => {
   };
 
   const changeValue = (newValue: any): void => {
+    if (readonly) return;
+
     if (props.changeValue) props.changeValue(_this, newValue);
     setValue(newValue);
     if (props.onChange) props.onChange(_this, newValue);

@@ -203,10 +203,7 @@ const DateTimeInput = React.memo((props: DateTimeInputProps) => {
   const [showReadable, setDecimals] = useState(false);
 
   return <Input
-    {...props}
-
     changeValue={(input: any, newValue: any): void => {
-
       if (newValue === null) {
         newValue = '';
       } else if (newValue != '') {
@@ -225,9 +222,9 @@ const DateTimeInput = React.memo((props: DateTimeInputProps) => {
 
       input.setValue(newValue);
     }}
-
     valueComponent={<ValueComponent {...props} />}
     inputComponent={<InputComponent {...props} />}
+    {...props}
   />;
 }, () => true);
 

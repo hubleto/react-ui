@@ -42,7 +42,7 @@ const Input = (props: any) => {
     invalid: form.invalidInputs.some(
       (v) => v.name.toLowerCase() === name.toLowerCase()
     ) ?? false,
-    // ...inputDescription,
+    ...inputDescription,
     ...customInputProps,
     onChange: (input: any, newValue: any) => {
       changeRecord({ [name]: newValue === '' ? null : newValue });

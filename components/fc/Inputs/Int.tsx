@@ -36,9 +36,9 @@ const InputComponent = () => {
 
 const IntInput = (props: InputProps) => {
   return <Input
-    {...props}
     isInitialized={true}
     inputComponent={<InputComponent />}
+    {...props}
   />;
 };
 

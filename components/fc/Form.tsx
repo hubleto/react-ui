@@ -1,4 +1,5 @@
 import React, {  useState, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import * as uuid from 'uuid';
 import moment from "moment";
 
@@ -336,12 +337,8 @@ const Form = (props: FormProps) => {
   }, [isInitialized])
 
   useEffect(() => {
-    if (id == -1) {
-      changeRecord(description.defaultValues ?? {});
-    } else {
-      loadRecord();
-    }
-  }, [id]);
+    loadRecord();
+  }, [description]);
 
   useEffect(() => {
     setIsInitialized(JSON.stringify(record) !== '{}');
@@ -367,10 +364,6 @@ const Form = (props: FormProps) => {
 
   }, [activeTabUid])
 
-  const onAfterLoadDescription = (description: FormDescription): FormDescription => {
-    return description;
-  }
-
   const onTabChange = (): void => {
     getCallback('onTabChange')(_this);
   }
@@ -385,11 +378,8 @@ const Form = (props: FormProps) => {
 
         if (description && descriptionSource == 'both') description = deepObjectMerge(description, description);
 
-        description = onAfterLoadDescription(description);
-
         let permissions = calculatePermissions(record);
 
-        // let newTabs = getTabs();
         let hasCustomColumns = false;
         let inputs = description?.inputs;
 
@@ -407,38 +397,38 @@ const Form = (props: FormProps) => {
     );
   }
 
-  const reload = (): void => {
-    setRecord({});
-    recordStore.setRecord(prev => ({}));
-    loadRecord();
-  }
-
   const loadRecord = (): void => {
-    request.post(
-      getEndpointUrl('getRecord'),
-      getEndpointParams(),
-      {},
-      (record: any) => {
-        if (!record) return;
+    if (id == -1) {
+      console.log('initializing', description.defaultValues);
+      setIsInitialized(true);
+      changeRecord(description.defaultValues ?? {});
+    } else {
+      request.post(
+        getEndpointUrl('getRecord'),
+        getEndpointParams(),
+        {},
+        (record: any) => {
+          if (!record) return;
 
-        if (!isInitialized) {
+          setIsInitialized(true);
           setOriginalRecord(JSON.parse(JSON.stringify(record)));
-        }
 
-        if (id != -1 && !record.id) {
-          setLoadRecordError('ERROR: Loading failed.');
-        } else {
-          let p = calculatePermissions(record);
-          setPermissions(p);
-          setReadonly(!(p.canUpdate || p.canCreate));
+          if (id != -1 && !record.id) {
+            setLoadRecordError('ERROR: Loading failed.');
+          } else {
+            let p = calculatePermissions(record);
+            setPermissions(p);
+            setReadonly(!(p.canUpdate || p.canCreate));
 
-          changeRecord(record);
+            changeRecord(record);
+          }
+        },
+        (error) => {
+          setLoadRecordError(error.data);
         }
-      },
-      (error) => {
-        setLoadRecordError(error.data);
-      }
-    );
+      );
+      
+    }
   }
 
 

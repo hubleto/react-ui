@@ -28,10 +28,9 @@ const InputComponent = () => {
 
 const ColorInput = (props: InputProps) => {
   return <Input
-    {...props}
     inputClassName='color'
-    // renderInputElement={(input: any): React.JSX.Element => }
     inputComponent={<InputComponent />}
+    {...props}
   />;
 };
 

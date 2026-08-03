@@ -24,7 +24,7 @@ const loadData = (input: any, searchValue: string) => {
   );
 };
 
-const InputComponent = (props: InputProps) => {
+export const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
   const [showPredefinedValues, setShowPredefinedValues] = useState(false);
 
@@ -85,9 +85,8 @@ const InputComponent = (props: InputProps) => {
   }
 };
 
-const VarcharInput = (props: InputProps) => {
+export const VarcharInput = (props: InputProps) => {
   return <Input
-    {...props}
     inputClassName='varchar'
     isInitialized={props.description?.autocomplete ? false : true}
     onInit={(input: any) => {
@@ -96,6 +95,7 @@ const VarcharInput = (props: InputProps) => {
       }
     }}
     inputComponent={<InputComponent {...props} />}
+    {...props}
   />;
 };
 

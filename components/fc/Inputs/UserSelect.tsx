@@ -14,7 +14,6 @@ const ValueComponent = () => <InputComponent />;
 const InputComponent = () => {
   const input = React.useContext(InputMetaContext);
 
-  if (!input.data) return <>...</>;
   return <div className='flex flex-wrap gap-2 items-center bg-white'>
     <div ref={input.refInput} className="btn-group gap-1 flex-wrap">
       {Object.keys(input.data).map((key: any) => {
@@ -27,7 +26,7 @@ const InputComponent = () => {
             + " " + (input.value == userId ? "btn-primary" : "btn-white")
           }
           onClick={() => {
-            if (!input.readonly) input.changeValue((input.value == userId ? null : userId));
+            input.changeValue((input.value == userId ? null : userId));
           }}
         >
           <span className="text flex gap-2">
@@ -80,7 +79,6 @@ const InputComponent = () => {
 const UserSelectInput = (props: UserSelectInputProps) => {
 
   return <Input
-    {...props}
     inputClassName='user-select'
     onInit={(input: any) => {
       let usersFromCache = globalThis.hubleto.users;
@@ -102,6 +100,7 @@ const UserSelectInput = (props: UserSelectInputProps) => {
     }}
     valueComponent={<ValueComponent />}
     inputComponent={<InputComponent />}
+    {...props}
   />;
 }
 
