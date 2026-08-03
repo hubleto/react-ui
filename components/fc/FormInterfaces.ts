@@ -62,11 +62,15 @@ export interface FormTab {
 }
 
 export interface FormUiComponents {
-  title?: React.JSX.Element;
-  content?: React.JSX.Element;
+  title?: React.JSX.Element,
+  content?: React.JSX.Element,
   tabs?: FormTabs,
-  saveButton?: React.JSX.Element;
-  closeButton?: React.JSX.Element;
+  saveButton?: React.JSX.Element,
+  closeButton?: React.JSX.Element,
+  printPreviewUiButton?: React.JSX.Element,
+  printPreviewUi?: React.JSX.Element,
+  headerExtraButtons?: React.JSX.Element,
+  footerButtons?: React.JSX.Element,
 }
 
 export interface FormProps {

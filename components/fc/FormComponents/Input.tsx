@@ -27,6 +27,8 @@ const Input = (props: any) => {
   const value = useRecordField(r => r[name]);
   const changeRecord = useChangeRecord();
 
+  if (debug) console.log(form);
+
   const inputDescription = description?.inputs?.[name] ?? {};
   const isModified = useRecordField(r => r[name] !== form.originalRecord[name]);
   const isInlineEditing = true;
@@ -42,7 +44,7 @@ const Input = (props: any) => {
     invalid: form.invalidInputs.some(
       (v) => v.name.toLowerCase() === name.toLowerCase()
     ) ?? false,
-    ...inputDescription,
+    // ...inputDescription,
     ...customInputProps,
     onChange: (input: any, newValue: any) => {
       changeRecord({ [name]: newValue === '' ? null : newValue });
@@ -52,7 +54,7 @@ const Input = (props: any) => {
   let input = null;
 
   if (inputDescription.enumValues) {
-    input = <InputEnumValues {...inputProps} enumValues={inputDescription.enumValues} />;
+    input = <InputEnumValues {...inputProps} />;
   } else if (typeof inputDescription.reactComponent === 'string' && inputDescription.reactComponent !== '') {
     input = globalThis.hubleto.renderReactElement(inputDescription.reactComponent, inputProps) ?? null;
   } else {

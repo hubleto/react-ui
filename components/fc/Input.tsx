@@ -59,26 +59,6 @@ export interface InputProps {
   data: Array<any>,
 }
 
-// export interface InputHandle extends InputProps {
-//   setReadonly: Dispatch<any>,
-//   setInvalid: Dispatch<any>,
-//   setValue: Dispatch<any>,
-//   setOrigValue: Dispatch<any>,
-//   setChanged: Dispatch<any>,
-//   setCssClass: Dispatch<any>,
-//   setCssStyle: Dispatch<any>,
-//   setIsModified: Dispatch<any>,
-//   setIsInitialized: Dispatch<any>,
-//   setIsInlineEditing: Dispatch<any>,
-//   setData: Dispatch<any>,
-//   setDescription: Dispatch<any>,
-
-//   refInputWrapper: any,
-//   refInputElement: any,
-//   refValueElement: any,
-//   refInput: any,
-// }
-
 export const InputMetaContext = React.createContext<{
   setReadonly,
   setInvalid,
@@ -256,7 +236,6 @@ const Input = React.memo((props: InputProps) => {
       invalid,
       cssClass
     }}>
-
       <div
         ref={refInputWrapper}
         className={getClassName()}

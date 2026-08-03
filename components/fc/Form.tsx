@@ -15,6 +15,7 @@ import FormCustomizer from "../../core/FormCustomizer";
 
 import FormSaveButton from './FormComponents/SaveButton';
 import FormCloseButton from './FormComponents/CloseButton';
+import FormPrintPreviewUiButton from './FormComponents/PrintPreviewUiButton';
 
 import { InputProps } from "./Input";
 import FormInput from './FormComponents/Input';
@@ -48,7 +49,9 @@ export const FormMetaContext = React.createContext<{
   recordChanged,
   savedSuccessfully,
   translate, saveRecord, closeForm,
-  loadRecord, id, getInputProps
+  loadRecord, id, getInputProps,
+  getTitleAsText, setShowPreviewUi, changeRecord,
+  showPreviewUi, record, description, renderTimeline
 }>(null);
 
 
@@ -264,7 +267,6 @@ const Form = (props: FormProps) => {
     }),
     folderUrl: '',
     hideOverlay: true,
-    htmlPreview: '',
     id: props.id,
     isInitialized: false,
     isInlineEditing: props.isInlineEditing ? props.isInlineEditing : true,
@@ -281,7 +283,6 @@ const Form = (props: FormProps) => {
     showHeader: true,
     showOwnerManagerSelector: false,
     showOwnerManagerUi: false,
-    showPreviewUi: false,
     tabs: null,
     tag: '',
     uid: '_form_' + uuid.v4().replace('-', '_'),
@@ -296,7 +297,6 @@ const Form = (props: FormProps) => {
   const [description, setDescription] = useState(props.description ?? defaultState.description);
   const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? defaultState.descriptionSource);
   const [endpoint, setEndpoint] = useState(props.endpoint ?? defaultState.endpoint);
-  const [htmlPreview, setHtmlPreview] = useState('');
   const [id, setId] = useState(props.id ?? defaultState.id);
   const [invalidInputs, setInvalidInputs] = useState([]);
   const [isActive, setIsActive] = useState(true);
@@ -321,7 +321,7 @@ const Form = (props: FormProps) => {
   const [showFooter, setShowFooter] = useState(true);
   const [showHeader, setShowHeader] = useState(true);
   const [showOwnerManagerSelector, setShowOwnerManagerSelector] = useState(props.showOwnerManagerSelector ?? defaultState.showOwnerManagerSelector);
-  const [showPreviewUi, setShowPreviewUi] = useState(props.showPreviewUi ?? defaultState.showPreviewUi);
+  const [showPreviewUi, setShowPreviewUi] = useState(false);
   const [tag, setTag] = useState(props.tag ?? defaultState.tag);
   const [uid, setUid] = useState(props.uid ?? defaultState.uid);
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
@@ -361,60 +361,11 @@ const Form = (props: FormProps) => {
 
     window.history.pushState({}, "", '?' + urlParams.toString());
 
-    if (activeTabUid == 'preview') {
-      updatePreview(record.id_template);
-    }
+    // if (activeTabUid == 'preview') {
+    //   updatePreview(record.id_template);
+    // }
 
   }, [activeTabUid])
-
-  const updatePreview = (idTemplate: number) => {
-    request.post(
-      'documents/api/get-preview-html',
-      {
-        model: model,
-        recordId: record.id,
-        idTemplate: idTemplate,
-      },
-      {},
-      (result: any) => {
-        setHtmlPreview(result.html);
-      }
-    );
-  }
-
-  const showPreviewVars = (): void => {
-    request.post(
-      'documents/api/get-preview-vars',
-      {
-        model: model,
-        recordId: record.id,
-      },
-      {},
-      (vars: any) => {
-        setHtmlPreview('<pre>' + JSON.stringify(vars.vars, null, 2) + '</pre>');
-      }
-    );
-  }
-
-  const generatePdf = (): void => {
-    request.post(
-      'documents/api/generate-pdf',
-      {
-        model: model,
-        recordId: record.id,
-        documentName: getTitleAsText(),
-      },
-      {},
-      (result: any) => {
-        if (result && result.pdfFile) {
-          changeRecord({
-            idDocument: result.idDocument,
-            pdf: result.pdfFile,
-          }, () => { saveRecord(); });
-        }
-      }
-    );
-  }
 
   const onAfterLoadDescription = (description: FormDescription): FormDescription => {
     return description;
@@ -760,99 +711,101 @@ const Form = (props: FormProps) => {
 
   };
 
-  const renderPreviewUi = (): null|React.JSX.Element => {
-    return <ModalSimple
-      uid='projects_table_discussions_modal'
-      isOpen={true}
-      type='centered large theme-secondary'
-      showHeader={true}
-      title={<>
-        <h2>{translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</h2>
-      </>}
-      onClose={(modal: ModalSimple) => { setShowPreviewUi(false); }}
-    >
-      <div className='flex gap-2 h-full'>
-        <div className='flex-1 w-72 flex flex-col gap-2'>
-          <div className='grow'>
-            <FormInput name='id_template' customInputProps={{
-              uiStyle: 'buttons-vertical',
-              onChange: (input: any) => {
-                updatePreview(input.state.value);
-              }
-            }} />
-            <div className='flex flex-col gap-2'>
-              <button
-                className='btn btn-add-outline btn-large'
-                onClick={() => {
-                  generatePdf();
-                }}
-              >
-                <span className='icon'><i className='fas fa-file-pdf'></i></span>
-                <span className='text'>{translate('Generate PDF')}</span>
-              </button>
-              <button
-                className='btn btn-add-outline btn-large'
-                onClick={() => {
-                  const iframe = window.frames[uid + '_preview'];
-                  const origDocumentTitle = document.title;
+  // const renderPreviewUi = (): null|React.JSX.Element => {
+    // return <ModalSimple
+    //   uid='projects_table_discussions_modal'
+    //   isOpen={true}
+    //   type='centered large theme-secondary'
+    //   showHeader={true}
+    //   title={<>
+    //     <h2>{translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</h2>
+    //   </>}
+    //   onClose={(modal: ModalSimple) => { setShowPreviewUi(false); }}
+    // >
+    //   <div className='flex gap-2 h-full'>
+    //     <div className='flex-1 w-72 flex flex-col gap-2'>
+    //       <div className='grow'>
+    //         <FormInput name='id_template' customInputProps={{
+    //           uiStyle: 'buttons-vertical',
+    //           onChange: (input: any) => {
+    //             updatePreview(input.state.value);
+    //           }
+    //         }} />
+    //         <div className='flex flex-col gap-2'>
+    //           <button
+    //             className='btn btn-add-outline btn-large'
+    //             onClick={() => {
+    //               generatePdf();
+    //             }}
+    //           >
+    //             <span className='icon'><i className='fas fa-file-pdf'></i></span>
+    //             <span className='text'>{translate('Generate PDF')}</span>
+    //           </button>
+    //           <button
+    //             className='btn btn-add-outline btn-large'
+    //             onClick={() => {
+    //               const iframe = window.frames[uid + '_preview'];
+    //               const origDocumentTitle = document.title;
 
-                  document.title += getTitleAsText();
+    //               document.title += getTitleAsText();
 
-                  iframe.contentWindow.focus();
-                  iframe.contentWindow.print();
+    //               iframe.contentWindow.focus();
+    //               iframe.contentWindow.print();
 
-                  document.title = origDocumentTitle;
-                }}
-              >
-                <span className='icon'><i className='fas fa-print'></i></span>
-                <span className='text'>{translate('Print')}</span>
-              </button>
-            </div>
-          </div>
-          <FormInput name='id_document' readonly={true} />
-        </div>
-        <div className='flex-3 flex flex-col'>
-          <div className='flex gap-2 align-center justify-end'>
-            <div>
-              <FormInput name='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
-            </div>
-          </div>
-          <div className='w-full h-full card mt-2'>
-            <div className="card-body">
-              <HtmlFrame
-                uid={uid + '_preview'}
-                className='w-full h-full'
-                iframeId={uid + '_preview'}
-                content={htmlPreview}
-              />
-            </div>
-            <div className='card-footer'>
-              <a
-                href='#'
-                onClick={() => {
-                  showPreviewVars();
-                }}
-              >{translate('Show variables available in template')}</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ModalSimple>;
-  };
+    //               document.title = origDocumentTitle;
+    //             }}
+    //           >
+    //             <span className='icon'><i className='fas fa-print'></i></span>
+    //             <span className='text'>{translate('Print')}</span>
+    //           </button>
+    //         </div>
+    //       </div>
+    //       <FormInput name='id_document' readonly={true} />
+    //     </div>
+    //     <div className='flex-3 flex flex-col'>
+    //       <div className='flex gap-2 align-center justify-end'>
+    //         <div>
+    //           <FormInput name='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
+    //         </div>
+    //       </div>
+    //       <div className='w-full h-full card mt-2'>
+    //         <div className="card-body">
+    //           <HtmlFrame
+    //             uid={uid + '_preview'}
+    //             className='w-full h-full'
+    //             iframeId={uid + '_preview'}
+    //             content={htmlPreview}
+    //           />
+    //         </div>
+    //         <div className='card-footer'>
+    //           <a
+    //             href='#'
+    //             onClick={() => {
+    //               showPreviewVars();
+    //             }}
+    //           >{translate('Show variables available in template')}</a>
+    //         </div>
+    //       </div>
+    //     </div>
+    //   </div>
+    // </ModalSimple>;
+  // };
 
   const renderContent = (): null|React.JSX.Element => {
     if (props.uiComponents?.content) return props.uiComponents.content;
 
     return <>
       {renderTab(activeTabUid)}
-      {showPreviewUi ? renderPreviewUi() : null}
+      {props.uiComponents?.printPreviewUi}
     </>;
   };
 
-  const renderHeaderButtons = (): null|React.JSX.Element => {
-    const headerButtons = FormCustomizer.getFormHeaderButtons(props.componentName);
-    if (headerButtons && headerButtons.length > 0) {
-      return headerButtons.map((button: any, key: any) => {
+  const renderHeaderExtraButtons = (): null|React.JSX.Element => {
+    if (props.uiComponents?.headerExtraButtons) return props.uiComponents.headerExtraButtons;
+
+    const headerExtraButtons = FormCustomizer.getFormHeaderExtraButtons(props.componentName);
+    if (headerExtraButtons && headerExtraButtons.length > 0) {
+      return headerExtraButtons.map((button: any, key: any) => {
         return <button
           key={key}
           className='btn btn-small btn-primary-outline'
@@ -867,6 +820,8 @@ const Form = (props: FormProps) => {
   };
 
   const renderFooterButtons = (): null|React.JSX.Element => {
+    if (props.uiComponents?.footerButtons) return props.uiComponents.footerButtons;
+
     const footerButtons = FormCustomizer.getFormFooterButtons(props.componentName);
     if (footerButtons && footerButtons.length > 0) {
       return footerButtons.map((button: any, key: any) => {
@@ -993,32 +948,17 @@ const Form = (props: FormProps) => {
     return <FormCloseButton></FormCloseButton>;
   };
 
+  const renderprintPreviewUiButton = (): null|React.JSX.Element => {
+    if (props.uiComponents?.printPreviewUiButton) return props.uiComponents.printPreviewUiButton;
+    return <FormPrintPreviewUiButton></FormPrintPreviewUiButton>;
+  };
+
   const renderHeaderLeft = (): null|React.JSX.Element => {
     return <div className='flex gap-2 items-center'>
       <div className='flex flex-col gap-2'>
         <div className='flex gap-2'>
           {isInlineEditing ? renderSaveButton() : renderEditButton()}
-          {props.showPreviewUi ? <>
-            <button
-              onClick={(e: any) => {
-                setShowPreviewUi(true);
-              }}
-              className={"btn btn-transparent"}
-            >
-              <span className="icon"><i className="fas fa-print"></i></span>
-              <span className="text">
-                {translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
-              </span>
-            </button>
-            {record && record.pdf ?
-              <a href={globalThis.hubleto.config.uploadUrl + '/' + record.pdf}
-                className="btn btn-transparent" target="_blank"
-                title={translate("Download PDF", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
-              >
-                <span className="icon"><i className="fas fa-file-pdf"></i></span>
-              </a>
-            : null}
-          </> : null}
+          {props.uiComponents?.printPreviewUi ? renderprintPreviewUiButton() : null}
         </div>
       </div>
     </div>;
@@ -1236,7 +1176,7 @@ const Form = (props: FormProps) => {
       const formTopMenu = (isInitialized ? renderTopMenu() : null);
       const headerLeft = (warningsOrErrors ? null : renderHeaderLeft());
       const headerRight = (warningsOrErrors ? renderCloseButton() : renderHeaderRight());
-      const headerButtons = renderHeaderButtons();
+      const headerExtraButtons = renderHeaderExtraButtons();
       const footerButtons = renderFooterButtons();
 
       if (modal) {
@@ -1247,7 +1187,7 @@ const Form = (props: FormProps) => {
               <div className="modal-header-title">{formTitle}</div>
               <div className="modal-header-right">{headerRight}</div>
             </div>
-            {headerButtons ? <div className='modal-header-buttons'>{headerButtons}</div> : null}
+            {headerExtraButtons ? <div className='modal-header-buttons'>{headerExtraButtons}</div> : null}
           </> : null}
           {saveErrorMessage}
           {formTopMenu ? <div className="modal-top-menu shadow-lg">{formTopMenu}</div> : null}
@@ -1296,7 +1236,9 @@ const Form = (props: FormProps) => {
           creatingRecord, updatingRecord,
           permissions, recordChanged, savedSuccessfully,
           translate, saveRecord, closeForm, loadRecord,
-          id, getInputProps
+          id, getInputProps,
+          getTitleAsText, setShowPreviewUi, changeRecord,
+          showPreviewUi, record, description, renderTimeline
         }}>
           {finalContent}
         </FormMetaContext.Provider>

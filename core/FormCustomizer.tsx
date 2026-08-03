@@ -1,28 +1,28 @@
 export default class FormCustomizer {
 
-  static formHeaderButtons: any = {};
-  static formFooterButtons: any = {};
+  static headerExtraButtons: any = {};
+  static footerButtons: any = {};
 
   static addFormHeaderButton(componentName: string, title: string, icon: string, onClick: any) {
-    if (!this.formHeaderButtons[componentName]) {
-      this.formHeaderButtons[componentName] = [];
+    if (!this.headerExtraButtons[componentName]) {
+      this.headerExtraButtons[componentName] = [];
     }
-    this.formHeaderButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
+    this.headerExtraButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
   }
 
-  static getFormHeaderButtons(componentName: string) {
-    return this.formHeaderButtons[componentName] ?? [];
+  static getFormHeaderExtraButtons(componentName: string) {
+    return this.headerExtraButtons[componentName] ?? [];
   }
 
   static addFormFooterButton(componentName: string, title: string, icon: string, onClick: any) {
-    if (!this.formFooterButtons[componentName]) {
-      this.formFooterButtons[componentName] = [];
+    if (!this.footerButtons[componentName]) {
+      this.footerButtons[componentName] = [];
     }
-    this.formFooterButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
+    this.footerButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
   }
 
   static getFormFooterButtons(componentName: string) {
-    return this.formFooterButtons[componentName] ?? [];
+    return this.footerButtons[componentName] ?? [];
   }
 
 }
