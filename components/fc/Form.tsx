@@ -20,6 +20,7 @@ import FormPrintPreviewUiButton from './FormComponents/PrintPreviewUiButton';
 
 import { InputProps } from "./Input";
 import FormInput from './FormComponents/Input';
+import { useRecord } from './FormRecordStore';
 
 import {
   FormEndpoint,
@@ -49,8 +50,9 @@ export interface FormMeta {
   translate, saveRecord, closeForm,
   loadRecord, id,
   getTitleAsText, setShowPreviewUi, changeRecord,
-  showPreviewUi, record, description, renderTimeline,
-  inputOnChange, setReadonly
+  showPreviewUi, description, renderTimeline,
+  inputOnChange, setReadonly,
+  recordStore, getRecord
 };
 
 
@@ -141,12 +143,12 @@ const Form = (props: FormProps) => {
   }
 
   const getTitleAsText = (): string => {
-    return model.split('/').pop() + ' ' + record.id;
+    return model.split('/').pop() + ' ' + props.id;
   }
 
   const getRecordFormUrl = (): string => {
     if (props.getRecordFormUrl) return props.getRecordFormUrl(_this);
-    if (props.urlSlug != '') return props.urlSlug + '/' + (record.id > 0 ? record.id : 'add');
+    if (props.urlSlug != '') return props.urlSlug + '/' + (props.id > 0 ? props.id : 'add');
     return '';
   }
 
@@ -315,7 +317,7 @@ const Form = (props: FormProps) => {
   const [permissions, setPermissions] = useState(props.permissions ?? defaultState.permissions);
   const [prevId, setPrevId] = useState(props.prevId ?? defaultState.prevId);
   const [readonly, setReadonly] = useState(props.readonly ?? defaultState.readonly);
-  const [record, setRecord] = useState({} as FormRecord);
+  // const [record, setRecord] = useState({} as FormRecord);
   const [recordChanged, setRecordChanged] = useState(false);
   const [recordDeleted, setRecordDeleted] = useState(false);
   const [savedSuccessfully, setSavedSuccessfully] = useState(false);
@@ -343,13 +345,13 @@ const Form = (props: FormProps) => {
     loadRecord();
   }, [description]);
 
-  useEffect(() => {
-    // setIsInitialized(JSON.stringify(record) !== '{}');
+  // useEffect(() => {
+  //   // setIsInitialized(JSON.stringify(record) !== '{}');
 
-    if (isInitialized) {
-      // setRecordChanged(true);
-    }
-  }, [record]);
+  //   if (isInitialized) {
+  //     // setRecordChanged(true);
+  //   }
+  // }, [record]);
 
   useEffect(() => {
     const tabs = props.uiComponents?.tabs;
@@ -381,7 +383,7 @@ const Form = (props: FormProps) => {
 
         if (description && descriptionSource == 'both') description = deepObjectMerge(description, description);
 
-        let permissions = calculatePermissions(record);
+        let permissions = calculatePermissions(recordStore.getRecord());
 
         let hasCustomColumns = false;
         let inputs = description?.inputs;
@@ -394,7 +396,7 @@ const Form = (props: FormProps) => {
 
         setDescription(description);
         if (!permissions.canUpdate && !permissions.canCreate) setReadonly(true);
-        setPermissions(permissions);
+        // setPermissions(permissions);
 
       }
     );
@@ -433,6 +435,9 @@ const Form = (props: FormProps) => {
     }
   }
 
+  const getRecord = (): FormRecord => {
+    return recordStore.getRecord();
+  }
 
   const saveRecord = (customSaveOptions?: any): void => {
     setInvalidInputs([]);
@@ -478,10 +483,10 @@ const Form = (props: FormProps) => {
   }
 
   const copyRecord = (): void => {
-    let newRecord = getCallback('onBeforeCopyRecord')(_this, record);
+    let newRecord = getCallback('onBeforeCopyRecord')(_this);
 
     setId(-1);
-    setRecord(prev => newRecord);
+    // setRecord(prev => newRecord);
     recordStore.setRecord(prev => (newRecord));
     setUpdatingRecord(false);
     setCreatingRecord(false);
@@ -500,7 +505,7 @@ const Form = (props: FormProps) => {
       getEndpointUrl('deleteRecord'),
       {
         ...getEndpointParams(),
-        hash: record._idHash_ ?? '',
+        hash: props.record._idHash_ ?? '',
       },
       {},
       (saveResponse: any) => {
@@ -516,19 +521,14 @@ const Form = (props: FormProps) => {
     );
   }
 
-  const normalizeRecord = (record: FormRecord): FormRecord => {
-    return record;
-  }
-
   const changeRecord = (changedValues: any, onSuccess?: any): void => {
-    let changedRecord = normalizeRecord(record);
+    let changedRecord = recordStore.getRecord();
     Object.keys(changedValues).map((key: string) => changedRecord[key] = changedValues[key]);
 
     if (isInitialized) {
       setRecordChanged(JSON.stringify(originalRecord) !== JSON.stringify(changedRecord));
     }
 
-    setRecord(prev => ({...changedRecord}));
     recordStore.setRecord(prev => ({ ...changedRecord }));
 
     if (onSuccess) onSuccess(changedRecord);
@@ -955,16 +955,16 @@ const Form = (props: FormProps) => {
 
   const renderFooter = (): null|React.JSX.Element => {
     return <>
-      {record.id > 0 ? <a
+      {props.id > 0 ? <a
         className='btn btn-primary-outline'
-        href={globalThis.hubleto.config.projectUrl + '/ai-assistant?model=' + model + '&id=' + record.id}
+        href={globalThis.hubleto.config.projectUrl + '/ai-assistant?model=' + model + '&id=' + props.id}
         target='_blank'
       >
         <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
       </a> : null}
       <div className='w-full flex justify-between flex-col md:flex-row'>
         <div className="flex gap-2 items-center dark:text-white">
-          <div>#{record.id}</div>
+          <div>#{props.id}</div>
           <div>{renderPrevRecordButton()}</div>
           <div>{renderNextRecordButton()}</div>
           {recordChanged ? <div className='badge badge-small badge-warning block '>{translate('unsaved changes', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}</div> : null}
@@ -1010,7 +1010,7 @@ const Form = (props: FormProps) => {
 
     let title = description?.ui?.title ??
       (updatingRecord
-        ? translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (record?.id ?? '-')
+        ? translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
         : translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
       )
     ;
@@ -1043,9 +1043,10 @@ const Form = (props: FormProps) => {
   };
 
   const renderOwnerManagerUi = (): React.JSX.Element => {
-    const idOwner = record.id_owner;
+    const R = recordStore.getRecord();
+    const idOwner = R.id_owner;
     const owner = globalThis.hubleto.users ? globalThis.hubleto.users[idOwner] : null;
-    const idManager = record.id_manager;
+    const idManager = R.id_manager;
     const manager = globalThis.hubleto.users ? globalThis.hubleto.users[idManager] : null;
 
     return <div className='p-2 flex flex-col'>
@@ -1138,8 +1139,8 @@ const Form = (props: FormProps) => {
     translate, saveRecord, closeForm, loadRecord,
     id,
     getTitleAsText, setShowPreviewUi, changeRecord,
-    showPreviewUi, record, description, renderTimeline,
-    inputOnChange, setReadonly
+    showPreviewUi, description, renderTimeline,
+    inputOnChange, setReadonly, recordStore, getRecord
   }
 
 

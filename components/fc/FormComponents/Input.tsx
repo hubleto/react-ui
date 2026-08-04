@@ -1,6 +1,6 @@
 import React from "react";
 import { FormDescriptionContext, FormMetaContext } from "../Form";
-import { useRecordField, useChangeRecord } from "../FormRecordStore";
+import { useRecord } from "../FormRecordStore";
 
 import { InputProps } from "../Input";
 
@@ -23,11 +23,11 @@ const Input = React.memo((props: any) => {
 
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
-  const value = useRecordField(r => r[name]);
-  const changeRecord = useChangeRecord();
+  const R = useRecord();
+  const value = R[name];
 
   const inputDescription = description?.inputs?.[name] ?? {};
-  const isModified = useRecordField(r => r[name] !== form.originalRecord[name]);
+  const isModified = value !== form.originalRecord[name];
 
   const readonly =
     (props.hasOwnProperty('readonly') ? props.readonly
@@ -81,11 +81,12 @@ const Input = React.memo((props: any) => {
         if (children) {
           input = children;
         } else {
-          console.warn('Unknown input type ' + inputDescription.type + ' for input named ' + name + '. Rendering Varchar.');
-          input = <>
-            <div className='badge badge-error'>Unknown input type {inputDescription.type} for input named {name}. Rendering Varchar.</div>
-            <InputVarchar {...inputProps} />
-          </>;
+          // console.warn('Unknown input type ' + inputDescription.type + ' for input named ' + name + '. Rendering Varchar.');
+          // input = <>
+          //   <div className='badge badge-error'>Unknown input type {inputDescription.type} for input named {name}. Rendering Varchar.</div>
+          //   <InputVarchar {...inputProps} />
+          // </>;
+          input = null;
         }
       break;
     }

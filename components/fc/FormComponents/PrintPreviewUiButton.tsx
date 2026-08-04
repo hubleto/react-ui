@@ -1,6 +1,6 @@
 import React from "react";
-import { FormDescriptionContext, FormMetaContext } from "../Form";
-import { FormRecordStoreContext, useRecordField } from "../FormRecordStore";
+import { FormMetaContext } from "../Form";
+import { useRecord } from "../FormRecordStore";
 import Translator from "@hubleto/react-ui/core/Translator";
 
 const translate = new Translator(
@@ -10,7 +10,8 @@ const translate = new Translator(
 
 const PrintPreviewUiButton = ({ content }: any) => {
   const form = React.useContext(FormMetaContext);
-  const pdf = useRecordField(r => r.pdf);
+  const R = useRecord()
+  const pdf = R.pdf;
 
   return <>
     <button

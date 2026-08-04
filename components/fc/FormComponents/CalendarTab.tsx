@@ -4,8 +4,8 @@ import moment from 'moment';
 import Calendar from './Calendar';
 import ModalForm from '@hubleto/react-ui/components/cc/ModalForm';
 import Translator from "../../../core/Translator";
-import Form, { FormDescriptionContext, FormMetaContext } from "../Form";
-import { useRecordField, useChangeRecord, getRecord, FormRecordStoreContext } from "../FormRecordStore";
+import Form, { FormMetaContext } from "../Form";
+import { useRecord } from "../FormRecordStore";
 import Divider from './Divider';
 
 export interface CalendarTabProps {
@@ -29,9 +29,10 @@ const ActivityFormRenderer = (p: { renderer: any, calendarTab: any }): React.JSX
 const CalendarTab = React.memo((props: CalendarTabProps) => {
   const form = React.useContext(FormMetaContext);
 
-  const id = useRecordField(r => r.id);
-  const isClosed = useRecordField(r => r.is_closed);
-  const ACTIVITIES = useRecordField(r => r.ACTIVITIES);
+  const R = useRecord();
+  const id = R.id;
+  const isClosed = R.is_closed;
+  const ACTIVITIES = R.ACTIVITIES;
 
   const translate = new Translator(
     'Hubleto\\ReactUi',

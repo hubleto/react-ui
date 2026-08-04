@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Spinner from '../Spinner';
-import { FormDescriptionContext, FormMetaContext } from "../Form";
-import { useRecordField, useChangeRecord } from "../FormRecordStore";
+import { FormMetaContext } from "../Form";
+import { useRecord } from "../FormRecordStore";
 import request from "../../../core/Request";
 import Translator from "../../../core/Translator";
 
@@ -16,10 +16,8 @@ const translate = new Translator(
 ).translate;
 
 const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
-  const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
-  const R = useRecordField(r => r);
-  const changeRecord = useChangeRecord();
+  const R = useRecord();
 
   const [idWorkflow, setIdWorkflow] = useState(R.id_workflow ?? 0);
   const [idWorkflowStep, setIdWorkflowStep] = useState(R.id_workflow_step ?? 0);
@@ -39,7 +37,8 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
       },
       {},
       (data: any) => {
-        changeRecord({...R, WORKFLOW_HISTORY: data.history});
+        // changeRecord({...R, WORKFLOW_HISTORY: data.history});
+        form.changeRecord({...R, WORKFLOW_HISTORY: data.history});
         setIsInitialized(true);
         setWorkflows(data.workflows);
         setHistory(data.history);
@@ -58,7 +57,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
     setIdWorkflowStep(0);
     setChangeWorkflow(false);
 
-    changeRecord({id_workflow: newIdWorkflow, id_workflow_step: 0});
+    form.changeRecord({id_workflow: newIdWorkflow, id_workflow_step: 0});
 
     if (props.onAfterWorkflowChange) {
       props.onAfterWorkflowChange(newIdWorkflow, 0);
@@ -70,7 +69,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
 
     setIdWorkflowStep(newIdWorkflowStep);
 
-    changeRecord({id_workflow_step: newIdWorkflowStep});
+    form.changeRecord({id_workflow_step: newIdWorkflowStep});
 
     if (props.onAfterWorkflowStepChange) {
       props.onAfterWorkflowStepChange(newIdWorkflowStep, step);

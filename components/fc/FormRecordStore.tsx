@@ -8,6 +8,7 @@ export function createRecordStore(initial: FormRecord) {
   const listeners = new Set<Listener>();
 
   return {
+    getField: (field: string) => record[field] ?? null,
     getRecord: () => record,
     subscribe: (listener: Listener) => {
       listeners.add(listener);
@@ -22,32 +23,16 @@ export function createRecordStore(initial: FormRecord) {
 
 export function useRecordStore() {
   const store = React.useContext(FormRecordStoreContext);
-  // if (!store) throw new Error('useRecordStore must be used within FormProvider');
+  if (!store) throw new Error('useRecordStore must be used within FormProvider');
   return store;
 }
 
-export function useRecordField<T>(selector: (record: FormRecord) => T): T {
-  const store = useRecordStore();
-  return (store ? React.useSyncExternalStore(
-    store.subscribe,
-    () => selector(store.getRecord())
-  ) : null);
-}
-
-export function getRecord(): FormRecord {
+export function useRecord(): FormRecord {
   const store = useRecordStore();
   return React.useSyncExternalStore(
     store.subscribe,
     () => store.getRecord()
   );
-}
-
-export function useChangeRecord() {
-  const store = useRecordStore();
-
-  return React.useCallback((changedValues: Partial<FormRecord>) => {
-    store.setRecord(prev => ({ ...prev, ...changedValues }));
-  }, [store]);
 }
 
 export type FormRecordStore = ReturnType<typeof createRecordStore>;

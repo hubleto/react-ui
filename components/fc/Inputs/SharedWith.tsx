@@ -4,7 +4,7 @@ import LookupInput, { LookupInputProps } from './Lookup'
 import ModalSimple from '../../cc/ModalSimple';
 import request from '@hubleto/react-ui/core/Request';
 import Translator from '@hubleto/react-ui/core/Translator';
-import { FormRecordStoreContext, useRecordField } from '../FormRecordStore';
+import { FormRecordStoreContext } from '../FormRecordStore';
 import { FormMetaContext } from '../Form';
 
 interface SharedWithInputProps extends LookupInputProps {
