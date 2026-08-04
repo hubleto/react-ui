@@ -51,7 +51,6 @@ export interface InputProps {
   placeholder?: string,
   isModified?: boolean,
   isInitialized?: boolean,
-  isInlineEditing?: boolean,
   context?: any,
   parentForm?: any,
   children?: any,
@@ -69,7 +68,6 @@ export interface InputMeta {
   setCssStyle,
   setIsModified,
   setIsInitialized,
-  setIsInlineEditing,
   setData,
   setDescription,
   refInputWrapper,
@@ -113,7 +111,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   const [inputName, setInputName] = useState(props.inputName ?? '');
   const [invalid, setInvalid] = useState(props.invalid ?? false);
   const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? false);
-  const [isInlineEditing, setIsInlineEditing] = useState(props.isInlineEditing ?? false);
   const [isModified, setIsModified] = useState(props.isModified ?? false); 
   const [origValue, setOrigValue] = useState(props.value ?? null);
   const [readonly, setReadonly] = useState(props.readonly ?? false);
@@ -133,13 +130,13 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   setInvalid(false);
-  //   if (props.onChange) {
-  //     props.onChange(_this, value);
-  //   }
-  //   setChanged(origValue != value);
-  // }, [value]);
+  useEffect(() => { setChanged(props.changed ?? false); }, [props.changed]);
+  useEffect(() => { setCssClass(props.cssClass ?? ''); }, [props.cssClass]);
+  useEffect(() => { setCssStyle(props.cssStyle ?? {}); }, [props.cssStyle]);
+  useEffect(() => { setDescription(props.description ?? {}); }, [props.description]);
+  useEffect(() => { setInvalid(props.invalid ?? false); }, [props.invalid]);
+  useEffect(() => { setIsModified(props.isModified ?? false); }, [props.isModified]);
+  useEffect(() => { setReadonly(props.readonly ?? false); }, [props.readonly]);
 
   const getClassName = useCallback((): string => {
     return (
@@ -149,10 +146,9 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
       + " " + (changed ? 'changed' : '')
       + " " + (invalid ? 'invalid' : '')
       + " " + (readonly ? "readonly" : "")
-      + " " + (isInlineEditing ? 'editing' : '')
       + " " + (isModified ? 'modified' : '')
     );
-  }, [changed, invalid, readonly, isInlineEditing, isModified]);
+  }, [changed, invalid, readonly, isModified]);
 
   const serialize = (): string => {
     if (props.serialize) props.serialize(_this);
@@ -190,6 +186,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   };
 
   const _this = {
+    inputName,
     changed, setChanged,
     cssClass, setCssClass,
     cssStyle, setCssStyle,
@@ -198,7 +195,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     inputClassName, setInputClassName,
     invalid, setInvalid,
     isInitialized, setIsInitialized,
-    isInlineEditing, setIsInlineEditing,
     isModified, setIsModified,
     origValue, setOrigValue,
     readonly, setReadonly,
@@ -223,7 +219,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     setCssStyle,
     setIsModified,
     setIsInitialized,
-    setIsInlineEditing,
     setData,
     setDescription,
     refInputWrapper,
@@ -260,7 +255,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
       setCssStyle,
       setIsModified,
       setIsInitialized,
-      setIsInlineEditing,
       setData,
       setDescription,
       refInputWrapper,
@@ -281,9 +275,16 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
         ref={refInputWrapper}
         className={getClassName()}
         style={cssStyle}
-      ><div className="inner border-l border-l-primary border-l-1 pl-0.5">
-        {isInlineEditing
-          ? <>
+      ><div className="inner">
+        {readonly
+          ? <div
+            ref={refValueElement}
+            className="value-element"
+          >
+            {renderValueComponent()}
+            {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
+          </div>
+          : <>
             <input
               id={uid}
               name={uid}
@@ -298,13 +299,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
               {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
             </div>
           </>
-          : <div
-            ref={refValueElement}
-            className="value-element"
-          >
-            {renderValueComponent()}
-            {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
-          </div>
         }
       </div></div>
     </InputMetaContext.Provider>;

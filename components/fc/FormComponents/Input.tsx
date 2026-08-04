@@ -16,10 +16,9 @@ import InputDateTime from "../Inputs/DateTime";
 import InputPassword from "../../cc/Inputs/Password";
 import InputFile from "../../cc/Inputs/File";
 import InputImage from "../../cc/Inputs/Image";
-import InputTags from "../../cc/Inputs/Tags2";
 
 
-const Input = (props: any) => {
+const Input = React.memo((props: any) => {
   const { name, content, cssClass, renderOnlyInputField, customInputProps, debug, children } = props;
 
   const description = React.useContext(FormDescriptionContext);
@@ -29,15 +28,21 @@ const Input = (props: any) => {
 
   const inputDescription = description?.inputs?.[name] ?? {};
   const isModified = useRecordField(r => r[name] !== form.originalRecord[name]);
-  const isInlineEditing = true;
+
+  const readonly =
+    (props.hasOwnProperty('readonly') ? props.readonly
+    : (form.hasOwnProperty('readonly') ? form.readonly
+    : (inputDescription.hasOwnProperty('readonly') ? inputDescription.readonly
+    : false)))
+  ;
 
   const inputProps: InputProps = {
+    ...props,
     inputName: name,
     value,
     description: inputDescription,
-    readonly: form.readonly || inputDescription.readonly || inputDescription.disabled,
+    readonly: readonly,
     isModified,
-    isInlineEditing,
     uid: form.uid + '_' + name, // stable, no uuid.v4() per render
     invalid: form.invalidInputs.some(
       (v) => v.name.toLowerCase() === name.toLowerCase()
@@ -45,7 +50,7 @@ const Input = (props: any) => {
     ...inputDescription,
     ...customInputProps,
     onChange: (input: any, newValue: any) => {
-      changeRecord({ [name]: newValue === '' ? null : newValue });
+      form.inputOnChange(input, newValue);
     },
   };
 
@@ -113,6 +118,6 @@ const Input = (props: any) => {
 
   return finalContent;
 
-}
+}, () => true);
 
 export default Input;

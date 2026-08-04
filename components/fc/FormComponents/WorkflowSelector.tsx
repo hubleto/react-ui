@@ -15,7 +15,7 @@ const translate = new Translator(
   'Components\\WorkflowSelector'
 ).translate;
 
-const WorkflowSelector = (props: WorkflowSelectorProps) => {
+const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
   const R = useRecordField(r => r);
@@ -156,7 +156,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
     </div>}
   </div>;
 
-};
+}, () => true);
 
 // export function updateFormWorkflowByTag(form: any, tag: string, onsuccess: any) {
 //   request.post(

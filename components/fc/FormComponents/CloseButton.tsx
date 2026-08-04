@@ -1,7 +1,7 @@
 import React from "react";
 import { FormDescriptionContext, FormMetaContext } from "../Form";
 
-const CloseButton = ({ content }: any) => {
+const CloseButton = React.memo(({ content }: any) => {
   const form = React.useContext(FormMetaContext);
 
   return <button
@@ -18,6 +18,6 @@ const CloseButton = ({ content }: any) => {
       <span className="shortcut">Esc</span>
     </span>
   </button>;
-}
+}, () => true);
 
 export default CloseButton;

@@ -26,7 +26,6 @@ const InputComponent = () => {
         + " " + (input.invalid ? 'is-invalid' : '')
         + " " + (input.cssClass ?? "")
         + " " + (input.readonly ? "bg-muted" : "")
-        + " max-w-40"
       }
       disabled={input.readonly}
     />
@@ -36,6 +35,7 @@ const InputComponent = () => {
 
 const IntInput = (props: InputProps) => {
   return <Input
+    inputClassName='int'
     isInitialized={true}
     inputComponent={<InputComponent />}
     {...props}

@@ -26,7 +26,7 @@ export const CalendarTabContext = React.createContext<{
 
 const ActivityFormRenderer = (p: { renderer: any, calendarTab: any }): React.JSX.Element => p.renderer(p.calendarTab);
 
-const CalendarTab = (props: CalendarTabProps) => {
+const CalendarTab = React.memo((props: CalendarTabProps) => {
   const form = React.useContext(FormMetaContext);
 
   const id = useRecordField(r => r.id);
@@ -197,6 +197,6 @@ const CalendarTab = (props: CalendarTabProps) => {
 
 
 
-};
+}, () => true);
 
 export default CalendarTab;

@@ -15,7 +15,7 @@ const translate = new Translator(
   'Components\\PrintPreview'
 ).translate;
 
-const PrintPreviewUi = (props: PrintPreviewUiProps) => {
+const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
   const form = React.useContext(FormMetaContext);
 
   const [htmlPreview, setHtmlPreview] = useState('');
@@ -146,6 +146,6 @@ const PrintPreviewUi = (props: PrintPreviewUiProps) => {
       </div>
     </div>
   </ModalSimple> : null);
-}
+}, () => true);
 
 export default PrintPreviewUi;

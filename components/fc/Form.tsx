@@ -37,10 +37,7 @@ import {
 
 import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './FormRecordStore';
 
-
-
-export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
-export const FormMetaContext = React.createContext<{
+export interface FormMeta {
   readonly, model, uid,
   originalRecord: FormRecord,
   invalidInputs: FormInvalidInputs,
@@ -50,10 +47,15 @@ export const FormMetaContext = React.createContext<{
   recordChanged,
   savedSuccessfully,
   translate, saveRecord, closeForm,
-  loadRecord, id, getInputProps,
+  loadRecord, id,
   getTitleAsText, setShowPreviewUi, changeRecord,
-  showPreviewUi, record, description, renderTimeline
-}>(null);
+  showPreviewUi, record, description, renderTimeline,
+  inputOnChange, setReadonly
+};
+
+
+export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
+export const FormMetaContext = React.createContext<FormMeta>(null);
 
 
 
@@ -153,77 +155,79 @@ const Form = (props: FormProps) => {
     return '';
   }
 
-  const getInputProps = (inputName: string, customInputProps?: any): InputProps => {
-    if (props.getInputProps) props.getInputProps(Form, inputName, customInputProps);
+  // const getInputProps = (inputName: string, customInputProps?: any): InputProps => {
+  //   const inputs = description?.inputs ?? {};
+  //   const inputDescription = inputs[inputName] ?? {};
+  //   const inputType = inputDescription.type ?? '';
+  //   const enumValues = inputDescription.enumValues;
+  //   const lastIndexOfBackslash = model.lastIndexOf('/');
+  //   const rawModelName = model.substring(lastIndexOfBackslash + 1);
+  //   const modelInputName = rawModelName + '.' + inputName;
+  //   const invalid = Array.isArray(invalidInputs) ? invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (record.id ?? -1)) : false;
 
-    const inputs = description?.inputs ?? {};
-    const inputDescription = inputs[inputName] ?? {};
-    const inputType = inputDescription.type ?? '';
-    const enumValues = inputDescription.enumValues;
-    const lastIndexOfBackslash = model.lastIndexOf('/');
-    const rawModelName = model.substring(lastIndexOfBackslash + 1);
-    const modelInputName = rawModelName + '.' + inputName;
-    const invalid = Array.isArray(invalidInputs) ? invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (record.id ?? -1)) : false;
+  //   if (!customInputProps) customInputProps = {};
 
-    if (!customInputProps) customInputProps = {};
+  //   let value = null;
+  //   if (updatingRecord) value = record[inputName];
+  //   else value = record[inputName] ?? (description.defaultValues ? description.defaultValues[inputName] : null);
 
-    let value = null;
-    if (updatingRecord) value = record[inputName];
-    else value = record[inputName] ?? (description.defaultValues ? description.defaultValues[inputName] : null);
+  //   if (
+  //     !customInputProps.wrapperCssClass
+  //     && (
+  //       ['boolean', 'date', 'datetime', 'decimal'].indexOf(inputType) >= 0
+  //       || (inputType == 'int' && !enumValues)
+  //     )
+  //   ) {
+  //     customInputProps.wrapperCssClass = 'flex gap-2';
+  //   }
 
-    if (
-      !customInputProps.wrapperCssClass
-      && (
-        ['boolean', 'date', 'datetime', 'decimal'].indexOf(inputType) >= 0
-        || (inputType == 'int' && !enumValues)
-      )
-    ) {
-      customInputProps.wrapperCssClass = 'flex gap-2';
-    }
+  //   return {
+  //     // key: uid + '_input_' + inputName,
+  //     inputName: inputName,
+  //     inputClassName: '',
+  //     record: record,
+  //     description: inputDescription,
+  //     value: value,
+  //     cssClass: inputs[inputName]?.cssClass,
+  //     readonly: readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
+  //     uid: uid + '_' + inputName,
+  //     parentForm: this,
+  //     isModified: record[inputName] !== originalRecord[inputName],
+  //     isInitialized: false,
+  //     isInlineEditing: isInlineEditing,
+  //     invalid: invalid,
 
-    return {
-      // key: uid + '_input_' + inputName,
-      inputName: inputName,
-      inputClassName: '',
-      record: record,
-      description: inputDescription,
-      value: value,
-      cssClass: inputs[inputName]?.cssClass,
-      readonly: readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
-      uid: uid + '_' + inputName,
-      parentForm: this,
-      isModified: record[inputName] !== originalRecord[inputName],
-      isInitialized: false,
-      isInlineEditing: isInlineEditing,
-      invalid: invalid,
-      ...inputs[inputName]?.inputProps,
-      ...customInputProps,
-      onInlineEditCancel: () => { },
-      onInlineEditSave: () => { saveRecord(); },
-      onChange: (input: any, value: any) => {
-        let changedValues = {};
-        if (value === '') value = null;
-        changedValues[inputName] = value;
+  //     ...inputs[inputName]?.inputProps,
+  //     ...customInputProps,
+  //     onInlineEditCancel: () => { },
+  //     onInlineEditSave: () => { saveRecord(); },
+  //     onChange: inputOnChange,
+  //   };
+  // };
 
-        changeRecord(changedValues, (changedRecord: FormRecord) => {
-          getCallback('onChange')(_this, changedRecord);
-        });
+  const inputOnChange = (input: any, value: any) => {
+    const inputName = input.inputName;
+    let changedValues = {};
+    if (value === '') value = null;
+    changedValues[inputName] = value;
 
-      },
-    };
-  };
+    changeRecord(changedValues, (changedRecord: FormRecord) => {
+      getCallback('onChange')(_this, changedRecord);
+    });
+
+  }
 
   const defaultCallbacks = {
     onChange: (form: any, changedRecord: FormRecord) => {},
     onClose: (form: any) => {},
     onAfterCopyRecord: (form: any, record: FormRecord) => {},
     onAfterDeleteRecord: (form: any, saveResponse: any) => {},
-    onAfterFormInitialized: (form: any) => {
-      if (saveRecordWhenInitialized) {
-        saveRecord();
-      }
-      onTabChange();
-    },
+    // onAfterFormInitialized: (form: any) => {
+    //   if (saveRecordWhenInitialized) {
+    //     saveRecord();
+    //   }
+    //   onTabChange();
+    // },
     onAfterRecordLoaded: (record: FormRecord): FormRecord => { return record; },
     onAfterSaveRecord: (form: any, saveResponse: any, customSaveOptions?: any) => {
       if (
@@ -270,7 +274,6 @@ const Form = (props: FormProps) => {
     hideOverlay: true,
     id: props.id,
     isInitialized: false,
-    isInlineEditing: props.isInlineEditing ? props.isInlineEditing : true,
     nextId: props.nextId,
     params: null,
     parentTable: null,
@@ -303,7 +306,6 @@ const Form = (props: FormProps) => {
   const [isActive, setIsActive] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(props.isFullscreen ?? false);
   const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? defaultState.isInitialized);
-  const [isInlineEditing, setIsInlineEditing] = useState(props.isInlineEditing ?? defaultState.isInlineEditing);
   const [loadRecordError, setLoadRecordError] = useState(null);
   const [modal, setModal] = useState(true);
   const [model, setModel] = useState(props.model ?? '');
@@ -332,7 +334,8 @@ const Form = (props: FormProps) => {
   useEffect(() => { loadDescription(); }, []);
   useEffect(() => {
     if (isInitialized) {
-      getCallback('onAfterFormInitialized')(_this);
+      onTabChange();
+      getCallback('onAfterFormInitialized')(meta);
     }
   }, [isInitialized])
 
@@ -341,10 +344,10 @@ const Form = (props: FormProps) => {
   }, [description]);
 
   useEffect(() => {
-    setIsInitialized(JSON.stringify(record) !== '{}');
+    // setIsInitialized(JSON.stringify(record) !== '{}');
 
     if (isInitialized) {
-      setRecordChanged(true);
+      // setRecordChanged(true);
     }
   }, [record]);
 
@@ -390,7 +393,7 @@ const Form = (props: FormProps) => {
         }
 
         setDescription(description);
-        setReadonly(!(permissions.canUpdate || permissions.canCreate));
+        if (!permissions.canUpdate && !permissions.canCreate) setReadonly(true);
         setPermissions(permissions);
 
       }
@@ -418,8 +421,7 @@ const Form = (props: FormProps) => {
           } else {
             let p = calculatePermissions(record);
             setPermissions(p);
-            setReadonly(!(p.canUpdate || p.canCreate));
-
+            if (!p.canUpdate && !p.canCreate) setReadonly(true);
             changeRecord(record);
           }
         },
@@ -522,8 +524,10 @@ const Form = (props: FormProps) => {
     let changedRecord = normalizeRecord(record);
     Object.keys(changedValues).map((key: string) => changedRecord[key] = changedValues[key]);
 
-    setRecordChanged(JSON.stringify(originalRecord) !== JSON.stringify(changedRecord));
-    setSavedSuccessfully(false);
+    if (isInitialized) {
+      setRecordChanged(JSON.stringify(originalRecord) !== JSON.stringify(changedRecord));
+    }
+
     setRecord(prev => ({...changedRecord}));
     recordStore.setRecord(prev => ({ ...changedRecord }));
 
@@ -904,18 +908,6 @@ const Form = (props: FormProps) => {
     );
   };
 
-  const renderEditButton = (): null|React.JSX.Element => {
-    return <>
-      {permissions.canUpdate ? <button
-        onClick={() => setIsInlineEditing(true)}
-        className="btn btn-edit"
-      >
-        <span className="icon"><i className="fas fa-pencil-alt"></i></span>
-        <span className="text">{translate('Edit', 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
-      </button> : null}
-    </>;
-  };
-
   const renderFullscreenButton = (): null|React.JSX.Element => {
     return (
       <button
@@ -947,7 +939,7 @@ const Form = (props: FormProps) => {
     return <div className='flex gap-2 items-center'>
       <div className='flex flex-col gap-2'>
         <div className='flex gap-2'>
-          {isInlineEditing ? renderSaveButton() : renderEditButton()}
+          {renderSaveButton()}
           {props.uiComponents?.printPreviewUi ? renderprintPreviewUiButton() : null}
         </div>
       </div>
@@ -1035,7 +1027,7 @@ const Form = (props: FormProps) => {
         <FormWorkflowSelector></FormWorkflowSelector>
       </div>
       {description && description.inputs && description.inputs.is_closed
-        ? <div className='text-right'><FormInput name='is_closed' cssClass='flex gap-2' debug /></div>
+        ? <div className='text-right'><FormInput name='is_closed' cssClass='flex gap-2' readonly={false} /></div>
         : null
       }
     </div>);
@@ -1138,6 +1130,17 @@ const Form = (props: FormProps) => {
   };
 
   const _this = this;
+  const meta: FormMeta = {
+    uid, readonly, model,
+    originalRecord, invalidInputs,
+    creatingRecord, updatingRecord,
+    permissions, recordChanged, savedSuccessfully,
+    translate, saveRecord, closeForm, loadRecord,
+    id,
+    getTitleAsText, setShowPreviewUi, changeRecord,
+    showPreviewUi, record, description, renderTimeline,
+    inputOnChange, setReadonly
+  }
 
 
 
@@ -1220,16 +1223,7 @@ const Form = (props: FormProps) => {
   return (
     <FormRecordStoreContext.Provider value={recordStore}>
       <FormDescriptionContext.Provider value={description}>
-        <FormMetaContext.Provider value={{
-          uid, readonly, model,
-          originalRecord, invalidInputs,
-          creatingRecord, updatingRecord,
-          permissions, recordChanged, savedSuccessfully,
-          translate, saveRecord, closeForm, loadRecord,
-          id, getInputProps,
-          getTitleAsText, setShowPreviewUi, changeRecord,
-          showPreviewUi, record, description, renderTimeline
-        }}>
+        <FormMetaContext.Provider value={meta}>
           {finalContent}
         </FormMetaContext.Provider>
       </FormDescriptionContext.Provider>

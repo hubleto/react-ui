@@ -16,13 +16,13 @@ const InputComponent = () => {
   return <div className='list horizontal'>
     <div
       className={'btn btn-list-item btn-small ' + (input.value ? 'btn-success' : 'btn-transparent')}
-      onClick={() => { if (!input.readonly) input.changeValue(true)}}
+      onClick={() => { if (!input.readonly) input.changeValue(1)}}
     >
       <span className='icon text-sm'><i className='fas fa-check'></i></span>
     </div>
     <div
       className={'btn btn-list-item btn-small ' + (input.value ? 'btn-transparent' : 'btn-danger')}
-      onClick={() => { if (!input.readonly) input.changeValue(false)}}
+      onClick={() => { if (!input.readonly) input.changeValue(0)}}
     >
       <span className='icon text-sm'><i className='fas fa-times'></i></span>
     </div>

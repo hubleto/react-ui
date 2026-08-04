@@ -199,10 +199,11 @@ const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
 
 const DateTimeInput = React.memo((props: DateTimeInputProps) => {
 
-  const [type, setStep] = useState('');
-  const [showReadable, setDecimals] = useState(false);
+  const [type, setType] = useState('');
+  const [showReadable, setShowReadable] = useState(false);
 
   return <Input
+    inputClassName={props.type ?? 'date'}
     changeValue={(input: any, newValue: any): void => {
       if (newValue === null) {
         newValue = '';

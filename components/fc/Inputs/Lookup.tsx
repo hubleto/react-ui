@@ -161,7 +161,7 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
 const LookupInput = React.memo((props: LookupInputProps) => {
   const normalizedProps: LookupInputProps = {
     ...props,
-    inputClassName: 'int',
+    inputClassName: 'lookup',
     uiStyle: 'default',
     endpoint: props.endpoint
     ? props.endpoint
