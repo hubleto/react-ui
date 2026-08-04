@@ -8,7 +8,7 @@ import Spinner from "./Spinner";
 import App from '../../core/App';
 
 import { deepObjectMerge } from "../../core/Helper";
-import FormWorkflowSelector from './FormComponents/WorkflowSelector';
+import WorkflowSelector from './FormComponents/WorkflowSelector';
 import ModalSimple from "../cc/ModalSimple";
 import HtmlFrame from "../cc/HtmlFrame";
 import Translator from "../../core/Translator";
@@ -37,6 +37,7 @@ import {
 } from "./FormInterfaces"
 
 import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './FormRecordStore';
+import OwnerManagerUi from './FormComponents/OwnerManagerUi';
 
 export interface FormMeta {
   readonly, model, uid,
@@ -322,10 +323,8 @@ const Form = (props: FormProps) => {
   const [recordDeleted, setRecordDeleted] = useState(false);
   const [savedSuccessfully, setSavedSuccessfully] = useState(false);
   const [saveError, setSaveError] = useState(null);
-  const [saveRecordWhenInitialized, setSaveRecordWhenInitialized] = useState(props.saveRecordWhenInitialized ?? defaultState.saveRecordWhenInitialized);
   const [showFooter, setShowFooter] = useState(true);
   const [showHeader, setShowHeader] = useState(true);
-  const [showOwnerManagerSelector, setShowOwnerManagerSelector] = useState(props.showOwnerManagerSelector ?? defaultState.showOwnerManagerSelector);
   const [showPreviewUi, setShowPreviewUi] = useState(false);
   const [tag, setTag] = useState(props.tag ?? defaultState.tag);
   const [uid, setUid] = useState(props.uid ?? defaultState.uid);
@@ -625,11 +624,15 @@ const Form = (props: FormProps) => {
           : null
         }
       </div>
-      <div className='flex justify-between'>
-        {props.showOwnerManagerUi ? renderOwnerManagerUi() : null}
-        {props.showWorkflowUi ? renderWorkflowUi() : null}
+      <div className='flex justify-between gap-2 w-full'>
+        {props.showOwnerManagerUi ? <OwnerManagerUi/> : null}
+        {props.showWorkflowUi ? <div className='grow'><WorkflowSelector /></div> : null}
+        {description && description.inputs && description.inputs.is_closed
+          ? <div><FormInput name='is_closed' cssClass='flex gap-2' readonly={false} /></div>
+          : null
+        }
         {description && description.inputs && description.inputs.shared_with
-          ? <div className="p-2"><FormInput name='shared_with' renderOnlyInputField /></div>
+          ? <div><FormInput name='shared_with' renderOnlyInputField /></div>
           : null
         }
       </div>
@@ -1019,84 +1022,6 @@ const Form = (props: FormProps) => {
       <h2>{title}</h2>
       {description?.ui?.subTitle ? <small>{description?.ui?.subTitle}</small> : null}
     </>;
-  };
-
-  const renderWorkflowUi = (): React.JSX.Element => {
-    return (id <= 0 ? null : <div className='flex grow p-2 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800'>
-      <div className='flex-2'>
-        <FormWorkflowSelector></FormWorkflowSelector>
-      </div>
-      {description && description.inputs && description.inputs.is_closed
-        ? <div className='text-right'><FormInput name='is_closed' cssClass='flex gap-2' readonly={false} /></div>
-        : null
-      }
-    </div>);
-  };
-
-  const renderCalendar = (): React.JSX.Element => {
-    return <></>;
-  };
-
-  const renderCalendarTodoList = (): React.JSX.Element => {
-    return <>
-    </>;
-  };
-
-  const renderOwnerManagerUi = (): React.JSX.Element => {
-    const R = recordStore.getRecord();
-    const idOwner = R.id_owner;
-    const owner = globalThis.hubleto.users ? globalThis.hubleto.users[idOwner] : null;
-    const idManager = R.id_manager;
-    const manager = globalThis.hubleto.users ? globalThis.hubleto.users[idManager] : null;
-
-    return <div className='p-2 flex flex-col'>
-      <div className='btn-group border-primary'>
-        <div className='btn btn-transparent' onClick={() => { setShowOwnerManagerSelector(!showOwnerManagerSelector) }}>
-          <span className="text flex gap-2">{owner ? <>
-            {/* <span className='text-xs text-gray-500'>Owner</span> */}
-            {owner.photo ?
-              <img
-                src={globalThis.hubleto.config.uploadUrl + '/' + owner.photo}
-                className='max-w-4 max-h-4 rounded-xl'
-              />
-            : null}
-            <span className='text-xs text-primary'>{
-              owner.nick ? owner.nick :
-                (Array.from(owner.first_name ?? '')[0]).toString()
-                + (Array.from(owner.last_name ?? '')[0]).toString()
-                + (owner.id == globalThis.hubleto.idUser ? ' (you) ' : '')
-            }</span>
-          </> : '-'}</span>
-        </div>
-        <div className='btn btn-transparent' onClick={() => { setShowOwnerManagerSelector(!showOwnerManagerSelector) }}>
-          <span className="text flex gap-2">{manager ? <>
-            {manager.photo ?
-              <img
-                src={globalThis.hubleto.config.uploadUrl + '/' + manager.photo}
-                className='max-w-4 max-h-4 rounded-xl'
-              />
-            : null}
-            <span className='text-xs text-primary'>{
-              manager.nick ? manager.nick :
-                (Array.from(manager.first_name ?? '')[0]).toString()
-                + (Array.from(manager.last_name ?? '')[0]).toString()
-                + (manager.id == globalThis.hubleto.idUser ? ' (you) ' : '')
-            }</span>
-          </> : '-'}</span>
-        </div>
-      </div>
-      {showOwnerManagerSelector ? <div
-        className='relative w-0 h-0'
-        style={{zIndex: 99999999999}}
-      >
-        <div
-          className='mt-2 shadow min-w-64 border border-primary bg-white rounded'
-        >
-          <FormInput name='id_owner' />
-          <FormInput name='id_manager' />
-        </div>
-      </div> : null}
-    </div>;
   };
 
   const renderWarningsOrErrors = (): null|React.JSX.Element => {

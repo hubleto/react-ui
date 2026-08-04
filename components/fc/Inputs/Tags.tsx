@@ -66,6 +66,8 @@ const InputComponent = (args: { parent: any }) => {
     />;
   }
 
+  console.log('tagsinput', input.value);
+
   return <div className='flex flex-col gap-2'>
     {showTagButtons ? <div className='flex gap-4'>
       {Object.keys(parent.options).map((key) => {
@@ -79,7 +81,9 @@ const InputComponent = (args: { parent: any }) => {
             className={'btn btn-small ' + (isSelected ? 'btn-primary' : 'btn-transparent')}
             style={{borderLeftWidth: '3px', borderLeftColor: option.color ?? ''}}
             onClick={() => {
+              console.log('onclc', isSelected);
               let newValue = input.value ?? [];
+
               if (isSelected) {
                 newValue = newValue.filter((item) => {
                   return item[props.sourceColumn] != option.value
@@ -91,6 +95,7 @@ const InputComponent = (args: { parent: any }) => {
                   [props.sourceColumn]: option.value,
                 });
               }
+              console.log('onclc2', newValue);
 
               parent.handleChange(newValue);
             }}
@@ -239,7 +244,7 @@ const Tags = (props: TagsInputProps) => {
     //     [normalizedProps.sourceColumn]: selectedOptions[i].value,
     //   });
     // }
-
+console.log('hacha', selectedOptions);
     input.changeValue(selectedOptions);
   }
 

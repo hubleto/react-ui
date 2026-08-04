@@ -1,6 +1,6 @@
 import React from "react";
 import { FormDescriptionContext, FormMetaContext } from "../Form";
-import { useRecord } from "../FormRecordStore";
+import { useRecordField } from "../FormRecordStore";
 
 import { InputProps } from "../Input";
 
@@ -23,8 +23,8 @@ const Input = React.memo((props: any) => {
 
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
-  const R = useRecord();
-  const value = R[name];
+  // const R = useRecord();
+  const value = useRecordField(name); // R[name];
 
   const inputDescription = description?.inputs?.[name] ?? {};
   const isModified = value !== form.originalRecord[name];

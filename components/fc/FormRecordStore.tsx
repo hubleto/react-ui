@@ -23,8 +23,16 @@ export function createRecordStore(initial: FormRecord) {
 
 export function useRecordStore() {
   const store = React.useContext(FormRecordStoreContext);
-  if (!store) throw new Error('useRecordStore must be used within FormProvider');
+  // if (!store) throw new Error('useRecordStore must be used within FormProvider');
   return store;
+}
+
+export function useRecordField<T>(field: string): T {
+  const store = useRecordStore();
+  return (store ? React.useSyncExternalStore(
+    store.subscribe,
+    () => store.getField(field)
+  ) : null);
 }
 
 export function useRecord(): FormRecord {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Spinner from '../Spinner';
 import { FormMetaContext } from "../Form";
-import { useRecord } from "../FormRecordStore";
+import { useRecordField } from "../FormRecordStore";
 import request from "../../../core/Request";
 import Translator from "../../../core/Translator";
 
@@ -17,10 +17,10 @@ const translate = new Translator(
 
 const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
   const form = React.useContext(FormMetaContext);
-  const R = useRecord();
+  const id: number = useRecordField('id');
 
-  const [idWorkflow, setIdWorkflow] = useState(R.id_workflow ?? 0);
-  const [idWorkflowStep, setIdWorkflowStep] = useState(R.id_workflow_step ?? 0);
+  const [idWorkflow, setIdWorkflow] = useState(useRecordField('id_workflow') ?? 0);
+  const [idWorkflowStep, setIdWorkflowStep] = useState(useRecordField('id_workflow_step') ?? 0);
   const [workflows, setWorkflows] = useState(null);
   const [history, setHistory] = useState(null);
   const [changeWorkflow, setChangeWorkflow] = useState(false);
@@ -33,12 +33,12 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
       'workflow/api/get-workflows',
       {
         model: form.model,
-        recordId: R.id,
+        recordId: id,
       },
       {},
       (data: any) => {
         // changeRecord({...R, WORKFLOW_HISTORY: data.history});
-        form.changeRecord({...R, WORKFLOW_HISTORY: data.history});
+        form.changeRecord({WORKFLOW_HISTORY: data.history});
         setIsInitialized(true);
         setWorkflows(data.workflows);
         setHistory(data.history);
@@ -77,12 +77,12 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
   }
 
  
-  if (!isInitialized) return <Spinner size="xs" />;
+  if (!isInitialized) return <div className='p-1'><Spinner size="xs" /></div>;
 
   const historyForCurrentWorkflow = history.filter((item) => item.id_workflow == idWorkflow);
   const steps = workflows ? workflows[idWorkflow]?.STEPS : null;
 
-  return <div className='flex flex-row flex-wrap'>
+  return (id <= 0 ? null : <div className='flex flex-row flex-wrap'>
     {changeWorkflow ? <div className='flex gap-2 items-center'>
       <div className="input-body">
         <div className="hubleto component input"><div className="inner">
@@ -153,7 +153,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
         </div>
       </div>
     </div>}
-  </div>;
+  </div>);
 
 }, () => true);
 

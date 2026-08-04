@@ -5,7 +5,7 @@ import Calendar from './Calendar';
 import ModalForm from '@hubleto/react-ui/components/cc/ModalForm';
 import Translator from "../../../core/Translator";
 import Form, { FormMetaContext } from "../Form";
-import { useRecord } from "../FormRecordStore";
+import { useRecordField } from "../FormRecordStore";
 import Divider from './Divider';
 
 export interface CalendarTabProps {
@@ -29,10 +29,10 @@ const ActivityFormRenderer = (p: { renderer: any, calendarTab: any }): React.JSX
 const CalendarTab = React.memo((props: CalendarTabProps) => {
   const form = React.useContext(FormMetaContext);
 
-  const R = useRecord();
-  const id = R.id;
-  const isClosed = R.is_closed;
-  const ACTIVITIES = R.ACTIVITIES;
+  // const R = useRecord();
+  const id = useRecordField('id');
+  const isClosed: boolean = useRecordField('is_closed');
+  const ACTIVITIES: Array<object> = useRecordField('ACTIVITIES');
 
   const translate = new Translator(
     'Hubleto\\ReactUi',
@@ -125,7 +125,7 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
         </button>
       </div>
       <Divider>{translate('Most recent activities')}</Divider>
-      {ACTIVITIES ? <div className="list">{ACTIVITIES.reverse().slice(0, 7).map((item: any, index: string) => {
+      {ACTIVITIES ? <div className="list">{ACTIVITIES.reverse().slice(0, 7).map((item: any, index: any) => {
         return <>
           <button key={index} className={"btn btn-small btn-transparent btn-list-item " + (item.completed ? "bg-green-50" : "bg-red-50")}
             onClick={() => setShowIdActivity(item.id)}
