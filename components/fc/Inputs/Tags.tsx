@@ -47,7 +47,6 @@ const ValueComponent = (args: { parent: any }) => {
 const InputComponent = (args: { parent: any }) => {
   const { parent } = args;
   const props = parent.props;
-  // const input = parent.inputRef.current;//React.useContext(InputMetaContext);
   const input = React.useContext(InputMetaContext);
   const convertedValue = parent.convertValueToOptionList(input.value);
 
@@ -66,9 +65,7 @@ const InputComponent = (args: { parent: any }) => {
     />;
   }
 
-  console.log('tagsinput', input.value);
-
-  return <div className='flex flex-col gap-2'>
+  return (!input.isInitialized ? <div>...</div> : <div className='flex flex-col gap-2'>
     {showTagButtons ? <div className='flex gap-4'>
       {Object.keys(parent.options).map((key) => {
         const option = parent.options[key];
@@ -81,7 +78,6 @@ const InputComponent = (args: { parent: any }) => {
             className={'btn btn-small ' + (isSelected ? 'btn-primary' : 'btn-transparent')}
             style={{borderLeftWidth: '3px', borderLeftColor: option.color ?? ''}}
             onClick={() => {
-              console.log('onclc', isSelected);
               let newValue = input.value ?? [];
 
               if (isSelected) {
@@ -95,7 +91,6 @@ const InputComponent = (args: { parent: any }) => {
                   [props.sourceColumn]: option.value,
                 });
               }
-              console.log('onclc2', newValue);
 
               parent.handleChange(newValue);
             }}
@@ -105,11 +100,11 @@ const InputComponent = (args: { parent: any }) => {
         </div>;
       })}
       <button
-          className='btn btn-small btn-transparent'
-          onClick={() => { setShowSelect(true); }}
-        >
-          <span className='icon'><i className='fas fa-plus'></i></span>
-        </button>
+        className='btn btn-small btn-transparent'
+        onClick={() => { setShowSelect(true); }}
+      >
+        <span className='icon'><i className='fas fa-plus'></i></span>
+      </button>
     </div>: null}
     {showSelect ?
       <CreatableSelect
@@ -122,7 +117,7 @@ const InputComponent = (args: { parent: any }) => {
         onCreateOption={(inputValue: string) => parent.addNewTag(inputValue)}
       />
     : null}
-  </div>;
+  </div>);
 }
 
 const Tags = (props: TagsInputProps) => {
@@ -235,17 +230,7 @@ const Tags = (props: TagsInputProps) => {
 
   const handleChange = (selectedOptions: any) => {
     const input = inputRef.current;
-    // const value: Array<any> = [];
-
-    // for (let i in selectedOptions) {
-    //   value.push({
-    //     id: selectedOptions[i].id ?? -1,
-    //     [normalizedProps.targetColumn]: {_useMasterRecordId_: true},
-    //     [normalizedProps.sourceColumn]: selectedOptions[i].value,
-    //   });
-    // }
-console.log('hacha', selectedOptions);
-    input.changeValue(selectedOptions);
+    input.changeValue([...selectedOptions]);
   }
 
 

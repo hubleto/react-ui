@@ -85,6 +85,7 @@ const InputComponent = (props: EnumValuesInputProps) => {
 const EnumValuesInput = (props: EnumValuesInputProps) => {
 
   return <Input
+    isInitialized={true}
     {...props}
 
     serialize={(input: any): string => {

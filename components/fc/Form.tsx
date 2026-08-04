@@ -52,7 +52,7 @@ export interface FormMeta {
   loadRecord, id,
   getTitleAsText, setShowPreviewUi, changeRecord,
   showPreviewUi, description, renderTimeline,
-  inputOnChange, setReadonly,
+  changeField, setReadonly,
   recordStore, getRecord
 };
 
@@ -204,17 +204,12 @@ const Form = (props: FormProps) => {
   //     ...customInputProps,
   //     onInlineEditCancel: () => { },
   //     onInlineEditSave: () => { saveRecord(); },
-  //     onChange: inputOnChange,
+  //     onChange: changeField,
   //   };
   // };
 
-  const inputOnChange = (input: any, value: any) => {
-    const inputName = input.inputName;
-    let changedValues = {};
-    if (value === '') value = null;
-    changedValues[inputName] = value;
-
-    changeRecord(changedValues, (changedRecord: FormRecord) => {
+  const changeField = (input: any, value: any) => {
+    changeRecord({[input.inputName]: value}, (changedRecord: FormRecord) => {
       getCallback('onChange')(_this, changedRecord);
     });
 
@@ -225,12 +220,7 @@ const Form = (props: FormProps) => {
     onClose: (form: any) => {},
     onAfterCopyRecord: (form: any, record: FormRecord) => {},
     onAfterDeleteRecord: (form: any, saveResponse: any) => {},
-    // onAfterFormInitialized: (form: any) => {
-    //   if (saveRecordWhenInitialized) {
-    //     saveRecord();
-    //   }
-    //   onTabChange();
-    // },
+    onAfterFormInitialized: (form: any) => {},
     onAfterRecordLoaded: (record: FormRecord): FormRecord => { return record; },
     onAfterSaveRecord: (form: any, saveResponse: any, customSaveOptions?: any) => {
       if (
@@ -285,7 +275,6 @@ const Form = (props: FormProps) => {
     readonly: props.readonly,
     savedSuccessfully: false,
     saveError: null,
-    saveRecordWhenInitialized: false,
     showFooter: true,
     showHeader: true,
     showOwnerManagerSelector: false,
@@ -340,17 +329,7 @@ const Form = (props: FormProps) => {
     }
   }, [isInitialized])
 
-  useEffect(() => {
-    loadRecord();
-  }, [description]);
-
-  // useEffect(() => {
-  //   // setIsInitialized(JSON.stringify(record) !== '{}');
-
-  //   if (isInitialized) {
-  //     // setRecordChanged(true);
-  //   }
-  // }, [record]);
+  useEffect(() => { loadRecord(); }, [description]);
 
   useEffect(() => {
     const tabs = props.uiComponents?.tabs;
@@ -1065,7 +1044,7 @@ const Form = (props: FormProps) => {
     id,
     getTitleAsText, setShowPreviewUi, changeRecord,
     showPreviewUi, description, renderTimeline,
-    inputOnChange, setReadonly, recordStore, getRecord
+    changeField, setReadonly, recordStore, getRecord
   }
 
 

@@ -23,6 +23,7 @@ const InputComponent = () => {
 
 const TextareaInput = (props: InputProps) => {
   return <Input
+    inputClassName='textarea'
     isInitialized={true}
     inputComponent={<InputComponent />}
     {...props}

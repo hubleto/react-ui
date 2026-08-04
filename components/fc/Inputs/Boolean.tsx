@@ -30,17 +30,12 @@ const InputComponent = () => {
 }
 
 const BooleanInput = (props: InputProps) => {
-
-  const normalizedProps: InputProps = {
-    ...props,
-    inputClassName: 'boolean',
-  };
-
   return <Input
-    {...normalizedProps}
+    inputClassName='boolean'
+    isInitialized={true}
+    {...props}
     valueComponent={<ValueComponent />}
     inputComponent={<InputComponent />}
-    // renderInputElement={(input: any): React.JSX.Element => }
   />;
 };
 

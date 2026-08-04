@@ -204,6 +204,7 @@ const DateTimeInput = React.memo((props: DateTimeInputProps) => {
 
   return <Input
     inputClassName={props.type ?? 'date'}
+    isInitialized={true}
     changeValue={(input: any, newValue: any): void => {
       if (newValue === null) {
         newValue = '';

@@ -125,8 +125,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   useEffect(() => {
     if (props.onInit) {
       props.onInit(_this);
-    } else {
-      setIsInitialized(true);
     }
   }, []);
 
@@ -158,7 +156,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   const changeValue = (newValue: any): void => {
     if (readonly) return;
 
-    if (props.changeValue) props.changeValue(_this, newValue);
+    // if (props.changeValue) props.changeValue(_this, newValue);
     setValue(newValue);
     if (props.onChange) props.onChange(_this, newValue);
     setChanged(origValue != newValue);

@@ -50,7 +50,7 @@ const Input = React.memo((props: any) => {
     ...inputDescription,
     ...customInputProps,
     onChange: (input: any, newValue: any) => {
-      form.inputOnChange(input, newValue);
+      form.changeField(input, newValue);
     },
   };
 
