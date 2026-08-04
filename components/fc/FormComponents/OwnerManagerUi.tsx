@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import FormInput from "./Input";
+import Input from "./Input";
 import { useRecordField } from "../FormRecordStore";
 
 const OwnerManagerUi = (props: any) => {
@@ -53,8 +53,8 @@ const OwnerManagerUi = (props: any) => {
       <div
         className='mt-2 shadow min-w-64 border border-primary bg-white rounded'
       >
-        <FormInput name='id_owner' />
-        <FormInput name='id_manager' />
+        <Input field='id_owner' />
+        <Input field='id_manager' />
       </div>
     </div> : null}
   </div>;

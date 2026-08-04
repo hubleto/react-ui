@@ -82,7 +82,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
   const historyForCurrentWorkflow = history.filter((item) => item.id_workflow == idWorkflow);
   const steps = workflows ? workflows[idWorkflow]?.STEPS : null;
 
-  return (id <= 0 ? null : <div className='flex flex-row flex-wrap'>
+  return (id <= 0 ? null : <div className='flex flex-row flex-wrap p-1'>
     {changeWorkflow ? <div className='flex gap-2 items-center'>
       <div className="input-body">
         <div className="hubleto component input"><div className="inner">
@@ -121,7 +121,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
                     }}
                   >
                   </div>
-                  <div className='text text-xs p-1'>
+                  <div className='text p-2'>
                     {s.name}
                   </div>
                 </button>;

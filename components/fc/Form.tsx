@@ -6,21 +6,15 @@ import moment from "moment";
 import request from "../../core/Request";
 import Spinner from "./Spinner";
 import App from '../../core/App';
-
 import { deepObjectMerge } from "../../core/Helper";
 import WorkflowSelector from './FormComponents/WorkflowSelector';
-import ModalSimple from "../cc/ModalSimple";
-import HtmlFrame from "../cc/HtmlFrame";
 import Translator from "../../core/Translator";
 import FormCustomizer from "../../core/FormCustomizer";
+import SaveButton from './FormComponents/SaveButton';
+import CloseButton from './FormComponents/CloseButton';
+import PrintPreviewUiButton from './FormComponents/PrintPreviewUiButton';
 
-import FormSaveButton from './FormComponents/SaveButton';
-import FormCloseButton from './FormComponents/CloseButton';
-import FormPrintPreviewUiButton from './FormComponents/PrintPreviewUiButton';
-
-import { InputProps } from "./Input";
-import FormInput from './FormComponents/Input';
-import { useRecord } from './FormRecordStore';
+import Input from './FormComponents/Input';
 
 import {
   FormEndpoint,
@@ -53,7 +47,8 @@ export interface FormMeta {
   getTitleAsText, setShowPreviewUi, changeRecord,
   showPreviewUi, description, renderTimeline,
   changeField, setReadonly,
-  recordStore, getRecord
+  recordStore, getRecord,
+  activeTabUid
 };
 
 
@@ -121,12 +116,12 @@ const Form = (props: FormProps) => {
   }
 
   const getEndpointUrl = (action: string): string => {
-    if (props.getEndpointUrl) return props.getEndpointUrl(_this);
+    if (props.getEndpointUrl) return props.getEndpointUrl(meta);
     return endpoint[action as keyof FormEndpoint] ?? '';
   }
 
   const getEndpointParams = (): object => {
-    if (props.getEndpointParams) return props.getEndpointParams(_this);
+    if (props.getEndpointParams) return props.getEndpointParams(meta);
 
     return {
       model: model,
@@ -148,69 +143,19 @@ const Form = (props: FormProps) => {
   }
 
   const getRecordFormUrl = (): string => {
-    if (props.getRecordFormUrl) return props.getRecordFormUrl(_this);
+    if (props.getRecordFormUrl) return props.getRecordFormUrl(meta);
     if (props.urlSlug != '') return props.urlSlug + '/' + (props.id > 0 ? props.id : 'add');
     return '';
   }
 
   const getContentClassName = (): string => {
-    if (props.getContentClassName) props.getContentClassName(_this);
+    if (props.getContentClassName) props.getContentClassName(meta);
     return '';
   }
 
-  // const getInputProps = (inputName: string, customInputProps?: any): InputProps => {
-  //   const inputs = description?.inputs ?? {};
-  //   const inputDescription = inputs[inputName] ?? {};
-  //   const inputType = inputDescription.type ?? '';
-  //   const enumValues = inputDescription.enumValues;
-  //   const lastIndexOfBackslash = model.lastIndexOf('/');
-  //   const rawModelName = model.substring(lastIndexOfBackslash + 1);
-  //   const modelInputName = rawModelName + '.' + inputName;
-  //   const invalid = Array.isArray(invalidInputs) ? invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (record.id ?? -1)) : false;
-
-  //   if (!customInputProps) customInputProps = {};
-
-  //   let value = null;
-  //   if (updatingRecord) value = record[inputName];
-  //   else value = record[inputName] ?? (description.defaultValues ? description.defaultValues[inputName] : null);
-
-  //   if (
-  //     !customInputProps.wrapperCssClass
-  //     && (
-  //       ['boolean', 'date', 'datetime', 'decimal'].indexOf(inputType) >= 0
-  //       || (inputType == 'int' && !enumValues)
-  //     )
-  //   ) {
-  //     customInputProps.wrapperCssClass = 'flex gap-2';
-  //   }
-
-  //   return {
-  //     // key: uid + '_input_' + inputName,
-  //     inputName: inputName,
-  //     inputClassName: '',
-  //     record: record,
-  //     description: inputDescription,
-  //     value: value,
-  //     cssClass: inputs[inputName]?.cssClass,
-  //     readonly: readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
-  //     uid: uid + '_' + inputName,
-  //     parentForm: this,
-  //     isModified: record[inputName] !== originalRecord[inputName],
-  //     isInitialized: false,
-  //     isInlineEditing: isInlineEditing,
-  //     invalid: invalid,
-
-  //     ...inputs[inputName]?.inputProps,
-  //     ...customInputProps,
-  //     onInlineEditCancel: () => { },
-  //     onInlineEditSave: () => { saveRecord(); },
-  //     onChange: changeField,
-  //   };
-  // };
-
   const changeField = (input: any, value: any) => {
-    changeRecord({[input.inputName]: value}, (changedRecord: FormRecord) => {
-      getCallback('onChange')(_this, changedRecord);
+    changeRecord({[input.field]: value}, (changedRecord: FormRecord) => {
+      getCallback('onChange')(meta, changedRecord);
     });
 
   }
@@ -279,7 +224,6 @@ const Form = (props: FormProps) => {
     showHeader: true,
     showOwnerManagerSelector: false,
     showOwnerManagerUi: false,
-    tabs: null,
     tag: '',
     uid: '_form_' + uuid.v4().replace('-', '_'),
     urlSlug: '',
@@ -320,7 +264,7 @@ const Form = (props: FormProps) => {
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
   const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? defaultState.urlSlug);
 
-  useEffect(() => { globalThis.hubleto.reactElements[uid] = _this; }, [uid]);
+  useEffect(() => { globalThis.hubleto.reactElements[uid] = meta; }, [uid]);
   useEffect(() => { loadDescription(); }, []);
   useEffect(() => {
     if (isInitialized) {
@@ -329,6 +273,7 @@ const Form = (props: FormProps) => {
     }
   }, [isInitialized])
 
+  useEffect(() => { onTabChange(); }, [activeTabUid]);
   useEffect(() => { loadRecord(); }, [description]);
 
   useEffect(() => {
@@ -348,7 +293,7 @@ const Form = (props: FormProps) => {
   }, [activeTabUid])
 
   const onTabChange = (): void => {
-    getCallback('onTabChange')(_this);
+    getCallback('onTabChange')(meta);
   }
 
   const loadDescription = (): void => {
@@ -430,7 +375,7 @@ const Form = (props: FormProps) => {
       }
     });
 
-    recordToSave = getCallback('onBeforeSaveRecord')(_this, recordToSave);
+    recordToSave = getCallback('onBeforeSaveRecord')(meta, recordToSave);
 
     request.post(
       getEndpointUrl('saveRecord'),
@@ -449,7 +394,7 @@ const Form = (props: FormProps) => {
         setUpdatingRecord(true);
         setCreatingRecord(false);
 
-        getCallback('onAfterSaveRecord')(_this, saveResponse, customSaveOptions);
+        getCallback('onAfterSaveRecord')(meta, saveResponse, customSaveOptions);
       },
       (err: any) => {
         setSaveError(err.data);
@@ -461,7 +406,7 @@ const Form = (props: FormProps) => {
   }
 
   const copyRecord = (): void => {
-    let newRecord = getCallback('onBeforeCopyRecord')(_this);
+    let newRecord = getCallback('onBeforeCopyRecord')(meta);
 
     setId(-1);
     // setRecord(prev => newRecord);
@@ -475,7 +420,7 @@ const Form = (props: FormProps) => {
       window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + formUrl);
     }
 
-    getCallback('onAfterCopyRecord')(_this, newRecord);
+    getCallback('onAfterCopyRecord')(meta, newRecord);
   }
 
   const deleteRecord = (): void => {
@@ -489,7 +434,7 @@ const Form = (props: FormProps) => {
       (saveResponse: any) => {
         setDeletingRecord(false);
         setRecordDeleted(true);
-        getCallback('onAfterDeleteRecord')(_this, saveResponse);
+        getCallback('onAfterDeleteRecord')(meta, saveResponse);
       },
       (err: any) => {
         setDeletingRecord(false);
@@ -521,7 +466,7 @@ const Form = (props: FormProps) => {
       urlParams.delete('tab');
       window.history.pushState({}, "", '?' + urlParams.toString());
 
-      getCallback('onClose')(_this);
+      getCallback('onClose')(meta);
     }
   };
 
@@ -554,7 +499,6 @@ const Form = (props: FormProps) => {
       className={"btn " + (isActive ? "btn-primary" : (tab.cssClass ?? "btn-transparent"))}
       onClick={() => {
         setActiveTabUid(tabUid);
-        onTabChange();
       }}
     >
       {tab.icon ? <span className="icon"><i className={tab.icon}></i></span> : null}
@@ -595,26 +539,29 @@ const Form = (props: FormProps) => {
       topMenuWithDynamicMenu = <>{topMenu} {dynamicMenu}</>;
     }
 
+    const inputs = description.inputs;
+
     return <div className='flex flex-col'>
       <div className='flex'>
         {topMenuWithDynamicMenu}
-        {description && description.inputs && description.inputs.color
-          ? <div className="p-2"><FormInput name='color' renderOnlyInputField /></div>
+        {/* {inputs && description.inputs.color
+          ? <div className="p-2"><Input field='color' renderOnlyInputField /></div>
           : null
-        }
+        } */}
       </div>
-      <div className='flex justify-between gap-2 w-full'>
-        {props.showOwnerManagerUi ? <OwnerManagerUi/> : null}
-        {props.showWorkflowUi ? <div className='grow'><WorkflowSelector /></div> : null}
-        {description && description.inputs && description.inputs.is_closed
-          ? <div><FormInput name='is_closed' cssClass='flex gap-2' readonly={false} /></div>
-          : null
-        }
-        {description && description.inputs && description.inputs.shared_with
-          ? <div><FormInput name='shared_with' renderOnlyInputField /></div>
-          : null
-        }
-      </div>
+      <div className='flex justify-between gap-2 w-full'>{inputs ? <>
+        <div>
+          {/* {props.showOwnerManagerUi ? <OwnerManagerUi/> : null} */}
+          {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
+        </div>
+        <div className='flex flex-right'>
+          {inputs.id_owner ? <Input field='id_owner' readonly={false} /> : null}
+          {inputs.id_manager ? <Input field='id_manager' readonly={false} /> : null}
+          {inputs.color ? <Input field='color' readonly={false} /> : null}
+          {inputs.is_closed ? <Input field='is_closed' readonly={false} /> : null}
+          {inputs.shared_with ? <Input field='shared_with' title='Share' /> : null}
+        </div>
+       </> : null}</div>
     </div>
   };
 
@@ -681,91 +628,11 @@ const Form = (props: FormProps) => {
       return props.uiComponents.tabs[tab].content();
     }
 
-    return <>{Object.keys(description?.inputs ?? {}).map((inputName: string) => {
-      return <FormInput name={inputName} />
+    return <>{Object.keys(description?.inputs ?? {}).map((field: string) => {
+      return <Input field={field} />
     })}</>;
 
   };
-
-  // const renderPreviewUi = (): null|React.JSX.Element => {
-    // return <ModalSimple
-    //   uid='projects_table_discussions_modal'
-    //   isOpen={true}
-    //   type='centered large theme-secondary'
-    //   showHeader={true}
-    //   title={<>
-    //     <h2>{translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</h2>
-    //   </>}
-    //   onClose={(modal: ModalSimple) => { setShowPreviewUi(false); }}
-    // >
-    //   <div className='flex gap-2 h-full'>
-    //     <div className='flex-1 w-72 flex flex-col gap-2'>
-    //       <div className='grow'>
-    //         <FormInput name='id_template' customInputProps={{
-    //           uiStyle: 'buttons-vertical',
-    //           onChange: (input: any) => {
-    //             updatePreview(input.state.value);
-    //           }
-    //         }} />
-    //         <div className='flex flex-col gap-2'>
-    //           <button
-    //             className='btn btn-add-outline btn-large'
-    //             onClick={() => {
-    //               generatePdf();
-    //             }}
-    //           >
-    //             <span className='icon'><i className='fas fa-file-pdf'></i></span>
-    //             <span className='text'>{translate('Generate PDF')}</span>
-    //           </button>
-    //           <button
-    //             className='btn btn-add-outline btn-large'
-    //             onClick={() => {
-    //               const iframe = window.frames[uid + '_preview'];
-    //               const origDocumentTitle = document.title;
-
-    //               document.title += getTitleAsText();
-
-    //               iframe.contentWindow.focus();
-    //               iframe.contentWindow.print();
-
-    //               document.title = origDocumentTitle;
-    //             }}
-    //           >
-    //             <span className='icon'><i className='fas fa-print'></i></span>
-    //             <span className='text'>{translate('Print')}</span>
-    //           </button>
-    //         </div>
-    //       </div>
-    //       <FormInput name='id_document' readonly={true} />
-    //     </div>
-    //     <div className='flex-3 flex flex-col'>
-    //       <div className='flex gap-2 align-center justify-end'>
-    //         <div>
-    //           <FormInput name='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
-    //         </div>
-    //       </div>
-    //       <div className='w-full h-full card mt-2'>
-    //         <div className="card-body">
-    //           <HtmlFrame
-    //             uid={uid + '_preview'}
-    //             className='w-full h-full'
-    //             iframeId={uid + '_preview'}
-    //             content={htmlPreview}
-    //           />
-    //         </div>
-    //         <div className='card-footer'>
-    //           <a
-    //             href='#'
-    //             onClick={() => {
-    //               showPreviewVars();
-    //             }}
-    //           >{translate('Show variables available in template')}</a>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </ModalSimple>;
-  // };
 
   const renderContent = (): null|React.JSX.Element => {
     if (props.uiComponents?.content) return props.uiComponents.content;
@@ -817,16 +684,16 @@ const Form = (props: FormProps) => {
 
   const renderSaveButton = (): null|React.JSX.Element => {
     if (props.uiComponents?.saveButton) return props.uiComponents.saveButton;
-    return <FormSaveButton></FormSaveButton>;
+    return <SaveButton></SaveButton>;
   };
 
   const renderCopyButton = (): null|React.JSX.Element => {
     return <>
       {updatingRecord && description?.ui?.showCopyButton && permissions.canCreate ? <button
         onClick={() => copyRecord()}
-        className={"btn btn-transparent"}
+        className={"btn btn-white"}
       >
-        <span className="icon"><i className="fas fa-save"></i></span>
+        <span className="icon"><i className="fas fa-copy"></i></span>
         <span className="text"> {description?.ui?.copyButtonText ?? translate("Copy", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
@@ -871,7 +738,7 @@ const Form = (props: FormProps) => {
         <span className="icon">
           <i className="fas fa-angle-left"></i>
         </span>
-        <span className="shortcut">Ctrl+Shift+PgUp</span>
+        {/* <span className="shortcut">Ctrl+Shift+PgUp</span> */}
       </button>
     );
   };
@@ -885,7 +752,7 @@ const Form = (props: FormProps) => {
         <span className="icon">
           <i className="fas fa-angle-right"></i>
         </span>
-        <span className="shortcut">Ctrl+Shift+PgDn</span>
+        {/* <span className="shortcut">Ctrl+Shift+PgDn</span> */}
       </button>
     );
   };
@@ -909,12 +776,12 @@ const Form = (props: FormProps) => {
 
   const renderCloseButton = (): null|React.JSX.Element => {
     if (props.uiComponents?.closeButton) return props.uiComponents.closeButton;
-    return <FormCloseButton></FormCloseButton>;
+    return <CloseButton></CloseButton>;
   };
 
   const renderprintPreviewUiButton = (): null|React.JSX.Element => {
     if (props.uiComponents?.printPreviewUiButton) return props.uiComponents.printPreviewUiButton;
-    return <FormPrintPreviewUiButton></FormPrintPreviewUiButton>;
+    return <PrintPreviewUiButton></PrintPreviewUiButton>;
   };
 
   const renderHeaderLeft = (): null|React.JSX.Element => {
@@ -937,31 +804,22 @@ const Form = (props: FormProps) => {
 
   const renderFooter = (): null|React.JSX.Element => {
     return <>
-      {props.id > 0 ? <a
-        className='btn btn-primary-outline'
-        href={globalThis.hubleto.config.projectUrl + '/ai-assistant?model=' + model + '&id=' + props.id}
-        target='_blank'
-      >
-        <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
-      </a> : null}
       <div className='w-full flex justify-between flex-col md:flex-row'>
         <div className="flex gap-2 items-center dark:text-white">
-          <div>#{props.id}</div>
           <div>{renderPrevRecordButton()}</div>
           <div>{renderNextRecordButton()}</div>
-          {recordChanged ? <div className='badge badge-small badge-warning block '>{translate('unsaved changes', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}</div> : null}
-        </div>
-        <div className='flex gap-2 items-center'>
           {getRecordFormUrl() ? <>
             <a
-              className='text-sm text-gray-500 text-nowrap'
+              className='btn btn-white'
               title={translate('Open in new tab', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
               href={globalThis.hubleto.config.projectUrl + '/' + getRecordFormUrl()}
               target='_blank'
             >
-              {globalThis.hubleto.config.projectUrl + '/' + getRecordFormUrl()}
+              <span className='icon'><i className='fas fa-external-link'></i></span>
+              <span className='text'>{translate('Open in new tab')}</span>
+              {/* {globalThis.hubleto.config.projectUrl + '/' + getRecordFormUrl()} */}
             </a>
-            <button
+            {/* <button
               className='btn btn-transparent'
               title={translate('Copy link to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
               onClick={() => {
@@ -969,8 +827,19 @@ const Form = (props: FormProps) => {
               }}
             >
               <span className='icon'><i className='fas fa-copy'></i></span>
-            </button>
+            </button> */}
           </> : null}
+          {props.id > 0 ? <a
+            className='btn btn-white'
+            href={globalThis.hubleto.config.projectUrl + '/ai-assistant?model=' + model + '&id=' + props.id}
+            target='_blank'
+          >
+            <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
+            <span className='text'>{translate('Help with AI')}</span>
+          </a> : null}
+          {/* {recordChanged ? <div className='block'><i className='fas fa-pencil'></i></div> : null} */}
+        </div>
+        <div className='flex gap-2 items-center'>
         </div>
         {props.junctionModel ?
           <div className='badge flex gap-2'>
@@ -1034,7 +903,6 @@ const Form = (props: FormProps) => {
     ;
   };
 
-  const _this = this;
   const meta: FormMeta = {
     uid, readonly, model,
     originalRecord, invalidInputs,
@@ -1044,7 +912,8 @@ const Form = (props: FormProps) => {
     id,
     getTitleAsText, setShowPreviewUi, changeRecord,
     showPreviewUi, description, renderTimeline,
-    changeField, setReadonly, recordStore, getRecord
+    changeField, setReadonly, recordStore, getRecord,
+    activeTabUid
   }
 
 

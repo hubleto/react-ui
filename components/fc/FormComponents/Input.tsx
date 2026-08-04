@@ -19,15 +19,15 @@ import InputImage from "../../cc/Inputs/Image";
 
 
 const Input = React.memo((props: any) => {
-  const { name, content, cssClass, renderOnlyInputField, customInputProps, debug, children } = props;
+  const { field, content, cssClass, renderOnlyInputField, customInputProps, debug, children } = props;
 
   const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
   // const R = useRecord();
-  const value = useRecordField(name); // R[name];
+  const value = useRecordField(field); // R[name];
 
-  const inputDescription = description?.inputs?.[name] ?? {};
-  const isModified = value !== form.originalRecord[name];
+  const inputDescription = description?.inputs?.[field] ?? {};
+  const isModified = value !== form.originalRecord[field];
 
   const readonly =
     (props.hasOwnProperty('readonly') ? props.readonly
@@ -38,14 +38,14 @@ const Input = React.memo((props: any) => {
 
   const inputProps: InputProps = {
     ...props,
-    inputName: name,
+    field: field,
     value,
     description: inputDescription,
     readonly: readonly,
     isModified,
     uid: form.uid + '_' + name, // stable, no uuid.v4() per render
     invalid: form.invalidInputs.some(
-      (v) => v.name.toLowerCase() === name.toLowerCase()
+      (v) => v.name.toLowerCase() === field.toLowerCase()
     ) ?? false,
     ...inputDescription,
     ...customInputProps,

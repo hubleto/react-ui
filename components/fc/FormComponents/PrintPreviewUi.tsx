@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ModalSimple from "../../cc/ModalSimple";
 import Translator from "@hubleto/react-ui/core/Translator";
-import FormInput from "./Input";
+import Input from "./Input";
 import HtmlFrame from "../../cc/HtmlFrame";
 import { FormMetaContext } from "../Form";
 import request from "@hubleto/react-ui/core/Request";
@@ -82,7 +82,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
     <div className='flex gap-2 h-full'>
       <div className='flex-1 w-72 flex flex-col gap-2'>
         <div className='grow'>
-          <FormInput name='id_template' debug customInputProps={{
+          <Input field='id_template' debug customInputProps={{
             uiStyle: 'buttons-vertical',
             onChange: (input: any) => {
               updatePreview(input.value);
@@ -117,12 +117,12 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
             </button>
           </div>
         </div>
-        <FormInput name='id_document' readonly={true} />
+        <Input field='id_document' readonly={true} />
       </div>
       <div className='flex-3 flex flex-col'>
         <div className='flex gap-2 align-center justify-end'>
           <div>
-            <FormInput name='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
+            <Input field='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
           </div>
         </div>
         <div className='w-full h-full card mt-2'>

@@ -132,18 +132,6 @@ export interface FormProps {
   uiComponents?: FormUiComponents,
 }
 
-// export interface FormContext extends FormProps {
-//   getCustomTabs: () => FormTabs,
-//   getEndpointParams: () => object,
-//   getEndpointUrl: (action: string) => string,
-//   getRecordFormUrl: () => string,
-//   getInputProps: (inputName: string, customInputProps?: any) => InputProps,
-//   renderDivider: (content: any) => React.JSX.Element,
-//   renderTab: (tab: string) => null|React.JSX.Element,
-//   changeRecord: (changedValues: any, onSuccess?: any) => void,
-//   loadRecord: () => void;
-// }
-
 export type FormTabs = { [key: string]: FormTab; };
 export type FormDescriptionSource = 'props' | 'request' | 'both';
 export type FormInvalidInputs = Array<FormInvalidInput>;

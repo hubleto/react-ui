@@ -30,7 +30,7 @@ export interface InputProps {
   uid?: string,
   translationContext?: string,
   translationContextInner?: string,
-  inputName?: string,
+  field?: string,
   inputClassName?: string,
   value?: any,
   origValue?: any,
@@ -59,14 +59,16 @@ export interface InputProps {
 }
 
 export interface InputMeta {
+  field,
+  changed,
+  inputClassName,
+  setInputClassName,
   setReadonly,
   setInvalid,
   setValue,
-  setOrigValue,
   setChanged,
   setCssClass,
   setCssStyle,
-  setIsModified,
   setIsInitialized,
   setData,
   setDescription,
@@ -83,6 +85,10 @@ export interface InputMeta {
   invalid,
   cssClass,
   cssStyle,
+  isModified, setIsModified,
+  origValue, setOrigValue,
+  onChange,
+  translate
 };
 
 export const InputMetaContext = React.createContext<InputMeta>(null);
@@ -108,7 +114,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   const [data, setData] = useState(props.data ?? []);
   const [description, setDescription] = useState(props.description ?? {});
   const [inputClassName, setInputClassName] = useState(props.inputClassName ?? '');
-  const [inputName, setInputName] = useState(props.inputName ?? '');
+  const [field, setField] = useState(props.field ?? '');
   const [invalid, setInvalid] = useState(props.invalid ?? false);
   const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? false);
   const [isModified, setIsModified] = useState(props.isModified ?? false); 
@@ -124,7 +130,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
 
   useEffect(() => {
     if (props.onInit) {
-      props.onInit(_this);
+      props.onInit(meta);
     }
   }, []);
 
@@ -149,16 +155,16 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   }, [changed, invalid, readonly, isModified]);
 
   const serialize = (): string => {
-    if (props.serialize) props.serialize(_this);
+    if (props.serialize) props.serialize(meta);
     return value ? value.toString() : '';
   };
 
   const changeValue = (newValue: any): void => {
     if (readonly) return;
 
-    // if (props.changeValue) props.changeValue(_this, newValue);
+    // if (props.changeValue) props.changeValue(meta, newValue);
     setValue(newValue);
-    if (props.onChange) props.onChange(_this, newValue);
+    if (props.onChange) props.onChange(meta, newValue);
     setChanged(origValue != newValue);
   };
 
@@ -183,8 +189,32 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     else return <span>{serialize()}</span>;
   };
 
-  const _this = {
-    inputName,
+  // const meta: InputMeta = {
+  //   field,
+  //   changed, setChanged,
+  //   cssClass, setCssClass,
+  //   cssStyle, setCssStyle,
+  //   data, setData,
+  //   description, setDescription,
+  //   inputClassName, setInputClassName,
+  //   invalid, setInvalid,
+  //   isInitialized, setIsInitialized,
+  //   isModified, setIsModified,
+  //   origValue, setOrigValue,
+  //   readonly, setReadonly,
+  //   value, setValue,
+
+  //   onChange: props.onChange,
+
+  //   changeValue,
+  //   translate
+  // }
+
+  // Build the meta object once so both the context Provider (for
+  // descendants) and useImperativeHandle (for the parent via ref)
+  // expose the exact same shape.
+  const meta: InputMeta = {
+    field,
     changed, setChanged,
     cssClass, setCssClass,
     cssStyle, setCssStyle,
@@ -201,37 +231,11 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     onChange: props.onChange,
 
     changeValue,
-    translate
-  }
-
-  // Build the meta object once so both the context Provider (for
-  // descendants) and useImperativeHandle (for the parent via ref)
-  // expose the exact same shape.
-  const meta: InputMeta = {
-    setReadonly,
-    setInvalid,
-    setValue,
-    setOrigValue,
-    setChanged,
-    setCssClass,
-    setCssStyle,
-    setIsModified,
-    setIsInitialized,
-    setData,
-    setDescription,
+    translate,
     refInputWrapper,
     refInputElement,
     refValueElement,
     refInput,
-    readonly,
-    value,
-    changeValue,
-    description,
-    isInitialized,
-    data,
-    invalid,
-    cssClass,
-    cssStyle,
   };
 
   // Expose `meta` imperatively to whoever holds a ref to <Input>.
@@ -244,30 +248,28 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
 
   try {
     return <InputMetaContext.Provider value={{
-      setReadonly,
-      setInvalid,
-      setValue,
-      setOrigValue,
-      setChanged,
-      setCssClass,
-      setCssStyle,
-      setIsModified,
-      setIsInitialized,
-      setData,
-      setDescription,
+      field,
+      changed, setChanged,
+      cssClass, setCssClass,
+      cssStyle, setCssStyle,
+      data, setData,
+      description, setDescription,
+      inputClassName, setInputClassName,
+      invalid, setInvalid,
+      isInitialized, setIsInitialized,
+      isModified, setIsModified,
+      origValue, setOrigValue,
+      readonly, setReadonly,
+      value, setValue,
+
+      onChange: props.onChange,
+
+      changeValue,
+      translate,
       refInputWrapper,
       refInputElement,
       refValueElement,
       refInput,
-      readonly,
-      value,
-      changeValue,
-      description,
-      isInitialized,
-      data,
-      invalid,
-      cssClass,
-      cssStyle
     }}>
       <div
         ref={refInputWrapper}
@@ -301,7 +303,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
       </div></div>
     </InputMetaContext.Provider>;
   } catch(e) {
-    const errMsg = 'Failed to render input for ' + (description?.title ?? inputName) + '.';
+    const errMsg = 'Failed to render input for ' + (description?.title ?? field) + '.';
     console.error(errMsg);
     console.error(e);
     return <div className="alert alert-danger">{errMsg} Check console for error log.</div>
