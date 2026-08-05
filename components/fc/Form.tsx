@@ -57,6 +57,11 @@ export const FormMetaContext = React.createContext<FormMeta>(null);
 
 
 
+const translate = new Translator(
+  'Hubleto\\ReactUi',
+  'Components\\Form'
+).translate;
+
 
 
 
@@ -75,11 +80,6 @@ const Form = (props: FormProps) => {
   const getCallback = (callback: string): any => {
     return (props[callback] ?? defaultCallbacks[callback]);
   }
-
-  const translate = new Translator(
-    props.translationContext ?? 'Hubleto\\ReactUi',
-    props.translationContextInner ?? 'Components\\Form'
-  ).translate;
 
   const calculatePermissions = (record: any) => {
     if (!record) return {
@@ -194,63 +194,38 @@ const Form = (props: FormProps) => {
     onTabChange: (form: any) => {},
   }
 
-  const defaultState = {
-    description: props.description ?? {
-      inputs: {},
-      defaultValues: {},
-      permissions: calculatePermissions(null),
-      ui: {},
-    },
-    descriptionSource: 'both' as FormDescriptionSource,
-    endpoint: props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? {
-      describeForm: 'api/form/describe',
-      saveRecord: 'api/record/save',
-      deleteRecord: 'api/record/delete',
-      getRecord: 'api/record/get',
-    }),
-    folderUrl: '',
-    hideOverlay: true,
-    id: props.id,
-    isInitialized: false,
-    nextId: props.nextId,
-    params: null,
-    parentTable: null,
-    permissions: calculatePermissions(null),
-    prevId: props.prevId,
-    readonly: props.readonly,
-    savedSuccessfully: false,
-    saveError: null,
-    showFooter: true,
-    showHeader: true,
-    showOwnerManagerSelector: false,
-    showOwnerManagerUi: false,
-    tag: '',
-    uid: '_form_' + uuid.v4().replace('-', '_'),
-    urlSlug: '',
-  };
-
   const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' || !props.activeTabUid ? 'default' : props.activeTabUid);
   const [creatingRecord, setCreatingRecord] = useState(isCreatingRecord(props.id));
   // const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? {});
   const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(false);
   const [deletingRecord, setDeletingRecord] = useState(false);
-  const [description, setDescription] = useState(props.description ?? defaultState.description);
-  const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? defaultState.descriptionSource);
-  const [endpoint, setEndpoint] = useState(props.endpoint ?? defaultState.endpoint);
-  const [id, setId] = useState(props.id ?? defaultState.id);
+  const [description, setDescription] = useState(props.description ?? {
+    inputs: {},
+    defaultValues: {},
+    permissions: calculatePermissions(null),
+    ui: {},
+  });
+  const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? 'both');
+  const [endpoint, setEndpoint] = useState(props.endpoint ?? props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? {
+    describeForm: 'api/form/describe',
+    saveRecord: 'api/record/save',
+    deleteRecord: 'api/record/delete',
+    getRecord: 'api/record/get',
+  }));
+  const [id, setId] = useState(props.id ?? 0);
   const [invalidInputs, setInvalidInputs] = useState([]);
   const [isActive, setIsActive] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(props.isFullscreen ?? false);
-  const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? defaultState.isInitialized);
+  const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? false);
   const [loadRecordError, setLoadRecordError] = useState(null);
   const [modal, setModal] = useState(true);
   const [model, setModel] = useState(props.model ?? '');
-  const [nextId, setNextId] = useState(props.nextId ?? defaultState.nextId);
+  const [nextId, setNextId] = useState(props.nextId ?? 0);
   const [originalRecord, setOriginalRecord] = useState({} as FormRecord);
-  const [parentTable, setParentTable] = useState(props.parentTable ?? defaultState.parentTable);
-  const [permissions, setPermissions] = useState(props.permissions ?? defaultState.permissions);
-  const [prevId, setPrevId] = useState(props.prevId ?? defaultState.prevId);
-  const [readonly, setReadonly] = useState(props.readonly ?? defaultState.readonly);
+  const [parentTable, setParentTable] = useState(props.parentTable ?? null);
+  const [permissions, setPermissions] = useState(props.permissions ?? calculatePermissions(null));
+  const [prevId, setPrevId] = useState(props.prevId ?? 0);
+  const [readonly, setReadonly] = useState(props.readonly ?? false);
   // const [record, setRecord] = useState({} as FormRecord);
   const [recordChanged, setRecordChanged] = useState(false);
   const [recordDeleted, setRecordDeleted] = useState(false);
@@ -259,10 +234,10 @@ const Form = (props: FormProps) => {
   const [showFooter, setShowFooter] = useState(true);
   const [showHeader, setShowHeader] = useState(true);
   const [showPreviewUi, setShowPreviewUi] = useState(false);
-  const [tag, setTag] = useState(props.tag ?? defaultState.tag);
-  const [uid, setUid] = useState(props.uid ?? defaultState.uid);
+  const [tag, setTag] = useState(props.tag ?? '');
+  const [uid, setUid] = useState(props.uid ?? '_form_' + uuid.v4().replace('-', '_'));
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
-  const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? defaultState.urlSlug);
+  const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? '');
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = meta; }, [uid]);
   useEffect(() => { loadDescription(); }, []);
@@ -285,10 +260,6 @@ const Form = (props: FormProps) => {
     else urlParams.set('tab', activeTabUid ?? '');
 
     window.history.pushState({}, "", '?' + urlParams.toString());
-
-    // if (activeTabUid == 'preview') {
-    //   updatePreview(record.id_template);
-    // }
 
   }, [activeTabUid])
 
@@ -387,6 +358,7 @@ const Form = (props: FormProps) => {
         }
 
         setSavedSuccessfully(true);
+        setTimeout(() => { setSavedSuccessfully(false); }, 500)
         setSaveError(null);
         // setRecord(saveResponse.savedRecord);
         setId(saveResponse.savedRecord?.id);
