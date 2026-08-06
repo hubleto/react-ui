@@ -1,6 +1,6 @@
 declare global { var hubleto: any; }
 
-import React, { Component, ChangeEvent, createRef, useState, useEffect } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 
 import * as uuid from 'uuid';
 import { setUrlParam, deleteUrlParam } from "../../core/Helper";
@@ -20,6 +20,7 @@ import TableExtendedExportCsvForm from '../cc/TableExtendedExportCsvForm';
 import TableExtendedImportCsvForm from '../cc/TableExtendedImportCsvForm';
 import TableExtendedColumnsCustomize from '../cc/TableExtendedColumnsCustomize';
 
+export const TableMetaContext = React.createContext<TableMeta>(null);
 
 const translate = new Translator(
   'Hubleto\\ReactUi',
@@ -30,23 +31,34 @@ const Table = (props: TableProps) => {
 
   const myRootUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
 
-  const defaultCallbacks = {
-    onRowEdited: (table: any, input: any, value: any): void => {},
-    onRowClick: (table: any, row: any): void => {},
-    onAfterLoadData: (table: any): void => {},
-    onAfterLoadDescription: (table: any): void => {
-      return table.description;
-    },
-  }
+  const refFulltextSearchInput = React.createRef();
+  const refForm = React.createRef();
+  const refFormModal = React.createRef();
+  const refExportCsvModal = React.createRef();
+  const refImportCsvModal = React.createRef();
+  const refColumnConfigModal = React.createRef();
+  const refExportCsvForm = React.createRef();
+  const refImportCsvForm = React.createRef();
+  const refColumnsConfigScreen = React.createRef();
 
-  const getEndpointUrl = (action: string): string => {
-    if (props.getEndpointUrl) return props.getEndpointUrl(meta);
+  // const defaultCallbacks = {
+  //   onRowEdited: (table: any, input: any, value: any): void => {},
+  //   onRowClick: (table: any, row: any): void => {},
+  //   onAfterLoadData: (table: any): void => {},
+  //   onAfterLoadDescription: (table: any): void => {
+  //     return table.description;
+  //   },
+  // }
+
+  //////////////////////////////////
+  // getDefault*()
+  //////////////////////////////////
+
+  const getDefaultEndpointUrl = (action: string): string => {
     return endpoint[action as keyof TableEndpoint] ?? '';
   }
 
-  const getEndpointParams = (): any => {
-    if (props.getEndpointParams) return props.getEndpointParams(meta);
-
+  const getDefaultEndpointParams = (): any => {
     if (description?.ui?.filters) {
       Object.keys(description.ui.filters).map((filterName) => {
         const filter = description?.ui?.filters[filterName];
@@ -86,18 +98,15 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const getCsvImportEndpointParams = (): any => {
-    if (props.getCsvImportEndpointParams) return props.getCsvImportEndpointParams(meta);
+  const getDefaultCsvImportEndpointParams = (): any => {
+    return null;
   }
 
-  const getSelectionMode = (): TableSelectionMode => {
-    if (props.getSelectionMode) return props.getSelectionMode(meta);
+  const getDefaultSelectionMode = (): TableSelectionMode => {
     return props.selectionMode ?? description?.ui?.selectionMode ?? '';
   }
 
-  const getRecordsToDisplay = (): any => {
-    if (props.getRecordsToDisplay) return props.getRecordsToDisplay(meta);
-
+  const getDefaultRecordsToDisplay = (): any => {
     const showInsertRow = description?.ui?.showInsertRow;
 
     let records = data?.records ?? [];
@@ -113,9 +122,7 @@ const Table = (props: TableProps) => {
     return records;
   }
 
-  const getFormProps = (): FormProps => {
-    if (props.getFormProps) return props.getFormProps(meta);
-
+  const getDefaultFormProps = (): FormProps => {
     let description = props.formProps?.description ?? {};
     if (recordDefaultValues) {
       description.defaultValues = description.defaultValues ?? {};
@@ -167,9 +174,7 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const getFormModalProps = (): any => {
-    if (props.getFormModalProps) props.getFormModalProps(meta);
-
+  const getDefaultFormModalProps = (): any => {
     return {
       ref: refFormModal,
       uid: uid + '_form',
@@ -184,9 +189,7 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const getCellClassName = (columnName: string, column: any, rowData: any) => {
-    if (props.getCellClassName) props.getCellClassName(meta, columnName, column, rowData);
-
+  const getDefaultCellClassName = (columnName: string, column: any, rowData: any) => {
     let cellClassName = 'table-cell-content ' + (column.cssClass ?? '');
 
     if (column.tableCssClass) {
@@ -216,14 +219,11 @@ const Table = (props: TableProps) => {
     return cellClassName;
   }
 
-  const getCellCssStyle = (columnName: string, column: any, rowData: any) => {
-    if (props.getCellCssStyle) props.getCellCssStyle(meta, columnName, column, rowData);
+  const getDefaultCellCssStyle = (columnName: string, column: any, rowData: any) => {
     return column.cssStyle ?? {};
   }
 
-  const getMinColumnValue = (columnName: string): number => {
-    if (props.getMinColumnValue) props.getMinColumnValue(meta, columnName);
-
+  const getDefaultMinColumnValue = (columnName: string): number => {
     let min: number = 0;
     let assigned: boolean = false;
     if (data?.records) {
@@ -236,9 +236,7 @@ const Table = (props: TableProps) => {
     return min;
   }
 
-  const getMaxColumnValue = (columnName: string): number => {
-    if (props.getMaxColumnValue) props.getMaxColumnValue(meta, columnName);
-
+  const getDefaultMaxColumnValue = (columnName: string): number => {
     let max: number = 0;
     let assigned: boolean = false;
     if (data?.records) {
@@ -251,9 +249,7 @@ const Table = (props: TableProps) => {
     return max;
   }
 
-  const getRowClassName = (rowData: any): string => {
-    if (props.getRowClassName) props.getRowClassName(meta, rowData);
-
+  const getDefaultRowClassName = (rowData: any): string => {
     let cssClasses: any = [];
 
     if (rowData._PERMISSIONS && !rowData._PERMISSIONS[1]) cssClasses.push('hidden-record');
@@ -262,6 +258,284 @@ const Table = (props: TableProps) => {
 
     return cssClasses.join(' ');
   }
+
+  //////////////////////////////////
+  // get*()
+  //////////////////////////////////
+
+  const getEndpointUrl = (action: string): string => {
+    if (props.getEndpointUrl) props.getEndpointUrl(myself, action);
+    return getDefaultEndpointUrl(action);
+  }
+
+  const getEndpointParams = (): any => {
+    if (props.getEndpointParams) return props.getEndpointParams(myself);
+    else return getDefaultEndpointParams();
+  }
+
+  const getCsvImportEndpointParams = (): any => {
+    if (props.getCsvImportEndpointParams) return props.getCsvImportEndpointParams(myself);
+    else return getDefaultCsvImportEndpointParams();
+  }
+
+  const getSelectionMode = (): TableSelectionMode => {
+    if (props.getSelectionMode) return props.getSelectionMode(myself);
+    else return getDefaultSelectionMode();
+  }
+
+  const getRecordsToDisplay = (): any => {
+    if (props.getRecordsToDisplay) return props.getRecordsToDisplay(myself);
+    else return getDefaultRecordsToDisplay();
+  }
+
+  const getFormProps = (): FormProps => {
+    if (props.getFormProps) return props.getFormProps(myself);
+    else return getDefaultFormProps();
+  }
+
+  const getFormModalProps = (): any => {
+    if (props.getFormModalProps) return props.getFormModalProps(myself);
+    else return getDefaultFormModalProps();
+  }
+
+  const getCellClassName = (columnName: string, column: any, rowData: any) => {
+    if (props.getCellClassName) return props.getCellClassName(myself, columnName, column, rowData);
+    else return getDefaultCellClassName(columnName, column, rowData);
+  }
+
+  const getCellCssStyle = (columnName: string, column: any, rowData: any) => {
+    if (props.getCellCssStyle) return props.getCellCssStyle(myself, columnName, column, rowData);
+    else return getDefaultCellCssStyle(columnName, column, rowData);
+  }
+
+  const getMinColumnValue = (columnName: string): number => {
+    if (props.getMinColumnValue) return props.getMinColumnValue(myself, columnName);
+    else return getDefaultMinColumnValue(columnName);
+  }
+
+  const getMaxColumnValue = (columnName: string): number => {
+    if (props.getMaxColumnValue) return props.getMaxColumnValue(myself, columnName);
+    else return getDefaultMaxColumnValue(columnName);
+  }
+
+  const getRowClassName = (rowData: any): string => {
+    if (props.getRowClassName) return props.getRowClassName(myself, rowData);
+    else return getDefaultRowClassName(rowData);
+  }
+
+  const getColumns = (): any => {
+    let columns: any = {}
+    const selectionMode = getSelectionMode();
+
+    if (selectionMode) {
+      columns['__selection'] = {
+        key: '__selection',
+        onClick: null,
+      }
+    }
+
+    Object.keys(description?.columns ?? {}).map((columnName: string) => {
+      const column: any = description?.columns[columnName] ?? {};
+
+      const columnSearchValue = columnSearch[columnName] ?? null;
+      const showColumnSearch = description?.ui?.showColumnSearch;
+
+      let columnSearchInput: any = null;
+      let columnSearchValuePrettyfied: any = null;
+      let alignHeader: 'left' | 'right' | 'center' = 'left';
+
+      if (column.textAlign == 'right') alignHeader = 'right';
+      if (column.textAlign == 'center') alignHeader = 'center';
+
+      if (showColumnSearch) {
+        switch (column.type) {
+          default:
+            columnSearchInput = <input
+              className='w-full'
+              onKeyUp={(event: any) => {
+                if (event.keyCode == 13) {
+                  columnSearchAddNew(columnName, event.currentTarget.value);
+                  event.currentTarget.value = '';
+                }
+              }}
+            ></input>;
+          break;
+        }
+
+        if (columnSearchValue instanceof Array) {
+          columnSearchValuePrettyfied =
+            <div className='flex w-full gap-2 justify-items'>
+              <div className='grow'>
+                {columnSearchValue.map((item, index) => {
+                  if (index == 0) return null;
+                  return <>
+                    <button
+                      className='btn btn-small btn-warning'
+                      onClick={() => {
+                        columnSearchDelete(columnName, index);
+                      }}
+                    >
+                      <span className='text'>{item}</span>
+                    </button>
+                  </>;
+                })}
+              </div>
+              {columnSearch[columnName].length > 2 ?
+                <div>
+                  <button
+                    className='btn btn-small btn-transparent'
+                    onClick={() => {
+                      let newColumnSearch = columnSearch;
+                      let glue = newColumnSearch[columnName][0];
+                      newColumnSearch[columnName][0] = (glue == 'OR' ? 'AND' : 'OR');
+                      setColumnSearch(newColumnSearch);
+                      loadData();
+                    }}
+                  >
+                    <span className='icon'><i className='fas fa-align-justify'></i></span>
+                    <span className='text'>{columnSearch[columnName][0]}</span>
+                  </button>
+                </div>
+              : null}
+            </div>
+          ;
+        }
+      }
+
+      columns[columnName] = {
+        key: columnName,
+        field: columnName,
+        header: column.title + (column.unit ? ' [' + column.unit + ']' : ''),
+        showColumnSearch: showColumnSearch,
+        showFilterMenu: false,
+        alignHeader: alignHeader,
+        filter: (data: any, options: any) => {
+          return <>
+            <div className="column-search input-wrapper">
+              <div className="input-body"><div className="hubleto component input">
+                <div className="input-element grow">
+                  {columnSearchInput}
+                </div>
+              </div></div>
+            </div>
+            {columnSearchValuePrettyfied}
+          </>;
+        },
+        body: (data: any, options: any) => {
+          if (data._PERMISSIONS && !data._PERMISSIONS[1]) { // can not read
+            return <div className='text-nowrap'>Hidden record</div>;
+          } else {
+            const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
+            const cellDetailUrl = data['_LOOKUP_DETAIL_URL[' + columnName + ']'] ?? '';
+            return (
+              <div
+                key={'column-' + columnName}
+                className={
+                  getCellClassName(columnName, column, data)
+                  + (data._toBeDeleted_ ? ' to-be-deleted' : '')
+                }
+                style={getCellCssStyle(columnName, column, data)}
+                title={cellText}
+              >
+                {renderCell(columnName, column, data, options)}
+                <div className='cell-buttons'>
+                  {cellDetailUrl ?
+                    <button
+                      className='btn btn-small btn-primary-outline'
+                      title={translate('Open in new tab')}
+                      onClick={(e) => {
+                        globalThis.window.open(globalThis.hubleto.config.projectUrl + '/' + cellDetailUrl)
+                        e.stopPropagation();
+                      }}
+                    ><span className='icon'><i className='fas fa-arrow-up-right-from-square'></i></span></button>
+                  : null}
+                  <button
+                    className='btn btn-small btn-primary-outline'
+                    title={translate('Copy cell content to clipboard')}
+                    onClick={(e) => {
+                      navigator.clipboard.writeText(cellText);
+                      e.stopPropagation();
+                    }}
+                  ><span className='icon'><i className='fas fa-copy'></i></span></button>
+                  {editMode == '' || column.readonly || column.type == 'virtual' ? null :
+                    <button
+                      className="btn btn-small btn-primary-outline"
+                      title={translate('Edit')}
+                      onClick={(e) => {
+                        // Default cell click behavior is to open the form.
+                        // If prevented, the 'onClick' of DataTable will
+                        // be launched, which means editing the cell
+                        // when editMode = 'cell'.
+                        e.preventDefault();
+                      }}
+                    >
+                      <span className="icon"><i className="fas fa-pencil"></i></span>
+                    </button>
+                  }
+                </div>
+              </div>
+            );
+          }
+        },
+        editor: column.readonly ? null : (options: any) => {
+          const data = options.rowData;
+          const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
+
+          setIsInlineEditing(true);
+
+          return <div
+            key={'column-' + columnName}
+            className={
+              getCellClassName(columnName, column, data)
+              + (data._toBeDeleted_ ? ' to-be-deleted' : '')
+            }
+            style={getCellCssStyle(columnName, column, data)}
+            title={cellText}
+          >
+            {renderCell(columnName, column, data, {rowIndex: options.rowIndex, renderEditor: true})}
+          </div>;
+        },
+        onClick: (record: any) => onRowClick(record),
+        // onCellEditComplete={(e: ColumnEvent) => {
+        //   request.post(
+        //     this.getEndpointUrl('saveRecord'),
+        //     {
+        //       ...this.getEndpointParams(),
+        //       id: e.newRowData.id ?? null,
+        //       record: this.findRecordById(e.newRowData.id),
+        //     },
+        //     {},
+        //     (description: any) => {
+        //       this.setState({isInlineEditing: false}, () => {
+        //         this.reload();
+        //       });
+        //     }
+        //   );
+
+        // }}
+        // onCellEditCancel={(e: ColumnEvent) => {
+        //   setTimeout(() => this.setState({isInlineEditing: false}), 100);
+        // }}
+        style: { width: 'auto' },
+        sortable: true,
+      };
+    });
+
+    columns['__actions'] = {
+      key: '__actions',
+      field: '__actions',
+      header: '',
+      body: (row: any, options: any) => renderActionsColumn(row),
+      onClick: null,
+      style: { width: 'auto' },
+    };
+
+    return columns;
+  }
+
+  //////////////////////////////////
+  // states and setters
+  //////////////////////////////////
 
   const [endpoint, setEndpoint] = useState(props.endpoint ?? (globalThis.hubleto.config.defaultTableEndpoint ?? {
     describeTable: 'api/table/describe',
@@ -314,23 +588,19 @@ const Table = (props: TableProps) => {
   const [showColumnConfigScreen, setShowColumnConfigScreen] = useState(false);
   const [collapsedNodeIds, setCollapsedNodeIds] = useState([]);
 
-  const refFulltextSearchInput = React.createRef();
-  const refForm = React.createRef();
-  const refFormModal = React.createRef();
-  const refExportCsvModal = React.createRef();
-  const refImportCsvModal = React.createRef();
-  const refColumnConfigModal = React.createRef();
-  const refExportCsvForm = React.createRef();
-  const refImportCsvForm = React.createRef();
-  const refColumnsConfigScreen = React.createRef();
+  //////////////////////////////////
+  // useEffect*()
+  //////////////////////////////////
 
-  useEffect(() => { globalThis.hubleto.reactElements[uid] = meta; }, [uid]);
+  useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
   useEffect(() => {
     loadDescription();
     loadData();
   }, []);
 
-
+  //////////////////////////////////
+  // record*()
+  //////////////////////////////////
 
   const deleteRecordById = (id: number): TableData => {
     let newData: TableData = data;
@@ -392,6 +662,10 @@ const Table = (props: TableProps) => {
     });
   }
 
+  //////////////////////////////////
+  // load*()
+  //////////////////////////////////
+
   const loadDescription = (): void => {
     if (descriptionSource == 'props') return;
     request.get(
@@ -403,7 +677,7 @@ const Table = (props: TableProps) => {
         }
 
         setDescription(loadedDescription);
-        if (props.onAfterLoadDescription) props.onAfterLoadDescription(meta);
+        if (props.onAfterLoadDescription) props.onAfterLoadDescription(myself);
       }
     );
   }
@@ -422,39 +696,25 @@ const Table = (props: TableProps) => {
         (data: any) => {
           setLoadingData(false);
           setData(data);
-          if (props.onAfterLoadData) props.onAfterLoadData(meta);
+          if (props.onAfterLoadData) props.onAfterLoadData(myself);
         }
       );
     }
   }
 
 
-  const showAddButton = (): boolean => {
-    if (
-      !readonly
-      && description?.ui?.showHeader
-      && description?.ui?.showAddButton
-      && description?.permissions?.canCreate
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  const showMoreActionsButton = (): boolean => {
-    if (description?.ui?.showMoreActionsButton) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
+  //////////////////////////////////
+  // form*()
+  //////////////////////////////////
 
   const setRecordFormUrl = (id: number) => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (!props.parentForm) urlParams.set('recordId', id.toString());
-    window.history.pushState({}, "", '?' + urlParams.toString());
+    if (!props.parentForm && !props.formUrlSlug) {
+      urlParams.set('recordId', id.toString());
+      window.history.pushState({}, "", '?' + urlParams.toString());
+    } else {
+      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + props.formUrlSlug + '/' + (id > 0 ? id : 'add'));
+    }
   }
 
   const openForm = (id: any, defaultValues?: any, saveAfterOpen?: boolean) => {
@@ -510,23 +770,28 @@ const Table = (props: TableProps) => {
     setIsInlineEditing(false);
   }
 
+  //////////////////////////////////
+  // on*()
+  //////////////////////////////////
+
   const onAddClick = (): void => {
-    if (props.onAddClick) return props.onAddClick(meta);
+    if (props.onAddClick) return props.onAddClick(myself);
     openForm(-1);
   }
 
   const onRowClick = (row: any): void => {
+    console.log('onrowclick', row);
     if (row._PERMISSIONS && !row._PERMISSIONS[1]) return; // cannot read
     if (isInlineEditing) return; // doing nothing when inline editing
     if (row._isInsertRow_) return;
 
-    if (props.onRowClick) return props.onRowClick(meta, row);
+    if (props.onRowClick) return props.onRowClick(myself, row);
 
     openForm(row.id ?? 0);
   }
 
   const onPaginationChange = (page: number, itemsPerPage: number) => {
-    if (props.onPaginationChange) return props.onPaginationChange(meta, page, itemsPerPage);
+    if (props.onPaginationChange) return props.onPaginationChange(myself, page, itemsPerPage);
 
     setPage(page);
     setItemsPerPage(itemsPerPage);
@@ -534,13 +799,13 @@ const Table = (props: TableProps) => {
   }
 
   const onFilterChange = (filterBy: any) => {
-    if (props.onFilterChange) return props.onFilterChange(meta, filterBy);
+    if (props.onFilterChange) return props.onFilterChange(myself, filterBy);
     setFilterBy(filterBy);
     loadData();
   }
 
   const onOrderByChange = (orderBy: TableOrderBy) => {
-    if (props.onOrderByChange) return props.onOrderByChange(meta, orderBy);
+    if (props.onOrderByChange) return props.onOrderByChange(myself, orderBy);
 
     const getValue = (item: any) => {
       const val = item;
@@ -584,13 +849,169 @@ const Table = (props: TableProps) => {
     }
   }
 
+  //////////////////////////////////
+  // columnSearch*()
+  //////////////////////////////////
 
+  const columnSearchApplyNew = (newColumnSearch: any) => {
+    if (!props.parentForm) {
+      if (newColumnSearch.length == 0) {
+        deleteUrlParam('search');
+      } else {
+        setUrlParam('search', newColumnSearch);
+      }
+    }
 
+    setColumnSearch(newColumnSearch);
+    loadData();
+  }
 
+  const columnSearchAddNew = (columnName: string, value: any) => {
+    if (!value) return;
+
+    let newColumnSearch = columnSearch;
+    let newColumnSearchForColumn: any = columnSearch[columnName] ?? [];
+
+    if (typeof newColumnSearchForColumn === 'string') {
+      try {
+        newColumnSearchForColumn = JSON.parse(newColumnSearchForColumn);
+      } catch(ex) {
+        newColumnSearchForColumn = [];
+      }
+    }
+
+    if (newColumnSearchForColumn.length == 0) newColumnSearchForColumn.push('OR'); // default glue
+
+    newColumnSearchForColumn.push(value);
+    newColumnSearch[columnName] = newColumnSearchForColumn;
+
+    columnSearchApplyNew(newColumnSearch);
+  }
+
+  const columnSearchDelete = (columnName: string, index: number) => {
+    if (!columnSearch[columnName][index]) return;
+
+    let newColumnSearch = columnSearch;
+    newColumnSearch[columnName].splice(index, 1);
+    if (newColumnSearch[columnName].length == 1) delete newColumnSearch[columnName];
+
+    columnSearchApplyNew(newColumnSearch);
+  }
+
+  //////////////////////////////////
+  // render*()
+  //////////////////////////////////
 
   const renderAddButton = (): React.JSX.Element => {
-    if (props.renderAddButton) return props.renderAddButton(meta);
+    if (props.renderAddButton) return props.renderAddButton(myself);
+    else return renderDefaultAddButton();
+  }
 
+  const renderMoreActionsButton = (): React.JSX.Element => {
+    if (props.renderMoreActionsButton) return props.renderMoreActionsButton(myself);
+    else return renderDefaultMoreActionsButton();
+  }
+
+  const renderHeaderButtons = (): React.JSX.Element => {
+    if (props.renderHeaderButtons) return props.renderHeaderButtons(myself);
+    else return renderDefaultHeaderButtons();
+  }
+
+  const renderFulltextSearch = (): React.JSX.Element => {
+    if (props.renderFulltextSearch) return props.renderFulltextSearch(myself);
+    else return renderDefaultFulltextSearch();
+  }
+
+  const renderHeaderLeft = (): React.JSX.Element => {
+    if (props.renderHeaderLeft) return props.renderHeaderLeft(myself);
+    else return renderDefaultHeaderLeft();
+  }
+
+  const renderTitle = (): React.JSX.Element => {
+    if (props.renderTitle) return props.renderTitle(myself);
+    else return renderDefaultTitle();
+  }
+
+  const renderHeaderRight = (): React.JSX.Element => {
+    if (props.renderHeaderRight) return props.renderHeaderRight(myself);
+    else return renderDefaultHeaderRight();
+  }
+
+  const renderHeader = (): React.JSX.Element => {
+    if (props.renderHeader) return props.renderHeader(myself);
+    else return renderDefaultHeader();
+  }
+
+  const renderFilter = (): React.JSX.Element => {
+    if (props.renderFilter) return props.renderFilter(myself);
+    else return renderDefaultFilter();
+  }
+
+  const renderSidebarFilter = (): null|React.JSX.Element => {
+    if (props.renderSidebarFilter) return props.renderSidebarFilter(myself);
+    else return renderDefaultSidebarFilter();
+  }
+
+  const renderFooter = (): React.JSX.Element => {
+    if (props.renderFooter) return props.renderFooter(myself);
+    else return renderDefaultFooter();
+  }
+
+  const renderDeleteConfirmModal = (): React.JSX.Element => {
+    if (props.renderDeleteConfirmModal) return props.renderDeleteConfirmModal(myself);
+    else return renderDefaultDeleteConfirmModal();
+  }
+
+  const renderFormModal = (): React.JSX.Element => {
+    if (props.renderFormModal) return props.renderFormModal(myself);
+    else return renderDefaultFormModal();
+  }
+
+  const renderForm = (): React.JSX.Element => {
+    if (props.renderForm) return props.renderForm(myself);
+    else return renderDefaultForm();
+  }
+
+  const renderCell = (columnName: string, column: any, data: any, options: any) => {
+    if (props.renderCell) return props.renderCell(myself, columnName, column, data, options);
+    else return renderDefaultCell(columnName, column, data, options);
+  }
+
+  const renderInsertButton = (row: any) => {
+    if (props.renderInsertButton) return props.renderInsertButton(myself, row);
+    else return renderDefaultInsertButton(row);
+  }
+
+  const renderDeleteButton = (row: any) => {
+    if (props.renderDeleteButton) return props.renderDeleteButton(myself, row);
+    else return renderDefaultDeleteButton(row);
+  }
+
+  const renderActionsColumn = (row: any) => {
+    if (props.renderActionsColumn) return props.renderActionsColumn(myself, row);
+    else return renderDefaultActionsColumn(row);
+  }
+
+  const renderRecordsAsTree = (nodes: any, idParent: number = 0, level: number = 0): React.JSX.Element => {
+    if (props.renderRecordsAsTree) return props.renderRecordsAsTree(myself, nodes, idParent, level);
+    else return renderDefaultRecordsAsTree(nodes, idParent, level);
+  }
+
+  const renderRecords = (): React.JSX.Element => {
+    if (props.renderRecords) return props.renderRecords(myself);
+    else return renderDefaultRecords();
+  }
+
+  const renderContent = (): React.JSX.Element => {
+    if (props.renderContent) return props.renderContent(myself);
+    else return renderDefaultContent();
+  }
+
+  //////////////////////////////////
+  // renderDefault*()
+  //////////////////////////////////
+
+  const renderDefaultAddButton = (): React.JSX.Element => {
     return <button
       key="add-btn"
       className={"btn btn-add"}
@@ -604,9 +1025,7 @@ const Table = (props: TableProps) => {
     </button>;
   }
 
-  const renderMoreActionsButton = (): React.JSX.Element => {
-    if (props.renderMoreActionsButton) return props.renderMoreActionsButton(meta);
-
+  const renderDefaultMoreActionsButton = (): React.JSX.Element => {
     let moreActions = {
       showHideFilter: {
         title: translate('Show/Hide filter'),
@@ -695,17 +1114,25 @@ const Table = (props: TableProps) => {
     </button>;
   }
 
-  const renderHeaderButtons = (): Array<React.JSX.Element> => {
-    if (props.renderHeaderButtons) return props.renderHeaderButtons(meta);
+  const renderDefaultHeaderButtons = (): React.JSX.Element => {
     let buttons: Array<React.JSX.Element> = [];
-    if (showAddButton()) buttons.push(renderAddButton());
-    if (showMoreActionsButton()) buttons.push(renderMoreActionsButton());
-    return buttons;
+    let showAddButton = false;
+
+    if (
+      !readonly
+      && description?.ui?.showHeader
+      && description?.ui?.showAddButton
+      && description?.permissions?.canCreate
+    ) {
+      showAddButton = true;
+    }
+
+    if (showAddButton) buttons.push(renderAddButton());
+
+    return <>{buttons.map((button) => button)}</>;
   }
 
-  const renderFulltextSearch = (): React.JSX.Element => {
-    if (props.renderFulltextSearch) return props.renderFulltextSearch(meta);
-
+  const renderDefaultFulltextSearch = (): React.JSX.Element => {
     if (description?.ui?.showFulltextSearch) {
       return <div className="table-header-search" key="fulltext-search">
         <input
@@ -743,42 +1170,33 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderHeaderLeft = (): Array<React.JSX.Element> => {
-    if (props.renderHeaderLeft) return props.renderHeaderLeft(meta);
+  const renderDefaultHeaderLeft = (): React.JSX.Element => {
     if (description?.ui?.showHeader) {
-      return [
-        ...renderHeaderButtons(),
-        renderFulltextSearch(),
-      ];
+      return <>
+        {renderHeaderButtons()}
+        {renderFulltextSearch()}
+      </>;
     } else {
-      return [];
+      return null;
     }
   }
 
-  const renderTitle = (): React.JSX.Element => {
-    if (props.renderTitle) props.renderTitle(meta);
+  const renderDefaultTitle = (): React.JSX.Element => {
     return description?.ui?.title ? <>{description?.ui?.title}</> : <></>;
   }
 
-  const renderHeaderRight = (): Array<React.JSX.Element> => {
-    if (props.renderHeaderRight) props.renderHeaderRight(meta);
-    return [];
+  const renderDefaultHeaderRight = (): React.JSX.Element => {
+    let buttons: Array<React.JSX.Element> = [];
+    let showMoreActionsButton = description?.ui?.showMoreActionsButton ?? false;
+    if (showMoreActionsButton) buttons.push(renderMoreActionsButton());
+    return <>{buttons.map((button) => button)}</>;
   }
 
-  const renderHeader = (): React.JSX.Element => {
-    if (props.renderHeader) props.renderHeader(meta);
-
-    const left = renderHeaderLeft();
-    const right = renderHeaderRight();
-
-    return <div className="table-header">
-      {left.length == 0 ? null :
-        <div className="table-header-left">
-          {left.map((item: any, index: any) => {
-            return item;
-          })}
-        </div>
-      }
+  const renderDefaultHeader = (): React.JSX.Element => {
+    return <div className="table-header flex mb-2">
+      <div className="table-header-left">
+        {renderHeaderLeft()}
+      </div>
 
       {description?.ui?.showHeaderTitle ?
         <div className="table-header-title">
@@ -787,24 +1205,17 @@ const Table = (props: TableProps) => {
         : null
       }
 
-      {right.length == 0 ? null :
-        <div className="table-header-right">
-          {right.map((item: any, index: any) => {
-            return <div key={'header-right-' + index}>{item}</div>;
-          })}
-        </div>
-      }
+      <div className="table-header-right">
+        {renderHeaderRight()}
+      </div>
     </div>;
   }
 
-  const renderFilter = (): React.JSX.Element => {
-    if (props.renderFilter) props.renderFilter(meta);
+  const renderDefaultFilter = (): React.JSX.Element => {
     return <></>;
   }
 
-  const renderSidebarFilter = (): null|React.JSX.Element => {
-    if (props.renderSidebarFilter) props.renderSidebarFilter(meta);
-
+  const renderDefaultSidebarFilter = (): null|React.JSX.Element => {
     if (description?.ui?.filters && ! sidebarFilterHidden) {
       return <div className="flex flex-col gap-2 text-nowrap">
         {Object.keys(description.ui.filters).map((filterName) => {
@@ -875,14 +1286,11 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderFooter = (): React.JSX.Element => {
-    if (props.renderFooter) props.renderFooter(meta);
+  const renderDefaultFooter = (): React.JSX.Element => {
     return <></>;
   }
 
-  const renderDeleteConfirmModal = (): React.JSX.Element => {
-    if (props.renderDeleteConfirmModal) props.renderDeleteConfirmModal(meta);
-
+  const renderDefaultDeleteConfirmModal = (): React.JSX.Element => {
     let hasRecordsToDelete: boolean = false;
     let i: any;
 
@@ -925,9 +1333,7 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderFormModal = (): React.JSX.Element => {
-    if (props.renderFormModal) props.renderFormModal(meta);
-
+  const renderDefaultFormModal = (): React.JSX.Element => {
     if (recordId) {
       return <ModalForm {...getFormModalProps()}>{renderForm()}</ModalForm>;
     } else {
@@ -935,9 +1341,7 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderForm = (): React.JSX.Element => {
-    if (props.renderForm) props.renderForm(meta);
-
+  const renderDefaultForm = (): React.JSX.Element => {
     if (props.formReactComponent) {
       return globalThis.hubleto.renderReactElement(props.formReactComponent, getFormProps()) ?? <></>;
     } else {
@@ -945,9 +1349,7 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderCell = (columnName: string, column: any, data: any, options: any) => {
-    if (props.renderCell) props.renderCell(meta, columnName, column, data, options);
-
+  const renderDefaultCell = (columnName: string, column: any, data: any, options: any) => {
     const columnValue: any = data[columnName]; // this.getColumnValue(columnName, column, data);
     const enumValues = column.enumValues;
 
@@ -994,7 +1396,6 @@ const Table = (props: TableProps) => {
       });
 
     } else {
-
       let cellValueElement: React.JSX.Element|null = null;
 
       if (cellContent === null) {
@@ -1163,7 +1564,7 @@ const Table = (props: TableProps) => {
                 newData.records[rowIndex][columnName] = value;
                 setData(newData);
 
-                if (props.onRowEdited) return props.onRowEdited(meta, input, value);
+                if (props.onRowEdited) return props.onRowEdited(myself, input, value);
               }
             }
           })}</div>
@@ -1174,8 +1575,7 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderInsertButton = (row: any) => {
-    if (props.renderInsertButton) props.renderInsertButton(meta, row);
+  const renderDefaultInsertButton = (row: any) => {
     return <button
       className="btn btn-add-outline"
       onClick={(e) => {
@@ -1188,9 +1588,7 @@ const Table = (props: TableProps) => {
     </button>;
   }
 
-  const renderDeleteButton = (row: any) => {
-    if (props.renderDeleteButton) props.renderDeleteButton(meta, row);
-
+  const renderDefaultDeleteButton = (row: any) => {
     return row._toBeDeleted_
       ? <button
       className="btn btn-small btn-cancel"
@@ -1224,9 +1622,7 @@ const Table = (props: TableProps) => {
     </button>;
   }
 
-  const renderActionsColumn = (row: any) => {
-    if (props.renderActionsColumn) props.renderActionsColumn(meta, row);
-
+  const renderDefaultActionsColumn = (row: any) => {
     const R = findRecordById(row.id);
 
     let moreActions = [];
@@ -1247,263 +1643,7 @@ const Table = (props: TableProps) => {
     else return <div className='flex gap-2'>{moreActions.map((item, key) => item)}</div>;
   }
 
-
-  const applyNewColumnSearch = (newColumnSearch: any) => {
-    if (!props.parentForm) {
-      if (newColumnSearch.length == 0) {
-        deleteUrlParam('search');
-      } else {
-        setUrlParam('search', newColumnSearch);
-      }
-    }
-
-    setColumnSearch(newColumnSearch);
-    loadData();
-  }
-
-  const addNewColumnSearch = (columnName: string, value: any) => {
-    if (!value) return;
-
-    let newColumnSearch = columnSearch;
-    let newColumnSearchForColumn: any = columnSearch[columnName] ?? [];
-
-    if (typeof newColumnSearchForColumn === 'string') {
-      try {
-        newColumnSearchForColumn = JSON.parse(newColumnSearchForColumn);
-      } catch(ex) {
-        newColumnSearchForColumn = [];
-      }
-    }
-
-    if (newColumnSearchForColumn.length == 0) newColumnSearchForColumn.push('OR'); // default glue
-
-    newColumnSearchForColumn.push(value);
-    newColumnSearch[columnName] = newColumnSearchForColumn;
-
-    applyNewColumnSearch(newColumnSearch);
-  }
-
-  const deleteColumnSearch = (columnName: string, index: number) => {
-    if (!columnSearch[columnName][index]) return;
-
-    let newColumnSearch = columnSearch;
-    newColumnSearch[columnName].splice(index, 1);
-    if (newColumnSearch[columnName].length == 1) delete newColumnSearch[columnName];
-
-    applyNewColumnSearch(newColumnSearch);
-  }
-
-  const getColumns = (): any => {
-    let columns: any = {}
-    const selectionMode = getSelectionMode();
-
-    if (selectionMode) {
-      columns['__selection'] = {
-        key: '__selection',
-        onClick: null,
-      }
-    }
-
-    Object.keys(description?.columns ?? {}).map((columnName: string) => {
-      const column: any = description?.columns[columnName] ?? {};
-
-      const columnSearchValue = columnSearch[columnName] ?? null;
-      const showColumnSearch = description?.ui?.showColumnSearch;
-
-      let columnSearchInput: any = null;
-      let columnSearchValuePrettyfied: any = null;
-      let alignHeader: 'left' | 'right' | 'center' = 'left';
-
-      if (column.textAlign == 'right') alignHeader = 'right';
-      if (column.textAlign == 'center') alignHeader = 'center';
-
-      if (showColumnSearch) {
-        switch (column.type) {
-          default:
-            columnSearchInput = <input
-              className='w-full'
-              onKeyUp={(event: any) => {
-                if (event.keyCode == 13) {
-                  addNewColumnSearch(columnName, event.currentTarget.value);
-                  event.currentTarget.value = '';
-                }
-              }}
-            ></input>;
-          break;
-        }
-
-        if (columnSearchValue instanceof Array) {
-          columnSearchValuePrettyfied =
-            <div className='flex w-full gap-2 justify-items'>
-              <div className='grow'>
-                {columnSearchValue.map((item, index) => {
-                  if (index == 0) return null;
-                  return <>
-                    <button
-                      className='btn btn-small btn-warning'
-                      onClick={() => {
-                        deleteColumnSearch(columnName, index);
-                      }}
-                    >
-                      <span className='text'>{item}</span>
-                    </button>
-                  </>;
-                })}
-              </div>
-              {columnSearch[columnName].length > 2 ?
-                <div>
-                  <button
-                    className='btn btn-small btn-transparent'
-                    onClick={() => {
-                      let newColumnSearch = columnSearch;
-                      let glue = newColumnSearch[columnName][0];
-                      newColumnSearch[columnName][0] = (glue == 'OR' ? 'AND' : 'OR');
-                      setColumnSearch(newColumnSearch);
-                      loadData();
-                    }}
-                  >
-                    <span className='icon'><i className='fas fa-align-justify'></i></span>
-                    <span className='text'>{columnSearch[columnName][0]}</span>
-                  </button>
-                </div>
-              : null}
-            </div>
-          ;
-        }
-      }
-
-      columns[columnName] = {
-        key: columnName,
-        field: columnName,
-        header: column.title + (column.unit ? ' [' + column.unit + ']' : ''),
-        showColumnSearch: showColumnSearch,
-        showFilterMenu: false,
-        alignHeader: alignHeader,
-        filter: (data: any, options: any) => {
-          return <>
-            <div className="column-search input-wrapper">
-              <div className="input-body"><div className="hubleto component input">
-                <div className="input-element grow">
-                  {columnSearchInput}
-                </div>
-              </div></div>
-            </div>
-            {columnSearchValuePrettyfied}
-          </>;
-        },
-        body: (data: any, options: any) => {
-          if (data._PERMISSIONS && !data._PERMISSIONS[1]) { // can not read
-            return <div className='text-nowrap'>Hidden record</div>;
-          } else {
-            const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
-            const cellDetailUrl = data['_LOOKUP_DETAIL_URL[' + columnName + ']'] ?? '';
-            return (
-              <div
-                key={'column-' + columnName}
-                className={
-                  getCellClassName(columnName, column, data)
-                  + (data._toBeDeleted_ ? ' to-be-deleted' : '')
-                }
-                style={getCellCssStyle(columnName, column, data)}
-                title={cellText}
-              >
-                {renderCell(columnName, column, data, options)}
-                <div className='cell-buttons'>
-                  {cellDetailUrl ?
-                    <button
-                      className='btn btn-small btn-primary-outline'
-                      title={translate('Open in new tab')}
-                      onClick={(e) => {
-                        globalThis.window.open(globalThis.hubleto.config.projectUrl + '/' + cellDetailUrl)
-                        e.stopPropagation();
-                      }}
-                    ><span className='icon'><i className='fas fa-arrow-up-right-from-square'></i></span></button>
-                  : null}
-                  <button
-                    className='btn btn-small btn-primary-outline'
-                    title={translate('Copy cell content to clipboard')}
-                    onClick={(e) => {
-                      navigator.clipboard.writeText(cellText);
-                      e.stopPropagation();
-                    }}
-                  ><span className='icon'><i className='fas fa-copy'></i></span></button>
-                  {editMode == '' || column.readonly || column.type == 'virtual' ? null :
-                    <button
-                      className="btn btn-small btn-primary-outline"
-                      title={translate('Edit')}
-                      onClick={(e) => {
-                        // Default cell click behavior is to open the form.
-                        // If prevented, the 'onClick' of DataTable will
-                        // be launched, which means editing the cell
-                        // when editMode = 'cell'.
-                        e.preventDefault();
-                      }}
-                    >
-                      <span className="icon"><i className="fas fa-pencil"></i></span>
-                    </button>
-                  }
-                </div>
-              </div>
-            );
-          }
-        },
-        editor: column.readonly ? null : (options: any) => {
-          const data = options.rowData;
-          const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
-
-          setIsInlineEditing(true);
-
-          return <div
-            key={'column-' + columnName}
-            className={
-              getCellClassName(columnName, column, data)
-              + (data._toBeDeleted_ ? ' to-be-deleted' : '')
-            }
-            style={getCellCssStyle(columnName, column, data)}
-            title={cellText}
-          >
-            {renderCell(columnName, column, data, {rowIndex: options.rowIndex, renderEditor: true})}
-          </div>;
-        },
-        onClick: (record: any) => onRowClick(record),
-        // onCellEditComplete={(e: ColumnEvent) => {
-        //   request.post(
-        //     this.getEndpointUrl('saveRecord'),
-        //     {
-        //       ...this.getEndpointParams(),
-        //       id: e.newRowData.id ?? null,
-        //       record: this.findRecordById(e.newRowData.id),
-        //     },
-        //     {},
-        //     (description: any) => {
-        //       this.setState({isInlineEditing: false}, () => {
-        //         this.reload();
-        //       });
-        //     }
-        //   );
-
-        // }}
-        // onCellEditCancel={(e: ColumnEvent) => {
-        //   setTimeout(() => this.setState({isInlineEditing: false}), 100);
-        // }}
-        style: { width: 'auto' },
-        sortable: true,
-      };
-    });
-
-    columns['__actions'] = {
-      key: '__actions',
-      field: '__actions',
-      header: '',
-      body: (row: any, options: any) => renderActionsColumn(row),
-      onClick: null,
-      style: { width: 'auto' },
-    };
-
-    return columns;
-  }
-
-  const renderRecordsAsTree = (nodes: any, idParent: number = 0, level: number = 0): React.JSX.Element => {
+  const renderDefaultRecordsAsTree = (nodes: any, idParent: number = 0, level: number = 0): React.JSX.Element => {
     if (nodes.length && nodes.length > 0) {
       return <div className='list'>
         {nodes.map((node, index) => {
@@ -1566,9 +1706,7 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderRecords = (): React.JSX.Element => {
-    if (props.renderRecords) props.renderRecords(meta);
-
+  const renderDefaultRecords = (): React.JSX.Element => {
     const showColumnSearch = description?.ui?.showColumnSearch ?? false;
     const showAsPlainTable = description?.ui?.showAsPlainTable ?? false;
     
@@ -1684,10 +1822,10 @@ const Table = (props: TableProps) => {
                 })}
               </tbody>
             </table>
-            <div className="table-paginator">
+            <div className="table-paginator justify-start bg-primary/5 p-1 mb-0">
               {currentPage > 1 ?
                 <div
-                  className="btn btn-transparent"
+                  className="btn btn-white"
                   onClick={() => onPaginationChange(currentPage - 1, itemsPerPage)}
                 >
                   <span className="icon"><i className="fas fa-arrow-left"></i></span>
@@ -1695,7 +1833,7 @@ const Table = (props: TableProps) => {
               : null}
               {previousPages[0] > 1 ? <>
                 <div
-                  className="btn btn-transparent"
+                  className="btn btn-white"
                   onClick={() => onPaginationChange(1, itemsPerPage)}
                 >
                   <span className="text">1</span>
@@ -1704,14 +1842,14 @@ const Table = (props: TableProps) => {
               </> : null}
               {previousPages.map((page: number) => {
                 return <div
-                  className="btn btn-transparent"
+                  className="btn btn-white"
                   onClick={() => onPaginationChange(page, itemsPerPage)}
                 >
                   <span className="text">{page}</span>
                 </div>
               })}
               <div
-                className="btn btn-transparent"
+                className="btn btn-white"
                 onClick={() => onPaginationChange(currentPage, itemsPerPage)}
               >
                 <span className="text font-bold">{currentPage}</span>
@@ -1719,7 +1857,7 @@ const Table = (props: TableProps) => {
               </div>
               {nextPages.map((page: number) => {
                 return <div
-                  className="btn btn-transparent"
+                  className="btn btn-white"
                   onClick={() => onPaginationChange(page, itemsPerPage)}
                 >
                   <span className="text">{page}</span>
@@ -1728,7 +1866,7 @@ const Table = (props: TableProps) => {
               {nextPages[nextPages.length - 1] < lastPage ? <>
                 <div>...</div>
                 <div
-                  className="btn btn-transparent"
+                  className="btn btn-white"
                   onClick={() => onPaginationChange(lastPage, itemsPerPage)}
                 >
                   <span className="text">{lastPage}</span>
@@ -1736,7 +1874,7 @@ const Table = (props: TableProps) => {
               </> : null}
               {currentPage < lastPage ?
                 <div
-                  className="btn btn-transparent"
+                  className="btn btn-white"
                   onClick={() => onPaginationChange(currentPage + 1, itemsPerPage)}
                 >
                   <span className="icon"><i className="fas fa-arrow-right"></i></span>
@@ -1765,11 +1903,9 @@ const Table = (props: TableProps) => {
     }
   }
 
-  const renderContent = (): React.JSX.Element => {
-    if (props.renderContent) props.renderContent(meta);
-
+  const renderDefaultContent = (): React.JSX.Element => {
     const sidebarFilter = renderSidebarFilter();
-
+console.log('renderDefaultcontent', recordId);
     return <>
       {renderFormModal()}
       {isUsedAsInput ? null : renderDeleteConfirmModal()}
@@ -1865,7 +2001,9 @@ const Table = (props: TableProps) => {
 
 
 
-  const meta: TableMeta = {
+
+
+  const myself: TableMeta = {
     props,
 
     endpoint, setEndpoint,
@@ -1907,56 +2045,51 @@ const Table = (props: TableProps) => {
     uid, setUid,
     view, setView,
 
-    getEndpointParams,
-    getEndpointUrl,
-    getCsvImportEndpointParams,
-    getSelectionMode,
-    getRecordsToDisplay,
-    getFormProps,
-    getFormModalProps,
-    getCellClassName,
-    getCellCssStyle,
-    getMinColumnValue,
-    getMaxColumnValue,
-    getRowClassName,
+    getDefaultEndpointParams,
+    getDefaultEndpointUrl,
+    getDefaultCsvImportEndpointParams,
+    getDefaultSelectionMode,
+    getDefaultRecordsToDisplay,
+    getDefaultFormProps,
+    getDefaultFormModalProps,
+    getDefaultCellClassName,
+    getDefaultCellCssStyle,
+    getDefaultMinColumnValue,
+    getDefaultMaxColumnValue,
+    getDefaultRowClassName,
 
-    renderAddButton,
-    renderMoreActionsButton,
-    renderHeaderButtons,
-    renderHeaderLeft,
-    renderFulltextSearch,
-    renderTitle,
-    renderHeaderRight,
-    renderHeader,
-    renderFilter,
-    renderSidebarFilter,
-    renderFooter,
-    renderDeleteConfirmModal,
-    renderFormModal,
-    renderForm,
-    renderCell,
-    renderInsertButton,
-    renderDeleteButton,
-    renderActionsColumn,
-    renderRecords,
-    renderContent,
+    renderDefaultAddButton,
+    renderDefaultMoreActionsButton,
+    renderDefaultHeaderButtons,
+    renderDefaultHeaderLeft,
+    renderDefaultFulltextSearch,
+    renderDefaultTitle,
+    renderDefaultHeaderRight,
+    renderDefaultHeader,
+    renderDefaultFilter,
+    renderDefaultSidebarFilter,
+    renderDefaultFooter,
+    renderDefaultDeleteConfirmModal,
+    renderDefaultFormModal,
+    renderDefaultForm,
+    renderDefaultCell,
+    renderDefaultInsertButton,
+    renderDefaultDeleteButton,
+    renderDefaultActionsColumn,
+    renderDefaultRecordsAsTree,
+    renderDefaultRecords,
+    renderDefaultContent,
   };
 
+  if (!data) return <Spinner>Loading data, please wait.</Spinner>;
 
-
-
-
-  // try {
-    if (!data) return <Spinner>Loading data, please wait.</Spinner>;
-
-    return <ErrorBoundary
-      fallback={<div className="alert alert-danger">Failed to render table. Check console for error log.</div>}
-    >{renderContent()}</ErrorBoundary>;
-  // } catch(e) {
-  //   console.error('Failed to render table.');
-  //   console.error(e);
-  //   return <div className="alert alert-danger">Failed to render table. Check console for error log.</div>
-  // }
+  return <ErrorBoundary
+    fallback={<div className="alert alert-danger">Failed to render table. Check console for error log.</div>}
+  >
+    <TableMetaContext.Provider value={myself}>
+      {renderContent()}
+    </TableMetaContext.Provider>
+  </ErrorBoundary>;
 }
 
 export default Table;

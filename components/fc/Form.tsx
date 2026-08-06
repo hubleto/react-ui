@@ -116,12 +116,12 @@ const Form = (props: FormProps) => {
   }
 
   const getEndpointUrl = (action: string): string => {
-    if (props.getEndpointUrl) return props.getEndpointUrl(meta);
+    if (props.getEndpointUrl) return props.getEndpointUrl(myself);
     return endpoint[action as keyof FormEndpoint] ?? '';
   }
 
   const getEndpointParams = (): object => {
-    if (props.getEndpointParams) return props.getEndpointParams(meta);
+    if (props.getEndpointParams) return props.getEndpointParams(myself);
 
     return {
       model: model,
@@ -143,19 +143,19 @@ const Form = (props: FormProps) => {
   }
 
   const getRecordFormUrl = (): string => {
-    if (props.getRecordFormUrl) return props.getRecordFormUrl(meta);
+    if (props.getRecordFormUrl) return props.getRecordFormUrl(myself);
     if (props.urlSlug != '') return props.urlSlug + '/' + (props.id > 0 ? props.id : 'add');
     return '';
   }
 
   const getContentClassName = (): string => {
-    if (props.getContentClassName) props.getContentClassName(meta);
+    if (props.getContentClassName) props.getContentClassName(myself);
     return '';
   }
 
   const changeField = (input: any, value: any) => {
     changeRecord({[input.field]: value}, (changedRecord: FormRecord) => {
-      getCallback('onChange')(meta, changedRecord);
+      getCallback('onChange')(myself, changedRecord);
     });
 
   }
@@ -239,12 +239,12 @@ const Form = (props: FormProps) => {
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
   const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? '');
 
-  useEffect(() => { globalThis.hubleto.reactElements[uid] = meta; }, [uid]);
+  useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
   useEffect(() => { loadDescription(); }, []);
   useEffect(() => {
     if (isInitialized) {
       onTabChange();
-      getCallback('onAfterFormInitialized')(meta);
+      getCallback('onAfterFormInitialized')(myself);
     }
   }, [isInitialized])
 
@@ -264,7 +264,7 @@ const Form = (props: FormProps) => {
   }, [activeTabUid])
 
   const onTabChange = (): void => {
-    getCallback('onTabChange')(meta);
+    getCallback('onTabChange')(myself);
   }
 
   const loadDescription = (): void => {
@@ -346,7 +346,7 @@ const Form = (props: FormProps) => {
       }
     });
 
-    recordToSave = getCallback('onBeforeSaveRecord')(meta, recordToSave);
+    recordToSave = getCallback('onBeforeSaveRecord')(myself, recordToSave);
 
     request.post(
       getEndpointUrl('saveRecord'),
@@ -366,7 +366,7 @@ const Form = (props: FormProps) => {
         setUpdatingRecord(true);
         setCreatingRecord(false);
 
-        getCallback('onAfterSaveRecord')(meta, saveResponse, customSaveOptions);
+        getCallback('onAfterSaveRecord')(myself, saveResponse, customSaveOptions);
       },
       (err: any) => {
         setSaveError(err.data);
@@ -378,7 +378,7 @@ const Form = (props: FormProps) => {
   }
 
   const copyRecord = (): void => {
-    let newRecord = getCallback('onBeforeCopyRecord')(meta);
+    let newRecord = getCallback('onBeforeCopyRecord')(myself);
 
     setId(-1);
     // setRecord(prev => newRecord);
@@ -392,7 +392,7 @@ const Form = (props: FormProps) => {
       window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + formUrl);
     }
 
-    getCallback('onAfterCopyRecord')(meta, newRecord);
+    getCallback('onAfterCopyRecord')(myself, newRecord);
   }
 
   const deleteRecord = (): void => {
@@ -406,7 +406,7 @@ const Form = (props: FormProps) => {
       (saveResponse: any) => {
         setDeletingRecord(false);
         setRecordDeleted(true);
-        getCallback('onAfterDeleteRecord')(meta, saveResponse);
+        getCallback('onAfterDeleteRecord')(myself, saveResponse);
       },
       (err: any) => {
         setDeletingRecord(false);
@@ -438,7 +438,7 @@ const Form = (props: FormProps) => {
       urlParams.delete('tab');
       window.history.pushState({}, "", '?' + urlParams.toString());
 
-      getCallback('onClose')(meta);
+      getCallback('onClose')(myself);
     }
   };
 
@@ -875,7 +875,7 @@ const Form = (props: FormProps) => {
     ;
   };
 
-  const meta: FormMeta = {
+  const myself: FormMeta = {
     uid, readonly, model,
     originalRecord, invalidInputs,
     creatingRecord, updatingRecord,
@@ -969,7 +969,7 @@ const Form = (props: FormProps) => {
   return (
     <FormRecordStoreContext.Provider value={recordStore}>
       <FormDescriptionContext.Provider value={description}>
-        <FormMetaContext.Provider value={meta}>
+        <FormMetaContext.Provider value={myself}>
           {finalContent}
         </FormMetaContext.Provider>
       </FormDescriptionContext.Provider>
