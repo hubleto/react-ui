@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 
 export interface ModalProps {
   onClose?: (modal: Modal) => void;
-  uid: string,
+  uid?: string,
   type?: string,
   children?: any;
   title?: any;

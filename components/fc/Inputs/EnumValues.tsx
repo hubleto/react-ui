@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
 export interface EnumValuesInputProps extends InputProps {
   enumValues?: {};
@@ -97,8 +97,8 @@ const EnumValuesInput = (props: EnumValuesInputProps) => {
       return '';
     }}
 
-    valueComponent={<ValueComponent {...props} />}
-    inputComponent={<InputComponent {...props} />}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
 
   />;
 };

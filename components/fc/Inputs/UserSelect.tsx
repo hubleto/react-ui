@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import Input, { InputProps, InputMetaContext } from '../Input';
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input';
 import request from '../../../core/Request';
 
 interface UserSelectInputProps extends InputProps {
@@ -10,8 +10,8 @@ interface UserSelectInputProps extends InputProps {
   uiStyle?: 'default' | 'select' | 'buttons';
 }
 
-const ValueComponent = () => <InputComponent />;
-const InputComponent = () => {
+const ValueComponent = (props: InputProps) => <InputComponent />;
+const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
 
   return <div className='flex flex-wrap gap-2 items-center bg-white'>
@@ -98,8 +98,8 @@ const UserSelectInput = (props: UserSelectInputProps) => {
         );
       }
     }}
-    valueComponent={<ValueComponent />}
-    inputComponent={<InputComponent />}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />;
 }

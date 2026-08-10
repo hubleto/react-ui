@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import AsyncSelect from 'react-select/async'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 import request from '../../../core/Request'
 
 export interface LookupInputProps extends InputProps {
@@ -44,7 +44,7 @@ const loadData = (props: any, input: any, searchValue: string|null = null) => {
 }
 
 
-const ValueComponent = (): React.JSX.Element => {
+const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
   if (input.data && input.data[input.value]?._LOOKUP) {
@@ -178,8 +178,8 @@ const LookupInput = React.memo((props: LookupInputProps) => {
     onInit={(input: any) => {
       loadData(normalizedProps, input, '');
     }}
-    valueComponent={<ValueComponent />}
-    inputComponent={<InputComponent {...normalizedProps} />}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...normalizedProps} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...normalizedProps} />}
   />;
 }, () => true);
 

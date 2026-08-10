@@ -85,14 +85,14 @@ export interface TableData {
 }
 
 export interface TableProps {
-  componentName: string,
+  componentName?: string,
   uid?: string,
   description?: TableDescription,
   descriptionSource?: 'props' | 'request' | 'both',
   recordId?: any,
-  recordDefaultValues?: any,
+  formDefaultValues?: any,
   formEndpoint?: FormEndpoint,
-  formModal?: ModalProps,
+  formModalProps?: ModalProps,
   formProps?: FormProps,
   formActiveTabUid?: any,
   formReactComponent?: string,
@@ -205,7 +205,7 @@ export interface TableMeta {
   model, setModel,
   page, setPage,
   readonly, setReadonly,
-  recordDefaultValues, setRecordDefaultValues,
+  formDefaultValues, setFormDefaultValues,
   recordId, setRecordId,
   recordNextId, setRecordNextId,
   recordPrevId, setRecordPrevId,

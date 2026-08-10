@@ -1,13 +1,7 @@
 import React, { useState } from 'react'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
-// export interface IntInputProps extends InputProps {
-//   step?: number,
-//   decimals?: number,
-//   unit?: number,
-// }
-
-const InputComponent = () => {
+const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
   const decimals = input.description.decimals ?? 0;
   const unit = input.description.unit;
@@ -37,7 +31,7 @@ const IntInput = (props: InputProps) => {
   return <Input
     inputClassName='int'
     isInitialized={true}
-    inputComponent={<InputComponent />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />;
 };

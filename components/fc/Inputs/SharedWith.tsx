@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputMeta, InputMetaContext } from '../Input'
 import LookupInput, { LookupInputProps } from './Lookup'
 import ModalSimple from '../../cc/ModalSimple';
 import request from '@hubleto/react-ui/core/Request';
@@ -173,8 +173,8 @@ const SharedWith = (props: SharedWithInputProps) => {
         );
       }
     }}
-    valueComponent={<InputComponent />}
-    inputComponent={<InputComponent />}
+    renderValueComponent={(input: InputMeta) => <InputComponent {...props} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
   />
 
 }

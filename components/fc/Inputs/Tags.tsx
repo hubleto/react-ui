@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 import request from '../../../core/Request'
 import * as uuid from 'uuid';
 import CreatableSelect from "react-select/creatable";
 import Select from "react-select";
+import Spinner from '../Spinner';
+import LoaderBar from '../LoaderBar';
 
 interface TagsInputProps extends InputProps {
   model?: string
@@ -38,7 +40,7 @@ const ValueComponent = (args: { parent: any }) => {
         </button>
       );
     }
-    return <>{items}</>;
+    return <div className='min-h-8'>{items}</div>;
   } else {
     return <span className='no-value'></span>;
   }
@@ -65,7 +67,7 @@ const InputComponent = (args: { parent: any }) => {
     />;
   }
 
-  return (!input.isInitialized ? <div>...</div> : <div className='flex flex-col gap-2'>
+  return <div className='flex flex-col gap-2 min-h-8'>
     {showTagButtons ? <div className='flex gap-4'>
       {Object.keys(parent.options).map((key) => {
         const option = parent.options[key];
@@ -117,7 +119,7 @@ const InputComponent = (args: { parent: any }) => {
         onCreateOption={(inputValue: string) => parent.addNewTag(inputValue)}
       />
     : null}
-  </div>);
+  </div>;
 }
 
 const Tags = (props: TagsInputProps) => {
@@ -250,8 +252,9 @@ const Tags = (props: TagsInputProps) => {
   return <Input
     ref={inputRef}
     isInitialized={false}
-    valueComponent={<ValueComponent parent={myself} />}
-    inputComponent={<InputComponent parent={myself} />}
+    renderLoadingComponent={(input: InputMeta) => <div className='h-8 w-full'><LoaderBar size="xs"></LoaderBar></div>}
+    renderValueComponent={(input: InputMeta) => <ValueComponent parent={myself} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent parent={myself} />}
     {...normalizedProps}
   />;
 

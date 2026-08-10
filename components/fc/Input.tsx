@@ -35,15 +35,14 @@ export interface InputProps {
   value?: any,
   origValue?: any,
   changed?: any,
-  changeValue?: (input: any, newValue: any) => void,
-  valueComponent?: React.JSX.Element,
-  inputComponent?: React.JSX.Element,
-  serialize?: (input: any) => string,
+  changeValue?: (input: InputMeta, newValue: any) => void,
+  renderLoadingComponent?: (input: InputMeta) => React.JSX.Element,
+  renderValueComponent?: (input: InputMeta) => React.JSX.Element,
+  renderInputComponent?: (input: InputMeta) => React.JSX.Element,
+  serialize?: (input: InputMeta) => string,
   loadData?: () => void,
-  onChange?: (input: any, value: any) => void,
-  onInit?: (input: any) => void,
-  onInlineEditCancel?: () => void,
-  onInlineEditSave?: () => void,
+  onChange?: (input: InputMeta, value: any) => void,
+  onInit?: (input: InputMeta) => void,
   readonly?: boolean,
   invalid?: boolean,
   cssClass?: string,
@@ -88,7 +87,10 @@ export interface InputMeta {
   isModified, setIsModified,
   origValue, setOrigValue,
   onChange,
-  translate
+  translate,
+  renderDefaultLoadingComponent?: () => React.JSX.Element,
+  renderDefaultValueComponent?: () => React.JSX.Element,
+  renderDefaultInputComponent?: () => React.JSX.Element,
 };
 
 export const InputMetaContext = React.createContext<InputMeta>(null);
@@ -128,12 +130,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   const refValueElement = useRef(null);
   const refInput = useRef(null);
 
-  useEffect(() => {
-    if (props.onInit) {
-      props.onInit(meta);
-    }
-  }, []);
-
+  useEffect(() => { if (props.onInit) props.onInit(myself); }, []);
   useEffect(() => { setChanged(props.changed ?? false); }, [props.changed]);
   useEffect(() => { setCssClass(props.cssClass ?? ''); }, [props.cssClass]);
   useEffect(() => { setCssStyle(props.cssStyle ?? {}); }, [props.cssStyle]);
@@ -155,22 +152,24 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   }, [changed, invalid, readonly, isModified]);
 
   const serialize = (): string => {
-    if (props.serialize) props.serialize(meta);
+    if (props.serialize) props.serialize(myself);
     return value ? value.toString() : '';
   };
 
   const changeValue = (newValue: any): void => {
     if (readonly) return;
 
-    // if (props.changeValue) props.changeValue(meta, newValue);
+    // if (props.changeValue) props.changeValue(myself, newValue);
     setValue(newValue);
-    if (props.onChange) props.onChange(meta, newValue);
+    if (props.onChange) props.onChange(myself, newValue);
     setChanged(origValue != newValue);
   };
 
-  const renderInputComponent = (): React.JSX.Element => {
-    if (props.inputComponent) return props.inputComponent;
+  const renderDefaultLoadingComponent = (): React.JSX.Element => {
+    return <Spinner size="xs" />;
+  }
 
+  const renderDefaultInputComponent = (): React.JSX.Element => {
     return <>
       <div className='badge'>[default input component]</div>
       <input
@@ -182,38 +181,27 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     </>;
   };
 
-  const renderValueComponent = (): React.JSX.Element => {
-    if (props.valueComponent) return props.valueComponent;
-    
+  const renderDefaultValueComponent = (): React.JSX.Element => {
     if (serialize() == '') return <span className="no-value"></span>;
     else return <span>{serialize()}</span>;
   };
 
-  // const meta: InputMeta = {
-  //   field,
-  //   changed, setChanged,
-  //   cssClass, setCssClass,
-  //   cssStyle, setCssStyle,
-  //   data, setData,
-  //   description, setDescription,
-  //   inputClassName, setInputClassName,
-  //   invalid, setInvalid,
-  //   isInitialized, setIsInitialized,
-  //   isModified, setIsModified,
-  //   origValue, setOrigValue,
-  //   readonly, setReadonly,
-  //   value, setValue,
+  const renderLoadingComponent = (): React.JSX.Element => {
+    if (props.renderLoadingComponent) return props.renderLoadingComponent(myself);
+    return renderDefaultLoadingComponent();
+  }
 
-  //   onChange: props.onChange,
+  const renderInputComponent = (): React.JSX.Element => {
+    if (props.renderInputComponent) return props.renderInputComponent(myself);
+    return renderDefaultInputComponent();
+  }
 
-  //   changeValue,
-  //   translate
-  // }
+  const renderValueComponent = (): React.JSX.Element => {
+    if (props.renderValueComponent) return props.renderValueComponent(myself);
+    renderDefaultValueComponent();
+  }
 
-  // Build the meta object once so both the context Provider (for
-  // descendants) and useImperativeHandle (for the parent via ref)
-  // expose the exact same shape.
-  const meta: InputMeta = {
+  const myself: InputMeta = {
     field,
     changed, setChanged,
     cssClass, setCssClass,
@@ -236,41 +224,22 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     refInputElement,
     refValueElement,
     refInput,
+
+    renderDefaultLoadingComponent,
+    renderDefaultValueComponent,
+    renderDefaultInputComponent,
   };
 
   // Expose `meta` imperatively to whoever holds a ref to <Input>.
   // This lets a parent ABOVE the InputMetaContext.Provider (like Tags,
   // which renders <Input> itself and therefore isn't a descendant of
   // its own Provider) still call things like setIsInitialized(true).
-  useImperativeHandle(ref, () => meta);
+  useImperativeHandle(ref, () => myself);
 
-  if (!isInitialized) return <Spinner size="xs" />;
+  if (!isInitialized) return renderLoadingComponent();
 
   try {
-    return <InputMetaContext.Provider value={{
-      field,
-      changed, setChanged,
-      cssClass, setCssClass,
-      cssStyle, setCssStyle,
-      data, setData,
-      description, setDescription,
-      inputClassName, setInputClassName,
-      invalid, setInvalid,
-      isInitialized, setIsInitialized,
-      isModified, setIsModified,
-      origValue, setOrigValue,
-      readonly, setReadonly,
-      value, setValue,
-
-      onChange: props.onChange,
-
-      changeValue,
-      translate,
-      refInputWrapper,
-      refInputElement,
-      refValueElement,
-      refInput,
-    }}>
+    return <InputMetaContext.Provider value={myself}>
       <div
         ref={refInputWrapper}
         className={getClassName()}

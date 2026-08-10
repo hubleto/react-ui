@@ -297,6 +297,7 @@ const Form = (props: FormProps) => {
   }
 
   const loadRecord = (): void => {
+    setIsInitialized(false);
     if (id == -1) {
       console.log('initializing', description.defaultValues);
       setIsInitialized(true);
@@ -365,6 +366,7 @@ const Form = (props: FormProps) => {
         setRecordChanged(false);
         setUpdatingRecord(true);
         setCreatingRecord(false);
+        loadRecord();
 
         getCallback('onAfterSaveRecord')(myself, saveResponse, customSaveOptions);
       },

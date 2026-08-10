@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
-const ValueComponent = () => {
+const ValueComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
   if (input.value) {
     return <span className="text-green-600" style={{fontSize: '1.2em'}}>✓</span>;
@@ -10,7 +10,7 @@ const ValueComponent = () => {
   }
 }
 
-const InputComponent = () => {
+const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
 
   return <div className='list horizontal'>
@@ -34,8 +34,8 @@ const BooleanInput = (props: InputProps) => {
     inputClassName='boolean'
     isInitialized={true}
     {...props}
-    valueComponent={<ValueComponent />}
-    inputComponent={<InputComponent />}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
   />;
 };
 

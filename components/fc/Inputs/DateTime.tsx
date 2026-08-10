@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 import Flatpickr from "react-flatpickr";
 import moment, { Moment } from "moment";
 import Translator from "../../../core/Translator";
@@ -224,8 +224,8 @@ const DateTimeInput = React.memo((props: DateTimeInputProps) => {
 
       input.setValue(newValue);
     }}
-    valueComponent={<ValueComponent {...props} />}
-    inputComponent={<InputComponent {...props} />}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />;
 }, () => true);

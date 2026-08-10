@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import AsyncSelect from 'react-select/async'
 import AsyncCreatable from 'react-select/async-creatable'
 import request from '@hubleto/react-ui/core/Request'
-import Input, { InputProps, InputMetaContext } from '../Input'
+import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
 const getEndpointUrl = (input: any): string => {
   return input.description?.autocomplete?.endpoint ?? '';
@@ -94,7 +94,7 @@ export const VarcharInput = (props: InputProps) => {
         loadData(input, '');
       }
     }}
-    inputComponent={<InputComponent {...props} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />;
 };

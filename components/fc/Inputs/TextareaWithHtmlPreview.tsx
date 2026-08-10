@@ -5,14 +5,14 @@ import 'prismjs/components/prism-markup';
 //@ts-ignore
 import 'prismjs/themes/prism.css'; //Example style, you can use another
 import Translator from "@hubleto/react-ui/core/Translator";
-import Input, { InputMetaContext, InputProps } from "../Input";
+import Input, { InputMeta, InputMetaContext, InputProps } from "../Input";
 
 const translate = new Translator(
   'Hubleto\\ReactUi',
   'Components\\Inputs\\TextareaWithHtmlPreview'
 ).translate;
 
-const InputComponent = ({ inputWrapper }) => {
+const InputComponent = ({ parent }) => {
   const input = React.useContext(InputMetaContext);
   // const refPreview = React.createRef();
 
@@ -38,14 +38,14 @@ const InputComponent = ({ inputWrapper }) => {
   //   wrapperStyle.width = '100%';
   // }
 
-  if (inputWrapper.showPreview) {
+  if (parent.showPreview) {
     return <div className='card w-full'>
       <div className='card-header'>
         <div>
           {translate('Preview', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\TextareaWithHtmlPreview')}
           <button
             className='btn btn-small btn-transparent ml-2'
-            onClick={() => { inputWrapper.setShowPreview(false); }}
+            onClick={() => { parent.setShowPreview(false); }}
           >
             <span className='icon'><i className='fas fa-code'></i></span>
             <span className='text'>{translate('Show source', 'Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
@@ -66,12 +66,12 @@ const InputComponent = ({ inputWrapper }) => {
           // ref={refPreview}
           src="about:blank"
           className='w-full min-h-96'
-          srcDoc={inputWrapper.textareaValue}
+          srcDoc={parent.textareaValue}
         />
         {/* <HtmlFrame
           ref={refPreview}
           className='w-full min-h-96 '
-          content={inputWrapper.textareaValue}
+          content={parent.textareaValue}
         /> */}
       </div>
     </div>;
@@ -82,7 +82,7 @@ const InputComponent = ({ inputWrapper }) => {
           {translate('Source', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\TextareaWithHtmlPreview')}
           <button
             className='btn btn-small btn-transparent ml-2'
-            onClick={() => { inputWrapper.setShowPreview(true); }}
+            onClick={() => { parent.setShowPreview(true); }}
           >
             <span className='icon'><i className='fas fa-eye'></i></span>
             <span className='text'>{translate('Show preview', 'Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
@@ -91,7 +91,7 @@ const InputComponent = ({ inputWrapper }) => {
         <div>
           <button
             className='btn btn-small btn-transparent'
-            onClick={() => { inputWrapper.setIsFullscreen(!inputWrapper.isFullscreen); }}
+            onClick={() => { parent.setIsFullscreen(!parent.isFullscreen); }}
           >
             <span className='icon'><i className='fas fa-expand'></i></span>
             <span className='text'>{translate('Toggle fullscreen', 'Hubleto\\Erp\\Loader','Components\\Inputs\\TextareaWithHtmlPreview')}</span>
@@ -101,9 +101,9 @@ const InputComponent = ({ inputWrapper }) => {
       <div className='card-body flex flex-col overflow-y-auto'>
         <Editor
           className="w-full overflow-y"
-          value={inputWrapper.textareaValue ?? ''}
+          value={parent.textareaValue ?? ''}
           onValueChange={(newValue) => {
-            inputWrapper.setTextareaValue(newValue);
+            parent.setTextareaValue(newValue);
             input.changeValue(newValue)
           }}
           highlight={code => highlight(code, languages.markup)}
@@ -133,7 +133,7 @@ const TextareaWithHtmlPreview = (props: InputProps) => {
   return <Input
     inputClassName='textarea-with-html-preview'
     isInitialized={true}
-    inputComponent={<InputComponent inputWrapper={myself} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent parent={myself} />}
     {...props}
   />;
 };

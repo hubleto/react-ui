@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { InputProps, InputMetaContext } from '../Input';
+import { InputProps, InputMeta, InputMetaContext } from '../Input';
 import Varchar, { InputComponent as VarcharInputComponent } from './Varchar'
 
 const ValueComponent = (props: InputProps) => {
@@ -43,8 +43,8 @@ const InputComponent = (props: InputProps) => {
 
 const Hyperlink = (props: InputProps) => {
   return <Varchar
-    valueComponent={<ValueComponent />}
-    inputComponent={<InputComponent />}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
+    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />
 }

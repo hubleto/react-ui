@@ -124,9 +124,9 @@ const Table = (props: TableProps) => {
 
   const getDefaultFormProps = (): FormProps => {
     let description = props.formProps?.description ?? {};
-    if (recordDefaultValues) {
-      description.defaultValues = description.defaultValues ?? {};
-      description.defaultValues = { ...description.defaultValues, ...recordDefaultValues };
+    if (!description.defaultValues) description.defaultValues = {};
+    if (formDefaultValues) {
+      description.defaultValues = { ...description.defaultValues, ...formDefaultValues };
     }
     return {
       // isInitialized: false,
@@ -185,7 +185,7 @@ const Table = (props: TableProps) => {
       onClose: () => {
         closeForm();
       },
-      ...props.formModal
+      ...props.formModalProps
     }
   }
 
@@ -571,7 +571,7 @@ const Table = (props: TableProps) => {
   const [model, setModel] = useState(props.model ?? '');
   const [page, setPage] = useState(props.page ?? 1);
   const [readonly, setReadonly] = useState(props.readonly ?? false);
-  const [recordDefaultValues, setRecordDefaultValues] = useState(props.recordDefaultValues ?? null);
+  const [formDefaultValues, setFormDefaultValues] = useState(props.formDefaultValues ?? null);
   const [recordId, setRecordId] = useState(props.recordId ?? 0);
   const [recordNextId, setRecordNextId] = useState(0);
   const [recordPrevId, setRecordPrevId] = useState(0);
@@ -748,7 +748,7 @@ const Table = (props: TableProps) => {
 
     setIsInlineEditing(false);
     setRecordId(id);
-    setRecordDefaultValues(defaultValues);
+    setFormDefaultValues(defaultValues);
     setRecordPrevId(prevId);
     setRecordNextId(nextId);
     setRecordSaveAfterOpen(saveAfterOpen);
@@ -2032,7 +2032,7 @@ console.log('renderDefaultcontent', recordId);
     model, setModel,
     page, setPage,
     readonly, setReadonly,
-    recordDefaultValues, setRecordDefaultValues,
+    formDefaultValues, setFormDefaultValues,
     recordId, setRecordId,
     recordNextId, setRecordNextId,
     recordPrevId, setRecordPrevId,
