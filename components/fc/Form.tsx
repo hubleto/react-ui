@@ -26,6 +26,7 @@ import {
 } from "./FormInterfaces"
 
 import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './FormRecordStore';
+import PrintPreviewUi from './FormComponents/PrintPreviewUi';
 
 export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
 export const FormMetaContext = React.createContext<FormMeta>(null);
@@ -56,7 +57,45 @@ const Form = (props: FormProps) => {
     return (props[callback] ?? defaultCallbacks[callback]);
   }
 
-  const calculatePermissions = (record: any) => {
+  const defaultCallbacks = {
+    onChange: (form: FormMeta, changedRecord: FormRecord) => {},
+    onClose: (form: FormMeta) => {},
+    onAfterCopyRecord: (form: FormMeta, record: FormRecord) => {},
+    onAfterDeleteRecord: (form: FormMeta, saveResponse: any) => {},
+    onAfterFormInitialized: (form: FormMeta) => {},
+    onAfterRecordLoaded: (form: FormMeta, record: FormRecord): void => {},
+    onAfterSaveRecord: (form: FormMeta, saveResponse: any, customSaveOptions?: any) => {
+      if (
+        props.junctionSaveEndpoint
+        && props.junctionModel
+        && props.junctionSourceColumn
+        && props.junctionDestinationColumn
+        && props.junctionSourceRecordId
+      ) {
+        request.post(
+          props.junctionSaveEndpoint,
+          {
+            junctionModel: props.junctionModel,
+            junctionSourceColumn: props.junctionSourceColumn,
+            junctionDestinationColumn: props.junctionDestinationColumn,
+            junctionSourceRecordId: props.junctionSourceRecordId,
+            junctionDestinationRecordId: saveResponse.savedRecord['id'],
+          },
+          {},
+          (data: any) => { /* */ }
+        );
+      }
+    },
+    onBeforeCopyRecord: (form: any, record: FormRecord) => { return { ...record, id: -1 }; },
+    onBeforeSaveRecord: (form: any, record: FormRecord) => { return record; },
+    onTabChange: (form: any) => {},
+  }
+
+  //////////////////////////////////
+  // get*()
+  //////////////////////////////////
+
+  const getPermissions = (record: any) => {
     if (!record) return {
       canCreate: true,
       canRead: true,
@@ -135,39 +174,9 @@ const Form = (props: FormProps) => {
 
   }
 
-  const defaultCallbacks = {
-    onChange: (form: FormMeta, changedRecord: FormRecord) => {},
-    onClose: (form: FormMeta) => {},
-    onAfterCopyRecord: (form: FormMeta, record: FormRecord) => {},
-    onAfterDeleteRecord: (form: FormMeta, saveResponse: any) => {},
-    onAfterFormInitialized: (form: FormMeta) => {},
-    onAfterRecordLoaded: (form: FormMeta, record: FormRecord): void => {},
-    onAfterSaveRecord: (form: FormMeta, saveResponse: any, customSaveOptions?: any) => {
-      if (
-        props.junctionSaveEndpoint
-        && props.junctionModel
-        && props.junctionSourceColumn
-        && props.junctionDestinationColumn
-        && props.junctionSourceRecordId
-      ) {
-        request.post(
-          props.junctionSaveEndpoint,
-          {
-            junctionModel: props.junctionModel,
-            junctionSourceColumn: props.junctionSourceColumn,
-            junctionDestinationColumn: props.junctionDestinationColumn,
-            junctionSourceRecordId: props.junctionSourceRecordId,
-            junctionDestinationRecordId: saveResponse.savedRecord['id'],
-          },
-          {},
-          (data: any) => { /* */ }
-        );
-      }
-    },
-    onBeforeCopyRecord: (form: any, record: FormRecord) => { return { ...record, id: -1 }; },
-    onBeforeSaveRecord: (form: any, record: FormRecord) => { return record; },
-    onTabChange: (form: any) => {},
-  }
+  //////////////////////////////////
+  // useState*()
+  //////////////////////////////////
 
   const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' || !props.activeTabUid ? 'default' : props.activeTabUid);
   const [creatingRecord, setCreatingRecord] = useState(isCreatingRecord(props.id));
@@ -176,7 +185,7 @@ const Form = (props: FormProps) => {
   const [description, setDescription] = useState(props.description ?? {
     inputs: {},
     defaultValues: {},
-    permissions: calculatePermissions(null),
+    permissions: getPermissions(null),
     ui: {},
   });
   const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? 'both');
@@ -197,7 +206,7 @@ const Form = (props: FormProps) => {
   const [nextId, setNextId] = useState(props.nextId ?? 0);
   const [originalRecord, setOriginalRecord] = useState({} as FormRecord);
   const [parentTable, setParentTable] = useState(props.parentTable ?? null);
-  const [permissions, setPermissions] = useState(props.permissions ?? calculatePermissions(null));
+  const [permissions, setPermissions] = useState(props.permissions ?? getPermissions(null));
   const [prevId, setPrevId] = useState(props.prevId ?? 0);
   const [readonly, setReadonly] = useState(props.readonly ?? false);
   // const [record, setRecord] = useState({} as FormRecord);
@@ -213,6 +222,10 @@ const Form = (props: FormProps) => {
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
   const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? '');
 
+  //////////////////////////////////
+  // useEffect*()
+  //////////////////////////////////
+
   useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
   useEffect(() => { loadDescription(); }, []);
   useEffect(() => {
@@ -226,7 +239,7 @@ const Form = (props: FormProps) => {
   useEffect(() => { loadRecord(); }, [description]);
 
   useEffect(() => {
-    const tabs = props.uiComponents?.tabs;
+    const tabs = props.tabs;
     const urlParams = new URLSearchParams(window.location.search);
     const tabExists = tabs && tabs[activeTabUid] !== null;
 
@@ -241,6 +254,10 @@ const Form = (props: FormProps) => {
     getCallback('onTabChange')(myself);
   }
 
+  //////////////////////////////////
+  // load*()
+  //////////////////////////////////
+
   const loadDescription = (): void => {
 
     request.post(
@@ -251,7 +268,7 @@ const Form = (props: FormProps) => {
 
         if (description && descriptionSource == 'both') description = deepObjectMerge(description, description);
 
-        let permissions = calculatePermissions(recordStore.getRecord());
+        let permissions = getPermissions(recordStore.getRecord());
 
         let hasCustomColumns = false;
         let inputs = description?.inputs;
@@ -291,7 +308,7 @@ const Form = (props: FormProps) => {
           if (id != -1 && !record.id) {
             setLoadRecordError('ERROR: Loading failed.');
           } else {
-            let p = calculatePermissions(record);
+            let p = getPermissions(record);
             setPermissions(p);
             if (!p.canUpdate && !p.canCreate) setReadonly(true);
             changeRecord(record);
@@ -306,6 +323,27 @@ const Form = (props: FormProps) => {
       
     }
   }
+
+  //////////////////////////////////
+  // form*()
+  //////////////////////////////////
+
+  const closeForm = (): void => {
+    let ok = true;
+    if (recordChanged) ok = confirm(translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
+    if (ok) {
+
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.delete('tab');
+      window.history.pushState({}, "", '?' + urlParams.toString());
+
+      getCallback('onClose')(myself);
+    }
+  };
+
+  //////////////////////////////////
+  // record*()
+  //////////////////////////////////
 
   const getRecord = (): FormRecord => {
     return recordStore.getRecord();
@@ -408,19 +446,6 @@ const Form = (props: FormProps) => {
     if (onSuccess) onSuccess(changedRecord);
   }
 
-  const closeForm = (): void => {
-    let ok = true;
-    if (recordChanged) ok = confirm(translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
-    if (ok) {
-
-      const urlParams = new URLSearchParams(window.location.search);
-      urlParams.delete('tab');
-      window.history.pushState({}, "", '?' + urlParams.toString());
-
-      getCallback('onClose')(myself);
-    }
-  };
-
   const openNextRecord = (): void => {
     if (nextId && parentTable) {
       parentTable.openForm(nextId);
@@ -433,10 +458,42 @@ const Form = (props: FormProps) => {
     }
   };
 
-  const renderTopMenuButton = (tabUid: string): React.JSX.Element => {
+  //////////////////////////////////
+  // render*()
+  //////////////////////////////////
+
+  const RenderTopMenuButton = (p: { tabUid: string }) => (props.renderTopMenuButton ? props.renderTopMenuButton(myself, p.tabUid) : renderDefaultTopMenuButton(p.tabUid));
+  const RenderTopMenu = () => (props.renderTopMenu ? props.renderTopMenu(myself) : renderDefaultTopMenu());
+  const RenderTimeline = (p: { timelineConfig: any }) => (props.renderTimeline ? props.renderTimeline(myself, p.timelineConfig) : renderDefaultTimeline(p.timelineConfig));
+  const RenderTab = (p: { tab: string }) => (props.renderTab ? props.renderTab(myself, p.tab) : renderDefaultTab(p.tab));
+  const RenderContent = () => (props.renderContent ? props.renderContent(myself) : renderDefaultContent());
+  const RenderPrintPreviewUi = () => (props.renderPrintPreviewUi ? props.renderPrintPreviewUi(myself) : renderDefaultPrintPreviewUi());
+  const RenderHeaderExtraButtons = () => (props.renderHeaderExtraButtons ? props.renderHeaderExtraButtons(myself) : renderDefaultHeaderExtraButtons());
+  const RenderFooterExtraButtons = () => (props.renderFooterExtraButtons ? props.renderFooterExtraButtons(myself) : renderDefaultFooterExtraButtons());
+  const RenderSaveButton = () => (props.renderSaveButton ? props.renderSaveButton(myself) : renderDefaultSaveButton());
+  const RenderCopyButton = () => (props.renderCopyButton ? props.renderCopyButton(myself) : renderDefaultCopyButton());
+  const RenderDeleteButton = () => (props.renderDeleteButton ? props.renderDeleteButton(myself) : renderDefaultDeleteButton());
+  const RenderPrevRecordButton = () => (props.renderPrevRecordButton ? props.renderPrevRecordButton(myself) : renderDefaultPrevRecordButton());
+  const RenderNextRecordButton = () => (props.renderNextRecordButton ? props.renderNextRecordButton(myself) : renderDefaultNextRecordButton());
+  const RenderFullscreenButton = () => (props.renderFullscreenButton ? props.renderFullscreenButton(myself) : renderDefaultFullscreenButton());
+  const RenderCloseButton = () => (props.renderCloseButton ? props.renderCloseButton(myself) : renderDefaultCloseButton());
+  const RenderPrintPreviewUiButton = () => (props.renderPrintPreviewUiButton ? props.renderPrintPreviewUiButton(myself) : renderDefaultPrintPreviewUiButton());
+  const RenderHeader = () => (props.renderHeader ? props.renderHeader(myself) : renderDefaultHeader());
+  const RenderHeaderLeft = () => (props.renderHeaderLeft ? props.renderHeaderLeft(myself) : renderDefaultHeaderLeft());
+  const RenderHeaderRight = () => (props.renderHeaderRight ? props.renderHeaderRight(myself) : renderDefaultHeaderRight());
+  const RenderFooter = () => (props.renderFooter ? props.renderFooter(myself) : renderDefaultFooter());
+  const RenderTitle = () => (props.renderTitle ? props.renderTitle(myself) : renderDefaultTitle());
+  const RenderWarningsOrErrors = () => (props.renderWarningsOrErrors ? props.renderWarningsOrErrors(myself) : renderDefaultWarningsOrErrors());
+  const RenderSaveErrorMessage = () => (props.renderSaveErrorMessage ? props.renderSaveErrorMessage(myself) : renderDefaultSaveErrorMessage());
+
+  //////////////////////////////////
+  // renderDefault*()
+  //////////////////////////////////
+
+  const renderDefaultTopMenuButton = (tabUid: string): React.JSX.Element => {
     if (tabUid == '') tabUid = 'default';
 
-    const tabs: FormTabs = props.uiComponents?.tabs;
+    const tabs: FormTabs = props.tabs;
     if (!tabs) return <></>;
 
     const tab = tabs[tabUid];
@@ -457,23 +514,25 @@ const Form = (props: FormProps) => {
     </button>
   };
 
-  const renderTopMenu = (): null|React.JSX.Element => {
+  const renderDefaultTopMenu = (): React.JSX.Element => {
     let topMenu = null;
-    const tabs: FormTabs = props.uiComponents?.tabs;
+    const tabs: FormTabs = props.tabs;
+
+    if (!isInitialized) return <></>;
 
     if (tabs && Object.keys(tabs).length > 1) {
       topMenu = <div className="top-menu-wrapper">
         <div>
           {Object.keys(tabs).map((tabUid: string) => {
             if (tabs[tabUid].position != 'right') {
-              return renderTopMenuButton(tabUid);
+              return <RenderTopMenuButton tabUid={tabUid}></RenderTopMenuButton>;
             }
           })}
         </div>
         <div>
           {Object.keys(tabs).map((tabUid: string) => {
             if (tabs[tabUid].position == 'right') {
-              return renderTopMenuButton(tabUid);
+              return <RenderTopMenuButton tabUid={tabUid}></RenderTopMenuButton>;
             }
           })}
         </div>
@@ -492,31 +551,28 @@ const Form = (props: FormProps) => {
 
     const inputs = description.inputs;
 
-    return <div className='flex flex-col'>
-      <div className='flex'>
-        {topMenuWithDynamicMenu}
-        {/* {inputs && description.inputs.color
-          ? <div className="p-2"><Input field='color' renderOnlyInputField /></div>
-          : null
-        } */}
+    return <div className="modal-top-menu shadow-lg">
+      <div className='flex flex-col'>
+        <div className='flex'>
+          {topMenuWithDynamicMenu}
+        </div>
+        <div className='flex justify-between gap-2 w-full'>{inputs ? <>
+          <div>
+            {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
+          </div>
+          <div className='flex flex-right'>
+            {inputs.id_owner ? <Input field='id_owner' readonly={false} /> : null}
+            {inputs.id_manager ? <Input field='id_manager' readonly={false} /> : null}
+            {inputs.color ? <Input field='color' readonly={false} /> : null}
+            {inputs.is_closed ? <Input field='is_closed' readonly={false} /> : null}
+            {inputs.shared_with ? <Input field='shared_with' title='Share' /> : null}
+          </div>
+        </> : null}</div>
       </div>
-      <div className='flex justify-between gap-2 w-full'>{inputs ? <>
-        <div>
-          {/* {props.showOwnerManagerUi ? <OwnerManagerUi/> : null} */}
-          {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
-        </div>
-        <div className='flex flex-right'>
-          {inputs.id_owner ? <Input field='id_owner' readonly={false} /> : null}
-          {inputs.id_manager ? <Input field='id_manager' readonly={false} /> : null}
-          {inputs.color ? <Input field='color' readonly={false} /> : null}
-          {inputs.is_closed ? <Input field='is_closed' readonly={false} /> : null}
-          {inputs.shared_with ? <Input field='shared_with' title='Share' /> : null}
-        </div>
-       </> : null}</div>
-    </div>
+    </div>;
   };
 
-  const renderTimeline = (timelineConfig: any): null|React.JSX.Element => {
+  const renderDefaultTimeline = (timelineConfig: any): React.JSX.Element => {
     let timeline: any = null;
     let timelinePointsUnsorted: any = {};
 
@@ -574,9 +630,10 @@ const Form = (props: FormProps) => {
     }
   };
 
-  const renderTab = (tab: string): null|React.JSX.Element => {
-    if (props.uiComponents?.tabs && props.uiComponents?.tabs[tab]) {
-      return props.uiComponents.tabs[tab].content();
+  const renderDefaultTab = (tab: string): React.JSX.Element => {
+    console.log('renderDefaultTab', tab);
+    if (props.tabs && props.tabs[tab]) {
+      return props.tabs[tab].content();
     }
 
     return <>{Object.keys(description?.inputs ?? {}).map((field: string) => {
@@ -585,21 +642,21 @@ const Form = (props: FormProps) => {
 
   };
 
-  const renderContent = (): null|React.JSX.Element => {
-    if (props.uiComponents?.content) return props.uiComponents.content;
-
-    return <>
-      {renderTab(activeTabUid)}
-      {props.uiComponents?.printPreviewUi}
-    </>;
+  const renderDefaultContent = (): React.JSX.Element => {
+    return <div className={"modal-body " + getContentClassName()}>
+      <RenderTab tab={activeTabUid}></RenderTab>
+      <RenderPrintPreviewUi></RenderPrintPreviewUi>
+    </div>;
   };
 
-  const renderHeaderExtraButtons = (): null|React.JSX.Element => {
-    if (props.uiComponents?.headerExtraButtons) return props.uiComponents.headerExtraButtons;
+  const renderDefaultPrintPreviewUi = (): React.JSX.Element => {
+    return <PrintPreviewUi></PrintPreviewUi>;
+  };
 
+  const renderDefaultHeaderExtraButtons = (): React.JSX.Element => {
     const headerExtraButtons = FormCustomizer.getFormHeaderExtraButtons(props.componentName);
     if (headerExtraButtons && headerExtraButtons.length > 0) {
-      return headerExtraButtons.map((button: any, key: any) => {
+      return <div className="modal-header-buttons">{headerExtraButtons.map((button: any, key: any) => {
         return <button
           key={key}
           className='btn btn-small btn-primary-outline'
@@ -607,18 +664,16 @@ const Form = (props: FormProps) => {
         >
           <span className='text'>{button.title}</span>
         </button>;
-      });
+      })}</div>;
     } else {
       return null;
     }
   };
 
-  const renderFooterButtons = (): null|React.JSX.Element => {
-    if (props.uiComponents?.footerButtons) return props.uiComponents.footerButtons;
-
-    const footerButtons = FormCustomizer.getFormFooterButtons(props.componentName);
-    if (footerButtons && footerButtons.length > 0) {
-      return footerButtons.map((button: any, key: any) => {
+  const renderDefaultFooterExtraButtons = (): React.JSX.Element => {
+    const footerExtraButtons = FormCustomizer.getFormFooterExtraButtons(props.componentName);
+    if (footerExtraButtons && footerExtraButtons.length > 0) {
+      return <div className='modal-footer-buttons'>{footerExtraButtons.map((button: any, key: any) => {
         return <button
           key={key}
           className='btn btn-primary'
@@ -627,18 +682,17 @@ const Form = (props: FormProps) => {
           {button.icon == '' ? null : <span className='icon'><i className={button.icon}></i></span>}
           <span className='text'>{button.title}</span>
         </button>;
-      });
+      })}</div>;
     } else {
       return null;
     }
   };
 
-  const renderSaveButton = (): null|React.JSX.Element => {
-    if (props.uiComponents?.saveButton) return props.uiComponents.saveButton;
+  const renderDefaultSaveButton = (): React.JSX.Element => {
     return <SaveButton></SaveButton>;
   };
 
-  const renderCopyButton = (): null|React.JSX.Element => {
+  const renderDefaultCopyButton = (): React.JSX.Element => {
     return <>
       {updatingRecord && description?.ui?.showCopyButton && permissions.canCreate ? <button
         onClick={() => copyRecord()}
@@ -650,7 +704,7 @@ const Form = (props: FormProps) => {
     </>;
   };
 
-  const renderDeleteButton = (): null|React.JSX.Element => {
+  const renderDefaultDeleteButton = (): React.JSX.Element => {
     return <>
       {updatingRecord && description?.ui?.showDeleteButton && permissions.canDelete ? <button
         onClick={() => {
@@ -680,7 +734,7 @@ const Form = (props: FormProps) => {
     </>;
   };
 
-  const renderPrevRecordButton = (): null|React.JSX.Element => {
+  const renderDefaultPrevRecordButton = (): React.JSX.Element => {
     return (
       <button
         onClick={() => { openPrevRecord(); }}
@@ -694,7 +748,7 @@ const Form = (props: FormProps) => {
     );
   };
 
-  const renderNextRecordButton = (): null|React.JSX.Element => {
+  const renderDefaultNextRecordButton = (): React.JSX.Element => {
     return (
       <button
         onClick={() => { openNextRecord() }}
@@ -708,7 +762,7 @@ const Form = (props: FormProps) => {
     );
   };
 
-  const renderFullscreenButton = (): null|React.JSX.Element => {
+  const renderDefaultFullscreenButton = (): React.JSX.Element => {
     return (
       <button
         className="btn btn-transparent hidden md:block"
@@ -725,40 +779,47 @@ const Form = (props: FormProps) => {
     );
   };
 
-  const renderCloseButton = (): null|React.JSX.Element => {
-    if (props.uiComponents?.closeButton) return props.uiComponents.closeButton;
+  const renderDefaultCloseButton = (): React.JSX.Element => {
     return <CloseButton></CloseButton>;
   };
 
-  const renderprintPreviewUiButton = (): null|React.JSX.Element => {
-    if (props.uiComponents?.printPreviewUiButton) return props.uiComponents.printPreviewUiButton;
+  const renderDefaultPrintPreviewUiButton = (): React.JSX.Element => {
     return <PrintPreviewUiButton></PrintPreviewUiButton>;
   };
 
-  const renderHeaderLeft = (): null|React.JSX.Element => {
+  const renderDefaultHeader = (): React.JSX.Element => {
+    return <div className={"modal-header " + (isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
+      <div className="modal-header-left"><RenderHeaderLeft /></div>
+      <div className="modal-header-title"><RenderTitle /></div>
+      <div className="modal-header-right"><RenderHeaderRight /></div>
+    </div>
+    ;
+  };
+
+  const renderDefaultHeaderLeft = (): React.JSX.Element => {
     return <div className='flex gap-2 items-center'>
       <div className='flex flex-col gap-2'>
         <div className='flex gap-2'>
-          {renderSaveButton()}
-          {props.uiComponents?.printPreviewUi ? renderprintPreviewUiButton() : null}
+          <RenderSaveButton></RenderSaveButton>
+          <RenderPrintPreviewUiButton></RenderPrintPreviewUiButton>
         </div>
       </div>
     </div>;
   };
 
-  const renderHeaderRight = (): null|React.JSX.Element => {
+  const renderDefaultHeaderRight = (): React.JSX.Element => {
     return modal ? <>
-      {renderFullscreenButton()}
-      {renderCloseButton()}
+      <RenderFullscreenButton />
+      <RenderCloseButton />
     </> : null;
   };
 
-  const renderFooter = (): null|React.JSX.Element => {
-    return <>
+  const renderDefaultFooter = (): React.JSX.Element => {
+    return <div className="modal-footer">
       <div className='w-full flex justify-between flex-col md:flex-row'>
         <div className="flex gap-2 items-center dark:text-white">
-          <div>{renderPrevRecordButton()}</div>
-          <div>{renderNextRecordButton()}</div>
+          <div><RenderPrevRecordButton /></div>
+          <div><RenderNextRecordButton /></div>
           {getRecordFormUrl() ? <>
             <a
               className='btn btn-white'
@@ -800,16 +861,14 @@ const Form = (props: FormProps) => {
           </div>
         : null}
         <div className='flex gap-2'>
-          {renderCopyButton()}
-          {renderDeleteButton()}
+          <RenderCopyButton />
+          <RenderDeleteButton />
         </div>
       </div>
-    </>;
+    </div>;
   };
 
-  const renderTitle = (): null|React.JSX.Element => {
-    if (props.uiComponents?.title) return props.uiComponents.title;
-
+  const renderDefaultTitle = (): React.JSX.Element => {
     let title = description?.ui?.title ??
       (updatingRecord
         ? translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
@@ -823,36 +882,34 @@ const Form = (props: FormProps) => {
     </>;
   };
 
-  const renderWarningsOrErrors = (): null|React.JSX.Element => {
+  const renderDefaultWarningsOrErrors = (): React.JSX.Element => {
+    let warningsOrErrors: Array<React.JSX.Element> = [];
+
     if (recordDeleted) {
-      return <>
+      warningsOrErrors.push(
         <div className="alert alert-danger m-1">
           Record has been deleted.
         </div>
-      </>
+      );
     }
 
-    if (!isInitialized) {
-      return <Spinner>{translate('Loading record, please wait.')}</Spinner>;
-    }
-
-    return null;
-  };
-
-  const renderErrorAlert = (message: string) => {
     return <>
-      <div className="alert alert-danger m-1">
-        {message ?? "An error occured while performing the last operation."}
-      </div>
+      {warningsOrErrors.map((item) => item)}
+      <RenderSaveErrorMessage />
     </>;
   };
 
-  const renderSaveErrorMessage = (): null|React.JSX.Element => {
+  const renderDefaultSaveErrorMessage = (): React.JSX.Element => {
     return saveError && saveError.message
       ? <div className='text-white bg-red-300 p-2 whitespace-pre-line'>{saveError.message}</div>
       : null
     ;
   };
+
+
+
+
+
 
   const myself: FormMeta = {
     uid, readonly, model,
@@ -862,9 +919,33 @@ const Form = (props: FormProps) => {
     translate, saveRecord, closeForm, loadRecord,
     id,
     getTitleAsText, setShowPreviewUi, changeRecord,
-    showPreviewUi, description, renderTimeline,
+    showPreviewUi, description,
     changeField, setReadonly, recordStore, getRecord,
-    activeTabUid
+    activeTabUid,
+
+    renderDefaultTopMenuButton,
+    renderDefaultTopMenu,
+    renderDefaultTimeline,
+    renderDefaultTab,
+    renderDefaultContent,
+    renderDefaultPrintPreviewUi,
+    renderDefaultHeaderExtraButtons,
+    renderDefaultFooterExtraButtons,
+    renderDefaultSaveButton,
+    renderDefaultCopyButton,
+    renderDefaultDeleteButton,
+    renderDefaultPrevRecordButton,
+    renderDefaultNextRecordButton,
+    renderDefaultFullscreenButton,
+    renderDefaultCloseButton,
+    renderDefaultPrintPreviewUiButton,
+    renderDefaultHeader,
+    renderDefaultHeaderLeft,
+    renderDefaultHeaderRight,
+    renderDefaultFooter,
+    renderDefaultTitle,
+    renderDefaultWarningsOrErrors,
+    renderDefaultSaveErrorMessage,
   }
 
 
@@ -884,60 +965,15 @@ const Form = (props: FormProps) => {
     </>
   } else {
     try {
-      const warningsOrErrors = renderWarningsOrErrors();
-      const saveErrorMessage = renderSaveErrorMessage();
-
-      const formTitle = renderTitle();
-      const formContentClassName = getContentClassName();
-      const formContent = (warningsOrErrors ? warningsOrErrors : renderContent());
-      const formFooter = renderFooter();
-      const formTopMenu = (isInitialized ? renderTopMenu() : null);
-      const headerLeft = (warningsOrErrors ? null : renderHeaderLeft());
-      const headerRight = (warningsOrErrors ? renderCloseButton() : renderHeaderRight());
-      const headerExtraButtons = renderHeaderExtraButtons();
-      const footerButtons = renderFooterButtons();
-
-      if (modal) {
-        finalContent = <>
-          {showHeader ? <>
-            <div className={"modal-header " + (isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
-              <div className="modal-header-left">{headerLeft}</div>
-              <div className="modal-header-title">{formTitle}</div>
-              <div className="modal-header-right">{headerRight}</div>
-            </div>
-            {headerExtraButtons ? <div className='modal-header-buttons'>{headerExtraButtons}</div> : null}
-          </> : null}
-          {saveErrorMessage}
-          {formTopMenu ? <div className="modal-top-menu shadow-lg">{formTopMenu}</div> : null}
-          <div className={"modal-body " + formContentClassName}>
-            {formContent}
-          </div>
-          {footerButtons ? <div className='modal-footer-buttons'>{footerButtons}</div> : null}
-          {showFooter ? <>
-            {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
-          </> : null}
-        </>;
-      } else {
-        finalContent = <>
-          <div id={"hubleto-form-" + uid} className="hubleto component form">
-            {showHeader ? <>
-              <div className="form-header">
-                <div className="form-header-left">{headerLeft}</div>
-                <div className="form-header-title">{formTitle}</div>
-                <div className="form-header-right">{headerRight}</div>
-              </div>
-            </> : null}
-            {saveErrorMessage}
-            {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
-            <div className={"form-body" + formContentClassName}>
-              {formContent}
-            </div>
-            {showFooter ? <>
-              {formFooter ? <div className="form-footer">{formFooter}</div> : null}
-            </> : null}
-          </div>
-        </>;
-      }
+      finalContent = (isInitialized ? <>
+        {showHeader ? <> <RenderHeader /> <RenderHeaderExtraButtons /> </> : null}
+        <RenderWarningsOrErrors />
+        <RenderTopMenu />
+        <RenderContent />
+        {showFooter ? <> <RenderFooterExtraButtons /> <RenderFooter /> </> : null}
+      </> : <div className="p-8 m-auto">
+        <Spinner>{translate('Loading record, please wait.')}</Spinner>
+      </div>);
     } catch(e) {
       console.error('Failed to render form.');
       console.error(e);

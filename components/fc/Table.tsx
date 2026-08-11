@@ -1357,14 +1357,13 @@ const Table = (props: TableProps) => {
 
     const lastIndexOfBackslash = model.lastIndexOf('/');
     const rawModelName = model.substring(lastIndexOfBackslash + 1);
-    const modelInputName = rawModelName + '.' + columnName;
 
     const inputProps = {
       uid: uid + '_' + columnName,
       inputName: columnName,
       value: columnValue,
       showInlineEditingButtons: false,
-      invalid: Array.isArray(invalidInputs) ? invalidInputs.some((v: any) => String(v.name).toLowerCase() === String(modelInputName).toLowerCase() && v.id === (data.id ?? -1)) : false,
+      invalid: false,
       isInlineEditing: isInlineEditing,
       description: (description && description.inputs ? description?.inputs[columnName] : null),
     };

@@ -61,17 +61,17 @@ export interface FormTab {
   content: () => React.JSX.Element,
 }
 
-export interface FormUiComponents {
-  title?: React.JSX.Element,
-  content?: React.JSX.Element,
-  tabs?: FormTabs,
-  saveButton?: React.JSX.Element,
-  closeButton?: React.JSX.Element,
-  printPreviewUiButton?: React.JSX.Element,
-  printPreviewUi?: React.JSX.Element,
-  headerExtraButtons?: React.JSX.Element,
-  footerButtons?: React.JSX.Element,
-}
+// export interface FormUiComponents {
+//   title?: React.JSX.Element,
+//   content?: React.JSX.Element,
+//   tabs?: FormTabs,
+//   saveButton?: React.JSX.Element,
+//   closeButton?: React.JSX.Element,
+//   printPreviewUiButton?: React.JSX.Element,
+//   printPreviewUi?: React.JSX.Element,
+//   headerExtraButtons?: React.JSX.Element,
+//   footerExtraButtons?: React.JSX.Element,
+// }
 
 export interface FormProps {
   activeTabUid?: string,
@@ -115,8 +115,6 @@ export interface FormProps {
   prevId?: any,
   readonly?: boolean,
   record?: any,
-  renderContent?: (form: FormMeta) => any,
-  renderTab?: (form: FormMeta) => any,
   saveRecordWhenInitialized?: any,
   showOwnerManagerSelector?: boolean,
   showOwnerManagerUi?: boolean,
@@ -129,7 +127,30 @@ export interface FormProps {
   translationContextInner?: string,
   uid?: string,
   urlSlug?: string,
-  uiComponents?: FormUiComponents,
+
+  renderTopMenuButton?: (form: FormMeta, tabUid: string) => React.JSX.Element,
+  renderTopMenu?: (form: FormMeta) => React.JSX.Element,
+  renderTimeline?: (form: FormMeta, timelineConfig: any) => React.JSX.Element,
+  renderTab?: (form: FormMeta, tab: string) => React.JSX.Element,
+  renderContent?: (form: FormMeta) => React.JSX.Element,
+  renderPrintPreviewUi?: (form: FormMeta) => React.JSX.Element,
+  renderHeaderExtraButtons?: (form: FormMeta) => React.JSX.Element,
+  renderFooterExtraButtons?: (form: FormMeta) => React.JSX.Element,
+  renderSaveButton?: (form: FormMeta) => React.JSX.Element,
+  renderCopyButton?: (form: FormMeta) => React.JSX.Element,
+  renderDeleteButton?: (form: FormMeta) => React.JSX.Element,
+  renderPrevRecordButton?: (form: FormMeta) => React.JSX.Element,
+  renderNextRecordButton?: (form: FormMeta) => React.JSX.Element,
+  renderFullscreenButton?: (form: FormMeta) => React.JSX.Element,
+  renderCloseButton?: (form: FormMeta) => React.JSX.Element,
+  renderPrintPreviewUiButton?: (form: FormMeta) => React.JSX.Element,
+  renderHeader?: (form: FormMeta) => React.JSX.Element,
+  renderHeaderLeft?: (form: FormMeta) => React.JSX.Element,
+  renderHeaderRight?: (form: FormMeta) => React.JSX.Element,
+  renderFooter?: (form: FormMeta) => React.JSX.Element,
+  renderTitle?: (form: FormMeta) => React.JSX.Element,
+  renderWarningsOrErrors?: (form: FormMeta) => React.JSX.Element,
+  renderSaveErrorMessage?: (form: FormMeta) => React.JSX.Element,
 }
 
 export interface FormMeta {
@@ -144,10 +165,34 @@ export interface FormMeta {
   translate, saveRecord, closeForm,
   loadRecord, id,
   getTitleAsText, setShowPreviewUi, changeRecord,
-  showPreviewUi, description, renderTimeline,
+  showPreviewUi, description,
   changeField, setReadonly,
   recordStore, getRecord,
   activeTabUid
+
+  renderDefaultTopMenuButton: (tabUid: string) => React.JSX.Element,
+  renderDefaultTopMenu: () => React.JSX.Element,
+  renderDefaultTimeline: (timelineConfig: any) => React.JSX.Element,
+  renderDefaultTab: (tab: string) => React.JSX.Element,
+  renderDefaultContent: () => React.JSX.Element,
+  renderDefaultPrintPreviewUi: () => React.JSX.Element,
+  renderDefaultHeaderExtraButtons: () => React.JSX.Element,
+  renderDefaultFooterExtraButtons: () => React.JSX.Element,
+  renderDefaultSaveButton: () => React.JSX.Element,
+  renderDefaultCopyButton: () => React.JSX.Element,
+  renderDefaultDeleteButton: () => React.JSX.Element,
+  renderDefaultPrevRecordButton: () => React.JSX.Element,
+  renderDefaultNextRecordButton: () => React.JSX.Element,
+  renderDefaultFullscreenButton: () => React.JSX.Element,
+  renderDefaultCloseButton: () => React.JSX.Element,
+  renderDefaultPrintPreviewUiButton: () => React.JSX.Element,
+  renderDefaultHeader: () => React.JSX.Element,
+  renderDefaultHeaderLeft: () => React.JSX.Element,
+  renderDefaultHeaderRight: () => React.JSX.Element,
+  renderDefaultFooter: () => React.JSX.Element,
+  renderDefaultTitle: () => React.JSX.Element,
+  renderDefaultWarningsOrErrors: () => React.JSX.Element,
+  renderDefaultSaveErrorMessage: () => React.JSX.Element,
 };
 
 export type FormTabs = { [key: string]: FormTab; };

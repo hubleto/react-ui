@@ -8,7 +8,7 @@ export function createRecordStore(initial: FormRecord) {
   const listeners = new Set<Listener>();
 
   return {
-    getField: (field: string) => record[field] ?? null,
+    getField: (field: string, defaultValue?: any) => record[field] ?? defaultValue,
     getRecord: () => record,
     subscribe: (listener: Listener) => {
       listeners.add(listener);
@@ -27,11 +27,11 @@ export function useRecordStore() {
   return store;
 }
 
-export function useRecordField<T>(field: string): T {
+export function useRecordField<T>(field: string, defaultValue?: any): T {
   const store = useRecordStore();
   return (store ? React.useSyncExternalStore(
     store.subscribe,
-    () => store.getField(field)
+    () => store.getField(field, defaultValue)
   ) : null);
 }
 

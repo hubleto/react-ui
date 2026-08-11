@@ -1,7 +1,7 @@
 export default class FormCustomizer {
 
   static headerExtraButtons: any = {};
-  static footerButtons: any = {};
+  static footerExtraButtons: any = {};
 
   static addFormHeaderButton(componentName: string, title: string, icon: string, onClick: any) {
     if (!this.headerExtraButtons[componentName]) {
@@ -14,15 +14,15 @@ export default class FormCustomizer {
     return this.headerExtraButtons[componentName] ?? [];
   }
 
-  static addFormFooterButton(componentName: string, title: string, icon: string, onClick: any) {
-    if (!this.footerButtons[componentName]) {
-      this.footerButtons[componentName] = [];
+  static addFormFooterExtraButton(componentName: string, title: string, icon: string, onClick: any) {
+    if (!this.footerExtraButtons[componentName]) {
+      this.footerExtraButtons[componentName] = [];
     }
-    this.footerButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
+    this.footerExtraButtons[componentName].push({ title: title, icon: icon, onClick: onClick });
   }
 
-  static getFormFooterButtons(componentName: string) {
-    return this.footerButtons[componentName] ?? [];
+  static getFormFooterExtraButtons(componentName: string) {
+    return this.footerExtraButtons[componentName] ?? [];
   }
 
 }

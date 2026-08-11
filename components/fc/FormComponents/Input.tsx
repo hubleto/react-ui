@@ -44,9 +44,7 @@ const Input = React.memo((props: any) => {
     readonly: readonly,
     isModified,
     uid: form.uid + '_' + name, // stable, no uuid.v4() per render
-    invalid: form.invalidInputs.some(
-      (v) => v.name.toLowerCase() === field.toLowerCase()
-    ) ?? false,
+    invalid: false,
     ...inputDescription,
     ...customInputProps,
     onChange: (input: any, newValue: any) => {
