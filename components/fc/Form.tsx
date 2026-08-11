@@ -1,4 +1,4 @@
-import React, {  useState, useEffect } from 'react';
+import React, {  useState, useEffect, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import * as uuid from 'uuid';
 import moment from "moment";
@@ -463,7 +463,8 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
 
   const RenderTopMenuButton = (p: { tabUid: string }) => (props.renderTopMenuButton ? props.renderTopMenuButton(myself, p.tabUid) : renderDefaultTopMenuButton(p.tabUid));
-  const RenderTopMenu = () => (props.renderTopMenu ? props.renderTopMenu(myself) : renderDefaultTopMenu());
+  const RenderTopInputs = useCallback(() => (props.renderTopInputs ? props.renderTopInputs(myself) : renderDefaultTopInputs()), [description, readonly]);
+  const RenderTopMenu = useCallback(() => (props.renderTopMenu ? props.renderTopMenu(myself) : renderDefaultTopMenu()), [description, activeTabUid]);
   const RenderTimeline = (p: { timelineConfig: any }) => (props.renderTimeline ? props.renderTimeline(myself, p.timelineConfig) : renderDefaultTimeline(p.timelineConfig));
   const RenderTab = (p: { tab: string }) => (props.renderTab ? props.renderTab(myself, p.tab) : renderDefaultTab(p.tab));
   const RenderContent = () => (props.renderContent ? props.renderContent(myself) : renderDefaultContent());
@@ -489,6 +490,24 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
   // renderDefault*()
   //////////////////////////////////
+
+  const renderDefaultTopInputs = (): React.JSX.Element => {
+    const inputs = description.inputs;
+
+    return <div className='flex justify-between gap-2 w-full'>{inputs ? <>
+      <div>
+        {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
+      </div>
+      <div className='flex flex-right'>
+        {inputs.id_owner ? <Input field='id_owner' readonly={false} /> : null}
+        {inputs.id_manager ? <Input field='id_manager' readonly={false} /> : null}
+        {inputs.color ? <Input field='color' readonly={false} /> : null}
+        {inputs.is_closed ? <Input field='is_closed' readonly={false} /> : null}
+        {inputs.shared_with ? <Input field='shared_with' title='Share' /> : null}
+      </div>
+    </> : null}</div>
+
+  }
 
   const renderDefaultTopMenuButton = (tabUid: string): React.JSX.Element => {
     if (tabUid == '') tabUid = 'default';
@@ -517,8 +536,6 @@ const Form = (props: FormProps) => {
   const renderDefaultTopMenu = (): React.JSX.Element => {
     let topMenu = null;
     const tabs: FormTabs = props.tabs;
-
-    if (!isInitialized) return <></>;
 
     if (tabs && Object.keys(tabs).length > 1) {
       topMenu = <div className="top-menu-wrapper">
@@ -552,22 +569,8 @@ const Form = (props: FormProps) => {
     const inputs = description.inputs;
 
     return <div className="modal-top-menu shadow-lg">
-      <div className='flex flex-col'>
-        <div className='flex'>
-          {topMenuWithDynamicMenu}
-        </div>
-        <div className='flex justify-between gap-2 w-full'>{inputs ? <>
-          <div>
-            {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
-          </div>
-          <div className='flex flex-right'>
-            {inputs.id_owner ? <Input field='id_owner' readonly={false} /> : null}
-            {inputs.id_manager ? <Input field='id_manager' readonly={false} /> : null}
-            {inputs.color ? <Input field='color' readonly={false} /> : null}
-            {inputs.is_closed ? <Input field='is_closed' readonly={false} /> : null}
-            {inputs.shared_with ? <Input field='shared_with' title='Share' /> : null}
-          </div>
-        </> : null}</div>
+      <div className='flex'>
+        {topMenuWithDynamicMenu}
       </div>
     </div>;
   };
@@ -869,17 +872,24 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultTitle = (): React.JSX.Element => {
-    let title = description?.ui?.title ??
-      (updatingRecord
-        ? translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
-        : translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
-      )
-    ;
-
-    return <>
-      <h2>{title}</h2>
-      {description?.ui?.subTitle ? <small>{description?.ui?.subTitle}</small> : null}
-    </>;
+    if (description?.ui?.title) {
+      return <>
+        <h2>{description?.ui?.title}</h2>
+        {description?.ui?.subTitle ? <small>{description?.ui?.subTitle}</small> : null}
+      </>;
+    } else if (props.title) {
+      return <>
+        {props.title.field ? <h2>{recordStore.getField(props.title.field)}</h2> : null}
+        <small className='text-xs'>{props.title.sub}</small>
+      </>;
+    } else {
+      return <>
+        <h2>{updatingRecord
+          ? translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
+          : translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
+        }</h2>
+      </>;
+    }
   };
 
   const renderDefaultWarningsOrErrors = (): React.JSX.Element => {
@@ -969,6 +979,7 @@ const Form = (props: FormProps) => {
         {showHeader ? <> <RenderHeader /> <RenderHeaderExtraButtons /> </> : null}
         <RenderWarningsOrErrors />
         <RenderTopMenu />
+        <RenderTopInputs />
         <RenderContent />
         {showFooter ? <> <RenderFooterExtraButtons /> <RenderFooter /> </> : null}
       </> : <div className="p-8 m-auto">

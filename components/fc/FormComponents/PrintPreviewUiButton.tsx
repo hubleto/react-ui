@@ -10,8 +10,11 @@ const translate = new Translator(
 
 const PrintPreviewUiButton = ({ content }: any) => {
   const form = React.useContext(FormMetaContext);
-  // const R = useRecord()
+  const description = form.description ?? {};
   const pdf = useRecordField('pdf');
+  const available = description.inputs && description.inputs.pdf;
+
+  if (!available) return <></>;
 
   return <>
     <button

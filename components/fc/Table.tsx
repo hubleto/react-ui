@@ -1906,7 +1906,7 @@ const Table = (props: TableProps) => {
 
   const renderDefaultContent = (): React.JSX.Element => {
     const sidebarFilter = renderSidebarFilter();
-console.log('renderDefaultcontent', recordId);
+
     return <>
       {renderFormModal()}
       {isUsedAsInput ? null : renderDeleteConfirmModal()}

@@ -127,8 +127,10 @@ export interface FormProps {
   translationContextInner?: string,
   uid?: string,
   urlSlug?: string,
+  title?: any,
 
   renderTopMenuButton?: (form: FormMeta, tabUid: string) => React.JSX.Element,
+  renderTopInputs?: (form: FormMeta) => React.JSX.Element,
   renderTopMenu?: (form: FormMeta) => React.JSX.Element,
   renderTimeline?: (form: FormMeta, timelineConfig: any) => React.JSX.Element,
   renderTab?: (form: FormMeta, tab: string) => React.JSX.Element,

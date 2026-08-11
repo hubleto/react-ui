@@ -15,7 +15,7 @@ const translate = new Translator(
   'Components\\WorkflowSelector'
 ).translate;
 
-const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
+const WorkflowSelector = (props: WorkflowSelectorProps) => {
   const form = React.useContext(FormMetaContext);
   const id: number = useRecordField('id');
 
@@ -47,8 +47,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
     );
   }
 
-
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { console.log('selector mount'); loadData(); }, []);
 
   const onWorkflowChange = (newIdWorkflow: number): void => {
     if (readonly) return;
@@ -155,7 +154,7 @@ const WorkflowSelector = React.memo((props: WorkflowSelectorProps) => {
     </div>}
   </div>);
 
-}, () => true);
+};
 
 // export function updateFormWorkflowByTag(form: any, tag: string, onsuccess: any) {
 //   request.post(
