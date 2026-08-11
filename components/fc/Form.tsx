@@ -52,6 +52,7 @@ const Form = (props: FormProps) => {
   if (!storeRef.current) storeRef.current = createRecordStore(props.record ?? {});
   const recordStore = storeRef.current;
 
+  const cssClassNamePrefix = (props.modal ? "modal" : "form");
   const isCreatingRecord = (id: any): boolean => { return id ? id == -1 : false; };
   const getCallback = (callback: string): any => {
     return (props[callback] ?? defaultCallbacks[callback]);
@@ -201,7 +202,6 @@ const Form = (props: FormProps) => {
   const [isFullscreen, setIsFullscreen] = useState(props.isFullscreen ?? false);
   const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? false);
   const [loadRecordError, setLoadRecordError] = useState(null);
-  const [modal, setModal] = useState(true);
   const [model, setModel] = useState(props.model ?? '');
   const [nextId, setNextId] = useState(props.nextId ?? 0);
   const [originalRecord, setOriginalRecord] = useState({} as FormRecord);
@@ -568,7 +568,7 @@ const Form = (props: FormProps) => {
 
     const inputs = description.inputs;
 
-    return <div className="modal-top-menu shadow-lg">
+    return <div className={cssClassNamePrefix + "-top-menu shadow-lg"}>
       <div className='flex'>
         {topMenuWithDynamicMenu}
       </div>
@@ -646,7 +646,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultContent = (): React.JSX.Element => {
-    return <div className={"modal-body " + getContentClassName()}>
+    return <div className={cssClassNamePrefix + "-body " + getContentClassName()}>
       <RenderTab tab={activeTabUid}></RenderTab>
       <RenderPrintPreviewUi></RenderPrintPreviewUi>
     </div>;
@@ -659,7 +659,7 @@ const Form = (props: FormProps) => {
   const renderDefaultHeaderExtraButtons = (): React.JSX.Element => {
     const headerExtraButtons = FormCustomizer.getFormHeaderExtraButtons(props.componentName);
     if (headerExtraButtons && headerExtraButtons.length > 0) {
-      return <div className="modal-header-buttons">{headerExtraButtons.map((button: any, key: any) => {
+      return <div className={cssClassNamePrefix + "-header-buttons"}>{headerExtraButtons.map((button: any, key: any) => {
         return <button
           key={key}
           className='btn btn-small btn-primary-outline'
@@ -676,7 +676,7 @@ const Form = (props: FormProps) => {
   const renderDefaultFooterExtraButtons = (): React.JSX.Element => {
     const footerExtraButtons = FormCustomizer.getFormFooterExtraButtons(props.componentName);
     if (footerExtraButtons && footerExtraButtons.length > 0) {
-      return <div className='modal-footer-buttons'>{footerExtraButtons.map((button: any, key: any) => {
+      return <div className={cssClassNamePrefix + "-footer-buttons"}>{footerExtraButtons.map((button: any, key: any) => {
         return <button
           key={key}
           className='btn btn-primary'
@@ -791,10 +791,10 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultHeader = (): React.JSX.Element => {
-    return <div className={"modal-header " + (isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
-      <div className="modal-header-left"><RenderHeaderLeft /></div>
-      <div className="modal-header-title"><RenderTitle /></div>
-      <div className="modal-header-right"><RenderHeaderRight /></div>
+    return <div className={cssClassNamePrefix + "-header " + (isActive ? "active" : "") + " " + description?.ui?.headerClassName}>
+      <div className={cssClassNamePrefix + "-header-left"}><RenderHeaderLeft /></div>
+      <div className={cssClassNamePrefix + "-header-title"}><RenderTitle /></div>
+      <div className={cssClassNamePrefix + "-header-right"}><RenderHeaderRight /></div>
     </div>
     ;
   };
@@ -811,14 +811,14 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultHeaderRight = (): React.JSX.Element => {
-    return modal ? <>
+    return props.modal ? <>
       <RenderFullscreenButton />
       <RenderCloseButton />
     </> : null;
   };
 
   const renderDefaultFooter = (): React.JSX.Element => {
-    return <div className="modal-footer">
+    return <div className={cssClassNamePrefix + "-footer"}>
       <div className='w-full flex justify-between flex-col md:flex-row'>
         <div className="flex gap-2 items-center dark:text-white">
           <div><RenderPrevRecordButton /></div>
@@ -879,6 +879,7 @@ const Form = (props: FormProps) => {
       </>;
     } else if (props.title) {
       return <>
+        {props.title.main ? <h2>{props.title.main}</h2> : null}
         {props.title.field ? <h2>{recordStore.getField(props.title.field)}</h2> : null}
         <small className='text-xs'>{props.title.sub}</small>
       </>;

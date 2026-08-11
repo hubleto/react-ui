@@ -218,6 +218,8 @@ export interface TableMeta {
   uid, setUid,
   view, setView,
 
+  openForm, closeForm,
+
   getDefaultEndpointParams?: () => object,
   getDefaultEndpointUrl?: (action: string) => string,
   getDefaultCsvImportEndpointParams?: () => any,

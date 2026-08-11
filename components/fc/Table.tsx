@@ -2045,6 +2045,8 @@ const Table = (props: TableProps) => {
     uid, setUid,
     view, setView,
 
+    openForm, closeForm,
+
     getDefaultEndpointParams,
     getDefaultEndpointUrl,
     getDefaultCsvImportEndpointParams,
