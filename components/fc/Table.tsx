@@ -94,12 +94,15 @@ const Table = (props: TableProps) => {
       junctionSourceRecordId: props.junctionSourceRecordId,
       junctionSaveEndpoint: props.junctionSaveEndpoint ?? 'api/record/save-junction',
 
-      ...props.customEndpointParams,
+      ...props.endpointParams,
     }
   }
 
   const getDefaultCsvImportEndpointParams = (): any => {
-    return null;
+    return {
+      model: model,
+      defaultCsvImportValues: props.formDefaultValues,
+    };
   }
 
   const getDefaultSelectionMode = (): TableSelectionMode => {
@@ -145,7 +148,7 @@ const Table = (props: TableProps) => {
       saveRecordWhenInitialized: recordSaveAfterOpen,
       showInModal: true,
       description: description,
-      customEndpointParams: customEndpointParams ?? {},
+      endpointParams: props.endpointParams ?? {},
 
       junctionTitle: props.junctionTitle,
       junctionModel: props.junctionModel,
@@ -548,7 +551,6 @@ const Table = (props: TableProps) => {
   const [columnSearch, setColumnSearch] = useState(props.columnSearch ?? {});
   const [crudController, setCrudController] = useState(props.crudController ?? '');
   const [context, setContext] = useState(props.context ?? '');
-  const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? {});
   const [data, setData] = useState(props.data ?? null);
   const [description, setDescription] = useState(props.description ?? {} as TableDescription);
   const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? 'both');
@@ -2012,7 +2014,6 @@ console.log('renderDefaultcontent', recordId);
     columnSearch, setColumnSearch,
     crudController, setCrudController,
     context, setContext,
-    customEndpointParams, setCustomEndpointParams,
     data, setData,
     description, setDescription,
     descriptionSource, setDescriptionSource,

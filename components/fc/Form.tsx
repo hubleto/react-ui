@@ -18,39 +18,14 @@ import Input from './FormComponents/Input';
 
 import {
   FormEndpoint,
-  FormPermissions,
-  FormUi,
   FormRecord,
   FormDescription,
-  FormInvalidInputs,
-  FormTab,
-  FormUiComponents,
   FormProps,
   FormTabs,
-  FormDescriptionSource,
+  FormMeta,
 } from "./FormInterfaces"
 
 import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './FormRecordStore';
-import OwnerManagerUi from './FormComponents/OwnerManagerUi';
-
-export interface FormMeta {
-  readonly, model, uid,
-  originalRecord: FormRecord,
-  invalidInputs: FormInvalidInputs,
-  creatingRecord,
-  updatingRecord,
-  permissions,
-  recordChanged,
-  savedSuccessfully,
-  translate, saveRecord, closeForm,
-  loadRecord, id,
-  getTitleAsText, setShowPreviewUi, changeRecord,
-  showPreviewUi, description, renderTimeline,
-  changeField, setReadonly,
-  recordStore, getRecord,
-  activeTabUid
-};
-
 
 export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
 export const FormMetaContext = React.createContext<FormMeta>(null);
@@ -129,7 +104,7 @@ const Form = (props: FormProps) => {
       tag: tag,
       includeRelations: description?.includeRelations,
       __IS_AJAX__: '1',
-      ...props.customEndpointParams
+      ...props.endpointParams
     };
   }
 
@@ -161,13 +136,13 @@ const Form = (props: FormProps) => {
   }
 
   const defaultCallbacks = {
-    onChange: (form: any, changedRecord: FormRecord) => {},
-    onClose: (form: any) => {},
-    onAfterCopyRecord: (form: any, record: FormRecord) => {},
-    onAfterDeleteRecord: (form: any, saveResponse: any) => {},
-    onAfterFormInitialized: (form: any) => {},
-    onAfterRecordLoaded: (record: FormRecord): FormRecord => { return record; },
-    onAfterSaveRecord: (form: any, saveResponse: any, customSaveOptions?: any) => {
+    onChange: (form: FormMeta, changedRecord: FormRecord) => {},
+    onClose: (form: FormMeta) => {},
+    onAfterCopyRecord: (form: FormMeta, record: FormRecord) => {},
+    onAfterDeleteRecord: (form: FormMeta, saveResponse: any) => {},
+    onAfterFormInitialized: (form: FormMeta) => {},
+    onAfterRecordLoaded: (form: FormMeta, record: FormRecord): void => {},
+    onAfterSaveRecord: (form: FormMeta, saveResponse: any, customSaveOptions?: any) => {
       if (
         props.junctionSaveEndpoint
         && props.junctionModel
@@ -196,7 +171,6 @@ const Form = (props: FormProps) => {
 
   const [activeTabUid, setActiveTabUid] = useState(props.activeTabUid == '' || !props.activeTabUid ? 'default' : props.activeTabUid);
   const [creatingRecord, setCreatingRecord] = useState(isCreatingRecord(props.id));
-  // const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams ?? {});
   const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(false);
   const [deletingRecord, setDeletingRecord] = useState(false);
   const [description, setDescription] = useState(props.description ?? {
@@ -298,6 +272,7 @@ const Form = (props: FormProps) => {
 
   const loadRecord = (): void => {
     setIsInitialized(false);
+
     if (id == -1) {
       console.log('initializing', description.defaultValues);
       setIsInitialized(true);
@@ -320,6 +295,8 @@ const Form = (props: FormProps) => {
             setPermissions(p);
             if (!p.canUpdate && !p.canCreate) setReadonly(true);
             changeRecord(record);
+
+            getCallback('onAfterRecordLoaded')(myself, record);
           }
         },
         (error) => {

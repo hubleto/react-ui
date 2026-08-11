@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 
 import InputLookup from "../components/cc/Inputs/Lookup";
-import InputVarchar from "../components/fc/Inputs/Varchar";
+import InputVarchar from "../components/cc/Inputs/Varchar";
 import InputPassword from "../components/cc/Inputs/Password";
 import InputTextarea from "../components/cc/Inputs/Textarea";
-import InputInt from "../components/fc/Inputs/Int";
+import InputInt from "../components/cc/Inputs/Int";
 import InputBoolean from "../components/cc/Inputs/Boolean";
 import InputColor from "../components/cc/Inputs/Color";
 import InputFile from "../components/cc/Inputs/File";

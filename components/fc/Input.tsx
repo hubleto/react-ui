@@ -244,7 +244,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
         ref={refInputWrapper}
         className={getClassName()}
         style={cssStyle}
-      ><div className="inner">
+      ><div className="inner fc">
         {readonly
           ? <div
             ref={refValueElement}

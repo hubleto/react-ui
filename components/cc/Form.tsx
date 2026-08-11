@@ -10,10 +10,10 @@ import TranslatedComponent from "./TranslatedComponent";
 import { InputProps } from "./Input";
 
 import InputLookup from "./Inputs/Lookup";
-import InputVarchar from "../fc/Inputs/Varchar";
+import InputVarchar from "./Inputs/Varchar";
 import InputPassword from "./Inputs/Password";
 import InputTextarea from "./Inputs/Textarea";
-import InputInt from "../fc/Inputs/Int";
+import InputInt from "./Inputs/Int";
 import InputBoolean from "./Inputs/Boolean";
 import InputColor from "./Inputs/Color";
 import InputFile from "./Inputs/File";
