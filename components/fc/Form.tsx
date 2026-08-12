@@ -487,20 +487,17 @@ const Form = (props: FormProps) => {
 
   const renderDefaultTopInputs = (): React.JSX.Element => {
     const inputs = description.inputs;
-
-    return <div className='flex justify-between gap-2 w-full'>{inputs ? <>
-      <div>
+    return (inputs ? <div className='flex justify-between gap-2 w-full'>
+      <div className='flex gap-2'>
+        {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Open', noText: 'Closed'}} /> : null}
         {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
       </div>
-      <div className='flex flex-right'>
-        {inputs.id_owner ? <Input field='id_owner' readonly={false} /> : null}
-        {inputs.id_manager ? <Input field='id_manager' readonly={false} /> : null}
-        {inputs.color ? <Input field='color' readonly={false} /> : null}
-        {inputs.is_closed ? <Input field='is_closed' readonly={false} /> : null}
-        {inputs.shared_with ? <Input field='shared_with' title='Share' /> : null}
+      <div className='flex gap-2'>
+        {inputs.id_owner ? <Input field='id_owner' readonly={false} renderOnlyInputField /> : null}
+        {inputs.id_manager ? <Input field='id_manager' readonly={false} renderOnlyInputField /> : null}
+        {inputs.shared_with ? <Input field='shared_with' title='Share' renderOnlyInputField /> : null}
       </div>
-    </> : null}</div>
-
+    </div> : null);
   }
 
   const renderDefaultTopMenuButton = (tabUid: string): React.JSX.Element => {
@@ -865,24 +862,31 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultTitle = (): React.JSX.Element => {
+    const inputs = description.inputs;
     if (description?.ui?.title) {
-      return <>
+      return <div>
         <h2>{description?.ui?.title}</h2>
-        {description?.ui?.subTitle ? <small>{description?.ui?.subTitle}</small> : null}
-      </>;
+        <div className='flex gap-2'>
+          {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
+          {description?.ui?.subTitle ? <small>{description?.ui?.subTitle}</small> : null}
+        </div>
+      </div>;
     } else if (props.title) {
-      return <>
+      return <div>
         {props.title.main ? <h2>{props.title.main}</h2> : null}
         {props.title.field ? <h2>{recordStore.getField(props.title.field)}</h2> : null}
-        <small className='text-xs'>{props.title.sub}</small>
-      </>;
+        <div className='flex gap-2'>
+          {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
+          <small className='text-xs'>{props.title.sub}</small>
+        </div>
+      </div>;
     } else {
-      return <>
+      return <div>
         <h2>{updatingRecord
           ? T.translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
           : T.translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
         }</h2>
-      </>;
+      </div>;
     }
   };
 

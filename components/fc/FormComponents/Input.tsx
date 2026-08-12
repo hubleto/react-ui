@@ -93,24 +93,24 @@ const Input = React.memo((props: any) => {
   let finalContent = null;
 
   if (content) finalContent = content;
-  else if (renderOnlyInputField) finalContent = input;
   else finalContent = <div
-    id={form.uid + '_' + name}
+    id={form.uid + '_' + field}
+    title={inputDescription.title}
     className={
       'input-wrapper'
       + (cssClass ? ' ' + cssClass : '')
       + (inputDescription.required ? ' required' : '')
     }
   >
-    <label className="input-label" htmlFor={form.uid + '_' + name}>
+    {renderOnlyInputField ? null : <label className="input-label" htmlFor={form.uid + '_' + name}>
       {inputDescription.title ?? ''}
-    </label>
+    </label>}
     <div className="input-body">
       {inputDescription.icon && <div className="input-icon"><i className={inputDescription.icon}></i></div>}
       {input}
       {inputDescription.info}
     </div>
-    {inputDescription.description && (
+    {renderOnlyInputField ? null : inputDescription.description && (
       <div className="input-description">{inputDescription.description}</div>
     )}
   </div>;

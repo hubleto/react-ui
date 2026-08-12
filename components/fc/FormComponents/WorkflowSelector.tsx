@@ -117,7 +117,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
                     }}
                   >
                   </div>
-                  <div className='text p-2'>
+                  <div className='text px-2'>
                     {s.name}
                   </div>
                 </button>;
