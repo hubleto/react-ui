@@ -11,7 +11,7 @@ const InputComponent = (props: InputProps) => {
     rows={5}
     placeholder={input.description?.placeholder ?? input.description?.title}
     className={
-      "bg-white"
+      ""
       + " " + (input.cssClass ?? "")
       + " " + (input.invalid ? 'invalid' : '')
       + " " + (input.readonly ? "readonly" : "")

@@ -158,7 +158,7 @@ const Form = (props: FormProps) => {
   }
 
   const getContentClassName = (): string => {
-    if (props.getContentClassName) props.getContentClassName(myself);
+    if (props.getContentClassName) return props.getContentClassName(myself);
     return '';
   }
 
@@ -881,7 +881,7 @@ const Form = (props: FormProps) => {
         {props.title.field ? <h2>{useRecordField(props.title.field)}</h2> : null}
         <div className='flex gap-2'>
           {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
-          <small className='text-xs'>{props.title.sub}</small>
+          <small>{props.title.sub}</small>
         </div>
       </div>;
     } else {

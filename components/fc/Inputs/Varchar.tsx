@@ -59,7 +59,7 @@ export const InputComponent = (props: InputProps) => {
         className={
           (input.invalid ? 'is-invalid' : '')
           + " " + (props.cssClass ?? "")
-          + " " + (input.readonly ? "bg-muted" : "bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700")
+          + " " + (input.readonly ? "bg-muted" : "")
           + " border border-slate-200 rounded-sm p-1 w-full"
         }
         disabled={input.readonly}
