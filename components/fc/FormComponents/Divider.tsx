@@ -1,11 +1,11 @@
-const Divider = ({ content }: any) => {
+const Divider = (props: any) => {
   return <div className="divider">
     <div>
       <div>
         <div></div>
       </div>
       <div>
-        <span>{content}</span>
+        <span>{props.children}</span>
       </div>
     </div>
   </div>;

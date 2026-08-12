@@ -37,6 +37,7 @@ const FormXXX = (props: FormXXXProps) => {
     urlSlug='parent-app-slug/same-url-slug-as-in-table'
     endpointParams={{}}
     // onAfterFormInitialized={(form: any) => {}}
+    // renderTitle={(): React.JSX.Element => { return <></>; }
     title={{field: 'some-field-of-the-record', sub: T.translate(componentName)}}
     tabs={{default: {content: () => <TabDefault {...props} />}}}
     {...props}

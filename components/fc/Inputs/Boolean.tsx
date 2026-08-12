@@ -23,13 +23,13 @@ const InputComponent = (props: BooleanInputProps) => {
       className={'btn btn-list-item p-0 ' + (input.value ? 'btn-success' : 'btn-transparent')}
       onClick={() => { if (!input.readonly) input.changeValue(1)}}
     >
-      <span className='icon'>{props.yesText ?? <i className='fas fa-check'></i>}</span>
+      <span className='icon text-nowrap'>{props.yesText ?? <i className='fas fa-check'></i>}</span>
     </div>
     <div
       className={'btn btn-list-item p-0 ' + (input.value ? 'btn-transparent' : 'btn-danger')}
       onClick={() => { if (!input.readonly) input.changeValue(0)}}
     >
-      <span className='text'>{props.noText ?? <i className='fas fa-times'></i>}</span>
+      <span className='text text-nowrap'>{props.noText ?? <i className='fas fa-times'></i>}</span>
     </div>
   </div>;
 }
