@@ -1,12 +1,12 @@
 import React from "react";
-import { FormDescriptionContext, FormMetaContext } from "../Form";
+import { FormMetaContext } from "../Form";
 import Translator from "@hubleto/react-ui/core/Translator";
 
 const T = new Translator('Hubleto\\ReactUi', 'Components\\Form\\SaveButton');
 
 const SaveButton = ({ content }: any) => {
-  const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
+  const description = form.description;
 
   const creatingRecord = form.creatingRecord;
   const updatingRecord = form.updatingRecord;

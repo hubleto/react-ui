@@ -1,5 +1,5 @@
 import React from "react";
-import { FormDescriptionContext, FormMetaContext } from "../Form";
+import { FormMetaContext } from "../Form";
 import { useRecordField } from "../FormRecordStore";
 
 import { InputProps } from "../Input";
@@ -21,8 +21,8 @@ import InputImage from "../../cc/Inputs/Image";
 const Input = React.memo((props: any) => {
   const { field, content, cssClass, renderOnlyInputField, customInputProps, debug, children } = props;
 
-  const description = React.useContext(FormDescriptionContext);
   const form = React.useContext(FormMetaContext);
+  const description = form.description;
   // const R = useRecord();
   const value = useRecordField(field); // R[name];
 
@@ -99,7 +99,7 @@ const Input = React.memo((props: any) => {
     className={
       'input-wrapper'
       + (cssClass ? ' ' + cssClass : '')
-      + (inputDescription.required ? ' required' : '')
+      + (inputDescription.required && !renderOnlyInputField ? ' required' : '')
     }
   >
     {renderOnlyInputField ? null : <label className="input-label" htmlFor={form.uid + '_' + name}>

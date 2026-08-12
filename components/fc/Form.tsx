@@ -25,7 +25,7 @@ import {
   FormMeta,
 } from "./FormInterfaces"
 
-import { FormRecordStore, FormRecordStoreContext, createRecordStore } from './FormRecordStore';
+import { FormRecordStore, FormRecordStoreContext, createRecordStore, useRecordField } from './FormRecordStore';
 import PrintPreviewUi from './FormComponents/PrintPreviewUi';
 
 export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
@@ -203,7 +203,6 @@ const Form = (props: FormProps) => {
   const [permissions, setPermissions] = useState(props.permissions ?? getPermissions(null));
   const [prevId, setPrevId] = useState(props.prevId ?? 0);
   const [readonly, setReadonly] = useState(props.readonly ?? false);
-  // const [record, setRecord] = useState({} as FormRecord);
   const [recordChanged, setRecordChanged] = useState(false);
   const [recordDeleted, setRecordDeleted] = useState(false);
   const [savedSuccessfully, setSavedSuccessfully] = useState(false);
@@ -212,15 +211,13 @@ const Form = (props: FormProps) => {
   const [showHeader, setShowHeader] = useState(true);
   const [showPreviewUi, setShowPreviewUi] = useState(false);
   const [tag, setTag] = useState(props.tag ?? '');
-  const [uid, setUid] = useState(props.uid ?? '_form_' + uuid.v4().replace('-', '_'));
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
-  const [urlSlug, setUrlSlug] = useState(props.urlSlug ?? '');
 
   //////////////////////////////////
   // useEffect*()
   //////////////////////////////////
 
-  useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
+  useEffect(() => { globalThis.hubleto.reactElements[props.uid] = myself; }, [props.uid]);
   useEffect(() => { loadDescription(); }, []);
   useEffect(() => {
     if (isInitialized) {
@@ -285,7 +282,6 @@ const Form = (props: FormProps) => {
     setIsInitialized(false);
 
     if (id == -1) {
-      console.log('initializing', description.defaultValues);
       setIsInitialized(true);
       changeRecord(description.defaultValues ?? {});
     } else {
@@ -305,7 +301,9 @@ const Form = (props: FormProps) => {
             let p = getPermissions(record);
             setPermissions(p);
             if (!p.canUpdate && !p.canCreate) setReadonly(true);
-            changeRecord(record);
+
+            // changeRecord(record);
+            recordStore.setRecord(prev => ({ ...record }));
 
             getCallback('onAfterRecordLoaded')(myself, record);
           }
@@ -457,11 +455,11 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
 
   const RenderTopMenuButton = (p: { tabUid: string }) => (props.renderTopMenuButton ? props.renderTopMenuButton(myself, p.tabUid) : renderDefaultTopMenuButton(p.tabUid));
-  const RenderTopInputs = useCallback(() => (props.renderTopInputs ? props.renderTopInputs(myself) : renderDefaultTopInputs()), [description, readonly]);
+  const RenderTopInputs = useCallback(() => (props.renderTopInputs ? props.renderTopInputs(myself) : renderDefaultTopInputs()), [description, activeTabUid]);
   const RenderTopMenu = useCallback(() => (props.renderTopMenu ? props.renderTopMenu(myself) : renderDefaultTopMenu()), [description, activeTabUid]);
   const RenderTimeline = (p: { timelineConfig: any }) => (props.renderTimeline ? props.renderTimeline(myself, p.timelineConfig) : renderDefaultTimeline(p.timelineConfig));
   const RenderTab = (p: { tab: string }) => (props.renderTab ? props.renderTab(myself, p.tab) : renderDefaultTab(p.tab));
-  const RenderContent = () => (props.renderContent ? props.renderContent(myself) : renderDefaultContent());
+  const RenderContent = useCallback(() => (props.renderContent ? props.renderContent(myself) : renderDefaultContent()), [description, activeTabUid]);
   const RenderPrintPreviewUi = () => (props.renderPrintPreviewUi ? props.renderPrintPreviewUi(myself) : renderDefaultPrintPreviewUi());
   const RenderHeaderExtraButtons = () => (props.renderHeaderExtraButtons ? props.renderHeaderExtraButtons(myself) : renderDefaultHeaderExtraButtons());
   const RenderFooterExtraButtons = () => (props.renderFooterExtraButtons ? props.renderFooterExtraButtons(myself) : renderDefaultFooterExtraButtons());
@@ -808,6 +806,8 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultFooter = (): React.JSX.Element => {
+    const inputs = description.inputs;
+
     return <div className={cssClassNamePrefix + "-footer"}>
       <div className='w-full flex justify-between flex-col md:flex-row'>
         <div className="flex gap-2 items-center dark:text-white">
@@ -845,6 +845,10 @@ const Form = (props: FormProps) => {
           {/* {recordChanged ? <div className='block'><i className='fas fa-pencil'></i></div> : null} */}
         </div>
         <div className='flex gap-2 items-center'>
+          {inputs && inputs.date_created ? <Input field='date_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
+          {inputs && inputs.id_created_by ? <Input field='id_created_by' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
+          {inputs && inputs.date_updated ? <Input field='date_updated' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
+          {inputs && inputs.id_updated_by ? <Input field='id_updated_by' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
         </div>
         {props.junctionModel ?
           <div className='badge flex gap-2'>
@@ -874,7 +878,7 @@ const Form = (props: FormProps) => {
     } else if (props.title) {
       return <div>
         {props.title.main ? <h2>{props.title.main}</h2> : null}
-        {props.title.field ? <h2>{recordStore.getField(props.title.field)}</h2> : null}
+        {props.title.field ? <h2>{useRecordField(props.title.field)}</h2> : null}
         <div className='flex gap-2'>
           {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
           <small className='text-xs'>{props.title.sub}</small>
@@ -920,7 +924,8 @@ const Form = (props: FormProps) => {
 
 
   const myself: FormMeta = {
-    uid, readonly, model,
+    uid: props.uid,
+    readonly, model,
     originalRecord, invalidInputs,
     creatingRecord, updatingRecord,
     permissions, recordChanged, savedSuccessfully,
@@ -994,11 +999,9 @@ const Form = (props: FormProps) => {
 
   return (
     <FormRecordStoreContext.Provider value={recordStore}>
-      <FormDescriptionContext.Provider value={description}>
-        <FormMetaContext.Provider value={myself}>
-          {finalContent}
-        </FormMetaContext.Provider>
-      </FormDescriptionContext.Provider>
+      <FormMetaContext.Provider value={myself}>
+        {finalContent}
+      </FormMetaContext.Provider>
     </FormRecordStoreContext.Provider>
   );
 };

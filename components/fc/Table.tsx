@@ -136,7 +136,6 @@ const Table = (props: TableProps) => {
       saveRecordWhenInitialized: recordSaveAfterOpen,
       showInModal: true,
       description: description,
-      endpointParams: props.endpointParams ?? {},
 
       junctionTitle: props.junctionTitle,
       junctionModel: props.junctionModel,

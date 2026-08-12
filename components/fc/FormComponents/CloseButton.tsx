@@ -1,5 +1,5 @@
 import React from "react";
-import { FormDescriptionContext, FormMetaContext } from "../Form";
+import { FormMetaContext } from "../Form";
 
 const CloseButton = React.memo(({ content }: any) => {
   const form = React.useContext(FormMetaContext);
