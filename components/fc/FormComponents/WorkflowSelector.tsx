@@ -10,10 +10,7 @@ interface WorkflowSelectorProps {
   onAfterWorkflowStepChange?: (idWorkflowStep: number, step: any) => void,
 }
 
-const translate = new Translator(
-  'Hubleto\\ReactUi',
-  'Components\\WorkflowSelector'
-).translate;
+const T = new Translator('Hubleto/ReactUi', 'Components/WorkflowSelector');
 
 const WorkflowSelector = (props: WorkflowSelectorProps) => {
   const form = React.useContext(FormMetaContext);
@@ -47,7 +44,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
     );
   }
 
-  useEffect(() => { console.log('selector mount'); loadData(); }, []);
+  useEffect(() => { loadData(); }, []);
 
   const onWorkflowChange = (newIdWorkflow: number): void => {
     if (readonly) return;
@@ -129,14 +126,14 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
             <div className='text-xs text-gray-400 flex gap-2'>
               {readonly ? <i className='fas fa-lock'></i> : null}
               {historyForCurrentWorkflow[0] ? <>
-                {translate('Last update: {{ date }} by {{ user }}', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')
+                {T.translate('Last update: {{ date }} by {{ user }}', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')
                   .replace('{{ date }}', historyForCurrentWorkflow[0].datetime_change)
-                  .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? translate('unknown', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector'))
+                  .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? T.translate('unknown', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector'))
                 }
               </> : null}                  
               {readonly ? null :
                 <a href='#' onClick={() => { setChangeWorkflow(true); }}>
-                  <span className="text">{translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')}</span>
+                  <span className="text">{T.translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')}</span>
                 </a>
               }
             </div>
@@ -146,7 +143,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
               onClick={() => { setChangeWorkflow(true); }}
             >
               <span className='icon'><i className='fas fa-timeline'></i></span>
-              <span className="text">{translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')}</span>
+              <span className="text">{T.translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')}</span>
             </button>
           </div>)}
         </div>
@@ -155,20 +152,5 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
   </div>);
 
 };
-
-// export function updateFormWorkflowByTag(form: any, tag: string, onsuccess: any) {
-//   request.post(
-//     'workflow/api/get-workflow-step-by-tag',
-//     { idWorkflow: form.state.record.id_workflow, tag: tag },
-//     {},
-//     (result: any) => {
-//       if (result && result.id) {
-//         form.changeRecord({id_workflow_step: result.id}, () => {
-//           if (onsuccess) onsuccess();
-//         });
-//       }
-//     }
-//   );
-// }
 
 export default WorkflowSelector;

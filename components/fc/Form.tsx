@@ -33,13 +33,7 @@ export const FormMetaContext = React.createContext<FormMeta>(null);
 
 
 
-const translate = new Translator(
-  'Hubleto\\ReactUi',
-  'Components\\Form'
-).translate;
-
-
-
+const T = new Translator('Hubleto\\ReactUi', 'Components\\Form');
 
 /**
  * Form
@@ -330,7 +324,7 @@ const Form = (props: FormProps) => {
 
   const closeForm = (): void => {
     let ok = true;
-    if (recordChanged) ok = confirm(translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
+    if (recordChanged) ok = confirm(T.translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
     if (ok) {
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -634,7 +628,6 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultTab = (tab: string): React.JSX.Element => {
-    console.log('renderDefaultTab', tab);
     if (props.tabs && props.tabs[tab]) {
       return props.tabs[tab].content();
     }
@@ -702,7 +695,7 @@ const Form = (props: FormProps) => {
         className={"btn btn-white"}
       >
         <span className="icon"><i className="fas fa-copy"></i></span>
-        <span className="text"> {description?.ui?.copyButtonText ?? translate("Copy", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
+        <span className="text"> {description?.ui?.copyButtonText ?? T.translate("Copy", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</span>
       </button> : null}
     </>;
   };
@@ -729,8 +722,8 @@ const Form = (props: FormProps) => {
         <span className="icon"><i className="fas fa-trash-alt"></i></span>
         <span className="text text-nowrap">
           {deletingRecord ?
-            translate("Confirm delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
-            : description?.ui?.deleteButtonText ?? translate("Delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+            T.translate("Confirm delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+            : description?.ui?.deleteButtonText ?? T.translate("Delete", 'Hubleto\\Erp\\Loader', 'Components\\Form')
           }
         </span>
       </button> : null}
@@ -826,17 +819,17 @@ const Form = (props: FormProps) => {
           {getRecordFormUrl() ? <>
             <a
               className='btn btn-white'
-              title={translate('Open in new tab', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
+              title={T.translate('Open in new tab', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
               href={globalThis.hubleto.config.projectUrl + '/' + getRecordFormUrl()}
               target='_blank'
             >
               <span className='icon'><i className='fas fa-external-link'></i></span>
-              <span className='text'>{translate('Open in new tab')}</span>
+              <span className='text'>{T.translate('Open in new tab')}</span>
               {/* {globalThis.hubleto.config.projectUrl + '/' + getRecordFormUrl()} */}
             </a>
             {/* <button
               className='btn btn-transparent'
-              title={translate('Copy link to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
+              title={T.translate('Copy link to clipboard', 'Hubleto\\Erp\\Loader', 'Components\\FormExtended')}
               onClick={() => {
                 navigator.clipboard.writeText(globalThis.hubleto.config.projectUrl + '/' + getRecordFormUrl());
               }}
@@ -850,7 +843,7 @@ const Form = (props: FormProps) => {
             target='_blank'
           >
             <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
-            <span className='text'>{translate('Help with AI')}</span>
+            <span className='text'>{T.translate('Help with AI')}</span>
           </a> : null}
           {/* {recordChanged ? <div className='block'><i className='fas fa-pencil'></i></div> : null} */}
         </div>
@@ -886,8 +879,8 @@ const Form = (props: FormProps) => {
     } else {
       return <>
         <h2>{updatingRecord
-          ? translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
-          : translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
+          ? T.translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
+          : T.translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
         }</h2>
       </>;
     }
@@ -927,7 +920,7 @@ const Form = (props: FormProps) => {
     originalRecord, invalidInputs,
     creatingRecord, updatingRecord,
     permissions, recordChanged, savedSuccessfully,
-    translate, saveRecord, closeForm, loadRecord,
+    saveRecord, closeForm, loadRecord,
     id,
     getTitleAsText, setShowPreviewUi, changeRecord,
     showPreviewUi, description,
@@ -969,7 +962,9 @@ const Form = (props: FormProps) => {
 
   let finalContent = null;
 
-  if (loadRecordError) {
+  if (props.children) {
+    finalContent = props.children;
+  } else if (loadRecordError) {
     finalContent = <>
       <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
       <div className="m-4"><code>{loadRecordError.message}</code></div>
@@ -984,7 +979,7 @@ const Form = (props: FormProps) => {
         <RenderContent />
         {showFooter ? <> <RenderFooterExtraButtons /> <RenderFooter /> </> : null}
       </> : <div className="p-8 m-auto">
-        <Spinner>{translate('Loading record, please wait.')}</Spinner>
+        <Spinner>{T.translate('Loading record, please wait.')}</Spinner>
       </div>);
     } catch(e) {
       console.error('Failed to render form.');

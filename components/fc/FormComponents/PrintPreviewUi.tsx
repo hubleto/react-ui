@@ -6,14 +6,9 @@ import HtmlFrame from "../../cc/HtmlFrame";
 import { FormMetaContext } from "../Form";
 import request from "@hubleto/react-ui/core/Request";
 
-export interface PrintPreviewUiProps {
+export interface PrintPreviewUiProps {}
 
-};
-
-const translate = new Translator(
-  'Hubleto\\ReactUi',
-  'Components\\PrintPreview'
-).translate;
+const T = new Translator('Hubleto/ReactUi', 'Components/Form/PrintPreview');
 
 const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
   const form = React.useContext(FormMetaContext);
@@ -75,7 +70,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
     type='centered large theme-secondary'
     showHeader={true}
     title={<>
-      <h2>{translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</h2>
+      <h2>{T.translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</h2>
     </>}
     onClose={(modal: ModalSimple) => { form.setShowPreviewUi(false); }}
   >
@@ -96,7 +91,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
               }}
             >
               <span className='icon'><i className='fas fa-file-pdf'></i></span>
-              <span className='text'>{translate('Generate PDF')}</span>
+              <span className='text'>{T.translate('Generate PDF')}</span>
             </button>
             <button
               className='btn btn-add-outline btn-large'
@@ -113,7 +108,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
               }}
             >
               <span className='icon'><i className='fas fa-print'></i></span>
-              <span className='text'>{translate('Print')}</span>
+              <span className='text'>{T.translate('Print')}</span>
             </button>
           </div>
         </div>
@@ -140,7 +135,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
               onClick={() => {
                 showPreviewVars();
               }}
-            >{translate('Show variables available in template')}</a>
+            >{T.translate('Show variables available in template')}</a>
           </div>
         </div>
       </div>

@@ -1,5 +1,8 @@
 import React from "react";
 import { FormDescriptionContext, FormMetaContext } from "../Form";
+import Translator from "@hubleto/react-ui/core/Translator";
+
+const T = new Translator('Hubleto\\ReactUi', 'Components\\Form\\SaveButton');
 
 const SaveButton = ({ content }: any) => {
   const description = React.useContext(FormDescriptionContext);
@@ -34,14 +37,14 @@ const SaveButton = ({ content }: any) => {
             <span className="icon"><i className={saveIcon}></i></span>
             <span className="text">
               {form.savedSuccessfully
-                ? form.translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
-                : (description?.ui?.saveButtonText ?? form.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form'))
+                ? T.translate("Saved", 'Hubleto\\Erp\\Loader', 'Components\\Form')
+                : (description?.ui?.saveButtonText ?? T.translate("Save", 'Hubleto\\Erp\\Loader', 'Components\\Form'))
               }
             </span>
           </> : <>
             <span className="icon"><i className="fas fa-plus"></i></span>
             <span className="text">
-              {description?.ui?.addButtonText ?? form.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+              {description?.ui?.addButtonText ?? T.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
             </span>
           </>
         }

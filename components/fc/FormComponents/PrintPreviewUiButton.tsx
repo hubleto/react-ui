@@ -3,10 +3,7 @@ import { FormMetaContext } from "../Form";
 import { useRecordField } from "../FormRecordStore";
 import Translator from "@hubleto/react-ui/core/Translator";
 
-const translate = new Translator(
-  'Hubleto\\ReactUi',
-  'Components\\PrintPreviewUiButton'
-).translate;
+const T = new Translator('Hubleto/ReactUi', 'Components/Form/PrintPreviewUiButton');
 
 const PrintPreviewUiButton = ({ content }: any) => {
   const form = React.useContext(FormMetaContext);
@@ -25,13 +22,13 @@ const PrintPreviewUiButton = ({ content }: any) => {
     >
       <span className="icon"><i className="fas fa-print"></i></span>
       <span className="text">
-        {translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+        {T.translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
       </span>
     </button>
     {pdf ?
       <a href={globalThis.hubleto.config.uploadUrl + '/' + pdf}
         className="btn btn-transparent" target="_blank"
-        title={translate("Download PDF", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+        title={T.translate("Download PDF", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
       >
         <span className="icon"><i className="fas fa-file-pdf"></i></span>
       </a>

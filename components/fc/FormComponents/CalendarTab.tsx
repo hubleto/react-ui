@@ -34,10 +34,10 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
   const isClosed: boolean = useRecordField('is_closed');
   const ACTIVITIES: Array<object> = useRecordField('ACTIVITIES');
 
-  const translate = new Translator(
-    'Hubleto\\ReactUi',
-    'Components\\CalendarTab'
-  ).translate;
+  const T = new Translator(
+    'Hubleto/ReactUi',
+    'Components/Form/CalendarTab'
+  );
   
   const [showIdActivity, setShowIdActivity] = useState(props.showIdActivity ?? 0);
   const [activityTime, setActivityTime] = useState('');
@@ -96,7 +96,7 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
       <div className="hubleto component input"><div className="input-element w-full flex gap-2">
         <input
           className="w-full bg-blue-50 border border-blue-800 p-1 text-blue-800 placeholder-blue-300"
-          placeholder={translate('Type recent activity here')}
+          placeholder={T.translate('Type recent activity here')}
           ref={refLogActivityInput}
           onKeyUp={(event: any) => {
             if (event.keyCode == 13) {
@@ -115,16 +115,16 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
       <div className='mt-2'>
         <button onClick={() => {logCompletedActivity()}} className="btn btn-blue-outline btn-small w-full">
           <span className="icon"><i className="fas fa-check"></i></span>
-          <span className="text">{translate('Log completed activity')}</span>
-          <span className="shortcut">{translate('Enter')}</span>
+          <span className="text">{T.translate('Log completed activity')}</span>
+          <span className="shortcut">{T.translate('Enter')}</span>
         </button>
         <button onClick={() => {scheduleActivity()}} className="btn btn-small w-full btn-blue-outline">
           <span className="icon"><i className="fas fa-clock"></i></span>
-          <span className="text">{translate('Schedule activity')}</span>
-          <span className="shortcut">{translate('Shift+Enter')}</span>
+          <span className="text">{T.translate('Schedule activity')}</span>
+          <span className="shortcut">{T.translate('Shift+Enter')}</span>
         </button>
       </div>
-      <Divider>{translate('Most recent activities')}</Divider>
+      <Divider>{T.translate('Most recent activities')}</Divider>
       {ACTIVITIES ? <div className="list">{ACTIVITIES.reverse().slice(0, 7).map((item: any, index: any) => {
         return <>
           <button key={index} className={"btn btn-small btn-transparent btn-list-item " + (item.completed ? "bg-green-50" : "bg-red-50")}
@@ -133,7 +133,7 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
             <span className="icon">{item.date_start} {item.time_start}<br/>@{item['_LOOKUP[id_owner]']}</span>
             <span className="text">
               {item.subject}
-              {item.completed ? null : <div className="text-red-800">{translate('Not completed yet')}</div>}
+              {item.completed ? null : <div className="text-red-800">{T.translate('Not completed yet')}</div>}
             </span>
           </button>
         </>

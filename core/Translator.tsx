@@ -8,11 +8,14 @@ export default class Translator {
   }
 
   translate(orig: string, context?: string, contextInner?: string, vars?: any): string {
+    context = (context ?? this.context).replaceAll('/', '\\');
+    contextInner = (contextInner ?? this.contextInner).replaceAll('/', '\\');
+
     try {
       return globalThis.hubleto.translate(
         orig,
-        context ?? this.context,
-        contextInner ?? this.contextInner,
+        context,
+        contextInner,
         vars
       );
     } catch (e) {

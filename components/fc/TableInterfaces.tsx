@@ -87,6 +87,7 @@ export interface TableData {
 
 export interface TableProps {
   componentName?: string,
+  parentApp?: string,
   uid?: string,
   description?: TableDescription,
   descriptionSource?: 'props' | 'request' | 'both',

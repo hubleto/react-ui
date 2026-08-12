@@ -22,10 +22,7 @@ import TableExtendedColumnsCustomize from '../cc/TableExtendedColumnsCustomize';
 
 export const TableMetaContext = React.createContext<TableMeta>(null);
 
-const translate = new Translator(
-  'Hubleto\\ReactUi',
-  'Components\\Table'
-).translate;
+const T = new Translator('Hubleto\\ReactUi', 'Components\\Table');
 
 const Table = (props: TableProps) => {
 
@@ -40,15 +37,6 @@ const Table = (props: TableProps) => {
   const refExportCsvForm = React.createRef();
   const refImportCsvForm = React.createRef();
   const refColumnsConfigScreen = React.createRef();
-
-  // const defaultCallbacks = {
-  //   onRowEdited: (table: any, input: any, value: any): void => {},
-  //   onRowClick: (table: any, row: any): void => {},
-  //   onAfterLoadData: (table: any): void => {},
-  //   onAfterLoadDescription: (table: any): void => {
-  //     return table.description;
-  //   },
-  // }
 
   //////////////////////////////////
   // getDefault*()
@@ -445,7 +433,7 @@ const Table = (props: TableProps) => {
                   {cellDetailUrl ?
                     <button
                       className='btn btn-small btn-primary-outline'
-                      title={translate('Open in new tab')}
+                      title={T.translate('Open in new tab')}
                       onClick={(e) => {
                         globalThis.window.open(globalThis.hubleto.config.projectUrl + '/' + cellDetailUrl)
                         e.stopPropagation();
@@ -454,7 +442,7 @@ const Table = (props: TableProps) => {
                   : null}
                   <button
                     className='btn btn-small btn-primary-outline'
-                    title={translate('Copy cell content to clipboard')}
+                    title={T.translate('Copy cell content to clipboard')}
                     onClick={(e) => {
                       navigator.clipboard.writeText(cellText);
                       e.stopPropagation();
@@ -463,7 +451,7 @@ const Table = (props: TableProps) => {
                   {editMode == '' || column.readonly || column.type == 'virtual' ? null :
                     <button
                       className="btn btn-small btn-primary-outline"
-                      title={translate('Edit')}
+                      title={T.translate('Edit')}
                       onClick={(e) => {
                         // Default cell click behavior is to open the form.
                         // If prevented, the 'onClick' of DataTable will
@@ -1030,7 +1018,7 @@ const Table = (props: TableProps) => {
   const renderDefaultMoreActionsButton = (): React.JSX.Element => {
     let moreActions = {
       showHideFilter: {
-        title: translate('Show/Hide filter'),
+        title: T.translate('Show/Hide filter'),
         icon: 'fas fa-filter',
         type: 'onclick',
         onClick: () => {
@@ -1039,8 +1027,8 @@ const Table = (props: TableProps) => {
       },
       showAsPlainTable: {
         title: (description?.ui?.showAsPlainTable ? 
-          translate('Show as standard table') 
-          : translate('Show as plain table')),
+          T.translate('Show as standard table') 
+          : T.translate('Show as plain table')),
         icon: 'fas fa-table',
         type: 'onclick',
         onClick: () => {
@@ -1056,8 +1044,8 @@ const Table = (props: TableProps) => {
     if (!readonly) {
       moreActions['toggleEditMode'] = {
         title: (editMode == 'cell' ?
-          translate('Disable edit mode') 
-          : translate('Enable edit mode')),
+          T.translate('Disable edit mode') 
+          : T.translate('Enable edit mode')),
         icon: 'fas fa-pencil',
         type: 'onclick',
         onClick: () => {
@@ -1071,7 +1059,7 @@ const Table = (props: TableProps) => {
       key="more-actions-btn"
     >
       <span className="icon"><i className="fas fa-ellipsis-vertical"></i></span>
-      {/* <span className="text text-nowrap">{translate('More options')}</span> */}
+      {/* <span className="text text-nowrap">{T.translate('More options')}</span> */}
       <span className="menu">
         <div className="btn-list text-nowrap">
           {Object.keys(moreActions).map((key, index) => {
@@ -1142,7 +1130,7 @@ const Table = (props: TableProps) => {
           ref={refFulltextSearchInput}
           className={"table-header-search " + (fulltextSearch == "" ? "" : "active")}
           type="search"
-          placeholder={translate('Search...')}
+          placeholder={T.translate('Search...')}
           value={fulltextSearch}
           onKeyUp={(event: any) => {
             if (event.keyCode == 13) {
@@ -1305,15 +1293,15 @@ const Table = (props: TableProps) => {
 
     if (hasRecordsToDelete) {
       return globalThis.hubleto.showDialogConfirm(
-        translate('Are you sure you want to delete this record?'),
+        T.translate('Are you sure you want to delete this record?'),
         {
           headerClassName: 'dialog-danger-header',
           contentClassName: 'dialog-danger-content',
-          header: translate('Delete record'),
-          yesText: translate('Delete'),
+          header: T.translate('Delete record'),
+          yesText: T.translate('Delete'),
           yesButtonClass: 'btn-danger',
           onYes: () => { deleteRecord(); },
-          noText: translate('Cancel'),
+          noText: T.translate('Cancel'),
           onNo: () => {
             if (data) {
               let newData: TableData = data;
@@ -1604,7 +1592,7 @@ const Table = (props: TableProps) => {
     </button>
     : <button
       className="btn btn-small btn-danger"
-      title={translate('Delete')}
+      title={T.translate('Delete')}
       onClick={(e) => {
         e.preventDefault();
 
@@ -1695,7 +1683,7 @@ const Table = (props: TableProps) => {
                   }}
                 >
                   <span className='icon'><i className='fas fa-plus'></i></span>
-                  <span className='text'>{translate('Add new')}</span>
+                  <span className='text'>{T.translate('Add new')}</span>
                 </button>
               </div>
             : null}
@@ -1983,7 +1971,7 @@ const Table = (props: TableProps) => {
           uid={uid + '_columns_config_modal'}
           isOpen={true}
           type='right'
-          title={translate('Customize Columns')}
+          title={T.translate('Customize Columns')}
           onClose={() => { setShowColumnConfigScreen(false); }}
         >
           <TableExtendedColumnsCustomize
