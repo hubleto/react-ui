@@ -1919,8 +1919,10 @@ const Table = (props: TableProps) => {
 
           <div className="table-body grow" id={"hubleto-table-body-" + uid}>
             {renderRecords()}
+            {renderFooter()}
           </div>
         </div>
+
       </div>
 
       {showExportCsvScreen ?
@@ -2033,6 +2035,7 @@ const Table = (props: TableProps) => {
     uid, setUid,
     view, setView,
 
+    loadData, loadDescription,
     openForm, closeForm,
 
     getDefaultEndpointParams,
