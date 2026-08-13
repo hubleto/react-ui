@@ -27,6 +27,7 @@ import {
 
 import { FormRecordStore, FormRecordStoreContext, createRecordStore, useRecordField } from './FormRecordStore';
 import PrintPreviewUi from './FormComponents/PrintPreviewUi';
+import { ModalMetaContext } from './Modal';
 
 export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
 export const FormMetaContext = React.createContext<FormMeta>(null);
@@ -45,8 +46,10 @@ const Form = (props: FormProps) => {
   const storeRef = React.useRef<FormRecordStore>(null);
   if (!storeRef.current) storeRef.current = createRecordStore(props.record ?? {});
   const recordStore = storeRef.current;
+  const modal = React.useContext(ModalMetaContext);
+  console.log('Form modal', modal);
 
-  const cssClassNamePrefix = (props.modal ? "modal" : "form");
+  const cssClassNamePrefix = (modal ? "modal" : "form");
   const isCreatingRecord = (id: any): boolean => { return id ? id == -1 : false; };
   const getCallback = (callback: string): any => {
     return (props[callback] ?? defaultCallbacks[callback]);
@@ -634,7 +637,8 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultContent = (): React.JSX.Element => {
-    return <div className={cssClassNamePrefix + "-body " + getContentClassName()}>
+    if (props.children) return props.children;
+    else return <div className={cssClassNamePrefix + "-body " + getContentClassName()}>
       <RenderTab tab={activeTabUid}></RenderTab>
       <RenderPrintPreviewUi></RenderPrintPreviewUi>
     </div>;
@@ -799,7 +803,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultHeaderRight = (): React.JSX.Element => {
-    return props.modal ? <>
+    return modal ? <>
       <RenderFullscreenButton />
       <RenderCloseButton />
     </> : null;
@@ -876,9 +880,10 @@ const Form = (props: FormProps) => {
         </div>
       </div>;
     } else if (props.title) {
+      const fieldValue: string = useRecordField(props.title.field, '');
       return <div>
         {props.title.main ? <h2>{props.title.main}</h2> : null}
-        {props.title.field ? <h2>{useRecordField(props.title.field)}</h2> : null}
+        {props.title.field ? <h2>{fieldValue == '' ? <span className='opacity-20 italic'>[empty]</span> : fieldValue}</h2> : null}
         <div className='flex gap-2'>
           {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
           <small>{props.title.sub}</small>
@@ -971,9 +976,7 @@ const Form = (props: FormProps) => {
 
   let finalContent = null;
 
-  if (props.children) {
-    finalContent = props.children;
-  } else if (loadRecordError) {
+  if (loadRecordError) {
     finalContent = <>
       <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
       <div className="m-4"><code>{loadRecordError.message}</code></div>

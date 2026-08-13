@@ -5,7 +5,7 @@ import React, { ChangeEvent, useState, useEffect } from 'react';
 import * as uuid from 'uuid';
 import { setUrlParam, deleteUrlParam } from "../../core/Helper";
 import ErrorBoundary from "../cc/ErrorBoundary";
-import ModalForm from "../cc/ModalForm";
+import Modal from "./Modal";
 import Form from "./Form";
 import { FormProps } from './FormInterfaces';
 import Spinner from "./Spinner";
@@ -1324,7 +1324,7 @@ const Table = (props: TableProps) => {
 
   const renderDefaultFormModal = (): React.JSX.Element => {
     if (recordId) {
-      return <ModalForm {...getFormModalProps()}>{renderForm()}</ModalForm>;
+      return <Modal {...getFormModalProps()}>{renderForm()}</Modal>;
     } else {
       return <></>;
     }
@@ -1925,7 +1925,7 @@ const Table = (props: TableProps) => {
       </div>
 
       {showExportCsvScreen ?
-        <ModalForm
+        <Modal
           //@ts-ignore
           ref={refExportCsvModal}
           form={refExportCsvForm}
@@ -1942,10 +1942,10 @@ const Table = (props: TableProps) => {
             parentTable={this}
             onClose={() => { setShowExportCsvScreen(false); }}
           ></TableExtendedExportCsvForm>
-        </ModalForm>
+        </Modal>
       : null}
       {showImportCsvScreen ?
-        <ModalForm
+        <Modal
           //@ts-ignore
           ref={refImportCsvModal}
           form={refImportCsvForm}
@@ -1962,10 +1962,10 @@ const Table = (props: TableProps) => {
             parentTable={this}
             onClose={() => { setShowImportCsvScreen(false); }}
           ></TableExtendedImportCsvForm>
-        </ModalForm>
+        </Modal>
       : null}
       {showColumnConfigScreen ?
-        <ModalForm
+        <Modal
           //@ts-ignore
           ref={refColumnConfigModal}
           form={refColumnsConfigScreen}
@@ -1983,7 +1983,7 @@ const Table = (props: TableProps) => {
             tableModel={model}
             onClose={() => { setShowColumnConfigScreen(false) }}
           ></TableExtendedColumnsCustomize>
-        </ModalForm>
+        </Modal>
       : null}
     </>;
   }
