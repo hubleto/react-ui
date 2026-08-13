@@ -1375,7 +1375,7 @@ const Table = (props: TableProps) => {
         inputName: columnName,
         showInlineEditingButtons: false,
         isInlineEditing: true,
-        value: rowToInsert[columnName] ?? null,
+        value: rowToInsert ? (rowToInsert[columnName] ?? null) : null,
         description: (description && description.inputs ? description?.inputs[columnName] : null),
         onChange: (input: any, value: any) => {
           rowToInsert[columnName] = value;

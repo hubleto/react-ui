@@ -9,6 +9,9 @@ import { useRecordField } from "../FormRecordStore";
 import Divider from './Divider';
 
 export interface CalendarTabProps {
+  calendarSource: string,
+  externalIdColumn: string,
+  logActivityEndpoint: string,
   showIdActivity?: number,
   renderActivityForm: (calendarTab: any) => React.JSX.Element,
   children?: JSX.Element,
@@ -50,9 +53,9 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
 
   const logCompletedActivity = (): void => {
     request.get(
-      'leads/api/log-activity',
+      props.logActivityEndpoint,
       {
-        idLead: id,
+        [props.externalIdColumn]: id,
         activity: refLogActivityInput.current.value,
       },
       (result: any) => {
@@ -70,12 +73,20 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
     setActivityAllDay(false);
   }
 
+  const getEventsEndpoint = (): string => {
+    return globalThis.hubleto.config.projectUrl
+      + '/calendar/api/get-calendar-events'
+      + '?calendar=' + props.calendarSource
+      + '&' + props.externalIdColumn + '=' + id
+    ;
+  }
+
   const tmpCalendarSmall = <Calendar
     onCreateCallback={() => form.loadRecord()}
     readonly={isClosed}
     initialView='dayGridMonth'
     headerToolbar={{ start: 'title', center: '', end: 'prev,today,next' }}
-    eventsEndpoint={globalThis.hubleto.config.projectUrl + '/calendar/api/get-calendar-events?calendar=leads&idLead=' + id}
+    eventsEndpoint={getEventsEndpoint()}
     onDateClick={(date: any, time: any, info: any) => {
       setActivityDate(date);
       setActivityTime(time);
@@ -146,7 +157,7 @@ const CalendarTab = React.memo((props: CalendarTabProps) => {
     readonly={isClosed}
     initialView='timeGridWeek'
     views={"timeGridDay,timeGridWeek,dayGridMonth,listYear"}
-    eventsEndpoint={globalThis.hubleto.config.projectUrl + '/calendar/api/get-calendar-events?calendar=leads&idLead=' + id}
+    eventsEndpoint={getEventsEndpoint()}
     onDateClick={(date: any, time: any, info: any) => {
       setActivityDate(date);
       setActivityTime(time);
