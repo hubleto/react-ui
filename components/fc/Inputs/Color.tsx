@@ -27,10 +27,10 @@ const InputComponent = (props: ColorInputProps) => {
 
   return <div>
     <div
-      className="cursor-pointer"
+      className="btn btn-transparent"
       onClick={() => { setShowColorSelector(!showColorSelector); }}
       style={{background: input.value, width: size + 'em', height: size + 'em'}}
-    ></div>
+    >{input.value ? null : <i className='fas fa-palette opacity-50'></i>}</div>
     {showColorSelector ? <div className='relative w-0 h-0' style={{zIndex: 999999}}>
       <div className='w-44 bg-white p-2 mt-2 flex flex-wrap gap-2 shadow'>
         {colorPalette.map((color, idx) => {
