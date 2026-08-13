@@ -121,7 +121,7 @@ const Table = (props: TableProps) => {
     }
     return {
       // isInitialized: false,
-      ref: refForm,
+      // ref: refForm,
       modal: refFormModal,
       parentTable: this,
       uid: uid + '_form',
@@ -155,12 +155,12 @@ const Table = (props: TableProps) => {
           openForm(saveResponse.savedRecord.id);
         }
       },
-      onDeleteCallback: () => {
+      onAfterDeleteRecord: () => {
         loadData();
         setRecordId(null);
       },
 
-      ...props.formCustomProps ?? {},
+      ...(props.formProps ?? {}),
     }
   }
 

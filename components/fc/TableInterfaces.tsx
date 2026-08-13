@@ -98,7 +98,6 @@ export interface TableProps {
   formProps?: FormProps,
   formActiveTabUid?: any,
   formReactComponent?: string,
-  formCustomProps?: any,
   endpoint?: TableEndpoint,
   endpointParams?: any,
   model?: string,

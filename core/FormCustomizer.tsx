@@ -3,7 +3,7 @@ export default class FormCustomizer {
   static headerExtraButtons: any = {};
   static footerExtraButtons: any = {};
 
-  static addFormHeaderButton(componentName: string, title: string, icon: string, onClick: any) {
+  static addFormHeaderExtraButton(componentName: string, title: string, icon: string, onClick: any) {
     if (!this.headerExtraButtons[componentName]) {
       this.headerExtraButtons[componentName] = [];
     }
