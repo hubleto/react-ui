@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
+const ValueComponent = (props: InputProps) => {
+  const input = React.useContext(InputMetaContext);
+  return input.value;
+}
+
 const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
   const decimals = input.description.decimals ?? 0;
@@ -31,6 +36,7 @@ const IntInput = (props: InputProps) => {
   return <Input
     inputClassName='int'
     isInitialized={true}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
     renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />;

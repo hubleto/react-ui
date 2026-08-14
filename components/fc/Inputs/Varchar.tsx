@@ -24,6 +24,11 @@ const loadData = (input: any, searchValue: string) => {
   );
 };
 
+export const ValueComponent = (props: InputProps) => {
+  const input = React.useContext(InputMetaContext);
+  return input.value;
+}
+
 export const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
   const [showPredefinedValues, setShowPredefinedValues] = useState(false);
@@ -94,6 +99,7 @@ export const VarcharInput = (props: InputProps) => {
         loadData(input, '');
       }
     }}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
     renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />;

@@ -1,6 +1,11 @@
 import React from 'react'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
+const ValueComponent = (props: InputProps) => {
+  const input = React.useContext(InputMetaContext);
+  return input.value;
+}
+
 const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
 
@@ -25,6 +30,7 @@ const TextareaInput = (props: InputProps) => {
   return <Input
     inputClassName='textarea'
     isInitialized={true}
+    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
     renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
     {...props}
   />;

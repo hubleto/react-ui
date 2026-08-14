@@ -163,10 +163,9 @@ const Form = (props: FormProps) => {
     if (props.getContentClassName) return props.getContentClassName(myself);
 
     const inputs = description.inputs;
-    const isClosed = useRecordField('is_closed');
 
-    if (inputs.is_closed) {
-      return isClosed ? 'bg-gray-100 opacity-70' : '';
+    if (inputs && inputs.is_closed) {
+      return useRecordField('is_closed') ? 'bg-gray-100 opacity-70' : '';
     } else {
       return '';
     }
