@@ -105,7 +105,7 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
   } else if (uiStyle == 'buttons' || uiStyle == 'buttons-vertical') {
     return <div
       ref={input.refInput}
-      className={"btn-group gap-1 bg-white flex-wrap " + (uiStyle == 'buttons-vertical' ? " flex-col w-full" : "")}
+      className={"btn-group gap-1 flex-wrap " + (uiStyle == 'buttons-vertical' ? " flex-col w-full" : "")}
     >{Object.keys(input.data).map((key: any) => {
       const value = input.data ? (input.data[key]?.id ?? 0) : 0;
       const lookup = input.data ? (input.data[key]?._LOOKUP ?? '') : '';

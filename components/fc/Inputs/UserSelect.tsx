@@ -14,7 +14,7 @@ const ValueComponent = (props: InputProps) => <InputComponent />;
 const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
 
-  return <div className='flex flex-wrap gap-2 items-center bg-white'>
+  return <div className='flex flex-wrap gap-2 items-center'>
     <div ref={input.refInput} className="btn-group gap-1 flex-wrap">
       {Object.keys(input.data).map((key: any) => {
         const user = input.data[key] ?? null;
@@ -23,7 +23,7 @@ const InputComponent = (props: InputProps) => {
           key={key}
           className={
             "btn " + (input.readonly && input.value != userId ? "btn-disabled" : "")
-            + " " + (input.value == userId ? "btn-primary" : "btn-white")
+            + " " + (input.value == userId ? "btn-primary" : "btn-transparent")
           }
           onClick={() => {
             input.changeValue((input.value == userId ? null : userId));

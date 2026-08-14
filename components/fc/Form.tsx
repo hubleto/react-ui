@@ -161,7 +161,15 @@ const Form = (props: FormProps) => {
 
   const getContentClassName = (): string => {
     if (props.getContentClassName) return props.getContentClassName(myself);
-    return '';
+
+    const inputs = description.inputs;
+    const isClosed = useRecordField('is_closed');
+
+    if (inputs.is_closed) {
+      return isClosed ? 'bg-gray-100 opacity-70' : '';
+    } else {
+      return '';
+    }
   }
 
   const changeField = (input: any, value: any) => {
@@ -488,13 +496,13 @@ const Form = (props: FormProps) => {
     const inputs = description.inputs;
     return (inputs ? <div className='flex justify-between gap-2 w-full'>
       <div className='flex gap-2'>
-        {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Open', noText: 'Closed'}} /> : null}
         {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
       </div>
       <div className='flex gap-2'>
         {inputs.id_owner ? <Input field='id_owner' readonly={false} renderOnlyInputField /> : null}
         {inputs.id_manager ? <Input field='id_manager' readonly={false} renderOnlyInputField /> : null}
         {inputs.shared_with ? <Input field='shared_with' title='Share' renderOnlyInputField /> : null}
+        {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}} /> : null}
       </div>
     </div> : null);
   }

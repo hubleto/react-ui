@@ -4,6 +4,8 @@ import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 interface BooleanInputProps extends InputProps {
   yesText?: string,
   noText?: string,
+  yesBtnClass?: string,
+  noBtnClass?: string,
 }
 
 const ValueComponent = (props: BooleanInputProps) => {
@@ -20,13 +22,13 @@ const InputComponent = (props: BooleanInputProps) => {
 
   return <div className='list horizontal'>
     <div
-      className={'btn btn-list-item p-0 ' + (input.value ? 'btn-success' : 'btn-transparent')}
+      className={'btn btn-list-item p-0 ' + (input.value ? (props.yesBtnClass ?? 'btn-success') : 'btn-transparent')}
       onClick={() => { if (!input.readonly) input.changeValue(1)}}
     >
       <span className='icon text-nowrap'>{props.yesText ?? <i className='fas fa-check'></i>}</span>
     </div>
     <div
-      className={'btn btn-list-item p-0 ' + (input.value ? 'btn-transparent' : 'btn-danger')}
+      className={'btn btn-list-item p-0 ' + (input.value ? 'btn-transparent' : (props.noBtnClass ?? 'btn-danger'))}
       onClick={() => { if (!input.readonly) input.changeValue(0)}}
     >
       <span className='text text-nowrap'>{props.noText ?? <i className='fas fa-times'></i>}</span>
