@@ -769,7 +769,6 @@ const Table = (props: TableProps) => {
   }
 
   const onRowClick = (row: any): void => {
-    console.log('onrowclick', row);
     if (row._PERMISSIONS && !row._PERMISSIONS[1]) return; // cannot read
     if (isInlineEditing) return; // doing nothing when inline editing
     if (row._isInsertRow_) return;

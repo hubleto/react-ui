@@ -86,6 +86,7 @@ export interface TableData {
 }
 
 export interface TableProps {
+  ref?: any,
   componentName?: string,
   parentApp?: string,
   uid?: string,

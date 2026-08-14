@@ -47,7 +47,6 @@ const Form = (props: FormProps) => {
   if (!storeRef.current) storeRef.current = createRecordStore(props.record ?? {});
   const recordStore = storeRef.current;
   const modal = React.useContext(ModalMetaContext);
-  console.log('Form modal', modal);
 
   const cssClassNamePrefix = (modal ? "modal" : "form");
   const isCreatingRecord = (id: any): boolean => { return id ? id == -1 : false; };
@@ -390,10 +389,9 @@ const Form = (props: FormProps) => {
   }
 
   const copyRecord = (): void => {
-    let newRecord = getCallback('onBeforeCopyRecord')(myself);
+    let newRecord = getCallback('onBeforeCopyRecord')(myself, recordStore.getRecord());
 
     setId(-1);
-    // setRecord(prev => newRecord);
     recordStore.setRecord(prev => (newRecord));
     setUpdatingRecord(false);
     setCreatingRecord(false);
@@ -880,10 +878,22 @@ const Form = (props: FormProps) => {
         </div>
       </div>;
     } else if (props.title) {
-      const fieldValue: string = useRecordField(props.title.field, '');
+      let fields = [];
+
+      if (props.title.fields) fields = props.title.fields;
+      else if (props.title.field) fields = [props.title.field];
+
+      const h2 = fields.map((field) => {
+        const fieldValue: string = useRecordField(field, '');
+        return fieldValue == ''
+          ? <span className='opacity-20 italic'>[empty]</span>
+          : <span>{fieldValue}</span>
+        ;
+      });
+
       return <div>
         {props.title.main ? <h2>{props.title.main}</h2> : null}
-        {props.title.field ? <h2>{fieldValue == '' ? <span className='opacity-20 italic'>[empty]</span> : fieldValue}</h2> : null}
+        {h2 ? <h2 className='flex gap-2'>{h2}</h2> : null}
         <div className='flex gap-2'>
           {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
           <small>{props.title.sub}</small>
