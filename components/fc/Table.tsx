@@ -12,7 +12,7 @@ import Spinner from "./Spinner";
 import Translator from '../../core/Translator';
 
 import { InputFactory } from "../../core/InputFactory";
-import { dateToEUFormat, datetimeToEUFormat } from "./Inputs/DateTime";
+import { dateToEUFormat } from "./Inputs/DateTime";
 import { deepObjectMerge } from "../../core/Helper";
 import request from "../../core/Request";
 import { TableData, TableDescription, TableEndpoint, TableMeta, TableOrderBy, TableProps, TableSelectionMode } from './TableInterfaces';
@@ -57,7 +57,6 @@ const Table = (props: TableProps) => {
     }
 
     return {
-
       filterBy: filterBy,
       model: model,
       crudController: crudController,
@@ -124,7 +123,7 @@ const Table = (props: TableProps) => {
       // isInitialized: false,
       // ref: refForm,
       modal: refFormModal,
-      parentTable: this,
+      parentTable: myself,
       uid: uid + '_form',
       model: model,
       tag: tag,
@@ -584,10 +583,7 @@ const Table = (props: TableProps) => {
   //////////////////////////////////
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
-  useEffect(() => {
-    loadDescription();
-    loadData();
-  }, []);
+  useEffect(() => { reload(); }, []);
 
   //////////////////////////////////
   // record*()
@@ -657,6 +653,12 @@ const Table = (props: TableProps) => {
   // load*()
   //////////////////////////////////
 
+  const reload = (): void => {
+    setLoadingData(true);
+    loadDescription();
+    loadData();
+  }
+
   const loadDescription = (): void => {
     if (descriptionSource == 'props') return;
     request.get(
@@ -714,7 +716,7 @@ const Table = (props: TableProps) => {
     let prevRow: any = {};
     let saveNextId: boolean = false;
     let i: any;
-
+console.log('openForm', id);
     let canRead = description?.permissions?.canRead;
 
     if (!canRead) return;
@@ -1754,9 +1756,9 @@ const Table = (props: TableProps) => {
             <table>
               <thead>
                 <tr>
-                  {columnKeys.map((columnKey) => {
+                  {columnKeys.map((columnKey, key) => {
                     const column = columns[columnKey];
-                    return <th><div>
+                    return <th key={key}><div>
                       <div className="title">{column.header}</div>
                       <div
                         className="btn btn-transparent btn-small"
@@ -1784,18 +1786,19 @@ const Table = (props: TableProps) => {
                   })}
                 </tr>
                 {showColumnSearch ? <tr>
-                  {columnKeys.map((columnKey: any) => {
+                  {columnKeys.map((columnKey: any, key: any) => {
                     const column = columns[columnKey];
-                    return <th>{column.filter ? column.filter(records, {}) : null}</th>
+                    return <th key={key}>{column.filter ? column.filter(records, {}) : null}</th>
                   })}
                 </tr> : null}
               </thead>
               <tbody>
-                {records.map((record: any) => {
-                  return <tr>
+                {records.map((record: any, key: any) => {
+                  return <tr key={key} className={getRowClassName(record)}>
                     {columnKeys.map((key: any, rowIndex: number) => {
                       const column = columns[key];
                       return <td
+                        key={rowIndex}
                         onClick={() => column.onClick(record)}
                       >
                         {column.body(

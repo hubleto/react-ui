@@ -69,11 +69,11 @@ const InputComponent = (args: { parent: any }) => {
 
   return <div className='flex flex-col gap-2 min-h-8'>
     {showTagButtons ? <div className='flex gap-4'>
-      {Object.keys(parent.options).map((key) => {
+      {Object.keys(parent.options).map((key, reactKey) => {
         const option = parent.options[key];
         const isSelected = input.value ? input.value.filter((item) => item.id_tag == option.value).length > 0 : false;
 
-        return <div className='flex gap-1'>
+        return <div key={reactKey} className='flex gap-1'>
           <span className='text-sm' style={{color: option.color}}><i className='fas fa-tag'></i></span>
           <button
             key={key}

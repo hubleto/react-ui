@@ -1,12 +1,8 @@
-import React, {  useState, useEffect, useCallback } from 'react';
-import { flushSync } from 'react-dom';
-import * as uuid from 'uuid';
+import React, { useState, useEffect, useCallback } from 'react';
 import moment from "moment";
-
 import request from "../../core/Request";
 import Spinner from "./Spinner";
 import App from '../../core/App';
-import { deepObjectMerge } from "../../core/Helper";
 import WorkflowSelector from './FormComponents/WorkflowSelector';
 import Translator from "../../core/Translator";
 import FormCustomizer from "../../core/FormCustomizer";
@@ -227,7 +223,11 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
 
   useEffect(() => { globalThis.hubleto.reactElements[props.uid] = myself; }, [props.uid]);
-  useEffect(() => { loadDescription(); }, []);
+  useEffect(() => setId(props.id), [props.id]);
+  useEffect(() => setPrevId(props.prevId), [props.prevId]);
+  useEffect(() => setNextId(props.nextId), [props.nextId]);
+
+  useEffect(() => { reload(); }, [id]);
   useEffect(() => {
     if (isInitialized) {
       onTabChange();
@@ -236,7 +236,8 @@ const Form = (props: FormProps) => {
   }, [isInitialized])
 
   useEffect(() => { onTabChange(); }, [activeTabUid]);
-  useEffect(() => { loadRecord(); }, [description]);
+  // useEffect(() => { loadRecord(); }, [description]);
+  // useEffect(() => { reload(); }, [id]);
 
   useEffect(() => {
     const tabs = props.tabs;
@@ -258,6 +259,12 @@ const Form = (props: FormProps) => {
   // load*()
   //////////////////////////////////
 
+  const reload = (): void => {
+    setIsInitialized(false);
+    loadDescription();
+    loadRecord();
+  }
+  
   const loadDescription = (): void => {
 
     request.post(
@@ -269,8 +276,6 @@ const Form = (props: FormProps) => {
 
         let description = loadedDescription;
         if (descriptionSource == 'both') description = {...loadedDescription, ...props.description};
-
-        console.log('loadedDescription', loadedDescription, description, props.description);
 
         let permissions = getPermissions(recordStore.getRecord());
 
@@ -306,7 +311,6 @@ const Form = (props: FormProps) => {
           if (!loadedRecord) return;
 
           const record = {...(description.defaultValues ?? {}), ...loadedRecord};
-console.log('loadRecord after', loadedRecord, description, record);
 
           setIsInitialized(true);
           setOriginalRecord(JSON.parse(JSON.stringify(record)));
@@ -360,10 +364,7 @@ console.log('loadRecord after', loadedRecord, description, record);
   const saveRecord = (customSaveOptions?: any): void => {
     setInvalidInputs([]);
 
-    // let recordToSave = { ...record, id: id };
-
     let recordToSave = recordStore.getRecord(); 
-    console.log('recordToSave', recordToSave);
 
     (recordToSave._RELATIONS ?? []).map((relName: any) => {
       if (!(description?.includeRelations ?? []).includes(relName)) {
@@ -501,7 +502,7 @@ console.log('loadRecord after', loadedRecord, description, record);
 
   const renderDefaultTopInputs = (): React.JSX.Element => {
     const inputs = description.inputs;
-    return (inputs ? <div className='flex justify-between gap-2 w-full'>
+    return (inputs ? <div className='flex justify-between gap-2 w-full min-h-12 border-b border-b-gray-100'>
       <div className='flex gap-2'>
         {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
       </div>
@@ -545,16 +546,16 @@ console.log('loadRecord after', loadedRecord, description, record);
     if (tabs && Object.keys(tabs).length > 1) {
       topMenu = <div className="top-menu-wrapper">
         <div>
-          {Object.keys(tabs).map((tabUid: string) => {
+          {Object.keys(tabs).map((tabUid: string, key: any) => {
             if (tabs[tabUid].position != 'right') {
-              return <RenderTopMenuButton tabUid={tabUid}></RenderTopMenuButton>;
+              return <RenderTopMenuButton key={key} tabUid={tabUid}></RenderTopMenuButton>;
             }
           })}
         </div>
         <div>
-          {Object.keys(tabs).map((tabUid: string) => {
+          {Object.keys(tabs).map((tabUid: string, key: any) => {
             if (tabs[tabUid].position == 'right') {
-              return <RenderTopMenuButton tabUid={tabUid}></RenderTopMenuButton>;
+              return <RenderTopMenuButton key={key} tabUid={tabUid}></RenderTopMenuButton>;
             }
           })}
         </div>
@@ -898,11 +899,11 @@ console.log('loadRecord after', loadedRecord, description, record);
       if (props.title.fields) fields = props.title.fields;
       else if (props.title.field) fields = [props.title.field];
 
-      const h2 = fields.map((field) => {
+      const h2 = fields.map((field, key) => {
         const fieldValue: string = useRecordField(field, '');
         return fieldValue == ''
-          ? <span className='opacity-20 italic'>[empty]</span>
-          : <span>{fieldValue}</span>
+          ? <span key={key} className='opacity-20 italic'>[empty]</span>
+          : <span key={key} >{fieldValue}</span>
         ;
       });
 
