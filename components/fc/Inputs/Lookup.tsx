@@ -55,12 +55,7 @@ const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
     if (value._LOOKUP_COLOR) style['borderLeft'] = '0.5em solid ' + value._LOOKUP_COLOR;
 
     return <>
-      <a
-        className="btn btn-transparent"
-        data-pr-tooltip={JSON.stringify(value ?? {})}
-        data-pr-position="bottom"
-        style={style}
-      >
+      <a className="btn btn-transparent" style={style}>
         <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
       </a>
       {urlDetail && input.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
@@ -79,9 +74,6 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
 
   const [urlAdd, setUrlAdd] = useState(props.urlAdd);
   const [uiStyle, setUiStyle] = useState(props.uiStyle);
-  const [model, setModel] = useState(props.model);
-  const [endpoint, setEndpoint] = useState(props.endpoint);
-  const [customEndpointParams, setCustomEndpointParams] = useState(props.customEndpointParams);
 
   if (uiStyle == 'select') {
     return <>

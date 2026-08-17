@@ -119,6 +119,7 @@ const Table = (props: TableProps) => {
     if (formDefaultValues) {
       description.defaultValues = { ...description.defaultValues, ...formDefaultValues };
     }
+    
     return {
       // isInitialized: false,
       // ref: refForm,
@@ -162,6 +163,7 @@ const Table = (props: TableProps) => {
 
       ...(props.formProps ?? {}),
     }
+
   }
 
   const getDefaultFormModalProps = (): any => {
@@ -737,7 +739,7 @@ const Table = (props: TableProps) => {
 
     setIsInlineEditing(false);
     setRecordId(id);
-    setFormDefaultValues(defaultValues);
+    if (defaultValues) setFormDefaultValues(defaultValues);
     setRecordPrevId(prevId);
     setRecordNextId(nextId);
     setRecordSaveAfterOpen(saveAfterOpen);

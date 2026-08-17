@@ -264,9 +264,13 @@ const Form = (props: FormProps) => {
       getEndpointUrl('describeForm'),
       getEndpointParams(),
       {},
-      (description: any) => {
+      (loadedDescription: any) => {
+        if (!loadedDescription) return;
 
-        if (description && descriptionSource == 'both') description = deepObjectMerge(description, description);
+        let description = loadedDescription;
+        if (descriptionSource == 'both') description = {...loadedDescription, ...props.description};
+
+        console.log('loadedDescription', loadedDescription, description, props.description);
 
         let permissions = getPermissions(recordStore.getRecord());
 
@@ -298,8 +302,11 @@ const Form = (props: FormProps) => {
         getEndpointUrl('getRecord'),
         getEndpointParams(),
         {},
-        (record: any) => {
-          if (!record) return;
+        (loadedRecord: any) => {
+          if (!loadedRecord) return;
+
+          const record = {...(description.defaultValues ?? {}), ...loadedRecord};
+console.log('loadRecord after', loadedRecord, description, record);
 
           setIsInitialized(true);
           setOriginalRecord(JSON.parse(JSON.stringify(record)));
@@ -356,6 +363,7 @@ const Form = (props: FormProps) => {
     // let recordToSave = { ...record, id: id };
 
     let recordToSave = recordStore.getRecord(); 
+    console.log('recordToSave', recordToSave);
 
     (recordToSave._RELATIONS ?? []).map((relName: any) => {
       if (!(description?.includeRelations ?? []).includes(relName)) {
