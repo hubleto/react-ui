@@ -8,6 +8,7 @@ export interface ModalProps {
   isOpen?: boolean;
   topMenu?: any;
   isFullscreen?: boolean,
+  onClose?: (modal: ModalMeta) => void,
 }
 
 export interface ModalMeta {
