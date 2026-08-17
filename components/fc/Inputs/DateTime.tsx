@@ -34,10 +34,7 @@ export const datetimeToEUFormat = (dateString: string): string => {
   ;
 }
 
-const translate = new Translator(
-  'Hubleto\\ReactUi',
-  'Components\\Inputs\\DateTime'
-).translate;
+const T = new Translator('Hubleto\\ReactUi', 'Components\\Inputs\\DateTime');
 
 const renderReadableInfo = (value: any) => {
   let days = moment(value).diff(moment(), 'days');
@@ -120,13 +117,13 @@ const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
       icon = 'fas fa-clock';
       value = datetimeToEUFormat(value);
       options = {...options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:i:S'};
-      defaultPlaceholder = translate('Year-Month-Day Hour:Min:Sec','Hubleto\\Erp\\Loader','Components\\Inputs\\DateTime');
+      defaultPlaceholder = T.translate('Year-Month-Day Hour:Min:Sec');
     break;
     case 'date':
       icon = 'fas fa-calendar';
       value = dateToEUFormat(value);
       options = {...options, showMonths: 2, weekNumbers: true, dateFormat: 'd.m.Y'};
-      defaultPlaceholder = translate('Year-Month-Day','Hubleto\\Erp\\Loader','Components\\Inputs\\DateTime');
+      defaultPlaceholder = T.translate('Year-Month-Day');
     break;
     case 'time':
       icon = 'fas fa-clock';
