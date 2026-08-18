@@ -77,12 +77,10 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
     <div className='flex gap-2 h-full'>
       <div className='flex-1 w-72 flex flex-col gap-2'>
         <div className='grow'>
-          <Input field='id_template' debug customInputProps={{
+          <Input field='id_template' customInputProps={{
             uiStyle: 'buttons-vertical',
-            onChange: (input: any) => {
-              updatePreview(input.value);
-            }
-          }} />
+            onChange: (input: any, value: any) => updatePreview(value),
+          }}/>
           <div className='flex flex-col gap-2'>
             <button
               className='btn btn-add-outline btn-large'

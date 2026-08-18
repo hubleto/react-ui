@@ -89,58 +89,58 @@ const ValueComponent = (props: DateTimeInputProps): React.JSX.Element => {
 const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
-  let value: any = input.value;
-  let defaultPlaceholder;
-  let icon = '';
-  let options: any = {
-    allowInput: false,
-    locale: {
-      weekdays: {
-        shorthand: ['Ne.', 'Po.', 'Ut.', 'St.', 'Št.', 'Pi.', 'So.'],
-        longhand: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-      },
-      months: {
-        shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Máj', 'Jún', 'Júl', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
-        longhand: ['Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún', 'Júl', 'August', 'September', 'Október', 'November', 'December']
-      },
-      weekStart: 1
-    },
-    dateFormat: 'H:i',
-    enableTime: true,
-    noCalendar: true,
-    time_24hr: true,
-    minuteIncrement: 15,
-  };
+  // let value: any = input.value;
+  // let defaultPlaceholder;
+  // let icon = '';
+  // let options: any = {
+  //   allowInput: false,
+  //   locale: {
+  //     weekdays: {
+  //       shorthand: ['Ne.', 'Po.', 'Ut.', 'St.', 'Št.', 'Pi.', 'So.'],
+  //       longhand: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  //     },
+  //     months: {
+  //       shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Máj', 'Jún', 'Júl', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+  //       longhand: ['Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún', 'Júl', 'August', 'September', 'Október', 'November', 'December']
+  //     },
+  //     weekStart: 1
+  //   },
+  //   dateFormat: 'H:i',
+  //   enableTime: true,
+  //   noCalendar: true,
+  //   time_24hr: true,
+  //   minuteIncrement: 15,
+  // };
 
-  switch (props.type) {
-    case 'datetime':
-      icon = 'fas fa-clock';
-      value = datetimeToEUFormat(value);
-      options = {...options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:i:S'};
-      defaultPlaceholder = T.translate('Year-Month-Day Hour:Min:Sec');
-    break;
-    case 'date':
-      icon = 'fas fa-calendar';
-      value = dateToEUFormat(value);
-      options = {...options, showMonths: 2, weekNumbers: true, dateFormat: 'd.m.Y'};
-      defaultPlaceholder = T.translate('Year-Month-Day');
-    break;
-    case 'time':
-      icon = 'fas fa-clock';
-      options = {
-        ...options,
-        dateFormat: 'H:m',
-        enableTime: true,
-        noCalendar: true,
-        time_24hr: true,
-        minuteIncrement: 15,
-        showMonths: 2,
-      };
-      defaultPlaceholder = 'Hour:Min:Sec';
-    break;
-  }
+  // switch (props.type) {
+  //   case 'datetime':
+  //     icon = 'fas fa-clock';
+  //     value = datetimeToEUFormat(value);
+  //     options = {...options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:i:S'};
+  //     defaultPlaceholder = T.translate('Year-Month-Day Hour:Min:Sec');
+  //   break;
+  //   case 'date':
+  //     icon = 'fas fa-calendar';
+  //     value = dateToEUFormat(value);
+  //     options = {...options, showMonths: 2, weekNumbers: true, dateFormat: 'd.m.Y'};
+  //     defaultPlaceholder = T.translate('Year-Month-Day');
+  //   break;
+  //   case 'time':
+  //     icon = 'fas fa-clock';
+  //     options = {
+  //       ...options,
+  //       dateFormat: 'H:m',
+  //       enableTime: true,
+  //       noCalendar: true,
+  //       time_24hr: true,
+  //       minuteIncrement: 15,
+  //       showMonths: 2,
+  //     };
+  //     defaultPlaceholder = 'Hour:Min:Sec';
+  //   break;
+  // }
 
-  const readableInfo = (props.showReadable ? renderReadableInfo(value) : null);
+  const readableInfo = (props.showReadable ? renderReadableInfo(input.value) : null);
 
   return <div className="flex gap-2">
     <div className="flex gap-2 items-center">
@@ -148,16 +148,14 @@ const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
       <div style={{minWidth: "8em"}}>
         <input
           ref={input.refInput}
-          value={value}
-          onChange={(e) => {
-            input.changeValue(e.currentTarget.value)
-          }}
+          value={input.value ?? ''}
+          onChange={(e) => { console.log('datetime chg'); input.changeValue(e.currentTarget.value)} }
           className={
             (input.invalid ? 'is-invalid' : '')
             + " " + (input.cssClass ?? "")
             + " " + (input.readonly ? "bg-muted" : "")
           }
-          placeholder={input.description?.placeholder ?? defaultPlaceholder}
+          placeholder={props.placeholder}
           disabled={input.readonly}
         />
         {/* <Flatpickr
@@ -182,8 +180,9 @@ const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
           <button
             className="btn btn-small btn-transparent ml-2"
             onClick={() => {
-              if (!input.refInput?.current?.flatpickr) return;
-              input.refInput.current.flatpickr.clear();
+              // if (!input.refInput?.current?.flatpickr) return;
+              // input.refInput.current.flatpickr.clear();
+              input.changeValue('');
             }}
           >
             <span className="icon"><i className="fas fa-times"></i></span>
@@ -197,7 +196,6 @@ const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
 const DateTimeInput = React.memo((props: DateTimeInputProps) => {
 
   const [type, setType] = useState('');
-  const [showReadable, setShowReadable] = useState(false);
 
   return <Input
     inputClassName={props.type ?? 'date'}

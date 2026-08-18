@@ -59,7 +59,7 @@ export const InputComponent = (props: InputProps) => {
       <input
         type='text'
         value={input.value ?? ''}
-        onChange={(e) => { input.changeValue(e.currentTarget.value)} }
+        onChange={(e) => { console.log('varchar chg'); input.changeValue(e.currentTarget.value)} }
         placeholder={props.placeholder}
         className={
           (input.invalid ? 'is-invalid' : '')
@@ -101,6 +101,10 @@ export const VarcharInput = (props: InputProps) => {
     }}
     renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
     renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
+    changeValue={(input: any, newValue: any): void => {
+      console.log('a');
+      input.setValue(newValue);
+    }}
     {...props}
   />;
 };

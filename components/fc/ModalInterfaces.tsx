@@ -21,4 +21,6 @@ export interface ModalMeta {
   isOpen?: boolean;
   topMenu?: any;
   isFullscreen?: boolean,
+  isActive?: boolean,
+  onClose?: () => void,
 }

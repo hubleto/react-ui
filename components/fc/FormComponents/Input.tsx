@@ -45,11 +45,11 @@ const Input = React.memo((props: any) => {
     isModified,
     uid: form.uid + '_' + name, // stable, no uuid.v4() per render
     invalid: false,
-    ...inputDescription,
-    ...customInputProps,
     onChange: (input: any, newValue: any) => {
       form.changeField(input, newValue);
     },
+    ...inputDescription,
+    ...customInputProps,
   };
 
   let input = null;

@@ -22,12 +22,18 @@ const Modal = (props: ModalProps) => {
   //   globalThis.hubleto.removeModalFromStack(this);
   // }
 
+  const onClose = () => {
+    if (props.onClose) props.onClose(myself);
+  }
+
   const myself: ModalMeta = {
     uid,
     type,
     title,
     isOpen,
     isFullscreen,
+    isActive,
+    onClose,
   }
 
   return <ModalMetaContext.Provider value={myself}>

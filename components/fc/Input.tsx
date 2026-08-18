@@ -251,7 +251,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
             className="value-element"
           >
             {renderValueComponent()}
-            {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
+            {/* {description?.unit ? <div className="input-unit">{description.unit}</div> : null} */}
           </div>
           : <>
             <input
@@ -265,7 +265,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
             ></input>
             <div ref={refInputElement} className="input-element">
               {renderInputComponent()}
-              {description?.unit ? <div className="input-unit">{description.unit}</div> : null}
+              {/* {description?.unit ? <div className="input-unit">{description.unit}</div> : null} */}
             </div>
           </>
         }
