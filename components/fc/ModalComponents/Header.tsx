@@ -1,6 +1,5 @@
 import React from "react";
 import { ModalMetaContext } from "../Modal";
-import { ModalMeta, ModalProps } from '../ModalInterfaces';
 
 const Header = () => {
   const modal = React.useContext(ModalMetaContext);

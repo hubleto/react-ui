@@ -246,6 +246,7 @@ const Table = (props: TableProps) => {
     if (rowData._PERMISSIONS && !rowData._PERMISSIONS[1]) cssClasses.push('hidden-record');
     if (rowData.id === activeRowId) cssClasses.push('highlighted');
     if (rowData._isInsertRow_) cssClasses.push('insert-row');
+    if (rowData.is_closed) cssClasses.push('closed');
 
     return cssClasses.join(' ');
   }
@@ -2038,7 +2039,7 @@ console.log('openForm', id);
     uid, setUid,
     view, setView,
 
-    loadData, loadDescription,
+    reload, loadData, loadDescription,
     openForm, closeForm,
 
     getDefaultEndpointParams,

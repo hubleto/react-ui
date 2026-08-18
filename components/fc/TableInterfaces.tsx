@@ -219,7 +219,7 @@ export interface TableMeta {
   uid, setUid,
   view, setView,
 
-  loadData, loadDescription,
+  reload, loadData, loadDescription,
   openForm, closeForm,
 
   getDefaultEndpointParams?: () => object,
