@@ -884,10 +884,10 @@ const Form = (props: FormProps) => {
             <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
             <span className='text'>{T.translate('Help with AI')}</span>
           </a> : null}
+          {inputs && inputs.date_created ? <Input field='date_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
           {/* {recordChanged ? <div className='block'><i className='fas fa-pencil'></i></div> : null} */}
         </div>
         <div className='flex gap-2 items-center'>
-          {inputs && inputs.date_created ? <Input field='date_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
           {inputs && inputs.id_created_by ? <Input field='id_created_by' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
           {inputs && inputs.date_updated ? <Input field='date_updated' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
           {inputs && inputs.id_updated_by ? <Input field='id_updated_by' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
@@ -925,6 +925,15 @@ const Form = (props: FormProps) => {
 
       const h2 = fields.map((field, key) => {
         const fieldValue: string = useRecordField(field, '');
+        const fieldInput = <Input
+          field={field}
+          icon={null}
+          renderOnlyInputField
+          customInputProps={{
+            cssClass: 'bg-white text-xl text-primary',
+            icon: '',
+          }}
+        />
         return fieldValue == ''
           ? <span key={key} className='opacity-20 italic'>[empty]</span>
           : <span key={key} >{fieldValue}</span>

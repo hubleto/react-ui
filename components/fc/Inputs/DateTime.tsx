@@ -79,7 +79,6 @@ const ValueComponent = (props: DateTimeInputProps): React.JSX.Element => {
 
   return <div className='flex'>
     <div className="flex gap-2 items-center">
-      <i className="fas fa-calendar-days mr-2"></i>
       {valueFormatted}
     </div>
     {props.showReadable ? <div className="text-xs">{renderReadableInfo(value)}</div> : null}
