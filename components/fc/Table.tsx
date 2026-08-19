@@ -1177,7 +1177,9 @@ const Table = (props: TableProps) => {
   }
 
   const renderDefaultTitle = (): React.JSX.Element => {
-    return description?.ui?.title ? <>{description?.ui?.title}</> : <></>;
+    const titleFromDescription = description?.ui?.title ?? '';
+    const title = titleFromDescription == '' ? props.title : titleFromDescription;
+    return title ? <div className='app-main-title'><span>{title}</span></div> : null;
   }
 
   const renderDefaultHeaderRight = (): React.JSX.Element => {
@@ -1189,16 +1191,16 @@ const Table = (props: TableProps) => {
 
   const renderDefaultHeader = (): React.JSX.Element => {
     return <div className="table-header flex mb-2">
-      <div className="table-header-left">
-        {renderHeaderLeft()}
-      </div>
-
       {description?.ui?.showHeaderTitle ?
         <div className="table-header-title">
           {renderTitle()}
         </div>
         : null
       }
+
+      <div className="table-header-left">
+        {renderHeaderLeft()}
+      </div>
 
       <div className="table-header-right">
         {renderHeaderRight()}

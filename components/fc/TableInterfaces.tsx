@@ -117,6 +117,7 @@ export interface TableProps {
   data?: TableData,
   async?: boolean,
   readonly?: boolean,
+  title?: string,
   closeFormAfterSave?: boolean,
   className?: string,
   fulltextSearch?: string,
