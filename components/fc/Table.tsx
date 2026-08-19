@@ -204,7 +204,7 @@ const Table = (props: TableProps) => {
       const step: number = (max - min) / 5;
       const colorIndex = Math.min(5, Math.floor((val - min) / step) + 1);
 
-      cellClassName += ' ' + column.colorScale + '---step-' + colorIndex;
+      cellClassName += ' color-scale-' + column.colorScale + ' color-scale-step-' + colorIndex;
     }
 
     return cellClassName;
@@ -1065,7 +1065,7 @@ const Table = (props: TableProps) => {
     >
       <span className="icon"><i className="fas fa-ellipsis-vertical"></i></span>
       {/* <span className="text text-nowrap">{T.translate('More options')}</span> */}
-      <span className="menu">
+      <span className="menu" style={{left:"-145px"}}>
         <div className="btn-list text-nowrap">
           {Object.keys(moreActions).map((key, index) => {
             const action = moreActions[key];
@@ -1133,7 +1133,7 @@ const Table = (props: TableProps) => {
         <input
           //@ts-ignore
           ref={refFulltextSearchInput}
-          className={"table-header-search " + (fulltextSearch == "" ? "" : "active")}
+          className={"bg-white " + (fulltextSearch == "" ? "" : "active")}
           type="search"
           placeholder={T.translate('Search...')}
           value={fulltextSearch}
@@ -1154,7 +1154,7 @@ const Table = (props: TableProps) => {
           }}
         />
         <button
-          className="btn btn-transparent"
+          className="btn btn-white"
           onClick={() => loadData()}
         >
           <span className="icon"><i className="fas fa-magnifying-glass"></i></span>
@@ -1909,6 +1909,7 @@ const Table = (props: TableProps) => {
         id={"hubleto-table-" + uid}
         className={
           "hubleto component table"
+          + (props.parentForm ? "" : " no-parent-form")
           + (props.className ? " " + props.className : "")
           + (loadingData ? " loading" : "")
         }
@@ -2080,7 +2081,7 @@ const Table = (props: TableProps) => {
     renderDefaultContent,
   };
 
-  if (!data) return <Spinner>Loading data, please wait.</Spinner>;
+  if (!data) return <div className='w-full h-full p-4 m-auto'><Spinner>Loading data, please wait.</Spinner></div>;
 
   return <ErrorBoundary
     fallback={<div className="alert alert-danger">Failed to render table. Check console for error log.</div>}

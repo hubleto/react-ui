@@ -226,16 +226,17 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
 
   useEffect(() => { globalThis.hubleto.reactElements[props.uid] = myself; }, [props.uid]);
-  useEffect(() => setId(props.id), [props.id]);
-  useEffect(() => setPrevId(props.prevId), [props.prevId]);
-  useEffect(() => setNextId(props.nextId), [props.nextId]);
-
   useEffect(() => {
+    setId(props.id);
+    setCreatingRecord(isCreatingRecord(props.id));
+    setUpdatingRecord(!isCreatingRecord(props.id));
     setDescriptionLoaded(false);
     setRecordLoaded(false);
     setIsInitialized(false);
     loadDescription();
-  }, [id]);
+  }, [props.id]);
+  useEffect(() => setPrevId(props.prevId), [props.prevId]);
+  useEffect(() => setNextId(props.nextId), [props.nextId]);
   useEffect(() => { if (descriptionLoaded) loadRecord(); }, [descriptionLoaded]);
   useEffect(() => { setIsInitialized(descriptionLoaded && recordLoaded); }, [descriptionLoaded, recordLoaded]);
   useEffect(() => {
@@ -498,7 +499,6 @@ const Form = (props: FormProps) => {
   const RenderTopMenuButton = (p: { tabUid: string }) => (props.renderTopMenuButton ? props.renderTopMenuButton(myself, p.tabUid) : renderDefaultTopMenuButton(p.tabUid));
   const RenderTopInputs = useCallback(() => (props.renderTopInputs ? props.renderTopInputs(myself) : renderDefaultTopInputs()), [description, activeTabUid]);
   const RenderTopMenu = useCallback(() => (props.renderTopMenu ? props.renderTopMenu(myself) : renderDefaultTopMenu()), [description, activeTabUid]);
-  const RenderTimeline = (p: { timelineConfig: any }) => (props.renderTimeline ? props.renderTimeline(myself, p.timelineConfig) : renderDefaultTimeline(p.timelineConfig));
   const RenderTab = (p: { tab: string }) => (props.renderTab ? props.renderTab(myself, p.tab) : renderDefaultTab(p.tab));
   const RenderContent = useCallback(() => (props.renderContent ? props.renderContent(myself) : renderDefaultContent()), [description, activeTabUid, isInitialized]);
   const RenderPrintPreviewUi = () => (props.renderPrintPreviewUi ? props.renderPrintPreviewUi(myself) : renderDefaultPrintPreviewUi());
@@ -598,7 +598,7 @@ const Form = (props: FormProps) => {
 
     const inputs = description.inputs;
 
-    return <div className={cssClassNamePrefix + "-top-menu shadow-lg"}>
+    return <div className={cssClassNamePrefix + "-top-menu"}>
       <div className='flex'>
         {topMenuWithDynamicMenu}
       </div>

@@ -31,12 +31,12 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    document.body.classList.add("ajax-loading");
+    document.body.classList.add("app-loading");
     axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
-      document.body.classList.remove("ajax-loading");
+      document.body.classList.remove("app-loading");
       if (responseData.status == 'error') {
         if (errorCallback) errorCallback(responseData);
         else this.alertOnError(responseData);
@@ -51,12 +51,12 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    document.body.classList.add("ajax-loading");
+    document.body.classList.add("app-loading");
     axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, postData, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
-      document.body.classList.remove("ajax-loading");
+      document.body.classList.remove("app-loading");
       if (responseData.status == 'error') {
         if (errorCallback) errorCallback(responseData);
         else this.alertOnError(responseData);

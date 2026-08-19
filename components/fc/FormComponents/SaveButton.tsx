@@ -29,7 +29,7 @@ const SaveButton = ({ content }: any) => {
           if (!e.isFromDropdownMenu) form.saveRecord({closeAfterSave: false});
         }}
         className={
-          "btn " + (form.savedSuccessfully ? "btn-success" : form.recordChanged ? "btn-add" : "btn-disabled")}
+          "btn btn-square w-20 " + (form.savedSuccessfully ? "btn-success" : form.recordChanged ? "btn-save" : "btn-disabled")}
         title="Save: Ctrl+S"
       >
         {updatingRecord
