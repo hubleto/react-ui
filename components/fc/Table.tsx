@@ -1009,7 +1009,7 @@ const Table = (props: TableProps) => {
   const renderDefaultAddButton = (): React.JSX.Element => {
     return <button
       key="add-btn"
-      className={"btn btn-add"}
+      className={"btn btn-add btn-large"}
       onClick={() => onAddClick()}
     >
       <span className="icon"><i className="fas fa-plus"/></span>
@@ -1133,7 +1133,7 @@ const Table = (props: TableProps) => {
         <input
           //@ts-ignore
           ref={refFulltextSearchInput}
-          className={"bg-white " + (fulltextSearch == "" ? "" : "active")}
+          className={"bg-white !p-2 " + (fulltextSearch == "" ? "" : "active")}
           type="search"
           placeholder={T.translate('Search...')}
           value={fulltextSearch}
