@@ -1063,7 +1063,7 @@ const Table = (props: TableProps) => {
       className="btn btn-dropdown btn-transparent"
       key="more-actions-btn"
     >
-      <span className="icon"><i className="fas fa-ellipsis-vertical"></i></span>
+      <span className="icon mx-4"><i className="fas fa-ellipsis-vertical"></i></span>
       {/* <span className="text text-nowrap">{T.translate('More options')}</span> */}
       <span className="menu" style={{left:"-145px"}}>
         <div className="btn-list text-nowrap">
