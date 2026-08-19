@@ -19,9 +19,10 @@ interface TagsInputProps extends InputProps {
 }
 
 const ValueComponent = (args: { parent: any }) => {
+  const input = React.useContext(InputMetaContext);
+
   const { parent } = args;
-  const props = parent.props;
-  const input = parent.inputRef.current;//React.useContext(InputMetaContext);
+
   const options: Array<any> = parent.convertValueToOptionList(input.value);
 
   if (options) {
@@ -50,6 +51,7 @@ const InputComponent = (args: { parent: any }) => {
   const { parent } = args;
   const props = parent.props;
   const input = React.useContext(InputMetaContext);
+
   const convertedValue = parent.convertValueToOptionList(input.value);
 
   const [showSelect, setShowSelect] = useState(props.showSelect);
@@ -183,7 +185,7 @@ const Tags = (props: TagsInputProps) => {
   const convertValueToOptionList = (value): Array<any> => {
     let optionList: Array<any> = [];
 
-    if (value) {
+    if (value && value.map) {
       optionList = value.map((item) => {
         const optionId = item.id;
         const optionValue = item[normalizedProps.sourceColumn];
@@ -234,7 +236,6 @@ const Tags = (props: TagsInputProps) => {
     const input = inputRef.current;
     input.changeValue([...selectedOptions]);
   }
-
 
   useEffect(() => {
     loadOptions();

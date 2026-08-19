@@ -717,23 +717,25 @@ const Table = (props: TableProps) => {
     let prevRow: any = {};
     let saveNextId: boolean = false;
     let i: any;
-console.log('openForm', id);
+
     let canRead = description?.permissions?.canRead;
 
     if (!canRead) return;
 
-    for (i in data?.records) {
-      const row = data?.records[i];
-      if (row && row.id) {
-        if (saveNextId) {
-          nextId = row.id;
-          saveNextId = false;
-        } else if (row.id == id) {
-          prevId = prevRow.id ?? null;
-          saveNextId = true;
+    if (id <= 0) {
+      for (i in data?.records) {
+        const row = data?.records[i];
+        if (row && row.id) {
+          if (saveNextId) {
+            nextId = row.id;
+            saveNextId = false;
+          } else if (row.id == id) {
+            prevId = prevRow.id ?? null;
+            saveNextId = true;
+          }
         }
+        prevRow = row;
       }
-      prevRow = row;
     }
 
     if (!props.parentForm) {

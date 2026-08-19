@@ -23,6 +23,8 @@ const Input = React.memo((props: any) => {
 
   const form = React.useContext(FormMetaContext);
   const description = form.description;
+
+  // console.log('inut', field, form, description);
   // const R = useRecord();
   const value = useRecordField(field); // R[name];
 
@@ -34,6 +36,24 @@ const Input = React.memo((props: any) => {
     : (form.hasOwnProperty('readonly') ? form.readonly
     : (inputDescription.hasOwnProperty('readonly') ? inputDescription.readonly
     : false)))
+  ;
+
+  const required =
+    (props.hasOwnProperty('required') ? props.required
+    : (inputDescription.hasOwnProperty('required') ? inputDescription.required
+    : false))
+  ;
+
+  const title =
+    (props.hasOwnProperty('title') ? props.title
+    : (inputDescription.hasOwnProperty('title') ? inputDescription.title
+    : ''))
+  ;
+
+  const icon =
+    (props.hasOwnProperty('icon') ? props.icon
+    : (inputDescription.hasOwnProperty('icon') ? inputDescription.icon
+    : ''))
   ;
 
   const inputProps: InputProps = {
@@ -95,18 +115,18 @@ const Input = React.memo((props: any) => {
   if (content) finalContent = content;
   else finalContent = <div
     id={form.uid + '_' + field}
-    title={inputDescription.title}
+    title={title}
     className={
       'input-wrapper'
       + (cssClass ? ' ' + cssClass : '')
-      + (inputDescription.required && !renderOnlyInputField ? ' required' : '')
+      + (required && !renderOnlyInputField ? ' required' : '')
     }
   >
-    {renderOnlyInputField ? null : <label className="input-label" htmlFor={form.uid + '_' + name}>
-      {inputDescription.title ?? ''}
+    {renderOnlyInputField ? null : <label className="input-label" htmlFor={form.uid + '_' + field}>
+      {title ?? ''}
     </label>}
     <div className="input-body">
-      {inputDescription.icon && <div className="input-icon"><i className={inputDescription.icon}></i></div>}
+      {icon && <div className="input-icon"><i className={icon}></i></div>}
       {input}
       {inputDescription.info}
     </div>

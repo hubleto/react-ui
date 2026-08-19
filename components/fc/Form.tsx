@@ -24,6 +24,7 @@ import {
 import { FormRecordStore, FormRecordStoreContext, createRecordStore, useRecordField } from './FormRecordStore';
 import PrintPreviewUi from './FormComponents/PrintPreviewUi';
 import { ModalMetaContext } from './Modal';
+import { deepObjectMerge } from '@hubleto/react-ui/core/Helper';
 
 export const FormDescriptionContext = React.createContext<FormDescription | null>(null);
 export const FormMetaContext = React.createContext<FormMeta>(null);
@@ -188,6 +189,7 @@ const Form = (props: FormProps) => {
     permissions: getPermissions(null),
     ui: {},
   });
+  const [descriptionLoaded, setDescriptionLoaded] = useState(false);
   const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? 'both');
   const [endpoint, setEndpoint] = useState(props.endpoint ?? props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? {
     describeForm: 'api/form/describe',
@@ -210,6 +212,7 @@ const Form = (props: FormProps) => {
   const [readonly, setReadonly] = useState(props.readonly ?? false);
   const [recordChanged, setRecordChanged] = useState(false);
   const [recordDeleted, setRecordDeleted] = useState(false);
+  const [recordLoaded, setRecordLoaded] = useState(false);
   const [savedSuccessfully, setSavedSuccessfully] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [showFooter, setShowFooter] = useState(true);
@@ -227,7 +230,14 @@ const Form = (props: FormProps) => {
   useEffect(() => setPrevId(props.prevId), [props.prevId]);
   useEffect(() => setNextId(props.nextId), [props.nextId]);
 
-  useEffect(() => { reload(); }, [id]);
+  useEffect(() => {
+    setDescriptionLoaded(false);
+    setRecordLoaded(false);
+    setIsInitialized(false);
+    loadDescription();
+  }, [id]);
+  useEffect(() => { if (descriptionLoaded) loadRecord(); }, [descriptionLoaded]);
+  useEffect(() => { setIsInitialized(descriptionLoaded && recordLoaded); }, [descriptionLoaded, recordLoaded]);
   useEffect(() => {
     if (isInitialized) {
       onTabChange();
@@ -236,8 +246,6 @@ const Form = (props: FormProps) => {
   }, [isInitialized])
 
   useEffect(() => { onTabChange(); }, [activeTabUid]);
-  // useEffect(() => { loadRecord(); }, [description]);
-  // useEffect(() => { reload(); }, [id]);
 
   useEffect(() => {
     const tabs = props.tabs;
@@ -261,8 +269,10 @@ const Form = (props: FormProps) => {
 
   const reload = (): void => {
     setIsInitialized(false);
+    setDescriptionLoaded(false);
+    setRecordLoaded(false);
     loadDescription();
-    loadRecord();
+    // loadRecord(); // <--- record is loaded in useEffect
   }
   
   const loadDescription = (): void => {
@@ -275,7 +285,8 @@ const Form = (props: FormProps) => {
         if (!loadedDescription) return;
 
         let description = loadedDescription;
-        if (descriptionSource == 'both') description = {...loadedDescription, ...props.description};
+        if (descriptionSource == 'both') description = deepObjectMerge(description, props.description);
+        // if (descriptionSource == 'both') description = {...loadedDescription, ...props.description};
 
         let permissions = getPermissions(recordStore.getRecord());
 
@@ -289,6 +300,7 @@ const Form = (props: FormProps) => {
         }
 
         setDescription(description);
+        setDescriptionLoaded(true);
         if (!permissions.canUpdate && !permissions.canCreate) setReadonly(true);
         // setPermissions(permissions);
 
@@ -300,8 +312,15 @@ const Form = (props: FormProps) => {
     setIsInitialized(false);
 
     if (id == -1) {
-      setIsInitialized(true);
-      changeRecord(description.defaultValues ?? {});
+      // setIsInitialized(true);
+      // changeRecord(description.defaultValues ?? {});
+      const record = description.defaultValues ?? {};
+
+      setOriginalRecord(JSON.parse(JSON.stringify(record)));
+      recordStore.setRecord(prev => ({ ...record }));
+
+      setRecordLoaded(true);
+
     } else {
       request.post(
         getEndpointUrl('getRecord'),
@@ -310,9 +329,11 @@ const Form = (props: FormProps) => {
         (loadedRecord: any) => {
           if (!loadedRecord) return;
 
-          const record = {...(description.defaultValues ?? {}), ...loadedRecord};
+          const record = (creatingRecord
+            ? {...(description.defaultValues ?? {}), ...loadedRecord}
+            : loadedRecord
+          );
 
-          setIsInitialized(true);
           setOriginalRecord(JSON.parse(JSON.stringify(record)));
 
           if (id != -1 && !record.id) {
@@ -327,9 +348,12 @@ const Form = (props: FormProps) => {
 
             getCallback('onAfterRecordLoaded')(myself, record);
           }
+
+          setRecordLoaded(true);
         },
         (error) => {
           setLoadRecordError(error.data);
+          setRecordLoaded(true);
         }
       );
       
@@ -476,7 +500,7 @@ const Form = (props: FormProps) => {
   const RenderTopMenu = useCallback(() => (props.renderTopMenu ? props.renderTopMenu(myself) : renderDefaultTopMenu()), [description, activeTabUid]);
   const RenderTimeline = (p: { timelineConfig: any }) => (props.renderTimeline ? props.renderTimeline(myself, p.timelineConfig) : renderDefaultTimeline(p.timelineConfig));
   const RenderTab = (p: { tab: string }) => (props.renderTab ? props.renderTab(myself, p.tab) : renderDefaultTab(p.tab));
-  const RenderContent = useCallback(() => (props.renderContent ? props.renderContent(myself) : renderDefaultContent()), [description, activeTabUid]);
+  const RenderContent = useCallback(() => (props.renderContent ? props.renderContent(myself) : renderDefaultContent()), [description, activeTabUid, isInitialized]);
   const RenderPrintPreviewUi = () => (props.renderPrintPreviewUi ? props.renderPrintPreviewUi(myself) : renderDefaultPrintPreviewUi());
   const RenderHeaderExtraButtons = () => (props.renderHeaderExtraButtons ? props.renderHeaderExtraButtons(myself) : renderDefaultHeaderExtraButtons());
   const RenderFooterExtraButtons = () => (props.renderFooterExtraButtons ? props.renderFooterExtraButtons(myself) : renderDefaultFooterExtraButtons());
