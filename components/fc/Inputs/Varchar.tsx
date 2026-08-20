@@ -59,13 +59,12 @@ export const InputComponent = (props: InputProps) => {
       <input
         type='text'
         value={input.value ?? ''}
-        onChange={(e) => { console.log('varchar chg'); input.changeValue(e.currentTarget.value)} }
-        placeholder={props.placeholder}
+        onChange={(e) => { input.changeValue(e.currentTarget.value)} }
+        placeholder={input.description?.placeholder ?? input.description?.title}
         className={
-          (input.invalid ? 'is-invalid' : '')
-          + " " + (props.cssClass ?? "")
+          "border-none"
+          + (input.invalid ? " is-invalid" : "")
           + " " + (input.readonly ? "bg-muted" : "")
-          + " border border-slate-200 rounded-sm p-1 w-full"
         }
         disabled={input.readonly}
       />

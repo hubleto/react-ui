@@ -18,7 +18,7 @@ const PrintPreviewUiButton = ({ content }: any) => {
       onClick={(e: any) => {
         form.setShowPreviewUi(true);
       }}
-      className={"btn btn-transparent"}
+      className={"btn btn-transparent btn-square"}
     >
       <span className="icon"><i className="fas fa-print"></i></span>
       <span className="text">

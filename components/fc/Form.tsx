@@ -526,7 +526,7 @@ const Form = (props: FormProps) => {
 
   const renderDefaultTopInputs = (): React.JSX.Element => {
     const inputs = description.inputs;
-    return (inputs ? <div className='flex justify-between gap-2 w-full min-h-12 border-b border-b-gray-100'>
+    return (inputs ? <div className='flex justify-between gap-2 w-full'>
       <div className='flex gap-2'>
         {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
       </div>
@@ -689,15 +689,16 @@ const Form = (props: FormProps) => {
   const renderDefaultHeaderExtraButtons = (): React.JSX.Element => {
     const headerExtraButtons = FormCustomizer.getFormHeaderExtraButtons(props.componentName);
     if (headerExtraButtons && headerExtraButtons.length > 0) {
-      return <div className={cssClassNamePrefix + "-header-buttons"}>{headerExtraButtons.map((button: any, key: any) => {
+      return headerExtraButtons.map((button: any, key: any) => {
         return <button
           key={key}
-          className='btn btn-small btn-primary-outline'
-          onClick={() => { button.onClick(this); }}
+          className='btn btn-transparent btn-square'
+          onClick={() => { button.onClick(myself); }}
         >
+          <span className='icon'><i className={button.icon == '' ? 'fas fa-circle' : button.icon}></i></span>
           <span className='text'>{button.title}</span>
         </button>;
-      })}</div>;
+      });
     } else {
       return null;
     }
@@ -835,6 +836,7 @@ const Form = (props: FormProps) => {
         <div className='flex gap-2'>
           <RenderSaveButton></RenderSaveButton>
           <RenderPrintPreviewUiButton></RenderPrintPreviewUiButton>
+          <RenderHeaderExtraButtons></RenderHeaderExtraButtons>
         </div>
       </div>
     </div>;
@@ -1043,7 +1045,7 @@ const Form = (props: FormProps) => {
   } else {
     try {
       finalContent = (isInitialized ? <>
-        {showHeader ? <> <RenderHeader /> <RenderHeaderExtraButtons /> </> : null}
+        {showHeader ? <RenderHeader /> : null}
         <RenderWarningsOrErrors />
         <RenderTopMenu />
         <RenderTopInputs />

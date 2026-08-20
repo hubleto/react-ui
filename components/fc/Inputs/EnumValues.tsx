@@ -73,7 +73,7 @@ const InputComponent = (props: EnumValuesInputProps) => {
         }
         onClick={() => { if (!input.readonly) input.changeValue(key); }}
       >
-        <span className="text">{enumValue}</span>
+        <span className="text text-nowrap">{enumValue}</span>
       </button>;
     })}</div>;
   } else {

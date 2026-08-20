@@ -17,17 +17,12 @@ import InputPassword from "../../cc/Inputs/Password";
 import InputFile from "../../cc/Inputs/File";
 import InputImage from "../../cc/Inputs/Image";
 
-
 const Input = React.memo((props: any) => {
-  const { field, content, cssClass, renderOnlyInputField, customInputProps, debug, children } = props;
+  const { field, content, wrapperCssClass, renderOnlyInputField, customInputProps, debug, children } = props;
 
   const form = React.useContext(FormMetaContext);
   const description = form.description;
-
-  // console.log('inut', field, form, description);
-  // const R = useRecord();
-  const value = useRecordField(field); // R[name];
-
+  const value = useRecordField(field);
   const inputDescription = description?.inputs?.[field] ?? {};
   const isModified = value !== form.originalRecord[field];
 
@@ -118,7 +113,7 @@ const Input = React.memo((props: any) => {
     title={title}
     className={
       'input-wrapper'
-      + (cssClass ? ' ' + cssClass : '')
+      + (wrapperCssClass ? ' ' + wrapperCssClass : '')
       + (required && !renderOnlyInputField ? ' required' : '')
     }
   >
@@ -130,8 +125,8 @@ const Input = React.memo((props: any) => {
       {input}
       {inputDescription.info}
     </div>
-    {renderOnlyInputField ? null : inputDescription.description && (
-      <div className="input-description">{inputDescription.description}</div>
+    {renderOnlyInputField ? null : inputDescription.hint && (
+      <div className="input-hint">{inputDescription.hint}</div>
     )}
   </div>;
 

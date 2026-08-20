@@ -266,7 +266,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
             ></input>
             <div ref={refInputElement} className="input-element">
               {renderInputComponent()}
-              {/* {description?.unit ? <div className="input-unit">{description.unit}</div> : null} */}
             </div>
           </>
         }

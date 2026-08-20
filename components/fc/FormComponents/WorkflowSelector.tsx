@@ -82,71 +82,73 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
     {changeWorkflow ? <div className='flex gap-2 items-center'>
       <div className="input-body">
         <div className="hubleto component input"><div className="inner">
-          <div className="input-element">
+          <div className="input-element"><div className="list horizontal">
             {Object.keys(workflows).map((tmpIdWorkflow: any, key: any) => {
               return <button
                 key={key}
-                className={"btn " + (tmpIdWorkflow == idWorkflow ? "btn-primary" : "btn-transparent")}
+                className={"btn btn-list-item " + (tmpIdWorkflow == idWorkflow ? "btn-primary" : "btn-transparent")}
                 onClick={() => { onWorkflowChange(tmpIdWorkflow); }}
-              ><span className="text">{workflows[tmpIdWorkflow]?.name}</span></button>
+              ><span className="text text-nowrap">{workflows[tmpIdWorkflow]?.name}</span></button>
             })}
-          </div>
+          </div></div>
         </div></div>
       </div>
-    </div> : <div className='flex gap-2 max-h-8 overflow-auto md:max-h-none'>
-      <div className='flex flex-col'>
-        <div className='flex items-center flex-col items-start'>
-          {steps && steps.length > 0 ? <>
-            <div>
-              {steps.map((s, i) => {
-                let stepBtnClass = "btn-light";
-                if (stepBtnClass == "btn-primary") stepBtnClass = "btn-transparent";
-                else if (s.id == idWorkflowStep) stepBtnClass = "btn-primary";
-
-                return <button
-                  key={i}
-                  onClick={() => onWorkflowStepChange(s.id, s)}
-                  className={`btn btn-small ${stepBtnClass} border-none rounded-none`}
-                >
-                  <div
-                    className="icon p-0"
-                    style={{
-                      borderTop: '1em solid transparent',
-                      borderBottom: '1em solid transparent',
-                      borderLeft: '1em solid ' + s.color
-                    }}
-                  >
-                  </div>
-                  <div className='text px-2'>
-                    {s.name}
-                  </div>
-                </button>;
-              })}
-            </div>
-            <div className='text-xs text-gray-400 flex gap-2'>
-              {readonly ? <i className='fas fa-lock'></i> : null}
-              {historyForCurrentWorkflow[0] ? <>
-                {T.translate('Last update: {{ date }} by {{ user }}', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')
+    </div> : <div className='flex gap-2'>
+      <button className='btn btn-transparent btn-dropdown'>
+        <span className='icon'><i className='fas fa-timeline'></i></span>
+        <span className='menu w-60'>
+          <div className='list'>
+            {historyForCurrentWorkflow[0] ? <div className='btn btn-list-item btn-transparent'>
+              <span className='icon'><i className='fas fa-clock'></i></span>
+              <div className='text'>
+                {T.translate('Last update: {{ date }} by {{ user }}')
                   .replace('{{ date }}', historyForCurrentWorkflow[0].datetime_change)
-                  .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? T.translate('unknown', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector'))
+                  .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? T.translate('unknown'))
                 }
-              </> : null}                  
-              {readonly ? null :
-                <a href='#' onClick={() => { setChangeWorkflow(true); }}>
-                  <span className="text">{T.translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')}</span>
-                </a>
-              }
-            </div>
-          </> : (readonly ? null : <div>
-            <button
-              className='btn btn-primary-outline btn-small'
-              onClick={() => { setChangeWorkflow(true); }}
+              </div>
+            </div> : null}                  
+            {readonly ? null :
+              <a href='#' className='btn btn-transparent btn-list-item' onClick={() => { setChangeWorkflow(true); }}>
+                <span className='icon'><i className='fas fa-pencil'></i></span>
+                <span className="text">{T.translate('Change workflow')}</span>
+              </a>
+            }
+          </div>
+        </span>
+      </button>
+      <div className='flex flex-row items-center'>
+        {steps && steps.length > 0 ? <>
+          {steps.map((s, i) => {
+            let stepBtnClass = "btn-light";
+            if (stepBtnClass == "btn-primary") stepBtnClass = "btn-transparent";
+            else if (s.id == idWorkflowStep) stepBtnClass = "btn-primary";
+
+            return <button
+              key={i}
+              onClick={() => onWorkflowStepChange(s.id, s)}
+              className={`btn btn-small ${stepBtnClass} !border-none !rounded-none`}
             >
-              <span className='icon'><i className='fas fa-timeline'></i></span>
-              <span className="text">{T.translate('Change workflow', 'Hubleto\\Erp\\Loader', 'Components\\WorkflowSelector')}</span>
-            </button>
-          </div>)}
-        </div>
+              <div
+                style={{
+                  borderTop: '1em solid transparent',
+                  borderBottom: '1em solid transparent',
+                  borderLeft: '1em solid ' + s.color
+                }}
+              >
+              </div>
+              <div className='text'>
+                {s.name}
+              </div>
+            </button>;
+          })}
+        </> : (readonly ? null : <div>
+          <button
+            className='btn btn-transparent'
+            onClick={() => { setChangeWorkflow(true); }}
+          >
+            <span className="text">{T.translate('Select workflow')}</span>
+          </button>
+        </div>)}
       </div>
     </div>}
   </div>);

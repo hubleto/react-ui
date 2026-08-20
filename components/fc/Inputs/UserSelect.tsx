@@ -23,15 +23,17 @@ const InputComponent = (props: InputProps) => {
       setShowUserSelector(!showUserSelector);
     }}
   >
-    <span className='icon'>
-      {currentUser.photo ?
-        <img
-          src={globalThis.hubleto.config.uploadUrl + '/' + currentUser.photo}
-          className='max-w-4 max-h-4 rounded-xl'
-        />
-      : <i className='fas fa-user'></i>}
-    </span>
-    <span className='text'>{currentUser.email}</span>
+    {currentUser ? <>
+      <span className='icon'>
+        {currentUser.photo ?
+          <img
+            src={globalThis.hubleto.config.uploadUrl + '/' + currentUser.photo}
+            className='max-w-4 max-h-4 rounded-xl'
+          />
+        : <i className='fas fa-user'></i>}
+      </span>
+      <span className='text'>{currentUser.email}</span>
+    </> : <span className='text'>---</span>}
     <div className='menu'>
       <div className='list'>
         {input.description?.title ? 
