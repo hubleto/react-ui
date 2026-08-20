@@ -25,13 +25,16 @@ const InputComponent = (props: ColorInputProps) => {
   if (props.size == 'lg') size = 2;
   if (props.size == 'xl') size = 3;
 
-  return <div>
-    <div
-      className="btn btn-transparent"
-      onClick={() => { setShowColorSelector(!showColorSelector); }}
-      style={{background: input.value, width: size + 'em', height: size + 'em'}}
-    >{input.value ? null : <i className='fas fa-palette opacity-50'></i>}</div>
-    {showColorSelector ? <div className='relative w-0 h-0' style={{zIndex: 999999}}>
+  return <button
+    className="btn btn-transparent btn-dropdown"
+    onClick={() => { setShowColorSelector(!showColorSelector); }}    
+  >
+    <span className='icon'>
+      {input.value
+      ? <div style={{background: input.value, width: size + 'em', height: size + 'em'}}></div>
+      : <i className='fas fa-palette opacity-50'></i>}
+    </span>
+    <div className='menu'>
       <div className='w-44 bg-white p-2 mt-2 flex flex-wrap gap-2 shadow'>
         {colorPalette.map((color, idx) => {
           const isSelected = input.value && input.value.toLocaleLowerCase() === color.toLocaleLowerCase();
@@ -47,8 +50,8 @@ const InputComponent = (props: ColorInputProps) => {
           ></div>;
         })}
       </div>
-    </div> : null}
-  </div>;
+    </div>
+  </button>;
 }
 
 const ColorInput = (props: ColorInputProps) => {

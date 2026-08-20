@@ -82,7 +82,7 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
   let urlDetail = input.data[input.value]?._URL_DETAIL ?? '';
   let value = input.data[input.value]?.id ?? 0;
 
-  const [urlAdd, setUrlAdd] = useState(props.urlAdd);
+  const urlAdd = props.inputProps?.urlAdd;
 
   if (props.uiStyle == 'select') {
     return <>
@@ -153,8 +153,8 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
       {urlDetail ? <a className="btn btn-transparent btn-small" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
         <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
       </a> : null}
-      {urlAdd && !input.readonly ? <a className="btn btn-transparent btn-small ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlAdd}>
-        <span className="icon"><i className="fas fa-plus"></i></span>
+      {urlAdd && !input.readonly ? <a className="btn btn-add-outline btn-small ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlAdd}>
+        <span className="icon"><i className="fas fa-plus p-1"></i></span>
       </a> : null}
     </>;
   }

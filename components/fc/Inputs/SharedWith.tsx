@@ -45,7 +45,7 @@ const InputComponent = (props: SharedWithInputProps) => {
     }
   })
 
-  return <>
+  return <div>
     <button
       className="btn btn-transparent"
       onClick={() => { setShowModal(true) }}
@@ -56,7 +56,7 @@ const InputComponent = (props: SharedWithInputProps) => {
           Object.keys(valuesPerUser).map((idUser: any) => {
 
           let user = input.data[idUser] ?? null;
-          return (user ? <span className="text flex gap-4 text-xs">
+          return (user ? <span className="text flex gap-4">
             {/* {valuesPerUser[idUser] == 'read' ? <i className='text-xs fas fa-eye pl-2'></i> : null}
             {valuesPerUser[idUser] == 'modify' ? <i className='text-xs fas fa-pencil pl-2'></i> : null} */}
             {user.nick ??
@@ -65,7 +65,7 @@ const InputComponent = (props: SharedWithInputProps) => {
             }
           </span> : null);
           })
-        : <span className="text">Shared with {Object.keys(valuesPerUser).length}</span>
+        : <span className="text">{Object.keys(valuesPerUser).length}</span>
       }
     </button>
     {showModal ?
@@ -150,7 +150,7 @@ const InputComponent = (props: SharedWithInputProps) => {
         </div>
       </ModalSimple>
     : null}
-  </>;
+  </div>;
 }
 
 const SharedWith = (props: SharedWithInputProps) => {

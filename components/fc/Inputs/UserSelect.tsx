@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input';
 import request from '../../../core/Request';
 
@@ -13,65 +13,68 @@ interface UserSelectInputProps extends InputProps {
 const ValueComponent = (props: InputProps) => <InputComponent />;
 const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
+  const [showUserSelector, setShowUserSelector] = useState(false);
 
-  return <div className='flex flex-wrap gap-2 items-center'>
-    <div ref={input.refInput} className="btn-group gap-1 flex-wrap">
-      {Object.keys(input.data).map((key: any) => {
-        const user = input.data[key] ?? null;
-        const userId = user.id ?? 0;
-        return <button
-          key={key}
-          className={
-            "btn " + (input.readonly && input.value != userId ? "btn-disabled" : "")
-            + " " + (input.value == userId ? "btn-primary" : "btn-transparent")
-          }
-          onClick={() => {
-            input.changeValue((input.value == userId ? null : userId));
-          }}
-        >
-          <span className="text flex gap-2">
-            {user.photo ?
-              <img
-                src={globalThis.hubleto.config.uploadUrl + '/' + user.photo}
-                className='max-w-4 max-h-4 rounded-xl'
-              />
-            : null}
-            <span className='text-xs'>{
-              (Array.from(user.first_name ?? '')[0]).toString()
-              + (Array.from(user.last_name ?? '')[0]).toString()
-            }</span>
-          </span>
-          <span className="hover min-w-48">
-            <div className='flex flex-col gap-2'>
-              <div className='grow'>
-                {user.photo ?
-                  <img
-                    src={globalThis.hubleto.config.uploadUrl + '/' + user.photo}
-                    className='max-w-12 max-h-12 rounded-xl'
-                  />
-                : <div className='bg-gray-200 rounded-xl w-12 h-12 flex items-center justify-center'>
-                  <i className='fas fa-user'></i>
-                </div>}
-              </div>
-              <div>
-                <div className='text-primary'>{user.email}</div>
-                <div className='font-bold'>{user.position}</div>
-                <div>{user.first_name ?? ''} {user.last_name ?? ''} </div>
-              </div>
-            </div>
-            {user.TEAMS.map((team: any, key: any) => {
-              return <div
-                key={key}
-                className='badge flex gap-2 items-center py-1'
-                style={{borderLeft: '0.5em solid ' + team.color}}
-              >
-                <i className='fas fa-users'></i>
-                {team.name}
-              </div>;
-            })}
-          </span>
-        </button>;
-      })}
+  const currentUser = input.data[input.value] ?? null;
+
+  return <div
+    className={"btn btn-white btn-dropdown " + (input.readonly ? "btn-disabled" : "")}
+    onClick={() => {
+      setShowUserSelector(!showUserSelector);
+    }}
+  >
+    <span className='icon'>
+      {currentUser.photo ?
+        <img
+          src={globalThis.hubleto.config.uploadUrl + '/' + currentUser.photo}
+          className='max-w-4 max-h-4 rounded-xl'
+        />
+      : <i className='fas fa-user'></i>}
+    </span>
+    <span className='text'>{currentUser.email}</span>
+    <div className='menu'>
+      <div className='list'>
+        {input.description?.title ? 
+          <div className='bg-white p-2 text-primary w-full'>{input.description?.title}</div>
+        : null}
+        {Object.keys(input.data).map((key: any) => {
+          const user = input.data[key] ?? null;
+          const userId = user.id ?? 0;
+          return <button
+            key={key}
+            className={
+              "btn btn-list-item " + (input.readonly && input.value != userId ? "btn-disabled" : "")
+              + " " + (input.value == userId ? "btn-primary" : "btn-transparent")
+            }
+            onClick={() => {
+              input.changeValue((input.value == userId ? null : userId));
+            }}
+          >
+            <span className='icon'>
+              {user.photo ?
+                <img
+                  src={globalThis.hubleto.config.uploadUrl + '/' + user.photo}
+                  className='max-w-12 max-h-12 rounded-xl'
+                />
+              : <i className='fas fa-user'></i>}
+            </span>
+            <span className="text"><div className="flex flex-col">
+              <div>{user.email}</div>
+              <div className="text-xs">{user.first_name} {user.last_name}</div>
+              {user.TEAMS.map((team: any, key: any) => {
+                return <div
+                  key={key}
+                  className='badge flex gap-2 items-center py-1'
+                  style={{borderLeft: '0.5em solid ' + team.color}}
+                >
+                  <i className='fas fa-users'></i>
+                  {team.name}
+                </div>;
+              })}
+            </div></span>
+          </button>;
+        })}
+      </div>
     </div>
   </div>;
 }

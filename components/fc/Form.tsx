@@ -935,7 +935,7 @@ const Form = (props: FormProps) => {
           }}
         />
         return fieldValue == ''
-          ? <span key={key} className='opacity-20 italic'>[empty]</span>
+          ? null
           : <span key={key} >{fieldValue}</span>
         ;
       });

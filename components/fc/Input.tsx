@@ -35,6 +35,7 @@ export interface InputProps {
   value?: any,
   origValue?: any,
   changed?: any,
+  inputProps?: any,
   changeValue?: (input: InputMeta, newValue: any) => void,
   renderLoadingComponent?: (input: InputMeta) => React.JSX.Element,
   renderValueComponent?: (input: InputMeta) => React.JSX.Element,
