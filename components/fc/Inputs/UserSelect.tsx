@@ -7,11 +7,12 @@ interface UserSelectInputProps extends InputProps {
   endpoint?: string,
   customEndpointParams?: any,
   urlAdd?: string,
-  uiStyle?: 'default' | 'select' | 'buttons';
+  uiStyle?: 'default' | 'select' | 'buttons',
+  userIcon?: string,
 }
 
-const ValueComponent = (props: InputProps) => <InputComponent />;
-const InputComponent = (props: InputProps) => {
+const ValueComponent = (props: UserSelectInputProps) => <InputComponent />;
+const InputComponent = (props: UserSelectInputProps) => {
   const input = React.useContext(InputMetaContext);
   const [showUserSelector, setShowUserSelector] = useState(false);
 
@@ -30,10 +31,13 @@ const InputComponent = (props: InputProps) => {
             src={globalThis.hubleto.config.uploadUrl + '/' + currentUser.photo}
             className='max-w-4 max-h-4 rounded-xl'
           />
-        : <i className='fas fa-user'></i>}
+        : <i className={props.userIcon ?? 'fas fa-user'}></i>}
       </span>
-      <span className='text'>{currentUser.email}</span>
-    </> : <span className='text'>---</span>}
+      <span className='text flex gap-2'>
+        {currentUser.email}
+        {currentUser.id == globalThis.hubleto.idUser ? <span className='text-primary'>[me]</span> : null}
+      </span>
+    </> : <span className='text'>[Select {input.description?.title ?? 'user'}]</span>}
     <div className='menu'>
       <div className='list'>
         {input.description?.title ? 
@@ -58,10 +62,13 @@ const InputComponent = (props: InputProps) => {
                   src={globalThis.hubleto.config.uploadUrl + '/' + user.photo}
                   className='max-w-12 max-h-12 rounded-xl'
                 />
-              : <i className='fas fa-user'></i>}
+              : <i className={props.userIcon ?? 'fas fa-user'}></i>}
             </span>
             <span className="text"><div className="flex flex-col">
-              <div>{user.email}</div>
+              <div className='flex gap-2'>
+                {user.email}
+                {userId == globalThis.hubleto.idUser ? <span className='text-primary'>[me]</span> : null}
+              </div>
               <div className="text-xs">{user.first_name} {user.last_name}</div>
               {user.TEAMS.map((team: any, key: any) => {
                 return <div

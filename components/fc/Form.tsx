@@ -526,16 +526,13 @@ const Form = (props: FormProps) => {
 
   const renderDefaultTopInputs = (): React.JSX.Element => {
     const inputs = description.inputs;
-    return (inputs ? <div className='flex justify-between gap-2 w-full'>
-      <div className='flex gap-2'>
-        {inputs.id_workflow && inputs.id_workflow_step ? <div className='grow'><WorkflowSelector /></div> : null}
-      </div>
-      <div className='flex gap-2'>
-        {inputs.id_owner ? <Input field='id_owner' readonly={false} renderOnlyInputField /> : null}
-        {inputs.id_manager ? <Input field='id_manager' readonly={false} renderOnlyInputField /> : null}
-        {inputs.shared_with ? <Input field='shared_with' title='Share' renderOnlyInputField /> : null}
-        {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}} /> : null}
-      </div>
+    return (inputs ? <div className='flex w-full'>
+      {inputs.id_workflow && inputs.id_workflow_step ? <WorkflowSelector /> : null}
+      {inputs.id_owner ? <Input field='id_owner' readonly={false} renderOnlyInputField userIcon='fas fa-user' /> : null}
+      {inputs.id_manager ? <Input field='id_manager' readonly={false} renderOnlyInputField userIcon='fas fa-user-tie' /> : null}
+      {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
+      {inputs.shared_with ? <Input field='shared_with' title='Share' renderOnlyInputField /> : null}
+      {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}} /> : null}
     </div> : null);
   }
 
@@ -915,7 +912,6 @@ const Form = (props: FormProps) => {
       return <div>
         <h2>{description?.ui?.title}</h2>
         <div className='flex gap-2'>
-          {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
           {description?.ui?.subTitle ? <small>{description?.ui?.subTitle}</small> : null}
         </div>
       </div>;
@@ -945,10 +941,7 @@ const Form = (props: FormProps) => {
       return <div>
         {props.title.main ? <h2>{props.title.main}</h2> : null}
         {h2 ? <h2 className='flex gap-2'>{h2}</h2> : null}
-        <div className='flex gap-2'>
-          {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
-          <small>{props.title.sub}</small>
-        </div>
+        <small>{props.title.sub}</small>
       </div>;
     } else {
       return <div>

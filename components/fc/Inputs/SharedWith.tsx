@@ -51,7 +51,7 @@ const InputComponent = (props: SharedWithInputProps) => {
       onClick={() => { setShowModal(true) }}
     >
       <span className="icon"><i className="fas fa-share-nodes"></i></span>
-      {Object.keys(valuesPerUser).length == 0 ? null 
+      {Object.keys(valuesPerUser).length == 0 ? <span className="text">Not shared</span> 
         : Object.keys(valuesPerUser).length == 1 ?
           Object.keys(valuesPerUser).map((idUser: any) => {
 
@@ -65,7 +65,7 @@ const InputComponent = (props: SharedWithInputProps) => {
             }
           </span> : null);
           })
-        : <span className="text">{Object.keys(valuesPerUser).length}</span>
+        : <span className="text">Shared with {Object.keys(valuesPerUser).length}</span>
       }
     </button>
     {showModal ?
