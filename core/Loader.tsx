@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
-import {isValidJson, kebabToPascal, camelToKebab, deepObjectMerge} from './Helper';
-import Dialog from "../components/cc/Dialog";
-import Modal from "../components/cc/Modal";
+import { isValidJson, kebabToPascal } from './Helper';
+import Dialog from "../components/fc/Dialog";
+import Modal from "../components/fc/Modal";
 
 export class HubletoReactUi {
   config: object = {};
@@ -13,7 +13,7 @@ export class HubletoReactUi {
   reactComponents: any = {};
   reactElementsWaitingForRender: number = 0;
   reactElements: Object = {};
-  renderedModals: Array<Modal> = [];
+  renderedModals: Array<typeof Modal> = [];
 
   dictionary: any = null;
   lastShownDialogRef: any;
@@ -240,14 +240,14 @@ export class HubletoReactUi {
     let defaultProps = {
       headerClassName: 'dialog-confirm-header',
       contentClassName: 'dialog-confirm-content',
-      header: this.translate('Confirm', 'Hubleto\\Erp\\Loader', 'HubletoReactUi'),
-      footer: <>
+      renderHeader: (dialog: any) => this.translate('Confirm', 'Hubleto\\Erp\\Loader', 'HubletoReactUi'),
+      renderFooter: (dialog: any) => <>
         <div className={"flex w-full justify-between"}>
-          <button className={"btn " + propsCloned.yesButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); propsCloned.onYes(); }} >
+          <button className={"btn " + propsCloned.yesButtonClass} onClick={() => { dialog.hide(); propsCloned.onYes(); }} >
             <span className="icon"><i className="fas fa-check"></i></span>
             <span className="text">{propsCloned.yesText}</span>
           </button>
-          <button className={"btn " + propsCloned.noButtonClass} onClick={() => { this.lastShownDialogRef.current.hide(); propsCloned.onNo(); }} >
+          <button className={"btn " + propsCloned.noButtonClass} onClick={() => { dialog.hide(); propsCloned.onNo(); }} >
             <span className="icon"><i className="fas fa-xmark"></i></span>
             <span className="text">{propsCloned.noText}</span>
           </button>
@@ -264,8 +264,8 @@ export class HubletoReactUi {
 
     if (!props.headerClassName) props.headerClassName = defaultProps.headerClassName;
     if (!props.contentClassName) props.contentClassName = defaultProps.contentClassName;
-    if (!props.header) props.footer = defaultProps.header;
-    if (!props.footer) props.footer = defaultProps.footer;
+    if (!props.renderHeader) props.renderHeader = defaultProps.renderHeader;
+    if (!props.renderFooter) props.renderFooter = defaultProps.renderFooter;
 
     this.showDialog(content, props);
   }
