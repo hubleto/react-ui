@@ -26,13 +26,13 @@ const loadData = (input: any, searchValue: string) => {
 
 export const ValueComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
-  const value = props.value;
+  const value = input.value;
   return value;
 }
 
 export const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
-  const value = props.value;
+  const value = input.value;
   const [showPredefinedValues, setShowPredefinedValues] = useState(false);
 
   if (input.description?.autocomplete) {

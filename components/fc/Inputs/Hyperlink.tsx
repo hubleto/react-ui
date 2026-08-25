@@ -4,17 +4,17 @@ import Varchar, { InputComponent as VarcharInputComponent } from './Varchar'
 
 const ValueComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
-  if (props.value) {
+  if (input.value) {
     return <>
       <i className="fas fa-link"></i>
       <a
-        href={props.value}
+        href={input.value}
         target='_blank'
         onClick={(e) => { e.stopPropagation(); }}
         className="btn btn-blue-outline btn-small max-w-60"
       >
         <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
-        <span className="text">{props.value ? props.value : ''}</span>
+        <span className="text">{input.value ? input.value : ''}</span>
       </a>
       <button className="btn btn-transparent btn-small ml-2">
         <span className="icon"><i className="fa-solid fa-pencil"></i></span>
@@ -31,7 +31,7 @@ const InputComponent = (props: InputProps) => {
     {/* <i className="fas fa-link"></i> */}
     <VarcharInputComponent {...props} />
     <a
-      href={props.value}
+      href={input.value}
       target='_blank'
       onClick={(e) => { e.stopPropagation(); }}
       className="btn btn-transparent"

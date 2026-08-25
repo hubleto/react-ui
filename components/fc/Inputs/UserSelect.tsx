@@ -16,7 +16,7 @@ const InputComponent = (props: UserSelectInputProps) => {
   const input = React.useContext(InputMetaContext);
   const [showUserSelector, setShowUserSelector] = useState(false);
 
-  const currentUser = input.data[props.value] ?? null;
+  const currentUser = input.data[input.value] ?? null;
 
   return <div
     className={"btn btn-white btn-dropdown " + (input.readonly ? "btn-disabled" : "")}
@@ -49,11 +49,11 @@ const InputComponent = (props: UserSelectInputProps) => {
           return <button
             key={key}
             className={
-              "btn btn-list-item " + (input.readonly && props.value != userId ? "btn-disabled" : "")
-              + " " + (props.value == userId ? "btn-primary" : "btn-transparent")
+              "btn btn-list-item " + (input.readonly && input.value != userId ? "btn-disabled" : "")
+              + " " + (input.value == userId ? "btn-primary" : "btn-transparent")
             }
             onClick={() => {
-              input.changeValue((props.value == userId ? null : userId));
+              input.changeValue((input.value == userId ? null : userId));
             }}
           >
             <span className='icon'>

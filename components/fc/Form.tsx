@@ -932,7 +932,7 @@ const Form = (props: FormProps) => {
         />
         return fieldValue == ''
           ? null
-          : <span key={key} >{fieldValue}</span>
+          : <span key={key}>{fieldValue}</span>
         ;
       });
 

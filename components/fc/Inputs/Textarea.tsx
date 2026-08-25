@@ -2,14 +2,15 @@ import React from 'react'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
 const ValueComponent = (props: InputProps) => {
-  return props.value;
+  const input = React.useContext(InputMetaContext);
+  return input.value;
 }
 
 const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
 
   return <textarea
-    value={props.value ?? ''}
+    value={input.value ?? ''}
     onChange={(e) => input.changeValue(e.currentTarget.value) }
     aria-describedby="passwordHelpInline"
     rows={5}

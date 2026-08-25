@@ -12,8 +12,8 @@ const ValueComponent = (props: EnumValuesInputProps) => {
   const enumValues = props.enumValues;
   const enumCssClasses = props.enumCssClasses;
 
-  let value = enumValues ? enumValues[props.value] : null;
-  let cssClass = enumCssClasses ? enumCssClasses[props.value] : null;
+  let value = enumValues ? enumValues[input.value] : null;
+  let cssClass = enumCssClasses ? enumCssClasses[input.value] : null;
 
   if (!value) {
     if (enumValues) value = enumValues[Object.keys(enumValues)[0]];
@@ -35,7 +35,7 @@ const InputComponent = (props: EnumValuesInputProps) => {
 
   if (!enumValues) return <></>;
 
-  let value = props.value ?? null;
+  let value = input.value ?? null;
   if (!enumValues[value]) value = Object.keys(enumValues)[0];
 
   if (uiStyle == 'select') {
@@ -98,7 +98,7 @@ const EnumValuesInput = (props: EnumValuesInputProps) => {
       const enumValues = description.enumValues;
 
       if (!enumValues) return '';
-      if (!enumValues[props.value]) return Object.keys(enumValues)[0];
+      if (!enumValues[input.value]) return Object.keys(enumValues)[0];
       return '';
     }}
 

@@ -6,8 +6,9 @@ interface ColorInputProps extends InputProps {
 }
 
 const ValueComponent = (props: ColorInputProps) => {
+  const input = React.useContext(InputMetaContext);
   return <div
-    style={{background: props.value}}
+    style={{background: input.value}}
     className="mr-2 cursor-pointer w-16 h-4 border border-gray-400"
   ></div>;
 }
@@ -28,14 +29,14 @@ const InputComponent = (props: ColorInputProps) => {
     onClick={() => { setShowColorSelector(!showColorSelector); }}    
   >
     <span className='icon'>
-      {props.value
-      ? <div style={{background: props.value, width: size + 'em', height: size + 'em'}}></div>
+      {input.value
+      ? <div style={{background: input.value, width: size + 'em', height: size + 'em'}}></div>
       : <i className='fas fa-palette opacity-50'></i>}
     </span>
     <div className='menu'>
       <div className='w-44 bg-white p-2 mt-2 flex flex-wrap gap-2 shadow'>
         {colorPalette.map((color, idx) => {
-          const isSelected = props.value && props.value.toLocaleLowerCase() === color.toLocaleLowerCase();
+          const isSelected = input.value && input.value.toLocaleLowerCase() === color.toLocaleLowerCase();
           return <div
             className={'w-4 h-4 rounded cursor-pointer ' + (isSelected ? 'border-b border-b-4 border-primary p-2' : '')}
             style={{backgroundColor: color}}

@@ -9,7 +9,8 @@ interface BooleanInputProps extends InputProps {
 }
 
 const ValueComponent = (props: BooleanInputProps) => {
-  if (props.value) {
+  const input = React.useContext(InputMetaContext);
+  if (input.value) {
     return <span className="text-green-600" style={{fontSize: '1.2em'}}>✓</span>;
   } else {
     return <span className="text-red-600" style={{fontSize: '1.2em'}}>✕</span>;
@@ -21,13 +22,13 @@ const InputComponent = (props: BooleanInputProps) => {
 
   return <div className='list horizontal'>
     <div
-      className={'btn btn-list-item p-0 ' + (props.value ? (props.yesBtnClass ?? 'btn-success') : 'btn-transparent')}
+      className={'btn btn-list-item p-0 ' + (input.value ? (props.yesBtnClass ?? 'btn-success') : 'btn-transparent')}
       onClick={() => { if (!input.readonly) input.changeValue(1)}}
     >
       <span className='text text-nowrap'>{props.yesText ?? <i className='fas fa-check'></i>}</span>
     </div>
     <div
-      className={'btn btn-list-item p-0 ' + (props.value ? 'btn-transparent' : (props.noBtnClass ?? 'btn-danger'))}
+      className={'btn btn-list-item p-0 ' + (input.value ? 'btn-transparent' : (props.noBtnClass ?? 'btn-danger'))}
       onClick={() => { if (!input.readonly) input.changeValue(0)}}
     >
       <span className='text text-nowrap'>{props.noText ?? <i className='fas fa-times'></i>}</span>
