@@ -61,9 +61,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
   }
 
   const onWorkflowStepChange = (newIdWorkflowStep: number, step: any): void => {
-    console.log('onWorkflowStepChange', newIdWorkflowStep, step);
     if (readonly) return;
-    console.log('here');
 
     setIdWorkflowStep(newIdWorkflowStep);
 
@@ -78,6 +76,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
   if (!isInitialized) return <div className='p-1'><Spinner size="xs" /></div>;
 
   const historyForCurrentWorkflow = history.filter((item) => item.id_workflow == idWorkflow);
+  const workflow = workflows ? workflows[idWorkflow] : null;
   const steps = workflows ? workflows[idWorkflow]?.STEPS : null;
   const currentStep = steps ? steps.filter((step) => step.id == idWorkflowStep)[0] ?? null : null;
 
@@ -106,12 +105,12 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
           className='text'
           style={{color: (currentStep?.color ?? 'red')}}
         >
-          {currentStep?.name ?? 'Select workflow step'}
+          {idWorkflow <= 0 ? 'Select workflow' : workflow.name + ': ' + (currentStep?.name ?? 'Select step')}
         </span>
         <span className='menu'>
           <div className='bg-white p-2 text-primary w-full'>Change workflow</div>
           <div className='list'>
-            {changeWorkflow ? <>
+            {idWorkflow <= 0 || changeWorkflow ? <>
               {Object.keys(workflows).map((tmpIdWorkflow: any, key: any) => {
                 return <div
                   key={key}

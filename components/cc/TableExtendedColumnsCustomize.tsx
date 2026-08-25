@@ -58,8 +58,8 @@ export default class TableExtendedColumnsCustomize<P, S> extends TranslatedCompo
       {},
       (data: any) => {
         if (data.status == "success") {
-          this.props.onClose();
-          this.props.parentTable.loadTableDescription();
+          // this.props.onClose();
+          this.props.parentTable.reload();
         }
       }
     );
@@ -77,7 +77,7 @@ export default class TableExtendedColumnsCustomize<P, S> extends TranslatedCompo
       (data: any) => {
         if (data.status == "success") {
           this.props.onClose();
-          this.props.parentTable.loadTableDescription();
+          this.props.parentTable.reload();
         }
       }
     );
@@ -102,7 +102,7 @@ export default class TableExtendedColumnsCustomize<P, S> extends TranslatedCompo
     entries.splice(targetIdx, 0, removed);
 
     const newItems = Object.fromEntries(entries);
-    this.setState({ record: newItems });
+    this.setState({ record: newItems }, () => this.saveRecord());
   };
 
   onDrop = (e) => {
@@ -119,12 +119,12 @@ export default class TableExtendedColumnsCustomize<P, S> extends TranslatedCompo
       <>
         <div className="modal-header active">
           <div className="modal-header-left">
-            <button className="btn btn-add" onClick={() => this.saveRecord()}>
+            {/* <button className="btn btn-add" onClick={() => this.saveRecord()}>
               <span className="icon">
                 <i className="fas fa-save"></i>
               </span>
               <span className="text">{this.translate('Save', 'Hubleto\\Erp\\Loader', 'Components\\TableExtendedColumnsCustomize')}</span>
-            </button>
+            </button> */}
           </div>
           <div className="modal-header-title">
             <h2>{this.translate('Customize Columns', 'Hubleto\\Erp\\Loader', 'Components\\TableExtendedColumnsCustomize')}</h2>
@@ -170,7 +170,7 @@ export default class TableExtendedColumnsCustomize<P, S> extends TranslatedCompo
                             is_hidden: !prevState.record[key].is_hidden,
                           },
                         },
-                      }))
+                      }), () => this.saveRecord())
                     }
                   >
                     <div className='flex flex-row items-center'>

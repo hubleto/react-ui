@@ -570,6 +570,7 @@ const Table = (props: TableProps) => {
   const [rowToInsert, setRowToInsert] = useState(null);
   const [selection, setSelection] = useState(props.selection ?? []);
   const [sidebarFilterHidden, setSidebarFilterHidden] = useState(false);
+  const [showAsPlainTable, setShowAsPlainTable] = useState(false);
   const [tableUpdateIteration, setTableUpdateIteration] = useState(0);
   const [tag, setTag] = useState(props.tag ?? '');
   const [uid, setUid] = useState(props.uid ?? '_table_' + uuid.v4().replace('-', '_'));
@@ -1031,33 +1032,56 @@ const Table = (props: TableProps) => {
         }
       },
       showAsPlainTable: {
-        title: (description?.ui?.showAsPlainTable ? 
+        title: (showAsPlainTable ? 
           T.translate('Show as standard table') 
           : T.translate('Show as plain table')),
         icon: 'fas fa-table',
         type: 'onclick',
         onClick: () => {
-          let newDescription: any = description ?? {};
-          if (!newDescription.ui) newDescription.ui = {};
-          newDescription.ui.showAsPlainTable = !newDescription.ui.showAsPlainTable;
-          setDescription(newDescription);
+          setShowAsPlainTable(!showAsPlainTable);
+        }
+      },
+      showColumnConfigScreen: {
+        title: T.translate('Columns'),
+        icon: 'fas fa-left-right',
+        type: 'onclick',
+        onClick: () => {
+          setShowColumnConfigScreen(!showColumnConfigScreen);
+        }
+      },
+      showExportCsvScreen: {
+        title: T.translate('Export to CSV'),
+        icon: 'fas fa-download',
+        type: 'onclick',
+        onClick: () => {
+          setShowExportCsvScreen(!showExportCsvScreen);
+        }
+      },
+      showImportCsvScreen: {
+        title: T.translate('Import from CSV'),
+        icon: 'fas fa-upload',
+        type: 'onclick',
+        onClick: () => {
+          setShowImportCsvScreen(!showImportCsvScreen);
         }
       },
       ...(description?.ui?.moreActions ?? [])
     };
 
-    if (!readonly) {
-      moreActions['toggleEditMode'] = {
-        title: (editMode == 'cell' ?
-          T.translate('Disable edit mode') 
-          : T.translate('Enable edit mode')),
-        icon: 'fas fa-pencil',
-        type: 'onclick',
-        onClick: () => {
-          setEditMode(editMode == 'cell' ? '' : 'cell');
-        }
-      };
-    }
+  console.log('description?.ui?.moreActions', description?.ui?.moreActions, moreActions);
+
+    // if (!readonly) {
+    //   moreActions['toggleEditMode'] = {
+    //     title: (editMode == 'cell' ?
+    //       T.translate('Disable edit mode') 
+    //       : T.translate('Enable edit mode')),
+    //     icon: 'fas fa-pencil',
+    //     type: 'onclick',
+    //     onClick: () => {
+    //       setEditMode(editMode == 'cell' ? '' : 'cell');
+    //     }
+    //   };
+    // }
 
     return <button
       className="btn btn-dropdown btn-transparent"
@@ -1065,8 +1089,8 @@ const Table = (props: TableProps) => {
     >
       <span className="icon mx-4"><i className="fas fa-ellipsis-vertical"></i></span>
       {/* <span className="text text-nowrap">{T.translate('More options')}</span> */}
-      <span className="menu" style={{left:"-145px"}}>
-        <div className="btn-list text-nowrap">
+      <span className="menu">
+        <div className="flex-dyn gap-4 p-4">
           {Object.keys(moreActions).map((key, index) => {
             const action = moreActions[key];
             const type = action.type ?? '';
@@ -1074,7 +1098,7 @@ const Table = (props: TableProps) => {
             if (type == 'onclick') {
               return <div
                 key={index}
-                className="btn btn-transparent btn-list-item"
+                className="btn btn-transparent btn-square"
                 onClick={() => { action.onClick(); }}
               >
                 <span className="icon"><i className={action.icon ?? 'fas fa-grip-lines'}></i></span>
@@ -1083,7 +1107,7 @@ const Table = (props: TableProps) => {
             }
 
             if (type == 'link') {
-              return <a key={index} className="btn btn-transparent btn-list-item" href={action.href}>
+              return <a key={index} className="btn btn-transparent btn-square" href={action.href}>
                 <span className="icon"><i className={action.icon ?? 'fas fa-grip-lines'}></i></span>
                 <span className="text">{action.title}</span>
               </a>;
@@ -1705,7 +1729,6 @@ const Table = (props: TableProps) => {
 
   const renderDefaultRecords = (): React.JSX.Element => {
     const showColumnSearch = description?.ui?.showColumnSearch ?? false;
-    const showAsPlainTable = description?.ui?.showAsPlainTable ?? false;
     
     switch (description.ui?.dataView) {
       case 'tree':
@@ -1950,7 +1973,7 @@ const Table = (props: TableProps) => {
             ref={refExportCsvForm}
             modal={refExportCsvModal}
             model={model}
-            parentTable={this}
+            parentTable={myself}
             onClose={() => { setShowExportCsvScreen(false); }}
           ></TableExtendedExportCsvForm>
         </Modal>
@@ -1970,7 +1993,7 @@ const Table = (props: TableProps) => {
             ref={refImportCsvForm}
             modal={refImportCsvModal}
             model={model}
-            parentTable={this}
+            parentTable={myself}
             onClose={() => { setShowImportCsvScreen(false); }}
           ></TableExtendedImportCsvForm>
         </Modal>
@@ -1989,7 +2012,7 @@ const Table = (props: TableProps) => {
           <TableExtendedColumnsCustomize
             //@ts-ignore
             ref={refColumnsConfigScreen}
-            parentTable={this}
+            parentTable={myself}
             tableTag={tag}
             tableModel={model}
             onClose={() => { setShowColumnConfigScreen(false) }}
