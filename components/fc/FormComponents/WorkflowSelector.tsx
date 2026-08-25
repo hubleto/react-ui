@@ -81,71 +81,8 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
   const steps = workflows ? workflows[idWorkflow]?.STEPS : null;
   const currentStep = steps ? steps.filter((step) => step.id == idWorkflowStep)[0] ?? null : null;
 
-  return (id <= 0 ? null : <div className='flex flex-row flex-wrap p-1'>
-    {changeWorkflow ? <div className='flex gap-2 items-center'>
-      <div className="input-body">
-        <div className="hubleto component input"><div className="inner">
-          <div className="input-element"><div className="list horizontal">
-            {Object.keys(workflows).map((tmpIdWorkflow: any, key: any) => {
-              return <button
-                key={key}
-                className={"btn btn-list-item " + (tmpIdWorkflow == idWorkflow ? "btn-primary" : "btn-transparent")}
-                onClick={() => { onWorkflowChange(tmpIdWorkflow); }}
-              ><span className="text text-nowrap">{workflows[tmpIdWorkflow]?.name}</span></button>
-            })}
-          </div></div>
-        </div></div>
-      </div>
-    </div> : <div className='flex gap-2'>
-      {/* <button className='btn btn-list-item btn-transparent btn-dropdown'>
-        <span className='icon'><i className='fas fa-timeline'></i></span>
-        <span className='menu w-60'>
-          <div className='list'>
-
-            {steps && steps.length > 0 ? <>
-              {steps.map((s, i) => {
-                let stepBtnClass = "btn-light";
-                if (stepBtnClass == "btn-primary") stepBtnClass = "btn-transparent";
-                else if (s.id == idWorkflowStep) stepBtnClass = "btn-primary";
-
-                return <div
-                  key={i}
-                  onClick={() => onWorkflowStepChange(s.id, s)}
-                  className={`btn btn-small ${stepBtnClass} !border-none !rounded-none`}
-                >
-                  <div
-                    style={{
-                      borderTop: '1em solid transparent',
-                      borderBottom: '1em solid transparent',
-                      borderLeft: '1em solid ' + s.color
-                    }}
-                  >
-                  </div>
-                  <div className='text'>
-                    {s.name}
-                  </div>
-                </div>;
-              })}
-            </>: null}
-
-            {historyForCurrentWorkflow[0] ? <div className='btn btn-list-item btn-transparent'>
-              <span className='icon'><i className='fas fa-clock'></i></span>
-              <div className='text'>
-                {T.translate('Last update: {{ date }} by {{ user }}')
-                  .replace('{{ date }}', historyForCurrentWorkflow[0].datetime_change)
-                  .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? T.translate('unknown'))
-                }
-              </div>
-            </div> : null}                  
-            {readonly ? null :
-              <a href='#' className='btn btn-transparent btn-list-item' onClick={() => { setChangeWorkflow(true); }}>
-                <span className='icon'><i className='fas fa-pencil'></i></span>
-                <span className="text">{T.translate('Change workflow')}</span>
-              </a>
-            }
-          </div>
-        </span>
-      </button> */}
+  return (id <= 0 ? null : <div className='input-wrapper'>
+    <div className='flex gap-2'>
       <div
         style={{
           borderTop: '1.1em solid transparent',
@@ -161,93 +98,78 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
       >
         <span
           className='icon'
-          style={{color: (currentStep?.color ?? 'black')}}
+          style={{color: (currentStep?.color ?? 'red')}}
         >
           <i className='fas fa-timeline'></i>
         </span>
         <span
           className='text'
-          style={{color: (currentStep?.color ?? 'black')}}
+          style={{color: (currentStep?.color ?? 'red')}}
         >
           {currentStep?.name ?? 'Select workflow step'}
         </span>
-        <span className='menu w-60'>
+        <span className='menu'>
+          <div className='bg-white p-2 text-primary w-full'>Change workflow</div>
           <div className='list'>
-
-            {steps && steps.length > 0 ? <>
-              {steps.map((s, i) => {
-                let stepBtnClass = "btn-white";
-                if (stepBtnClass == "btn-primary") stepBtnClass = "btn-transparent";
-                else if (s.id == idWorkflowStep) stepBtnClass = "btn-primary";
-
+            {changeWorkflow ? <>
+              {Object.keys(workflows).map((tmpIdWorkflow: any, key: any) => {
                 return <div
-                  key={i}
-                  onClick={() => onWorkflowStepChange(s.id, s)}
-                  className={`btn btn-list-item btn-small ${stepBtnClass}`}
+                  key={key}
+                  className={"btn btn-list-item " + (tmpIdWorkflow == idWorkflow ? "btn-primary" : "btn-transparent")}
+                  onClick={() => { onWorkflowChange(tmpIdWorkflow); }}
                 >
-                  <div
-                    style={{
-                      borderTop: '1em solid transparent',
-                      borderBottom: '1em solid transparent',
-                      borderLeft: '1em solid ' + s.color
-                    }}
-                  >
-                  </div>
-                  <div className='text'>
-                    {s.name}
-                  </div>
-                </div>;
+                  <span className="icon"><i className="fas fa-timeline"></i></span>
+                  <span className="text text-nowrap">{workflows[tmpIdWorkflow]?.name}</span>
+                </div>
               })}
-            </>: null}
+            </>
+            : <>
+              {steps && steps.length > 0 ? <>
+                {steps.map((s, i) => {
+                  let stepBtnClass = "btn-white";
+                  if (stepBtnClass == "btn-primary") stepBtnClass = "btn-transparent";
+                  else if (s.id == idWorkflowStep) stepBtnClass = "btn-primary";
 
-            {historyForCurrentWorkflow[0] ? <div className='btn btn-list-item btn-transparent'>
-              <span className='icon'><i className='fas fa-clock'></i></span>
-              <div className='text'>
-                {T.translate('Last update: {{ date }} by {{ user }}')
-                  .replace('{{ date }}', historyForCurrentWorkflow[0].datetime_change)
-                  .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? T.translate('unknown'))
-                }
-              </div>
-            </div> : null}                  
-            {readonly ? null :
-              <a href='#' className='btn btn-transparent btn-list-item' onClick={() => { setChangeWorkflow(true); }}>
-                <span className='icon'><i className='fas fa-pencil'></i></span>
-                <span className="text">{T.translate('Change workflow')}</span>
-              </a>
-            }
+                  return <div
+                    key={i}
+                    onClick={() => onWorkflowStepChange(s.id, s)}
+                    className={`btn btn-list-item btn-small ${stepBtnClass}`}
+                  >
+                    <div
+                      style={{
+                        borderTop: '1em solid transparent',
+                        borderBottom: '1em solid transparent',
+                        borderLeft: '1em solid ' + s.color
+                      }}
+                    >
+                    </div>
+                    <div className='text'>
+                      {s.name}
+                    </div>
+                  </div>;
+                })}
+              </>: null}
+
+              {historyForCurrentWorkflow[0] ? <div className='btn btn-list-item btn-transparent'>
+                <span className='icon'><i className='fas fa-clock'></i></span>
+                <div className='text'>
+                  {T.translate('Last update: {{ date }} by {{ user }}')
+                    .replace('{{ date }}', historyForCurrentWorkflow[0].datetime_change)
+                    .replace('{{ user }}', historyForCurrentWorkflow[0].USER?.nick ?? T.translate('unknown'))
+                  }
+                </div>
+              </div> : null}                  
+              {readonly ? null :
+                <div className='btn btn-transparent btn-list-item' onClick={(e) => { setChangeWorkflow(true); e.stopPropagation(); }}>
+                  <span className='icon'><i className='fas fa-pencil'></i></span>
+                  <span className="text">{T.translate('Change workflow')}</span>
+                </div>
+              }
+            </>}
           </div>
         </span>
       </button>
-      {/* <div className='flex flex-row items-center'>
-        {steps && steps.length > 0 ? <>
-          {steps.map((s, i) => {
-            const isCurrent = s.id == idWorkflowStep;
-
-            let stepBtnClass = "btn-light";
-            if (stepBtnClass == "btn-primary") stepBtnClass = "btn-transparent";
-            else if (s.id == idWorkflowStep) stepBtnClass = "btn-primary";
-
-            return <div
-              key={i}
-              onClick={() => onWorkflowStepChange(s.id, s)}
-              className={`btn btn-small ${stepBtnClass} !border-none !rounded-none`}
-            >
-              <div
-                style={{
-                  borderTop: '1em solid transparent',
-                  borderBottom: '1em solid transparent',
-                  borderLeft: '1em solid ' + s.color
-                }}
-              >
-              </div>
-              <div className='text'>
-                {isCurrent ? s.name : '...'}
-              </div>
-            </div>;
-          })}
-        </>: null}
-      </div> */}
-    </div>}
+    </div>
   </div>);
 
 };

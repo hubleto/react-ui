@@ -1179,7 +1179,7 @@ const Table = (props: TableProps) => {
   const renderDefaultTitle = (): React.JSX.Element => {
     const titleFromDescription = description?.ui?.title ?? '';
     const title = titleFromDescription == '' ? props.title : titleFromDescription;
-    return title ? <div className='app-main-title'><span>{title}</span></div> : null;
+    return title ? <span>{title}</span> : null;
   }
 
   const renderDefaultHeaderRight = (): React.JSX.Element => {
@@ -1190,10 +1190,11 @@ const Table = (props: TableProps) => {
   }
 
   const renderDefaultHeader = (): React.JSX.Element => {
-    return <div className="table-header flex mb-2">
-      {description?.ui?.showHeaderTitle ?
+    const title = renderTitle();
+    return <div className="table-header">
+      {description?.ui?.showHeaderTitle && title ?
         <div className="table-header-title">
-          {renderTitle()}
+          {title}
         </div>
         : null
       }
@@ -1919,7 +1920,7 @@ const Table = (props: TableProps) => {
         {description?.ui?.showHeader ? renderHeader() : null}
         {description?.ui?.showFilter ? renderFilter() : null}
 
-        <div className="flex gap-2 flex-col md:flex-row overflow-x max-w-[98vw]">
+        <div className="table-wrapper">
           {sidebarFilter && description?.ui?.showSidebarFilter && !sidebarFilterHidden ?
             <div className="table-sidebar-filter">
               {sidebarFilter}

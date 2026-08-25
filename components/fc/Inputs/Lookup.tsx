@@ -57,8 +57,8 @@ const loadData = (props: any, input: any, searchValue: string|null = null) => {
 const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
-  if (input.data && input.data[input.value]?._LOOKUP) {
-    let value = input.data[input.value];
+  if (input.data && input.data[props.value]?._LOOKUP) {
+    let value = input.data[props.value];
     let urlDetail = value._URL_DETAIL ?? '';
 
     let style = {};
@@ -68,7 +68,7 @@ const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
       <a className="btn btn-transparent" style={style}>
         <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
       </a>
-      {urlDetail && input.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
+      {urlDetail && props.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
         <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
       </a> : null}
     </>;
@@ -79,8 +79,8 @@ const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
 
 const InputComponent = (props: LookupInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
-  let urlDetail = input.data[input.value]?._URL_DETAIL ?? '';
-  let value = input.data[input.value]?.id ?? 0;
+  let urlDetail = input.data[props.value]?._URL_DETAIL ?? '';
+  let value = input.data[props.value]?.id ?? 0;
 
   const urlAdd = props.inputProps?.urlAdd;
 
@@ -114,8 +114,8 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
       return <>
         <button
           className={
-            "btn " + (input.readonly && input.value != value ? "btn-disabled" : "")
-            + " " + (input.value == value ? "btn-primary" : "btn-transparent")
+            "btn " + (input.readonly && props.value != value ? "btn-disabled" : "")
+            + " " + (props.value == value ? "btn-primary" : "btn-transparent")
           }
           style={{borderLeft: (color ? "0.5em solid " + color : "")}}
           onClick={() => { 
@@ -132,7 +132,7 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
         ref={input.refInput}
         value={{
           id: value,
-          _LOOKUP: input.data[input.value]?._LOOKUP ?? '',
+          _LOOKUP: input.data[props.value]?._LOOKUP ?? '',
         }}
         isClearable={true}
         isDisabled={input.readonly || !input.isInitialized}
@@ -153,8 +153,8 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
       {urlDetail ? <a className="btn btn-transparent btn-small" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
         <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
       </a> : null}
-      {urlAdd && !input.readonly ? <a className="btn btn-add-outline btn-small ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlAdd}>
-        <span className="icon"><i className="fas fa-plus p-1"></i></span>
+      {urlAdd && !input.readonly ? <a className="btn btn-transparent btn-small" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlAdd}>
+        <span className="icon"><i className="fas fa-plus"></i></span>
       </a> : null}
     </>;
   }

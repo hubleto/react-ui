@@ -65,8 +65,8 @@ const renderReadableInfo = (value: any) => {
 const ValueComponent = (props: DateTimeInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
-  let value = input.value;
-  let valueFormatted = input.value;
+  let value = props.value;
+  let valueFormatted = props.value;
 
   switch (props.type) {
     case 'datetime':
@@ -88,107 +88,81 @@ const ValueComponent = (props: DateTimeInputProps): React.JSX.Element => {
 const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
-  // let value: any = input.value;
-  // let defaultPlaceholder;
-  // let icon = '';
-  // let options: any = {
-  //   allowInput: false,
-  //   locale: {
-  //     weekdays: {
-  //       shorthand: ['Ne.', 'Po.', 'Ut.', 'St.', 'Št.', 'Pi.', 'So.'],
-  //       longhand: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  //     },
-  //     months: {
-  //       shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Máj', 'Jún', 'Júl', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
-  //       longhand: ['Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún', 'Júl', 'August', 'September', 'Október', 'November', 'December']
-  //     },
-  //     weekStart: 1
-  //   },
-  //   dateFormat: 'H:i',
-  //   enableTime: true,
-  //   noCalendar: true,
-  //   time_24hr: true,
-  //   minuteIncrement: 15,
-  // };
+  const setDate = (year: any, month: any, day: any) => {
+    const dateStr = year + '-' + month + '-' + day;
+    const date = moment(dateStr);
 
-  // switch (props.type) {
-  //   case 'datetime':
-  //     icon = 'fas fa-clock';
-  //     value = datetimeToEUFormat(value);
-  //     options = {...options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:i:S'};
-  //     defaultPlaceholder = T.translate('Year-Month-Day Hour:Min:Sec');
-  //   break;
-  //   case 'date':
-  //     icon = 'fas fa-calendar';
-  //     value = dateToEUFormat(value);
-  //     options = {...options, showMonths: 2, weekNumbers: true, dateFormat: 'd.m.Y'};
-  //     defaultPlaceholder = T.translate('Year-Month-Day');
-  //   break;
-  //   case 'time':
-  //     icon = 'fas fa-clock';
-  //     options = {
-  //       ...options,
-  //       dateFormat: 'H:m',
-  //       enableTime: true,
-  //       noCalendar: true,
-  //       time_24hr: true,
-  //       minuteIncrement: 15,
-  //       showMonths: 2,
-  //     };
-  //     defaultPlaceholder = 'Hour:Min:Sec';
-  //   break;
-  // }
+    if (year == '' || month == '' || day == '') input.changeValue(moment().format('yyyy-MM-DD'));
+    else if (date.isValid()) input.changeValue(dateStr);
+    else input.changeValue(moment(year + '-' + month + '-01').format('yyyy-MM-DD'));
+  };
 
-  const readableInfo = (props.showReadable ? renderReadableInfo(input.value) : null);
+  const readableInfo = (props.showReadable ? renderReadableInfo(props.value) : null);
+  const year = moment(props.value).format('yyyy');
+  const month = moment(props.value).format('MM');
+  const day = moment(props.value).format('DD');
+  const daysInMonth = moment(props.value, "YYYY-MM").daysInMonth();
 
-  return <div className="flex gap-2">
-    <div className="flex gap-2 items-center">
-      {/* <i className={icon}></i> */}
-      <div style={{minWidth: "8em"}}>
-        <input
-          ref={input.refInput}
-          value={input.value ?? ''}
-          onChange={(e) => { console.log('datetime chg'); input.changeValue(e.currentTarget.value)} }
-          className={
-            (input.invalid ? 'is-invalid' : '')
-            + " " + (input.cssClass ?? "")
-            + " " + (input.readonly ? "bg-muted" : "")
-          }
-          placeholder={props.placeholder}
-          disabled={input.readonly}
-        />
-        {/* <Flatpickr
-          ref={input.refInput}
-          value={value}
-          onChange={(data: Date[]) => {
-            input.changeValue(data[0] ?? null)
-          }}
-          className={
-            (input.invalid ? 'is-invalid' : '')
-            + " " + (input.cssClass ?? "")
-            + " " + (input.readonly ? "bg-muted" : "")
-          }
-          placeholder={input.description?.placeholder ?? defaultPlaceholder}
-          disabled={input.readonly}
-          options={options}
-        /> */}
-      </div>
-      {readableInfo ? <div className="text-xs">{readableInfo}</div> : null}
-      <div>
-        {input.readonly ? null :
-          <button
-            className="btn btn-small btn-transparent ml-2"
-            onClick={() => {
-              // if (!input.refInput?.current?.flatpickr) return;
-              // input.refInput.current.flatpickr.clear();
-              input.changeValue('');
-            }}
-          >
-            <span className="icon"><i className="fas fa-times"></i></span>
-          </button>
-        }
-      </div>
-    </div>
+  return <div 
+    className={
+      "flex gap-1"
+      + " " + (input.invalid ? 'is-invalid' : '')
+      + " " + (input.cssClass ?? "")
+      + " " + (input.readonly ? "bg-muted" : "")
+    }
+  >
+    {input.readonly ? null : <button
+      className="btn btn-small btn-transparent"
+      onClick={() => input.changeValue(moment().format('yyyy-MM-DD'))}
+      title='Today'
+    >
+      <span className="icon"><i className="fas fa-calendar-day"></i></span>
+    </button>}
+    <select
+      value={month}
+      className='w-16 border-none'
+      onChange={(e) => setDate(year, e.currentTarget.value, day)}
+      disabled={input.readonly}
+    >
+      <option value='01'>Jan</option>
+      <option value='02'>Feb</option>
+      <option value='03'>Mar</option>
+      <option value='04'>Apr</option>
+      <option value='05'>May</option>
+      <option value='06'>Jun</option>
+      <option value='07'>Jul</option>
+      <option value='08'>Aug</option>
+      <option value='09'>Sep</option>
+      <option value='10'>Oct</option>
+      <option value='11'>Nov</option>
+      <option value='12'>Dec</option>
+    </select>
+    <input
+      type='number'
+      min='1'
+      max={daysInMonth}
+      className='w-12 border-none'
+      value={day}
+      onChange={(e) => setDate(year, month, e.currentTarget.value)}
+      disabled={input.readonly}
+      placeholder='Day'
+    />
+    <input
+      type='number'
+      value={year}
+      className='w-16 border-none'
+      onChange={(e) => setDate(e.currentTarget.value, month, day)}
+      disabled={input.readonly}
+      placeholder='Year'
+    />
+    {input.readonly ? null : <button
+      className="btn btn-small btn-transparent"
+      onClick={() => input.changeValue('')}
+      title='Clear'
+    >
+      <span className="icon"><i className="fas fa-times"></i></span>
+    </button>}
+    {readableInfo ? <div className="text-xs">{readableInfo}</div> : null}
   </div>;
 }
 

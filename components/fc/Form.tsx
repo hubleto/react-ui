@@ -497,10 +497,11 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
 
   const RenderTopMenuButton = (p: { tabUid: string }) => (props.renderTopMenuButton ? props.renderTopMenuButton(myself, p.tabUid) : renderDefaultTopMenuButton(p.tabUid));
-  const RenderTopInputs = useCallback(() => (props.renderTopInputs ? props.renderTopInputs(myself) : renderDefaultTopInputs()), [description, activeTabUid]);
+  const RenderTopInputs = useCallback(() => (props.renderTopInputs ? props.renderTopInputs(myself) : renderDefaultTopInputs()), [description]);
   const RenderTopMenu = useCallback(() => (props.renderTopMenu ? props.renderTopMenu(myself) : renderDefaultTopMenu()), [description, activeTabUid]);
   const RenderTab = (p: { tab: string }) => (props.renderTab ? props.renderTab(myself, p.tab) : renderDefaultTab(p.tab));
   const RenderContent = useCallback(() => (props.renderContent ? props.renderContent(myself) : renderDefaultContent()), [description, activeTabUid, isInitialized]);
+  // const RenderContent = () => (props.renderContent ? props.renderContent(myself) : renderDefaultContent());
   const RenderPrintPreviewUi = () => (props.renderPrintPreviewUi ? props.renderPrintPreviewUi(myself) : renderDefaultPrintPreviewUi());
   const RenderHeaderExtraButtons = () => (props.renderHeaderExtraButtons ? props.renderHeaderExtraButtons(myself) : renderDefaultHeaderExtraButtons());
   const RenderFooterExtraButtons = () => (props.renderFooterExtraButtons ? props.renderFooterExtraButtons(myself) : renderDefaultFooterExtraButtons());
@@ -526,13 +527,13 @@ const Form = (props: FormProps) => {
 
   const renderDefaultTopInputs = (): React.JSX.Element => {
     const inputs = description.inputs;
-    return (inputs ? <div className='flex w-full'>
+    return (inputs ? <div className={cssClassNamePrefix + "-top-inputs"}>
       {inputs.id_workflow && inputs.id_workflow_step ? <WorkflowSelector /> : null}
+      {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}} /> : null}
       {inputs.id_owner ? <Input field='id_owner' readonly={false} renderOnlyInputField userIcon='fas fa-user' /> : null}
       {inputs.id_manager ? <Input field='id_manager' readonly={false} renderOnlyInputField userIcon='fas fa-user-tie' /> : null}
       {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}
       {inputs.shared_with ? <Input field='shared_with' title='Share' renderOnlyInputField /> : null}
-      {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}} /> : null}
     </div> : null);
   }
 
@@ -661,10 +662,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultTab = (tab: string): React.JSX.Element => {
-    if (props.tabs && props.tabs[tab]) {
-      return props.tabs[tab].content();
-    }
-
+    if (props.tabs && props.tabs[tab]) return props.tabs[tab].content();
     return <>{Object.keys(description?.inputs ?? {}).map((field: string) => {
       return <Input field={field} />
     })}</>;
@@ -1019,10 +1017,6 @@ const Form = (props: FormProps) => {
     renderDefaultWarningsOrErrors,
     renderDefaultSaveErrorMessage,
   }
-
-
-
-
 
 
 

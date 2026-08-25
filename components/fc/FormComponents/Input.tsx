@@ -17,7 +17,7 @@ import InputPassword from "../../cc/Inputs/Password";
 import InputFile from "../../cc/Inputs/File";
 import InputImage from "../../cc/Inputs/Image";
 
-const Input = React.memo((props: any) => {
+const Input = (props: any) => {
   const { field, content, wrapperCssClass, renderOnlyInputField, customInputProps, debug, children } = props;
 
   const form = React.useContext(FormMetaContext);
@@ -132,6 +132,6 @@ const Input = React.memo((props: any) => {
 
   return finalContent;
 
-}, () => true);
+};
 
 export default Input;

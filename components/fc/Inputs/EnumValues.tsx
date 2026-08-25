@@ -12,8 +12,8 @@ const ValueComponent = (props: EnumValuesInputProps) => {
   const enumValues = props.enumValues;
   const enumCssClasses = props.enumCssClasses;
 
-  let value = enumValues ? enumValues[input.value] : null;
-  let cssClass = enumCssClasses ? enumCssClasses[input.value] : null;
+  let value = enumValues ? enumValues[props.value] : null;
+  let cssClass = enumCssClasses ? enumCssClasses[props.value] : null;
 
   if (!value) {
     if (enumValues) value = enumValues[Object.keys(enumValues)[0]];
@@ -35,7 +35,7 @@ const InputComponent = (props: EnumValuesInputProps) => {
 
   if (!enumValues) return <></>;
 
-  let value = input.value ?? null;
+  let value = props.value ?? null;
   if (!enumValues[value]) value = Object.keys(enumValues)[0];
 
   if (uiStyle == 'select') {
@@ -43,7 +43,9 @@ const InputComponent = (props: EnumValuesInputProps) => {
       <select
         ref={input.refInput}
         value={value}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => input.changeValue(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+          input.changeValue(e.target.value);
+        }}
         className={
           "bg-white"
           + " " + (input.invalid ? 'is-invalid' : '')
@@ -68,8 +70,8 @@ const InputComponent = (props: EnumValuesInputProps) => {
       return <button
         key={key}
         className={
-          "btn " + (input.readonly && input.value != key ? "btn-disabled" : "")
-          + " " + (input.value == key ? "btn-primary " + enumCssClass : "btn-transparent")
+          "btn " + (input.readonly && value != key ? "btn-disabled" : "")
+          + " " + (value == key ? "btn-primary " + enumCssClass : "btn-transparent")
         }
         onClick={() => { if (!input.readonly) input.changeValue(key); }}
       >
@@ -86,6 +88,9 @@ const EnumValuesInput = (props: EnumValuesInputProps) => {
 
   return <Input
     isInitialized={true}
+    myself={{
+      enumValues: props.enumValues
+    }}
     {...props}
 
     serialize={(input: any): string => {
@@ -93,7 +98,7 @@ const EnumValuesInput = (props: EnumValuesInputProps) => {
       const enumValues = description.enumValues;
 
       if (!enumValues) return '';
-      if (!enumValues[input.value]) return Object.keys(enumValues)[0];
+      if (!enumValues[props.value]) return Object.keys(enumValues)[0];
       return '';
     }}
 

@@ -26,12 +26,12 @@ const InputComponent = (props: SharedWithInputProps) => {
   const form = React.useContext(FormMetaContext);
   const R = React.useContext(FormRecordStoreContext);
 
-  let valuesPerUser = input.value;
+  let valuesPerUser = props.value;
 
   const [showModal, setShowModal] = useState(false);
 
   try {
-    valuesPerUser = JSON.parse(input.value);
+    valuesPerUser = JSON.parse(props.value);
   } catch (ex) {
     valuesPerUser = {};
   }

@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 
 const ValueComponent = (props: InputProps) => {
-  const input = React.useContext(InputMetaContext);
-  return input.value;
+  return props.value;
 }
 
 const InputComponent = (props: InputProps) => {
@@ -17,7 +16,7 @@ const InputComponent = (props: InputProps) => {
       ref={input.refInput}
       type="number"
       step={step}
-      value={input.value}
+      value={props.value}
       onChange={(e) => input.changeValue(e.currentTarget.value.replace('e', ''))}
       placeholder={input.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
       className={

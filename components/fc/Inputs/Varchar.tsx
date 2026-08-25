@@ -26,18 +26,20 @@ const loadData = (input: any, searchValue: string) => {
 
 export const ValueComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
-  return input.value;
+  const value = props.value;
+  return value;
 }
 
 export const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
+  const value = props.value;
   const [showPredefinedValues, setShowPredefinedValues] = useState(false);
 
   if (input.description?.autocomplete) {
     let selectProps = {
       value: {
-        label: input.value ?? '',
-        value: input.value ?? '',
+        label: value ?? '',
+        value: value ?? '',
       },
       isClearable: true,
       isDisabled: input.readonly || !input.isInitialized,
@@ -58,11 +60,11 @@ export const InputComponent = (props: InputProps) => {
     return <div className="flex gap-2 w-full">
       <input
         type='text'
-        value={input.value ?? ''}
+        value={value ?? ''}
         onChange={(e) => { input.changeValue(e.currentTarget.value)} }
         placeholder={input.description?.placeholder ?? input.description?.title}
         className={
-          "border-none"
+          ""
           + (input.invalid ? " is-invalid" : "")
           + " " + (input.readonly ? "bg-muted" : "")
         }
@@ -98,10 +100,9 @@ export const VarcharInput = (props: InputProps) => {
         loadData(input, '');
       }
     }}
-    renderValueComponent={(input: InputMeta) => <ValueComponent {...props} />}
-    renderInputComponent={(input: InputMeta) => <InputComponent {...props} />}
+    renderValueComponent={() => <ValueComponent {...props} />}
+    renderInputComponent={() => <InputComponent {...props} />}
     changeValue={(input: any, newValue: any): void => {
-      console.log('a');
       input.setValue(newValue);
     }}
     {...props}

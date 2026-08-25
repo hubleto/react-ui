@@ -56,6 +56,7 @@ export interface InputProps {
   children?: any,
   description?: InputDescription,
   data?: Array<any>,
+  myself?: any,
 }
 
 export interface InputMeta {
@@ -140,6 +141,39 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   useEffect(() => { setIsModified(props.isModified ?? false); }, [props.isModified]);
   useEffect(() => { setReadonly(props.readonly ?? false); }, [props.readonly]);
 
+  const getMyself = (): InputMeta => {
+    return {
+      field,
+      changed, setChanged,
+      cssClass, setCssClass,
+      cssStyle, setCssStyle,
+      data, setData,
+      description, setDescription,
+      inputClassName, setInputClassName,
+      invalid, setInvalid,
+      isInitialized, setIsInitialized,
+      isModified, setIsModified,
+      origValue, setOrigValue,
+      readonly, setReadonly,
+      value, setValue,
+
+      onChange: props.onChange,
+
+      changeValue,
+      translate,
+      refInputWrapper,
+      refInputElement,
+      refValueElement,
+      refInput,
+
+      renderDefaultLoadingComponent,
+      renderDefaultValueComponent,
+      renderDefaultInputComponent,
+
+      ...props.myself,
+    };
+  }
+
   const getClassName = useCallback((): string => {
     return (
       "hubleto component input"
@@ -162,8 +196,8 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
 
     // if (props.changeValue) props.changeValue(myself, newValue);
     setValue(newValue);
-    if (props.onChange) props.onChange(myself, newValue);
     setChanged(origValue != newValue);
+    if (props.onChange) props.onChange(myself, newValue);
   };
 
   const renderDefaultLoadingComponent = (): React.JSX.Element => {
@@ -202,34 +236,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     renderDefaultValueComponent();
   }
 
-  const myself: InputMeta = {
-    field,
-    changed, setChanged,
-    cssClass, setCssClass,
-    cssStyle, setCssStyle,
-    data, setData,
-    description, setDescription,
-    inputClassName, setInputClassName,
-    invalid, setInvalid,
-    isInitialized, setIsInitialized,
-    isModified, setIsModified,
-    origValue, setOrigValue,
-    readonly, setReadonly,
-    value, setValue,
-
-    onChange: props.onChange,
-
-    changeValue,
-    translate,
-    refInputWrapper,
-    refInputElement,
-    refValueElement,
-    refInput,
-
-    renderDefaultLoadingComponent,
-    renderDefaultValueComponent,
-    renderDefaultInputComponent,
-  };
+  const myself = getMyself();
 
   // Expose `meta` imperatively to whoever holds a ref to <Input>.
   // This lets a parent ABOVE the InputMetaContext.Provider (like Tags,
