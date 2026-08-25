@@ -25,7 +25,7 @@ const InputComponent = (props: BooleanInputProps) => {
       className={'btn btn-list-item p-0 ' + (input.value ? (props.yesBtnClass ?? 'btn-success') : 'btn-transparent')}
       onClick={() => { if (!input.readonly) input.changeValue(1)}}
     >
-      <span className='text text-nowrap'>{props.yesText ?? <i className='fas fa-check'></i>}</span>
+      <span className='text text-nowrap'>{props.yesText ?? (input.description.title ?? <i className='fas fa-check'></i>)}</span>
     </div>
     <div
       className={'btn btn-list-item p-0 ' + (input.value ? 'btn-transparent' : (props.noBtnClass ?? 'btn-danger'))}

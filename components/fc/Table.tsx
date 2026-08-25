@@ -1068,21 +1068,6 @@ const Table = (props: TableProps) => {
       ...(description?.ui?.moreActions ?? [])
     };
 
-  console.log('description?.ui?.moreActions', description?.ui?.moreActions, moreActions);
-
-    // if (!readonly) {
-    //   moreActions['toggleEditMode'] = {
-    //     title: (editMode == 'cell' ?
-    //       T.translate('Disable edit mode') 
-    //       : T.translate('Enable edit mode')),
-    //     icon: 'fas fa-pencil',
-    //     type: 'onclick',
-    //     onClick: () => {
-    //       setEditMode(editMode == 'cell' ? '' : 'cell');
-    //     }
-    //   };
-    // }
-
     return <button
       className="btn btn-dropdown btn-transparent"
       key="more-actions-btn"

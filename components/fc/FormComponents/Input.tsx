@@ -119,15 +119,15 @@ const Input = (props: any) => {
   >
     {renderOnlyInputField ? null : <label className="input-label" htmlFor={form.uid + '_' + field}>
       {title ?? ''}
+      {inputDescription.hint ?
+        <i className='fas fa-circle-question ml-2' title={inputDescription.hint} />
+      : null}
     </label>}
     <div className="input-body">
       {icon && <div className="input-icon"><i className={icon}></i></div>}
       {input}
       {inputDescription.info}
     </div>
-    {renderOnlyInputField ? null : inputDescription.hint && (
-      <div className="input-hint">{inputDescription.hint}</div>
-    )}
   </div>;
 
   return finalContent;

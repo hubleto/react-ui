@@ -111,20 +111,19 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
       const value = input.data ? (input.data[key]?.id ?? 0) : 0;
       const lookup = input.data ? (input.data[key]?._LOOKUP ?? '') : '';
       const color = input.data ? (input.data[key]?._LOOKUP_COLOR ?? '') : '';
-      return <>
-        <button
-          className={
-            "btn " + (input.readonly && input.value != value ? "btn-disabled" : "")
-            + " " + (input.value == value ? "btn-primary" : "btn-transparent")
-          }
-          style={{borderLeft: (color ? "0.5em solid " + color : "")}}
-          onClick={() => { 
-            if (!input.readonly) input.changeValue(value);
-          }}
-        >
-          <span className="text">{lookup}</span>
-        </button>
-      </>;
+      return <button
+        key={key}
+        className={
+          "btn " + (input.readonly && input.value != value ? "btn-disabled" : "")
+          + " " + (input.value == value ? "btn-primary" : "btn-transparent")
+        }
+        style={{borderLeft: (color ? "0.5em solid " + color : "")}}
+        onClick={() => { 
+          if (!input.readonly) input.changeValue(value);
+        }}
+      >
+        <span className="text">{lookup}</span>
+      </button>;
     })}</div>;
   } else {
     return <>

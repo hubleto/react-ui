@@ -126,7 +126,7 @@ const ValueComponent = (props: DateTimeInputProps): React.JSX.Element => {
 
 const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
-  const daysInMonth = moment(input.value, "YYYY-MM").daysInMonth();
+  const daysInMonth = moment(input.value, "YYYY-MM").daysInMonth() ?? 30;
   const { year, month, day, hour, minute, second } = getValues(props.type, input.value);
 
   return <div 
@@ -166,7 +166,7 @@ const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
     <input
       type='number'
       min='1'
-      max={daysInMonth}
+      max={isNaN(daysInMonth) ? 30 : daysInMonth}
       className='w-12 border-none'
       value={day}
       onChange={(e) => setValue(input, props.type, year, month, e.currentTarget.value, hour, minute, second)}
