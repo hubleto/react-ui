@@ -1027,6 +1027,7 @@ const Form = (props: FormProps) => {
   if (loadRecordError) {
     finalContent = <>
       <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
+      <div className="m-4">{props.model}, {props.id}</div>
       <div className="m-4"><code>{loadRecordError.message}</code></div>
     </>
   } else {

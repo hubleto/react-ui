@@ -2012,6 +2012,7 @@ const Table = (props: TableProps) => {
           <TableExtendedColumnsCustomize
             //@ts-ignore
             ref={refColumnsConfigScreen}
+            //@ts-ignore
             parentTable={myself}
             tableTag={tag}
             tableModel={model}
