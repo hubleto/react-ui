@@ -147,12 +147,12 @@ const Form = (props: FormProps) => {
   }
 
   const getTitleAsText = (): string => {
-    return model.split('/').pop() + ' ' + props.id;
+    return model.split('/').pop() + ' ' + id;
   }
 
   const getRecordFormUrl = (): string => {
     if (props.getRecordFormUrl) return props.getRecordFormUrl(myself);
-    if (props.urlSlug != '') return props.urlSlug + '/' + (props.id > 0 ? props.id : 'add');
+    if (props.urlSlug != '') return props.urlSlug + '/' + (id > 0 ? id : 'add');
     return '';
   }
 
@@ -869,9 +869,9 @@ const Form = (props: FormProps) => {
               <span className='icon'><i className='fas fa-copy'></i></span>
             </button> */}
           </> : null}
-          {props.id > 0 ? <a
+          {id > 0 ? <a
             className='btn btn-white'
-            href={globalThis.hubleto.config.projectUrl + '/ai-assistant?model=' + model + '&id=' + props.id}
+            href={globalThis.hubleto.config.projectUrl + '/ai-assistant?model=' + model + '&id=' + id}
             target='_blank'
           >
             <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
@@ -940,8 +940,8 @@ const Form = (props: FormProps) => {
     } else {
       return <div>
         <h2>{updatingRecord
-          ? T.translate('Record', 'Hubleto\\Erp\\Loader', 'Components\\Form') + ' #' + (props.id ?? '-')
-          : T.translate('New record', 'Hubleto\\Erp\\Loader', 'Components\\Form')
+          ? T.translate('Record') + ' #' + (id ?? '-')
+          : T.translate('New record')
         }</h2>
       </div>;
     }
@@ -1023,7 +1023,7 @@ const Form = (props: FormProps) => {
   if (loadRecordError) {
     finalContent = <>
       <div className="alert alert-danger m-4">Unable to load record. Check your permissions or contact administrator.</div>
-      <div className="m-4">{props.model}, {props.id}</div>
+      <div className="m-4">{props.model}, {id}</div>
       <div className="m-4"><code>{loadRecordError.message}</code></div>
     </>
   } else {
