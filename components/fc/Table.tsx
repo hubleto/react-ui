@@ -151,8 +151,8 @@ const Table = (props: TableProps) => {
         loadData();
         if (props.closeFormAfterSave ?? false) {
           closeForm();
-        } else if (saveResponse && saveResponse.savedRecord.id) {
-          openForm(saveResponse.savedRecord.id);
+        // } else if (saveResponse && saveResponse.savedRecord.id) {
+        //   openForm(saveResponse.savedRecord.id);
         }
       },
       onAfterDeleteRecord: () => {
@@ -419,54 +419,52 @@ const Table = (props: TableProps) => {
           } else {
             const cellText = data['_LOOKUP[' + columnName + ']'] ?? (data[columnName] ?? '');
             const cellDetailUrl = data['_LOOKUP_DETAIL_URL[' + columnName + ']'] ?? '';
-            return (
-              <div
-                key={'column-' + columnName}
-                className={
-                  getCellClassName(columnName, column, data)
-                  + (data._toBeDeleted_ ? ' to-be-deleted' : '')
-                }
-                style={getCellCssStyle(columnName, column, data)}
-                title={cellText}
-              >
-                {renderCell(columnName, column, data, options)}
-                <div className='cell-buttons'>
-                  {cellDetailUrl ?
-                    <button
-                      className='btn btn-small btn-primary-outline'
-                      title={T.translate('Open in new tab')}
-                      onClick={(e) => {
-                        globalThis.window.open(globalThis.hubleto.config.projectUrl + '/' + cellDetailUrl)
-                        e.stopPropagation();
-                      }}
-                    ><span className='icon'><i className='fas fa-arrow-up-right-from-square'></i></span></button>
-                  : null}
+            return <div
+              key={'column-' + columnName}
+              className={
+                getCellClassName(columnName, column, data)
+                + (data._toBeDeleted_ ? ' to-be-deleted' : '')
+              }
+              style={getCellCssStyle(columnName, column, data)}
+              title={cellText}
+            >
+              {renderCell(columnName, column, data, options)}
+              <div className='cell-buttons'>
+                {cellDetailUrl ?
                   <button
                     className='btn btn-small btn-primary-outline'
-                    title={T.translate('Copy cell content to clipboard')}
+                    title={T.translate('Open in new tab')}
                     onClick={(e) => {
-                      navigator.clipboard.writeText(cellText);
+                      globalThis.window.open(globalThis.hubleto.config.projectUrl + '/' + cellDetailUrl)
                       e.stopPropagation();
                     }}
-                  ><span className='icon'><i className='fas fa-copy'></i></span></button>
-                  {editMode == '' || column.readonly || column.type == 'virtual' ? null :
-                    <button
-                      className="btn btn-small btn-primary-outline"
-                      title={T.translate('Edit')}
-                      onClick={(e) => {
-                        // Default cell click behavior is to open the form.
-                        // If prevented, the 'onClick' of DataTable will
-                        // be launched, which means editing the cell
-                        // when editMode = 'cell'.
-                        e.preventDefault();
-                      }}
-                    >
-                      <span className="icon"><i className="fas fa-pencil"></i></span>
-                    </button>
-                  }
-                </div>
+                  ><span className='icon'><i className='fas fa-arrow-up-right-from-square'></i></span></button>
+                : null}
+                <button
+                  className='btn btn-small btn-primary-outline'
+                  title={T.translate('Copy cell content to clipboard')}
+                  onClick={(e) => {
+                    navigator.clipboard.writeText(cellText);
+                    e.stopPropagation();
+                  }}
+                ><span className='icon'><i className='fas fa-copy'></i></span></button>
+                {editMode == '' || column.readonly || column.type == 'virtual' ? null :
+                  <button
+                    className="btn btn-small btn-primary-outline"
+                    title={T.translate('Edit')}
+                    onClick={(e) => {
+                      // Default cell click behavior is to open the form.
+                      // If prevented, the 'onClick' of DataTable will
+                      // be launched, which means editing the cell
+                      // when editMode = 'cell'.
+                      e.preventDefault();
+                    }}
+                  >
+                    <span className="icon"><i className="fas fa-pencil"></i></span>
+                  </button>
+                }
               </div>
-            );
+            </div>;
           }
         },
         editor: column.readonly ? null : (options: any) => {
@@ -602,32 +600,33 @@ const Table = (props: TableProps) => {
     return newData;
   }
 
+  const changeRecordById = (id: number, onChange: any): any => {
+    let newData: TableData = data;
+    let i: any;
+
+    for (i in data?.records) {
+      if (data.records[i].id == id) {
+        newData.records[i] = onChange(data.records[i]);
+      }
+    }
+
+    return newData;
+  }
+
   const findRecordById = (id: number): any => {
-    let data: any = {};
+    let newData: TableData = data;
     let i: any;
 
     for (i in data?.records) {
       if (data?.records[i].id == id) {
-        data = data.records[i];
+        newData = data.records[i];
       }
     }
 
-    return data;
+    return newData;
   }
 
   const deleteRecord = () => {
-    let recordToDelete: any = null;
-    let indexRecordToDelete: any = 0;
-    let i: any;
-
-    for (i in data?.records) {
-      if (data?.records[i]._toBeDeleted_) {
-        recordToDelete = data?.records[i];
-        indexRecordToDelete = i;
-        break;
-      }
-    }
-
     if (!data?.records) return;
 
     data.records.map((record: any, index: any) => {
@@ -1326,7 +1325,7 @@ const Table = (props: TableProps) => {
               setData(newData);
             }
           },
-          onHide: () => {
+          onClose: () => {
             if (data) {
               let newData: TableData = data;
               for (let i in newData.records) delete newData.records[i]._toBeDeleted_;
@@ -1594,14 +1593,14 @@ const Table = (props: TableProps) => {
     </button>;
   }
 
-  const renderDefaultDeleteButton = (row: any) => {
-    return row._toBeDeleted_
+  const renderDefaultDeleteButton = (record: any) => {
+    return record._toBeDeleted_
       ? <button
       className="btn btn-small btn-cancel"
       onClick={(e) => {
         e.preventDefault();
         let newData = data;
-        delete findRecordById(row.id)._toBeDeleted_;
+        delete findRecordById(record.id)._toBeDeleted_;
         setData(newData);
       }}
     >
@@ -1613,13 +1612,10 @@ const Table = (props: TableProps) => {
       onClick={(e) => {
         e.preventDefault();
 
-        let newData = data;
-
-        if (row.id <= 0 || row.id == undefined) {
-          newData = deleteRecordById(row.id);
-        } else {
-          findRecordById(row.id)._toBeDeleted_ = true;
-        }
+        let newData = changeRecordById(record.id, (record: any) => {
+          record._toBeDeleted_ = true;
+          return record;
+        });
 
         setData(newData);
       }}
@@ -1813,7 +1809,7 @@ const Table = (props: TableProps) => {
                       const column = columns[key];
                       return <td
                         key={rowIndex}
-                        onClick={() => column.onClick(record)}
+                        onClick={() => { if (column.onClick) column.onClick(record)} }
                       >
                         {column.body(
                           record,

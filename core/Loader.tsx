@@ -191,7 +191,7 @@ export class HubletoReactUi {
       footer: <div className={"flex w-full justify-start"}>
         <button
           className="btn btn-transparent"
-          onClick={() => { this.lastShownDialogRef.current.hide(); }}
+          onClick={() => { this.lastShownDialogRef.current.close(); }}
         >
           <span className="icon"><i className="fas fa-check"></i></span>
           <span className="text">{ this.translate('OK, I understand', 'Hubleto\\Erp\\Loader', 'HubletoReactUi') }</span>
@@ -217,7 +217,7 @@ export class HubletoReactUi {
       footer: <div className={"flex w-full justify-start"}>
         <button
           className="btn btn-transparent"
-          onClick={() => { this.lastShownDialogRef.current.hide() }}
+          onClick={() => { this.lastShownDialogRef.current.close() }}
         >
           <span className="icon"><i className="fas fa-check"></i></span>
           <span className="text">{ this.translate('OK, I understand', 'Hubleto\\Erp\\Loader', 'HubletoReactUi') }</span>
@@ -243,11 +243,11 @@ export class HubletoReactUi {
       renderHeader: (dialog: any) => this.translate('Confirm', 'Hubleto\\Erp\\Loader', 'HubletoReactUi'),
       renderFooter: (dialog: any) => <>
         <div className={"flex w-full justify-between"}>
-          <button className={"btn " + propsCloned.yesButtonClass} onClick={() => { dialog.hide(); propsCloned.onYes(); }} >
+          <button className={"btn " + propsCloned.yesButtonClass} onClick={() => { dialog.close(); propsCloned.onYes(); }} >
             <span className="icon"><i className="fas fa-check"></i></span>
             <span className="text">{propsCloned.yesText}</span>
           </button>
-          <button className={"btn " + propsCloned.noButtonClass} onClick={() => { dialog.hide(); propsCloned.onNo(); }} >
+          <button className={"btn " + propsCloned.noButtonClass} onClick={() => { dialog.close(); propsCloned.onNo(); }} >
             <span className="icon"><i className="fas fa-xmark"></i></span>
             <span className="text">{propsCloned.noText}</span>
           </button>

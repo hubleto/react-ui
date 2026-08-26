@@ -232,12 +232,10 @@ const Form = (props: FormProps) => {
     setUpdatingRecord(!isCreatingRecord(props.id));
     setDescriptionLoaded(false);
     setRecordLoaded(false);
-    setIsInitialized(false);
-    loadDescription();
   }, [props.id]);
   useEffect(() => setPrevId(props.prevId), [props.prevId]);
   useEffect(() => setNextId(props.nextId), [props.nextId]);
-  useEffect(() => { if (descriptionLoaded) loadRecord(); }, [descriptionLoaded]);
+  useEffect(() => { if (descriptionLoaded) loadRecord(); else loadDescription(); }, [descriptionLoaded]);
   useEffect(() => { setIsInitialized(descriptionLoaded && recordLoaded); }, [descriptionLoaded, recordLoaded]);
   useEffect(() => {
     if (isInitialized) {
@@ -269,11 +267,8 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
 
   const reload = (): void => {
-    setIsInitialized(false);
     setDescriptionLoaded(false);
     setRecordLoaded(false);
-    loadDescription();
-    // loadRecord(); // <--- record is loaded in useEffect
   }
   
   const loadDescription = (): void => {
@@ -416,7 +411,9 @@ const Form = (props: FormProps) => {
         setRecordChanged(false);
         setUpdatingRecord(true);
         setCreatingRecord(false);
-        loadRecord();
+        setRecordLoaded(false);
+        setDescriptionLoaded(false);
+        // loadRecord();
 
         getCallback('onAfterSaveRecord')(myself, saveResponse, customSaveOptions);
       },
@@ -451,7 +448,6 @@ const Form = (props: FormProps) => {
       getEndpointUrl('deleteRecord'),
       {
         ...getEndpointParams(),
-        hash: props.record._idHash_ ?? '',
       },
       {},
       (saveResponse: any) => {

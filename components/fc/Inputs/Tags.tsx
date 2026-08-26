@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 import request from '../../../core/Request'
-import * as uuid from 'uuid';
-import CreatableSelect from "react-select/creatable";
-import Select from "react-select";
-import Spinner from '../Spinner';
 import LoaderBar from '../LoaderBar';
+import Dialog, { DialogMetaContext } from '../Dialog';
 
 interface TagsInputProps extends InputProps {
   model?: string
@@ -15,6 +12,7 @@ interface TagsInputProps extends InputProps {
   colorColumn?: string,
   showSelect?: boolean,
   showTagButtons?: boolean,
+  editTagsUrl?: string,
   onNewTag?: (title: string) => object,
 }
 
@@ -47,6 +45,64 @@ const ValueComponent = (args: { parent: any }) => {
   }
 }
 
+const ManageTagsDialogContent = (props: any) => {
+  const dialog = useContext(DialogMetaContext);
+  
+  const [value, setValue] = useState('');
+
+  const addNewTag = (tag: string) => {
+    request.post(
+      "api/record/save",
+      {
+        model: props.parent.props.model,
+        id: -1,
+        record: {
+          name: tag,
+          title: tag,
+          tag: tag,
+          color: '#ffdf20',
+        }
+      },
+      {},
+      (saveResponse: any) => {
+        props.parent.loadOptions();
+      },
+      (err: any) => {
+        console.log("Unable to create new Tag");
+      }
+    );
+  }
+
+  return <div className='flex flex-col gap-2'>
+    <input
+      value={value}
+      onChange={(e) => setValue(e.currentTarget.value)}
+      placeholder='Add new tag'
+    />
+    <div className='flex-dyn'>
+      <button
+        className='btn btn-add'
+        onClick={() => {
+          addNewTag(value);
+          dialog.close();
+        }}
+      >
+        <span className='icon'><i className='fas fa-plus'></i></span>
+        <span className='text'>Add tag</span>
+      </button>
+      <button
+        className='btn btn-transparent'
+        onClick={() => {
+          window.open(globalThis.hubleto.config.projectUrl + '/' + props.parent.props.editTagsUrl);
+        }}
+      >
+        <span className='icon'><i className='fas fa-cog'></i></span>
+        <span className='text'>Manage tags</span>
+      </button>
+    </div>
+  </div>;
+}
+
 const InputComponent = (args: { parent: any }) => {
   const { parent } = args;
   const props = parent.props;
@@ -57,70 +113,71 @@ const InputComponent = (args: { parent: any }) => {
   const [showSelect, setShowSelect] = useState(props.showSelect);
   const [showTagButtons, setShowTagButtons] = useState(props.showTagButtons);
 
-  if (!(props.onNewTag ?? false)) {
-    return <Select
-      ref={input.refInput}
-      value={parent.convertValueToOptionList(input.value)}
-      isMulti
-      isSearchable={true}
-      options={parent.options}
-      className="hubleto-lookup"
-      onChange={(selectedOptions: any) => parent.handleChange(selectedOptions)}
-    />;
-  }
+  // if (!(props.onNewTag ?? false)) {
+  //   return <Select
+  //     ref={input.refInput}
+  //     value={parent.convertValueToOptionList(input.value)}
+  //     isMulti
+  //     isSearchable={true}
+  //     options={parent.options}
+  //     className="hubleto-lookup"
+  //     onChange={(selectedOptions: any) => parent.handleChange(selectedOptions)}
+  //   />;
+  // }
 
-  return <div className='flex flex-col gap-2 min-h-8'>
-    {showTagButtons ? <div className='flex gap-4'>
+  return <div className='list horizontal min-h-8'>
+    {showTagButtons ? <>
       {Object.keys(parent.options).map((key, reactKey) => {
         const option = parent.options[key];
         const isSelected = input.value ? input.value.filter((item) => item.id_tag == option.value).length > 0 : false;
 
-        return <div key={reactKey} className='flex gap-1'>
-          <span className='text-sm' style={{color: option.color}}><i className='fas fa-tag'></i></span>
-          <button
-            key={key}
-            className={'btn btn-small ' + (isSelected ? 'btn-primary' : 'btn-transparent')}
-            style={{borderLeftWidth: '3px', borderLeftColor: option.color ?? ''}}
-            onClick={() => {
-              let newValue = input.value ?? [];
+        return <div
+          key={reactKey}
+          className='btn btn-list-item btn-transparent items-center'
+          style={{background: (isSelected ? (option.color ?? '#ffffff') + '50' : '')}}
+          onClick={() => {
+            let newValue = input.value ?? [];
 
-              if (isSelected) {
-                newValue = newValue.filter((item) => {
-                  return item[props.sourceColumn] != option.value
-                });
-              } else {
-                newValue.push({
-                  id: -1,
-                  [props.targetColumn]: {_useMasterRecordId_: true},
-                  [props.sourceColumn]: option.value,
-                });
-              }
+            if (isSelected) {
+              newValue = newValue.filter((item) => {
+                return item[props.sourceColumn] != option.value
+              });
+            } else {
+              newValue.push({
+                id: -1,
+                [props.targetColumn]: {_useMasterRecordId_: true},
+                [props.sourceColumn]: option.value,
+              });
+            }
 
-              parent.handleChange(newValue);
-            }}
-          >
-            <span className='text text-sm text-nowrap'>{option.label ?? '-'}</span>
-          </button>
+            parent.handleChange(newValue);
+          }}
+        >
+          <span className='icon' style={{color: option.color, borderLeftWidth: '3px', borderLeftColor: option.color ?? ''}}><i className='fas fa-tag'></i></span>
+          <span className='text text-nowrap text-xs'>{option.label ?? '-'}</span>
         </div>;
       })}
       <button
-        className='btn btn-small btn-transparent'
+        className='btn btn-list-item btn-small btn-transparent'
         onClick={() => { setShowSelect(true); }}
       >
-        <span className='icon'><i className='fas fa-plus'></i></span>
+        <span className='icon'><i className='fas fa-cog'></i></span>
       </button>
-    </div>: null}
-    {showSelect ?
-      <CreatableSelect
-        ref={input.refInput}
-        value={convertedValue}
-        isMulti
-        options={Object.values(parent.options)}
-        className="hubleto-lookup"
-        onChange={(selectedOptions: any) => parent.handleChange(selectedOptions)}
-        onCreateOption={(inputValue: string) => parent.addNewTag(inputValue)}
-      />
-    : null}
+    </> : null}
+    {showSelect ? <Dialog
+      uid={props.uid + '_add_tag'}
+      onClose={() => setShowSelect(false)}
+      headerClassName='dialog-warning-header'
+      contentClassName='dialog-warning-content'
+      renderHeader={(dialog: any) => <>Manage tags</>}
+    >
+      <ManageTagsDialogContent
+        uid={props.uid}
+        input={input}
+        convertedValue={convertedValue}
+        parent={parent}
+      ></ManageTagsDialogContent>
+    </Dialog> : null}
   </div>;
 }
 
@@ -161,6 +218,7 @@ const Tags = (props: TagsInputProps) => {
 
   const loadOptions = (callback?: any) => {
     const input = inputRef.current;
+    input.setIsInitialized(false);
     request.post(
       normalizedProps.endpoint,
       getEndpointParams(),
@@ -204,34 +262,6 @@ const Tags = (props: TagsInputProps) => {
 
   }
 
-  const addNewTag = (title: string) => {
-    const input = inputRef.current;
-
-    if (!normalizedProps.onNewTag) return;
-
-    const newTag = normalizedProps.onNewTag(title);
-
-    request.post(
-      "api/record/save",
-      {model: normalizedProps.model, id: -1, record: newTag},
-      {},
-      (saveResponse: any) => {
-        loadOptions(() => {
-          const value = convertValueToOptionList(input.value);
-          value.push(Object.values(options).find((opt) => opt.value == saveResponse.savedRecord.id) ?? {
-            id: saveResponse.savedRecord?.id,
-            value: saveResponse.savedRecord.id,
-            label: title
-          });
-          handleChange(value);
-        });
-      },
-      (err: any) => {
-        console.log("Unable to create new Tag");
-      }
-    );
-  }
-
   const handleChange = (selectedOptions: any) => {
     const input = inputRef.current;
     input.changeValue([...selectedOptions]);
@@ -247,7 +277,7 @@ const Tags = (props: TagsInputProps) => {
     options,
     convertValueToOptionList,
     handleChange,
-    addNewTag,
+    loadOptions,
   };
 
   return <Input
