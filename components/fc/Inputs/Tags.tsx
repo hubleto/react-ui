@@ -90,7 +90,7 @@ const ManageTagsDialogContent = (props: any) => {
         <span className='icon'><i className='fas fa-plus'></i></span>
         <span className='text'>Add tag</span>
       </button>
-      <button
+      {props.parent.props.editTagsUrl ? <button
         className='btn btn-transparent'
         onClick={() => {
           window.open(globalThis.hubleto.config.projectUrl + '/' + props.parent.props.editTagsUrl);
@@ -98,7 +98,7 @@ const ManageTagsDialogContent = (props: any) => {
       >
         <span className='icon'><i className='fas fa-cog'></i></span>
         <span className='text'>Manage tags</span>
-      </button>
+      </button> : null}
     </div>
   </div>;
 }
@@ -167,8 +167,9 @@ const InputComponent = (args: { parent: any }) => {
     {showSelect ? <Dialog
       uid={props.uid + '_add_tag'}
       onClose={() => setShowSelect(false)}
-      headerClassName='dialog-warning-header'
-      contentClassName='dialog-warning-content'
+      headerClassName='dialog-primary-header'
+      contentClassName='dialog-primary-content'
+      footerClassName='dialog-primary-footer'
       renderHeader={(dialog: any) => <>Manage tags</>}
     >
       <ManageTagsDialogContent
