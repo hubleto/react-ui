@@ -33,7 +33,6 @@ export const ValueComponent = (props: InputProps) => {
 export const InputComponent = (props: InputProps) => {
   const input = React.useContext(InputMetaContext);
   const value = input.value;
-  const [showPredefinedValues, setShowPredefinedValues] = useState(false);
 
   if (input.description?.autocomplete) {
     let selectProps = {
@@ -71,21 +70,16 @@ export const InputComponent = (props: InputProps) => {
         disabled={input.readonly}
       />
       {props.description?.predefinedValues ?
-        showPredefinedValues ?
-          <div>
-            <select className='h-full'
-              onChange={(e) => { input.changeValue(e.currentTarget.value); }}
-            >
-              <option value=''></option>
-              {props.description?.predefinedValues.map((item: string, index: any) => {
-                return <option key={index} value={item}>{item}</option>
-              })}
-            </select>
-          </div>
-        :
-          <button className="mt-1 btn btn-transparent" onClick={() => { setShowPredefinedValues(true); }}>
-            <span className="text">Choose from predefined options...</span>
-          </button>
+        <div>
+          <select className='h-full'
+            onChange={(e) => { input.changeValue(e.currentTarget.value); }}
+          >
+            <option value=''></option>
+            {props.description?.predefinedValues.map((item: string, index: any) => {
+              return <option key={index} value={item}>{item}</option>
+            })}
+          </select>
+        </div>
       : null}
     </div>;
   }
