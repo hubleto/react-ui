@@ -381,7 +381,6 @@ const Table = (props: TableProps) => {
                       let glue = newColumnSearch[columnName][0];
                       newColumnSearch[columnName][0] = (glue == 'OR' ? 'AND' : 'OR');
                       setColumnSearch(newColumnSearch);
-                      loadData();
                     }}
                   >
                     <span className='icon'><i className='fas fa-align-justify'></i></span>
@@ -562,6 +561,7 @@ const Table = (props: TableProps) => {
   const [readonly, setReadonly] = useState(props.readonly ?? false);
   const [formDefaultValues, setFormDefaultValues] = useState(props.formDefaultValues ?? null);
   const [recordId, setRecordId] = useState(props.recordId ?? 0);
+  const [recordIdToDelete, setRecordIdToDelete] = useState(0);
   const [recordNextId, setRecordNextId] = useState(0);
   const [recordPrevId, setRecordPrevId] = useState(0);
   const [recordSaveAfterOpen, setRecordSaveAfterOpen] = useState(false);
@@ -584,6 +584,16 @@ const Table = (props: TableProps) => {
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
   useEffect(() => { reload(); }, []);
+  useEffect(() => { loadData(); }, [page, itemsPerPage, filterBy, columnSearch, fulltextSearch, filters]);
+  useEffect(() => {
+    if (!props.parentForm) {
+      if (fulltextSearch == '') {
+        deleteUrlParam('q');
+      } else {
+        setUrlParam('q', fulltextSearch);
+      }
+    }
+  }, [fulltextSearch]);
 
   //////////////////////////////////
   // record*()
@@ -626,28 +636,13 @@ const Table = (props: TableProps) => {
     return newData;
   }
 
-  const deleteRecord = () => {
-    if (!data?.records) return;
-
-    data.records.map((record: any, index: any) => {
-      if (!record._toBeDeleted_) return;
-
-      request.get(
-        getEndpointUrl('deleteRecord'),
-        {
-          ...getEndpointParams(),
-          id: record.id ?? 0,
-          hash: record._idHash_ ?? '',
-        },
-        (response: any) => {
-          loadData();
-        },
-        (err: any) => {
-          const message = err?.data?.message;
-          if (message) globalThis.hubleto.showDialogWarning(message);
-        }
-      );
-    });
+  const deleteRecord = (id: number) => {
+    request.get(
+      getEndpointUrl('deleteRecord'),
+      { ...getEndpointParams(), id: id },
+      (response: any) => { setRecordIdToDelete(0); loadData(); },
+      (err: any) => setRecordIdToDelete(0)
+    );
   }
 
   //////////////////////////////////
@@ -790,13 +785,11 @@ const Table = (props: TableProps) => {
 
     setPage(page);
     setItemsPerPage(itemsPerPage);
-    loadData();
   }
 
   const onFilterChange = (filterBy: any) => {
     if (props.onFilterChange) return props.onFilterChange(myself, filterBy);
     setFilterBy(filterBy);
-    loadData();
   }
 
   const onOrderByChange = (orderBy: TableOrderBy) => {
@@ -817,31 +810,31 @@ const Table = (props: TableProps) => {
     if (newDescription.ui) newDescription.ui.orderBy = orderBy;
     setDescription(newDescription);
 
-    if (props.data) {
-      let newData = props.data;
-      if (orderBy.direction == "asc") {
-        newData.records.sort((a, b) => {
-          const valA = getValue(a[orderBy.field]);
-          const valB = getValue(b[orderBy.field]);
+    // if (props.data) {
+    //   let newData = props.data;
+    //   if (orderBy.direction == "asc") {
+    //     newData.records.sort((a, b) => {
+    //       const valA = getValue(a[orderBy.field]);
+    //       const valB = getValue(b[orderBy.field]);
 
-          if (valA < valB) return -1;
-          if (valA > valB) return 1;
-          return 0;
-        });
-      } else {
-        newData.records.sort((a, b) => {
-          const valA = getValue(a[orderBy.field]);
-          const valB = getValue(b[orderBy.field]);
+    //       if (valA < valB) return -1;
+    //       if (valA > valB) return 1;
+    //       return 0;
+    //     });
+    //   } else {
+    //     newData.records.sort((a, b) => {
+    //       const valA = getValue(a[orderBy.field]);
+    //       const valB = getValue(b[orderBy.field]);
 
-          if (valA < valB) return 1;
-          if (valA > valB) return -1;
-          return 0;
-        });
-      }
-      setData(newData);
-    } else {
-      loadData();
-    }
+    //       if (valA < valB) return 1;
+    //       if (valA > valB) return -1;
+    //       return 0;
+    //     });
+    //   }
+    //   setData(newData);
+    // } else {
+    //   loadData();
+    // }
   }
 
   //////////////////////////////////
@@ -858,7 +851,6 @@ const Table = (props: TableProps) => {
     }
 
     setColumnSearch(newColumnSearch);
-    loadData();
   }
 
   const columnSearchAddNew = (columnName: string, value: any) => {
@@ -1147,18 +1139,11 @@ const Table = (props: TableProps) => {
           value={fulltextSearch}
           onKeyUp={(event: any) => {
             if (event.keyCode == 13) {
-              loadData();
-              if (!props.parentForm) {
-                if (fulltextSearch == '') {
-                  deleteUrlParam('q');
-                } else {
-                  setUrlParam('q', fulltextSearch);
-                }
-              }
+              setFulltextSearch(event.currentTarget.value);
             }
           }}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            setFulltextSearch(fulltextSearch);
+            setFulltextSearch(event.currentTarget.value);
           }}
         />
         <button
@@ -1244,7 +1229,7 @@ const Table = (props: TableProps) => {
                   }
                   style={{borderLeft: (filter.colors && filter.colors[key] ? '0.5em solid ' + filter.colors[key] : null)}}
                   onClick={() => {
-                    let newFilters = filters ?? {};
+                    let newFilters = {...filters ?? {}};
 
                     if (filter.type == 'multipleSelectButtons') {
                       if (filterValue) {
@@ -1274,7 +1259,6 @@ const Table = (props: TableProps) => {
 
                     setRecordId(0);
                     setFilters(newFilters);
-                    loadData();
                   }}
                 >
                   {filter.type == 'multipleSelectButtons' ?
@@ -1297,46 +1281,26 @@ const Table = (props: TableProps) => {
   }
 
   const renderDefaultDeleteConfirmModal = (): React.JSX.Element => {
-    let hasRecordsToDelete: boolean = false;
-    let i: any;
-
-    for (i in data?.records) {
-      if (data?.records[i]._toBeDeleted_) {
-        hasRecordsToDelete = true;
-        break;
+    return globalThis.hubleto.showDialogConfirm(
+      T.translate('Are you sure you want to delete this record?'),
+      {
+        headerClassName: 'dialog-danger-header',
+        footerClassName: 'dialog-danger-footer',
+        contentClassName: 'dialog-danger-content',
+        header: T.translate('Delete record'),
+        yesText: T.translate('Delete'),
+        yesButtonClass: 'btn-danger',
+        onYes: () => { deleteRecord(recordIdToDelete); },
+        noText: T.translate('Cancel'),
+        noButtonClass: 'btn-transparent',
+        onNo: () => {
+          setRecordIdToDelete(0);
+        },
+        onClose: () => {
+          setRecordIdToDelete(0);
+        },
       }
-    }
-
-    if (hasRecordsToDelete) {
-      return globalThis.hubleto.showDialogConfirm(
-        T.translate('Are you sure you want to delete this record?'),
-        {
-          headerClassName: 'dialog-danger-header',
-          contentClassName: 'dialog-danger-content',
-          header: T.translate('Delete record'),
-          yesText: T.translate('Delete'),
-          yesButtonClass: 'btn-danger',
-          onYes: () => { deleteRecord(); },
-          noText: T.translate('Cancel'),
-          onNo: () => {
-            if (data) {
-              let newData: TableData = data;
-              for (let i in newData.records) delete newData.records[i]._toBeDeleted_;
-              setData(newData);
-            }
-          },
-          onClose: () => {
-            if (data) {
-              let newData: TableData = data;
-              for (let i in newData.records) delete newData.records[i]._toBeDeleted_;
-              setData(newData);
-            }
-          },
-        }
-      );
-    } else {
-      return <></>;
-    }
+    );
   }
 
   const renderDefaultFormModal = (): React.JSX.Element => {
@@ -1594,34 +1558,13 @@ const Table = (props: TableProps) => {
   }
 
   const renderDefaultDeleteButton = (record: any) => {
-    return record._toBeDeleted_
-      ? <button
-      className="btn btn-small btn-cancel"
-      onClick={(e) => {
-        e.preventDefault();
-        let newData = data;
-        delete findRecordById(record.id)._toBeDeleted_;
-        setData(newData);
-      }}
-    >
-      <span className="icon"><i className="fas fa-times"></i></span>
-    </button>
-    : <button
-      className="btn btn-small btn-danger"
+    return recordIdToDelete <= 0 ?
+    <i
+      className="text-red-700 fas fa-trash-alt hover:text-red-800"
       title={T.translate('Delete')}
-      onClick={(e) => {
-        e.preventDefault();
-
-        let newData = changeRecordById(record.id, (record: any) => {
-          record._toBeDeleted_ = true;
-          return record;
-        });
-
-        setData(newData);
-      }}
+      onClick={(e) => setRecordIdToDelete(record.id)}
     >
-      <span className="icon"><i className="fas fa-trash-alt"></i></span>
-    </button>;
+    </i> : null;
   }
 
   const renderDefaultActionsColumn = (row: any) => {
@@ -1641,8 +1584,7 @@ const Table = (props: TableProps) => {
     }
 
     if (moreActions.length == 0) return null;
-    else if (moreActions.length == 1) return moreActions[0];
-    else return <div className='flex gap-2'>{moreActions.map((item, key) => item)}</div>;
+    else return <div className='flex gap-2 justify-end mr-2'>{moreActions.map((item, key) => item)}</div>;
   }
 
   const renderDefaultRecordsAsTree = (nodes: any, idParent: number = 0, level: number = 0): React.JSX.Element => {
@@ -1910,7 +1852,7 @@ const Table = (props: TableProps) => {
 
     return <>
       {renderFormModal()}
-      {isUsedAsInput ? null : renderDeleteConfirmModal()}
+      {recordIdToDelete > 0 ? renderDeleteConfirmModal() : null}
 
       <div
         id={"hubleto-table-" + uid}
