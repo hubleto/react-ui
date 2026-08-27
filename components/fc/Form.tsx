@@ -457,8 +457,6 @@ const Form = (props: FormProps) => {
       },
       (err: any) => {
         setDeletingRecord(false);
-        const message = err?.data?.message;
-        if (message) globalThis.hubleto.showDialogWarning(message);
       }
     );
   }

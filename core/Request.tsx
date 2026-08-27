@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 interface ApiResponse<T> {
@@ -7,6 +7,27 @@ interface ApiResponse<T> {
 
 interface ApiError {
   message: string;
+}
+
+const RequestErrorInfo = ({ error }) => {
+  const [showDebug, setShowDebug] = useState(false);
+  return <>
+    <div className='text-red-800'>
+      {error.readableText}
+    </div>
+    <a type="button" className='mt-2 cursor-pointer text-xs' onClick={() => setShowDebug(!showDebug)}>
+      Show error details
+    </a>
+    {showDebug ?
+      <div className='mt-4 text-xs'>
+        <div>{error.errorHash}</div>
+        <div>{error.dbError}</div>
+        <div>{error.dbQuery}</div>
+        <div>{error.exceptionClass}</div>
+        <div>{error.traceLog}</div>
+      </div>
+    : null}
+  </>;
 }
 
 class Request {
@@ -25,6 +46,56 @@ class Request {
     globalThis.hubleto.showDialogWarning(responseData.message);
   }
 
+  processResponse(url: any, res: any, successCallback: any, errorCallback: any) {
+    const responseData: any = res.data;
+
+    document.body.classList.remove("app-loading");
+
+    if (res.status == 200) {
+      if (successCallback) successCallback(responseData);
+    } else {
+      if (errorCallback) errorCallback(responseData);
+
+      console.error('HubletoReactUi request @ ' + url + ' failed.');
+      console.error(res);
+
+      try {
+        const errorCode = responseData.code;
+        const error = JSON.parse(responseData.message);
+
+        console.log('errorCode', errorCode);
+        console.log('error', error);
+
+        switch(errorCode) {
+          // case 87335:
+          //   // globalThis.hubleto.showDialogWarning(globalThis.hubleto.getValidationErrorMessage(error.message));
+          // break;
+          case 23000:
+            globalThis.hubleto.showDialogDanger(globalThis.hubleto.getDuplicateEntryErrorMessage(error.message));
+          break;
+          default:
+            try {
+              globalThis.hubleto.showDialog(
+                <RequestErrorInfo error={error}></RequestErrorInfo>,
+                {
+                  headerClassName: 'dialog-danger-header',
+                  contentClassName: 'dialog-danger-content',
+                  renderHeader: () => '🥴 Oops! Something went wrong.'
+                }
+              );
+            } catch (ex) {
+              //
+            }
+          break;
+
+        }
+      } catch (ex) {
+        globalThis.hubleto.showDialogDanger(JSON.stringify(responseData));
+      }
+    }
+
+  }
+
   public get<T>(
     url: string,
     queryParams: Record<string, any>,
@@ -33,15 +104,11 @@ class Request {
   ): void {
     document.body.classList.add("app-loading");
     axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {
-      params: queryParams
+      params: queryParams,
+      validateStatus: () => true
     }).then(res => {
-      const responseData: any = res.data;
-      document.body.classList.remove("app-loading");
-      if (responseData.status == 'error') {
-        if (errorCallback) errorCallback(responseData);
-        else this.alertOnError(responseData);
-      } else if (successCallback) successCallback(responseData);
-    }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
+      this.processResponse(url, res, successCallback, errorCallback);
+    });
   }
 
   public post<T>(
@@ -53,15 +120,11 @@ class Request {
   ): void {
     document.body.classList.add("app-loading");
     axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, postData, {
-      params: queryParams
+      params: queryParams,
+      validateStatus: () => true
     }).then(res => {
-      const responseData: any = res.data;
-      document.body.classList.remove("app-loading");
-      if (responseData.status == 'error') {
-        if (errorCallback) errorCallback(responseData);
-        else this.alertOnError(responseData);
-      } else if (successCallback) successCallback(responseData);
-    }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
+      this.processResponse(url, res, successCallback, errorCallback);
+    });
   }
 
   public put<T>(
@@ -72,14 +135,11 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, putData, {
-      params: queryParams
+      params: queryParams,
+      validateStatus: () => true
     }).then(res => {
-      const responseData: any = res.data;
-      if (responseData.status == 'error') {
-        if (errorCallback) errorCallback(responseData);
-        else this.alertOnError(responseData);
-      } else if (successCallback) successCallback(responseData);
-    }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
+      this.processResponse(url, res, successCallback, errorCallback);
+    });
   }
 
   public patch<T>(
@@ -90,14 +150,11 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, patchData, {
-      params: queryParams
+      params: queryParams,
+      validateStatus: () => true
     }).then(res => {
-      const responseData: any = res.data;
-      if (responseData.status == 'error') {
-        if (errorCallback) errorCallback(responseData);
-        else this.alertOnError(responseData);
-      } else if (successCallback) successCallback(responseData);
-    }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
+      this.processResponse(url, res, successCallback, errorCallback);
+    });
   }
 
   public delete<T>(
@@ -107,56 +164,12 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     axios.delete<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {
-      params: queryParams
+      params: queryParams,
+      validateStatus: () => true
     }).then(res => {
-      const responseData: any = res.data;
-      if (responseData.status == 'error') {
-        this.alertOnError(responseData);
-        if (errorCallback) errorCallback(responseData);
-      } else if (successCallback) successCallback(responseData);
-    }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
+      this.processResponse(url, res, successCallback, errorCallback);
+    });
   }
-
-  private catchHandler(
-    url: string,
-    err: AxiosError<ApiError>,
-    errorCallback?: (data: any) => void
-  ) {
-    if (err.response) {
-      this.fatalErrorNotification(url, err.response.data);
-      if (errorCallback) errorCallback(err.response);
-    } else {
-      console.error('HubletoReactUi: Request @ ' + url + ' unknown error.');
-      console.error(err);
-    }
-  }
-
-  private fatalErrorNotification(url: string, error: any) {
-    console.error('HubletoReactUi request @ ' + url + ' finished with error: ', error);
-
-    if (typeof error == 'string') {
-      globalThis.hubleto.showDialogDanger(error);
-    } else {
-      switch(error.code) {
-        case 87335:
-          // globalThis.hubleto.showDialogWarning(globalThis.hubleto.getValidationErrorMessage(error.message));
-          break;
-        case 23000:
-          globalThis.hubleto.showDialogDanger(globalThis.hubleto.getDuplicateEntryErrorMessage(error.message));
-          break;
-        default:
-          let content = globalThis.hubleto.getGenericErrorMessage(
-            error.message,
-            error.code,
-            url
-          );
-          globalThis.hubleto.showDialogDanger(content);
-        break;
-
-      }
-    }
-  }
-
 }
 
 const request = new Request();
