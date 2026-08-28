@@ -557,6 +557,7 @@ const Table = (props: TableProps) => {
   const [itemsPerPage, setItemsPerPage] = useState(props.itemsPerPage ?? 35);
   const [loadingData, setLoadingData] = useState(false);
   const [model, setModel] = useState(props.model ?? '');
+  const [orderBy, setOrderBy] = useState(null);
   const [page, setPage] = useState(props.page ?? 1);
   const [readonly, setReadonly] = useState(props.readonly ?? false);
   const [formDefaultValues, setFormDefaultValues] = useState(props.formDefaultValues ?? null);
@@ -584,7 +585,7 @@ const Table = (props: TableProps) => {
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
   useEffect(() => { reload(); }, []);
-  useEffect(() => { loadData(); }, [page, itemsPerPage, filterBy, columnSearch, fulltextSearch, filters]);
+  useEffect(() => { loadData(); }, [page, itemsPerPage, filterBy, columnSearch, fulltextSearch, filters, orderBy]);
   useEffect(() => {
     if (!props.parentForm) {
       if (fulltextSearch == '') {
@@ -809,6 +810,7 @@ const Table = (props: TableProps) => {
     let newDescription = { ...description };
     if (newDescription.ui) newDescription.ui.orderBy = orderBy;
     setDescription(newDescription);
+    setOrderBy({...orderBy});
 
     // if (props.data) {
     //   let newData = props.data;
@@ -1928,7 +1930,7 @@ const Table = (props: TableProps) => {
           form={refColumnsConfigScreen}
           uid={uid + '_columns_config_modal'}
           isOpen={true}
-          type='right'
+          type='right narrower'
           title={T.translate('Customize Columns')}
           onClose={() => { setShowColumnConfigScreen(false); }}
         >

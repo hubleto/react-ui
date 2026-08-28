@@ -225,7 +225,11 @@ const Form = (props: FormProps) => {
   // useEffect*()
   //////////////////////////////////
 
-  useEffect(() => { globalThis.hubleto.reactElements[props.uid] = myself; }, [props.uid]);
+  useEffect(() => {
+    globalThis.hubleto.reactElements[props.uid] = myself;
+    console.log('modal.setForm', myself);
+    modal.setForm(myself);
+  }, [props.uid]);
   useEffect(() => {
     setId(props.id);
     setCreatingRecord(isCreatingRecord(props.id));

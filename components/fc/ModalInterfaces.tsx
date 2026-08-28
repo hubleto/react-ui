@@ -1,3 +1,6 @@
+import { Dispatch, SetStateAction } from "react";
+import { FormMeta } from "./FormInterfaces";
+
 export interface ModalProps {
   uid?: string,
   type?: string,
@@ -13,6 +16,7 @@ export interface ModalProps {
 
 export interface ModalMeta {
   uid?: string,
+  stackUid?: string,
   type?: string,
   children?: any;
   title?: any;
@@ -21,6 +25,9 @@ export interface ModalMeta {
   isOpen?: boolean;
   topMenu?: any;
   isFullscreen?: boolean,
+  form?: FormMeta,
   isActive?: boolean,
+  setIsActive?: Dispatch<SetStateAction<boolean>>,
+  setForm?: Dispatch<SetStateAction<any>>,
   onClose?: () => void,
 }

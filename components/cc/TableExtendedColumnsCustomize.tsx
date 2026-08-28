@@ -102,12 +102,13 @@ export default class TableExtendedColumnsCustomize<P, S> extends TranslatedCompo
     entries.splice(targetIdx, 0, removed);
 
     const newItems = Object.fromEntries(entries);
-    this.setState({ record: newItems }, () => this.saveRecord());
+    this.setState({ record: newItems });
   };
 
   onDrop = (e) => {
     e.preventDefault();
     this.setState({ draggedKey: null });
+    this.saveRecord();
   };
 
   renderTitle(): React.JSX.Element {

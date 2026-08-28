@@ -7,6 +7,8 @@ export const ModalMetaContext = React.createContext<ModalMeta>(null);
 const Modal = (props: ModalProps) => {
 
   const [uid, setUid] = useState(props.uid ?? uuid.v4());
+  const [stackUid, setStackUid] = useState(uuid.v4());
+  const [form, setForm] = useState(null);
   const [isActive, setIsActive] = useState(false);
   const [type, setType] = useState(props.type ?? 'right');
   const [isOpen, setIsOpen] = useState(true);
@@ -15,12 +17,8 @@ const Modal = (props: ModalProps) => {
 
   useEffect(() => {
     globalThis.hubleto.reactElements[props.uid] = this;
-    // globalThis.hubleto.addModalToStack(this);
+    globalThis.hubleto.addModalToStack(myself);
   }, []);
-
-  // componentWillUnmount() {
-  //   globalThis.hubleto.removeModalFromStack(this);
-  // }
 
   const onClose = () => {
     if (props.onClose) props.onClose(myself);
@@ -28,12 +26,16 @@ const Modal = (props: ModalProps) => {
 
   const myself: ModalMeta = {
     uid,
+    stackUid,
     type,
     title,
     isOpen,
     isFullscreen,
     isActive,
+    form,
     onClose,
+    setIsActive,
+    setForm,
   }
 
   return <ModalMetaContext.Provider value={myself}>

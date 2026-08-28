@@ -6,6 +6,7 @@ import * as uuid from 'uuid';
 import { isValidJson, kebabToPascal } from './Helper';
 import Dialog from "../components/fc/Dialog";
 import Modal from "../components/fc/Modal";
+import { ModalMeta } from '../components/fc/ModalInterfaces';
 
 export class HubletoReactUi {
   config: object = {};
@@ -13,7 +14,7 @@ export class HubletoReactUi {
   reactComponents: any = {};
   reactElementsWaitingForRender: number = 0;
   reactElements: Object = {};
-  renderedModals: Array<typeof Modal> = [];
+  renderedModals: Array<ModalMeta> = [];
 
   dictionary: any = null;
   lastShownDialogRef: any;
@@ -47,34 +48,36 @@ export class HubletoReactUi {
     return orig; // to be overridden
   }
 
-  addModalToStack(modal: Modal) {
+  addModalToStack(modal: ModalMeta) {
+    this.renderedModals.map((m) => m.setIsActive(false));
     this.renderedModals.push(modal);
-    // console.log('addModalToStack', this.renderedModals);
-    this.activateLastModalInStack();
+    modal.setIsActive(true);
   }
 
-  removeModalFromStack(modalToDelete: Modal) {
+  removeModalFromStack(modalToDelete: ModalMeta) {
     let keyToDelete = null;
     this.renderedModals.map((modal, key) => {
-      if (modal.state.stackUid === modalToDelete.state.stackUid) {
+      if (modal.stackUid === modalToDelete.stackUid) {
         keyToDelete = key;
       }
     })
     if (keyToDelete !== null) {
       delete this.renderedModals[keyToDelete];
-      // console.log('removeModalFromStack', this.renderedModals);
       this.activateLastModalInStack();
     }
   }
 
-  getActiveModalInStack() {
-    let activeModal = null;
+  getLastModalInStack() {
+     return this.renderedModals[this.renderedModals.length - 1] ?? null;
+  }
 
+  getActiveModalInStack() {
+    let lastModal = null;
     this.renderedModals.map((modal, key) => {
-      if (modal.state.isActive) activeModal = modal;
+      if (modal.isActive) lastModal = modal;
     });
 
-    return activeModal;
+    return lastModal;
   }
 
   activateLastModalInStack() {
@@ -83,61 +86,52 @@ export class HubletoReactUi {
       if (modal) lastModal = modal;
     });
 
-    // console.log('lastModal', lastModal);
     if (lastModal) {
-      // console.log('lastModal.state.stackUid', lastModal.state.stackUid);
       this.renderedModals.map((modal, key) => {
-        if (modal.state.stackUid != lastModal.state.stackUid) {
-          // console.log('isActive: false', modal.state.stackUid);
-          this.renderedModals[key].setState({isActive: false});
+        if (modal.stackUid != lastModal.stackUid) {
+          this.renderedModals[key].setIsActive(false);
         }
       })
-      // console.log('isActive: true', lastModal.state.stackUid);
-      lastModal.setState({isActive: true});
+      lastModal.setIsActive(true);
     }
   }
 
   registerModalShortcuts() {
     document.addEventListener('keydown', function(e) {
-      // console.log('keydown', e);
+
       if (e.ctrlKey && e.key === 'k') {
         globalThis.hubleto.reactElements['global-fulltext-search'].searchRef.current.focus();
         e.preventDefault();
       }
-      if (e.ctrlKey && e.key === 's') {
-        const activeModal = globalThis.hubleto.getActiveModalInStack();
 
-        if (activeModal && activeModal.props.form && activeModal.props.form.current) {
-          activeModal.props.form.current.saveRecord();
+      if (e.ctrlKey && e.key === 's') {
+        const lastModal = globalThis.hubleto.getLastModalInStack();
+        if (lastModal && lastModal.form) {
+          lastModal.form.saveRecord();
           e.stopPropagation();
           e.preventDefault();
         }
       }
       if (e.ctrlKey && e.shiftKey && e.key === 'PageDown') {
-        const activeModal = globalThis.hubleto.getActiveModalInStack();
-        if (activeModal && activeModal.props.form && activeModal.props.form.current) {
-          activeModal.props.form.current.openNextRecord();
+        const lastModal = globalThis.hubleto.getLastModalInStack();
+        if (lastModal && lastModal.form) {
+          lastModal.form.openNextRecord();
           e.stopPropagation();
           e.preventDefault();
         }
       }
       if (e.ctrlKey && e.shiftKey && e.key === 'PageUp') {
-        const activeModal = globalThis.hubleto.getActiveModalInStack();
-        if (activeModal && activeModal.props.form && activeModal.props.form.current) {
-          activeModal.props.form.current.openPrevRecord();
+        const lastModal = globalThis.hubleto.getLastModalInStack();
+        if (lastModal && lastModal.form) {
+          lastModal.form.openPrevRecord();
           e.stopPropagation();
           e.preventDefault();
         }
       }
       if (e.key === 'Escape') {
-        const activeModal = globalThis.hubleto.getActiveModalInStack();
-        if (activeModal) {
-          if (activeModal.props.form && activeModal.props.form.current && activeModal.props.form.current.closeForm) {
-            activeModal.props.form.current.closeForm();
-          } else {
-            activeModal.close();
-          }
-        }
+        const lastModal = globalThis.hubleto.getLastModalInStack();
+        if (lastModal && lastModal.form) lastModal.form.closeForm();
+        else if (lastModal) lastModal.onClose();
       }
     });
   }
