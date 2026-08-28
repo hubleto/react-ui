@@ -227,7 +227,6 @@ const Form = (props: FormProps) => {
 
   useEffect(() => {
     globalThis.hubleto.reactElements[props.uid] = myself;
-    console.log('modal.setForm', myself);
     modal.setForm(myself);
   }, [props.uid]);
   useEffect(() => {

@@ -114,9 +114,9 @@ const Input = (props: any) => {
     className={
       'input-wrapper'
       + (wrapperCssClass ? ' ' + wrapperCssClass : '')
-      + (required && !renderOnlyInputField ? ' required' : '')
     }
   >
+    {required ? <div className="input-required">*</div> : null}
     {renderOnlyInputField ? null : <label className="input-label" htmlFor={form.uid + '_' + field}>
       {title ?? ''}
       {inputDescription.hint ?
