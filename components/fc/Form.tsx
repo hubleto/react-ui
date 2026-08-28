@@ -360,9 +360,9 @@ const Form = (props: FormProps) => {
   // form*()
   //////////////////////////////////
 
-  const closeForm = (): void => {
+  const closeForm = (force?: boolean): void => {
     let ok = true;
-    if (recordChanged) ok = confirm(T.translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
+    if (!force && recordChanged) ok = confirm(T.translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
     if (ok) {
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -454,6 +454,7 @@ const Form = (props: FormProps) => {
         setDeletingRecord(false);
         setRecordDeleted(true);
         getCallback('onAfterDeleteRecord')(myself, saveResponse);
+        closeForm(true);
       },
       (err: any) => {
         setDeletingRecord(false);

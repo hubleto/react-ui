@@ -7,6 +7,7 @@ import Translator from "../../../core/Translator";
 export interface DateTimeInputProps extends InputProps {
   type?: 'date' | 'time' | 'datetime',
   showReadable?: boolean,
+  hideSeconds?: boolean,
 }
 
 export const dateToEUFormat = (dateString: string): string => {
@@ -36,7 +37,7 @@ export const datetimeToEUFormat = (dateString: string): string => {
 
 const T = new Translator('Hubleto\\ReactUi', 'Components\\Inputs\\DateTime');
 
-const getValues = (type: string, value: string) => {
+const getValues = (props: any, value: string) => {
   let year = '';
   let month = '';
   let day = '';
@@ -44,37 +45,56 @@ const getValues = (type: string, value: string) => {
   let minute = '';
   let second = '';
 
-  switch (type) {
+  let parsedDate = moment();
+
+  switch (props.type) {
     case 'datetime':
-      year = moment(value).format('yyyy');
-      month = moment(value).format('MM');
-      day = moment(value).format('DD');
-      hour = moment(value).format('HH');
-      minute = moment(value).format('mm');
-      second = moment(value).format('ss');
-    break;
     case 'date':
-      year = moment(value).format('yyyy');
-      month = moment(value).format('MM');
-      day = moment(value).format('DD');
+      parsedDate = moment(value ?? '2000-01-01 00:00:00');
     break;
     case 'time':
-      hour = moment('2000-01-01 ' + value).format('HH');
-      minute = moment('2000-01-01 ' + value).format('mm');
-      second = moment('2000-01-01 ' + value).format('ss');
+      parsedDate = moment('2000-01-01 ' + (value ?? '00:00:00'));
     break;
   }
 
+  year = parsedDate.format('yyyy');
+  month = parsedDate.format('MM');
+  day = parsedDate.format('DD');
+  hour = parsedDate.format('HH');
+  minute = parsedDate.format('mm');
+  second = parsedDate.format('ss');
+
+  if (
+    year == 'Invalid date'
+    || month == 'Invalid date'
+    || day == 'Invalid date'
+  ) {
+    year = moment().format('yyyy');
+    month = moment().format('MM');
+    day = moment().format('DD');
+  }
+  if (
+    hour == 'Invalid date'
+    || minute == 'Invalid date'
+    || second == 'Invalid date'
+  ) {
+    hour = moment().format('HH');
+    minute = moment().format('mm');
+    second = moment().format('ss');
+  }
+  
   return { year, month, day, hour, minute, second };
 }
 
-const setValue = (input: any, type: string, year: any, month: any, day: any, hour: any, minute: any, second: any) => {
+const setValue = (input: any, props: any, year: any, month: any, day: any, hour: any, minute: any, second: any) => {
   const dateStr = year + '-' + month + '-' + day;
   const date = moment(dateStr);
 
   let newValue = '';
 
-  switch (type) {
+  if (props.hideSeconds) second = '00';
+
+  switch (props.type) {
     case 'date':
       if (year == '' || month == '' || day == '') newValue = moment().format('yyyy-MM-DD');
       else if (date.isValid()) newValue = dateStr;
@@ -82,7 +102,7 @@ const setValue = (input: any, type: string, year: any, month: any, day: any, hou
     break;
     case 'time':
       if (hour == '' || minute == '' || second == '') newValue = '00:00:00';
-      else newValue = hour + ':' + minute + ':' + second;
+      else newValue = moment('2000-01-01 ' + hour + ':' + minute + ':' + second).format('HH:mm:ss');
     break;
     case 'datetime':
       if (
@@ -127,7 +147,7 @@ const ValueComponent = (props: DateTimeInputProps): React.JSX.Element => {
 const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
   const daysInMonth = moment(input.value, "YYYY-MM").daysInMonth() ?? 30;
-  const { year, month, day, hour, minute, second } = getValues(props.type, input.value);
+  const { year, month, day, hour, minute, second } = getValues(props, input.value);
 
   return <div 
     className={
@@ -147,7 +167,7 @@ const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
     <select
       value={month}
       className='w-16 border-none'
-      onChange={(e) => setValue(input, props.type, year, e.currentTarget.value, day, hour, minute, second)}
+      onChange={(e) => setValue(input, props, year, e.currentTarget.value, day, hour, minute, second)}
       disabled={input.readonly}
     >
       <option value='01'>Jan</option>
@@ -169,7 +189,7 @@ const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
       max={isNaN(daysInMonth) ? 30 : daysInMonth}
       className='w-12 border-none'
       value={day}
-      onChange={(e) => setValue(input, props.type, year, month, e.currentTarget.value, hour, minute, second)}
+      onChange={(e) => setValue(input, props, year, month, e.currentTarget.value, hour, minute, second)}
       disabled={input.readonly}
       placeholder='Day'
     />
@@ -177,7 +197,7 @@ const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
       type='number'
       value={year}
       className='w-16 border-none'
-      onChange={(e) => setValue(input, props.type, e.currentTarget.value, month, day, hour, minute, second)}
+      onChange={(e) => setValue(input, props, e.currentTarget.value, month, day, hour, minute, second)}
       disabled={input.readonly}
       placeholder='Year'
     />
@@ -193,7 +213,7 @@ const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
 
 const TimeInput = (props: DateTimeInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
-  const { year, month, day, hour, minute, second } = getValues(props.type, input.value);
+  const { year, month, day, hour, minute, second } = getValues(props, input.value);
 
   return <div 
     className={
@@ -216,7 +236,7 @@ const TimeInput = (props: DateTimeInputProps): React.JSX.Element => {
       max='24'
       className='w-12 border-none'
       value={hour}
-      onChange={(e) => setValue(input, props.type, year, month, day, e.currentTarget.value, minute, second)}
+      onChange={(e) => setValue(input, props, year, month, day, e.currentTarget.value, minute, second)}
       disabled={input.readonly}
       placeholder='Hour'
     />
@@ -226,20 +246,22 @@ const TimeInput = (props: DateTimeInputProps): React.JSX.Element => {
       max='60'
       value={minute}
       className='w-16 border-none'
-      onChange={(e) => setValue(input, props.type, year, month, day, hour, e.currentTarget.value, second)}
+      onChange={(e) => setValue(input, props, year, month, day, hour, e.currentTarget.value, second)}
       disabled={input.readonly}
       placeholder='Minute'
     />
-    <input
-      type='number'
-      min='1'
-      max='60'
-      value={minute}
-      className='w-16 border-none'
-      onChange={(e) => setValue(input, props.type, year, month, day, hour, minute, e.currentTarget.value)}
-      disabled={input.readonly}
-      placeholder='Second'
-    />
+    {props.hideSeconds ? null :
+      <input
+        type='number'
+        min='1'
+        max='60'
+        value={second}
+        className='w-16 border-none'
+        onChange={(e) => setValue(input, props, year, month, day, hour, minute, e.currentTarget.value)}
+        disabled={input.readonly}
+        placeholder='Second'
+      />
+}
     {input.readonly ? null : <button
       className="btn btn-small btn-transparent"
       onClick={() => input.changeValue('')}
