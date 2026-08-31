@@ -323,6 +323,7 @@ const Table = (props: TableProps) => {
     if (selectionMode) {
       columns['__selection'] = {
         key: '__selection',
+        body: (row: any, options: any) => null,
         onClick: null,
       }
     }
@@ -1757,13 +1758,13 @@ const Table = (props: TableProps) => {
                         key={rowIndex}
                         onClick={() => { if (column.onClick) column.onClick(record)} }
                       >
-                        {column.body(
+                        {column && column.body ? column.body(
                           record,
                           {
                             rowIndex: rowIndex,
                             renderEditor: false,
                           }
-                        )}
+                        ) : null}
                       </td>
                     })}
                   </tr>;
