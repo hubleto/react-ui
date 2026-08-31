@@ -133,6 +133,7 @@ const Table = (props: TableProps) => {
       prevId: recordPrevId,
       nextId: recordNextId,
       endpoint: formEndpoint,
+      endpointParams: formEndpointParams,
       saveRecordWhenInitialized: recordSaveAfterOpen,
       showInModal: true,
       description: description,
@@ -545,6 +546,7 @@ const Table = (props: TableProps) => {
   const [filters, setFilters] = useState(props.filters ?? {});
   const [formActiveTabUid, setFormActiveTabUid] = useState(props.formActiveTabUid ?? 'default');
   const [formEndpoint, setFormEndpoint] = useState(props.formEndpoint ?? (globalThis.hubleto.config.defaultFormEndpoint ?? null));
+  const [formEndpointParams, setFormEndpointParams] = useState(props.formEndpointParams);
   const [formProps, setFormProps] = useState(props.formProps ?? {
     model: props.model,
     uid: props.uid + '_form',
@@ -1970,6 +1972,7 @@ const Table = (props: TableProps) => {
     filters, setFilters,
     formActiveTabUid, setFormActiveTabUid,
     formEndpoint, setFormEndpoint,
+    formEndpointParams, setFormEndpointParams,
     formProps, setFormProps,
     fulltextSearch, setFulltextSearch,
     inlineEditingEnabled, setInlineEditingEnabled,

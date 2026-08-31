@@ -50,7 +50,7 @@ const Input = (props: any) => {
     : (inputDescription.hasOwnProperty('icon') ? inputDescription.icon
     : ''))
   ;
-
+console.log('input', field, inputDescription);
   const inputProps: InputProps = {
     ...props,
     field: field,

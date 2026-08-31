@@ -292,6 +292,8 @@ const Form = (props: FormProps) => {
         let hasCustomColumns = false;
         let inputs = description?.inputs;
 
+        console.log('loadDesc', descriptionSource, loadedDescription, description, props.description);
+
         if (inputs) {
           Object.keys(inputs).map((inpName, index) => {
             if (inputs[inpName].isCustom) hasCustomColumns = true;
@@ -682,16 +684,18 @@ const Form = (props: FormProps) => {
   const renderDefaultHeaderExtraButtons = (): React.JSX.Element => {
     const headerExtraButtons = FormCustomizer.getFormHeaderExtraButtons(props.componentName);
     if (headerExtraButtons && headerExtraButtons.length > 0) {
-      return headerExtraButtons.map((button: any, key: any) => {
+      return <div className={cssClassNamePrefix + "-header-buttons"}>{headerExtraButtons.map((btnMeta: any, key: any) => {
+        if (btnMeta.onBeforeRender && !btnMeta.onBeforeRender(myself)) return null;
+        const button = btnMeta.onRender(myself);
         return <button
           key={key}
-          className='btn btn-transparent btn-square'
+          className='btn btn-transparent btn-small'
           onClick={() => { button.onClick(myself); }}
         >
           <span className='icon'><i className={button.icon == '' ? 'fas fa-circle' : button.icon}></i></span>
           <span className='text'>{button.title}</span>
         </button>;
-      });
+      })}</div>;
     } else {
       return null;
     }
@@ -700,16 +704,28 @@ const Form = (props: FormProps) => {
   const renderDefaultFooterExtraButtons = (): React.JSX.Element => {
     const footerExtraButtons = FormCustomizer.getFormFooterExtraButtons(props.componentName);
     if (footerExtraButtons && footerExtraButtons.length > 0) {
-      return <div className={cssClassNamePrefix + "-footer-buttons"}>{footerExtraButtons.map((button: any, key: any) => {
+      return <div className={cssClassNamePrefix + "-footer-buttons"}>{footerExtraButtons.map((btnMeta: any, key: any) => {
+        if (btnMeta.onBeforeRender && !btnMeta.onBeforeRender(myself)) return null;
+        const button = btnMeta.onRender(myself);
         return <button
           key={key}
-          className='btn btn-primary'
-          onClick={() => { button.onClick(this); }}
+          className='btn btn-transparent btn-square'
+          onClick={() => { button.onClick(myself); }}
         >
-          {button.icon == '' ? null : <span className='icon'><i className={button.icon}></i></span>}
+          <span className='icon'><i className={button.icon == '' ? 'fas fa-circle' : button.icon}></i></span>
           <span className='text'>{button.title}</span>
         </button>;
       })}</div>;
+      // return <div className={cssClassNamePrefix + "-footer-buttons"}>{footerExtraButtons.map((button: any, key: any) => {
+      //   return <button
+      //     key={key}
+      //     className='btn btn-primary'
+      //     onClick={() => { button.onClick(this); }}
+      //   >
+      //     {button.icon == '' ? null : <span className='icon'><i className={button.icon}></i></span>}
+      //     <span className='text'>{button.title}</span>
+      //   </button>;
+      // })}</div>;
     } else {
       return null;
     }
@@ -880,6 +896,7 @@ const Form = (props: FormProps) => {
             <span className='text'>{T.translate('Help with AI')}</span>
           </a> : null}
           {inputs && inputs.date_created ? <Input field='date_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
+          {inputs && inputs.datetime_created ? <Input field='datetime_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
           {/* {recordChanged ? <div className='block'><i className='fas fa-pencil'></i></div> : null} */}
         </div>
         <div className='flex gap-2 items-center'>
@@ -913,30 +930,40 @@ const Form = (props: FormProps) => {
       </div>;
     } else if (props.title) {
       let fields = [];
+      let hasNonEmptyFields = false;
 
       if (props.title.fields) fields = props.title.fields;
       else if (props.title.field) fields = [props.title.field];
 
       const h2 = fields.map((field, key) => {
-        const fieldValue: string = useRecordField(field, '');
-        const fieldInput = <Input
-          field={field}
-          icon={null}
-          renderOnlyInputField
-          customInputProps={{
-            cssClass: 'bg-white text-xl text-primary',
-            icon: '',
-          }}
-        />
-        return fieldValue == ''
-          ? null
-          : <span key={key}>{fieldValue}</span>
-        ;
+        if (typeof field === 'string') {
+          const fieldValue: string = useRecordField(field, '');
+          const fieldInput = <Input
+            field={field}
+            icon={null}
+            renderOnlyInputField
+            customInputProps={{
+              cssClass: 'bg-white text-xl text-primary',
+              icon: '',
+            }}
+          />;
+
+          const returnValue = fieldValue == ''
+            ? null
+            : <span key={key}>{fieldValue}</span>
+          ;
+
+          if (returnValue) hasNonEmptyFields = true;
+
+          return returnValue;
+        } else {
+          return field;
+        }
       });
 
       return <div>
         {props.title.main ? <h2>{props.title.main}</h2> : null}
-        {h2 ? <h2 className='flex gap-2'>{h2}</h2> : null}
+        {hasNonEmptyFields ? <h2 className='flex gap-2'>{h2}</h2> : <h2 className='text-primary/20'><i>[Empty]</i></h2>}
         <small>{props.title.sub}</small>
       </div>;
     } else {
