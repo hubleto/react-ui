@@ -12,9 +12,9 @@ import InputTextarea from "../Inputs/Textarea";
 import InputBoolean from "../Inputs/Boolean";
 import InputEnumValues from "../Inputs/EnumValues";
 import InputDateTime from "../Inputs/DateTime";
+import InputPassword from "../Inputs/Password";
+import InputFile from "../Inputs/File";
 
-import InputPassword from "../../cc/Inputs/Password";
-import InputFile from "../../cc/Inputs/File";
 import InputImage from "../../cc/Inputs/Image";
 
 const Input = (props: any) => {

@@ -80,6 +80,7 @@ class Request {
                 {
                   headerClassName: 'dialog-danger-header',
                   contentClassName: 'dialog-danger-content',
+                  footerClassName: 'dialog-danger-footer',
                   renderHeader: () => '🥴 Oops! Something went wrong.'
                 }
               );

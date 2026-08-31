@@ -42,7 +42,7 @@ const getFileSize = (input: any): number => {
 
 const onFileChange = (input: any, files: Array<any>) => {
   let file: any = files[0];
-
+console.log('onFileChange', input, files);
   input.changeValue({
     fileName: file ? file.file.name : null,
     fileData: file ? file.fileData : null,

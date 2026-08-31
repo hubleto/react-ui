@@ -51,7 +51,7 @@ export class HubletoReactUi {
   addModalToStack(modal: ModalMeta) {
     this.renderedModals.map((m) => m.setIsActive(false));
     this.renderedModals.push(modal);
-    modal.setIsActive(true);
+    if (modal && modal.setIsActive) modal.setIsActive(true);
   }
 
   removeModalFromStack(modalToDelete: ModalMeta) {
@@ -92,7 +92,7 @@ export class HubletoReactUi {
           this.renderedModals[key].setIsActive(false);
         }
       })
-      lastModal.setIsActive(true);
+      if (lastModal && lastModal.setIsActive) lastModal.setIsActive(true);
     }
   }
 
@@ -181,6 +181,7 @@ export class HubletoReactUi {
     let defaultProps: any = {
       headerClassName: 'dialog-danger-header',
       contentClassName: 'dialog-danger-content',
+      footerClassName: 'dialog-danger-footer',
       header: "🥴 Ooops",
       footer: <div className={"flex w-full justify-start"}>
         <button
