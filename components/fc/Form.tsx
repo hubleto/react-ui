@@ -220,6 +220,7 @@ const Form = (props: FormProps) => {
   const [tag, setTag] = useState(props.tag ?? '');
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
 
+
   //////////////////////////////////
   // useEffect*()
   //////////////////////////////////
@@ -245,7 +246,6 @@ const Form = (props: FormProps) => {
       getCallback('onAfterFormInitialized')(myself);
     }
   }, [isInitialized])
-
   useEffect(() => { onTabChange(); }, [activeTabUid]);
 
   useEffect(() => {
@@ -345,6 +345,8 @@ const Form = (props: FormProps) => {
 
             // changeRecord(record);
             recordStore.setRecord(prev => ({ ...record }));
+
+            setReadonly(record.is_closed == 1);
 
             getCallback('onAfterRecordLoaded')(myself, record);
           }
@@ -532,7 +534,13 @@ const Form = (props: FormProps) => {
     const inputs = description.inputs;
     return (inputs ? <div className={cssClassNamePrefix + "-top-inputs"}>
       {inputs.id_workflow && inputs.id_workflow_step ? <WorkflowSelector /> : null}
-      {inputs.is_closed ? <Input field='is_closed' readonly={false} renderOnlyInputField customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}} /> : null}
+      {inputs.is_closed ? <Input
+        field='is_closed'
+        readonly={false}
+        renderOnlyInputField
+        customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}}
+        onChange={() => { saveRecord(); }}
+      /> : null}
       {inputs.id_owner ? <Input field='id_owner' readonly={false} renderOnlyInputField userIcon='fas fa-user' /> : null}
       {inputs.id_manager ? <Input field='id_manager' readonly={false} renderOnlyInputField userIcon='fas fa-user-tie' /> : null}
       {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}

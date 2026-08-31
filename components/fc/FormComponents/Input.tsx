@@ -62,6 +62,7 @@ const Input = (props: any) => {
     invalid: false,
     onChange: (input: any, newValue: any) => {
       form.changeField(input, newValue);
+      if (props.onChange) props.onChange(input, newValue);
     },
     ...inputDescription,
     ...customInputProps,
