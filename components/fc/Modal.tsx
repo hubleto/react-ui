@@ -36,6 +36,7 @@ const Modal = (props: ModalProps) => {
     onClose,
     setIsActive,
     setForm,
+    setIsFullscreen
   }
 
   return <ModalMetaContext.Provider value={myself}>
@@ -43,9 +44,9 @@ const Modal = (props: ModalProps) => {
       key={uid}
       id={"hubleto-modal-" + uid}
       className={
-        "modal "
-        + (isActive ? "active" : "")
-        + (isFullscreen ? "fullscreen" : "")
+        "modal"
+        + (isActive ? " active" : "")
+        + (isFullscreen ? " fullscreen" : "")
         + " " + type
       }
     >

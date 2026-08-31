@@ -15,7 +15,6 @@ const CloseButton = React.memo(({ content }: any) => {
   >
     <span className="icon">
       <i className="fas fa-xmark"></i>
-      <span className="shortcut">Esc</span>
     </span>
   </button>;
 }, () => true);

@@ -27,6 +27,7 @@ export interface ModalMeta {
   isFullscreen?: boolean,
   form?: FormMeta,
   isActive?: boolean,
+  setIsFullscreen?: Dispatch<SetStateAction<boolean>>,
   setIsActive?: Dispatch<SetStateAction<boolean>>,
   setForm?: Dispatch<SetStateAction<any>>,
   onClose?: () => void,

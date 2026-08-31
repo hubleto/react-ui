@@ -200,7 +200,6 @@ const Form = (props: FormProps) => {
   const [id, setId] = useState(props.id ?? 0);
   const [invalidInputs, setInvalidInputs] = useState([]);
   const [isActive, setIsActive] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(props.isFullscreen ?? false);
   const [isInitialized, setIsInitialized] = useState(props.isInitialized ?? false);
   const [loadRecordError, setLoadRecordError] = useState(null);
   const [model, setModel] = useState(props.model ?? '');
@@ -254,6 +253,8 @@ const Form = (props: FormProps) => {
     const urlParams = new URLSearchParams(window.location.search);
     const tabExists = tabs && tabs[activeTabUid] !== null;
 
+    if (parentTable && parentTable.props.parentForm) return;
+
     if (activeTabUid == 'default' || !tabExists) urlParams.delete('tab');
     else urlParams.set('tab', activeTabUid ?? '');
 
@@ -291,8 +292,6 @@ const Form = (props: FormProps) => {
 
         let hasCustomColumns = false;
         let inputs = description?.inputs;
-
-        console.log('loadDesc', descriptionSource, loadedDescription, description, props.description);
 
         if (inputs) {
           Object.keys(inputs).map((inpName, index) => {
@@ -370,9 +369,13 @@ const Form = (props: FormProps) => {
     if (!force && recordChanged) ok = confirm(T.translate("You have unsaved changes. Are you sure to close?", 'Hubleto\\Erp\\Loader', 'Components\\Form'));
     if (ok) {
 
-      const urlParams = new URLSearchParams(window.location.search);
-      urlParams.delete('tab');
-      window.history.pushState({}, "", '?' + urlParams.toString());
+      if (parentTable && parentTable.props.parentForm) {
+        //
+      } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.delete('tab');
+        window.history.pushState({}, "", '?' + urlParams.toString());
+      }
 
       getCallback('onClose')(myself);
     }
@@ -811,12 +814,10 @@ const Form = (props: FormProps) => {
         className="btn btn-transparent hidden md:block"
         type="button"
         aria-label="Fullscreen"
-        onClick={() => {
-          setIsFullscreen(!isFullscreen);
-        }}
+        onClick={() => modal.setIsFullscreen(!modal.isFullscreen)}
       >
         <span className="icon">
-          <i className={"fas fa-" + (isFullscreen ? "compress" : "expand")}></i>
+          <i className={"fas fa-" + (modal.isFullscreen ? "compress" : "expand")}></i>
         </span>
       </button>
     );
@@ -845,7 +846,6 @@ const Form = (props: FormProps) => {
         <div className='flex gap-2'>
           <RenderSaveButton></RenderSaveButton>
           <RenderPrintPreviewUiButton></RenderPrintPreviewUiButton>
-          <RenderHeaderExtraButtons></RenderHeaderExtraButtons>
         </div>
       </div>
     </div>;
@@ -853,6 +853,7 @@ const Form = (props: FormProps) => {
 
   const renderDefaultHeaderRight = (): React.JSX.Element => {
     return modal ? <>
+      <RenderHeaderExtraButtons></RenderHeaderExtraButtons>
       <RenderFullscreenButton />
       <RenderCloseButton />
     </> : null;
