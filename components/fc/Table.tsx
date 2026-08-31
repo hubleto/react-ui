@@ -119,7 +119,7 @@ const Table = (props: TableProps) => {
       description.defaultValues = { ...description.defaultValues, ...formDefaultValues };
     }
     
-    return {
+    let formProps = {
       // isInitialized: false,
       // ref: refForm,
       modal: refFormModal,
@@ -132,8 +132,6 @@ const Table = (props: TableProps) => {
       id: recordId,
       prevId: recordPrevId,
       nextId: recordNextId,
-      endpoint: formEndpoint,
-      endpointParams: formEndpointParams,
       saveRecordWhenInitialized: recordSaveAfterOpen,
       showInModal: true,
       description: description,
@@ -162,7 +160,12 @@ const Table = (props: TableProps) => {
       },
 
       ...(props.formProps ?? {}),
-    }
+    };
+
+    if (formEndpoint) formProps.endpoint = formEndpoint;
+    if (formEndpointParams) formProps.endpointParams = formEndpointParams;
+
+    return formProps;
 
   }
 

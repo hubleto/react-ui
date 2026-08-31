@@ -35,8 +35,7 @@ const InputComponent = (props: EnumValuesInputProps) => {
 
   if (!enumValues) return <></>;
 
-  let value = input.value ?? null;
-  if (!enumValues[value]) value = Object.keys(enumValues)[0];
+  let value = input.value ?? null
 
   if (uiStyle == 'select') {
     return <>
@@ -54,8 +53,8 @@ const InputComponent = (props: EnumValuesInputProps) => {
         }
         disabled={input.readonly}
       >
+        <option value={null}></option>
         {Object.keys(enumValues).map((key: string|number) => {
-          if (enumValues == undefined) return <></>;
           return <option key={key} value={key}>{enumValues[key] ?? ''}</option>
         })}
       </select>

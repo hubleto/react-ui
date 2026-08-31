@@ -123,6 +123,23 @@ const Form = (props: FormProps) => {
     return permissions;
   }
 
+  const getTabs = (): FormTabs => {
+    let tabs = {
+      ...(props.tabs ?? {}),
+      ...(FormCustomizer.getTabs(props.componentName) ?? {})
+    };
+
+    for (let i in tabs) {
+      if (tabs[i].mount) {
+        const mounted = tabs[i].mount(myself);
+        if (mounted) tabs[i] = mounted;
+      }
+    }
+
+    console.log('gettabs', tabs);
+    return tabs;
+  }
+
   const getEndpointUrl = (action: string): string => {
     if (props.getEndpointUrl) return props.getEndpointUrl(myself);
     return endpoint[action as keyof FormEndpoint] ?? '';
@@ -218,6 +235,7 @@ const Form = (props: FormProps) => {
   const [showHeader, setShowHeader] = useState(true);
   const [showPreviewUi, setShowPreviewUi] = useState(false);
   const [tag, setTag] = useState(props.tag ?? '');
+  const [tabs, setTabs] = useState(null);
   const [updatingRecord, setUpdatingRecord] = useState(!isCreatingRecord(props.id));
 
 
@@ -225,6 +243,7 @@ const Form = (props: FormProps) => {
   // useEffect*()
   //////////////////////////////////
 
+  useEffect(() => { setTabs(getTabs()); }, []);
   useEffect(() => {
     globalThis.hubleto.reactElements[props.uid] = myself;
     modal.setForm(myself);
@@ -551,7 +570,6 @@ const Form = (props: FormProps) => {
   const renderDefaultTopMenuButton = (tabUid: string): React.JSX.Element => {
     if (tabUid == '') tabUid = 'default';
 
-    const tabs: FormTabs = props.tabs;
     if (!tabs) return <></>;
 
     const tab = tabs[tabUid];
@@ -574,7 +592,6 @@ const Form = (props: FormProps) => {
 
   const renderDefaultTopMenu = (): React.JSX.Element => {
     let topMenu = null;
-    const tabs: FormTabs = props.tabs;
 
     if (tabs && Object.keys(tabs).length > 1) {
       topMenu = <div className="top-menu-wrapper">
@@ -673,7 +690,8 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultTab = (tab: string): React.JSX.Element => {
-    if (props.tabs && props.tabs[tab]) return props.tabs[tab].content();
+    if (tabs && tabs[tab]) return tabs[tab].content(myself);
+
     return <>{Object.keys(description?.inputs ?? {}).map((field: string) => {
       return <Input field={field} />
     })}</>;
@@ -696,8 +714,8 @@ const Form = (props: FormProps) => {
     const headerExtraButtons = FormCustomizer.getFormHeaderExtraButtons(props.componentName);
     if (headerExtraButtons && headerExtraButtons.length > 0) {
       return <div className={cssClassNamePrefix + "-header-buttons"}>{headerExtraButtons.map((btnMeta: any, key: any) => {
-        if (btnMeta.onBeforeRender && !btnMeta.onBeforeRender(myself)) return null;
-        const button = btnMeta.onRender(myself);
+        const button = btnMeta.mount(myself);
+        if (!button) return null;
         return <button
           key={key}
           className='btn btn-transparent btn-small'
@@ -716,8 +734,8 @@ const Form = (props: FormProps) => {
     const footerExtraButtons = FormCustomizer.getFormFooterExtraButtons(props.componentName);
     if (footerExtraButtons && footerExtraButtons.length > 0) {
       return <div className={cssClassNamePrefix + "-footer-buttons"}>{footerExtraButtons.map((btnMeta: any, key: any) => {
-        if (btnMeta.onBeforeRender && !btnMeta.onBeforeRender(myself)) return null;
-        const button = btnMeta.onRender(myself);
+        const button = btnMeta.mount(myself);
+        if (!button) return null;
         return <button
           key={key}
           className='btn btn-transparent btn-square'
@@ -1026,6 +1044,7 @@ const Form = (props: FormProps) => {
     showPreviewUi, description,
     changeField, setReadonly, recordStore, getRecord,
     activeTabUid,
+    reload,
 
     renderDefaultTopMenuButton,
     renderDefaultTopMenu,

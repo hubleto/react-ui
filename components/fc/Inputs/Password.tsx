@@ -14,8 +14,9 @@ const InputComponent = (props: InputProps) => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const password1 = input.value[0] ?? '';
-  const password2 = input.value[1] ?? '';
+  const passwordChanged = typeof input.value !== 'string';
+  const password1 = passwordChanged && input.value && input.value[0] ? input.value[0] : '';
+  const password2 = passwordChanged && input.value && input.value[1] ? input.value[1] : '';
 
   return <>
     <div className={"block pr-2"}>
@@ -23,7 +24,7 @@ const InputComponent = (props: InputProps) => {
         type={showPassword ? 'text' : 'password'}
         value={password1}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          input.changeValue([e.currentTarget.value, input.value[1] ?? '']);
+          input.changeValue([e.currentTarget.value, password2]);
         }}
         placeholder={T.translate("New password")}
         className={
@@ -38,7 +39,7 @@ const InputComponent = (props: InputProps) => {
         type={showPassword ? 'text' : 'password'}
         value={password2}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          input.changeValue([input.value[0] ?? '', e.currentTarget.value]);
+          input.changeValue([password1, e.currentTarget.value]);
         }}
         placeholder={T.translate("Confirm new password")}
         className={

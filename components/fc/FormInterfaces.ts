@@ -58,7 +58,7 @@ export interface FormTab {
   isCustom?: boolean,
   subTabs?: Array<FormTab>,
   position?: string,
-  content: () => React.JSX.Element,
+  content: (form: FormMeta) => React.JSX.Element,
 }
 
 // export interface FormUiComponents {
@@ -172,7 +172,9 @@ export interface FormMeta {
   showPreviewUi, description,
   changeField, setReadonly,
   recordStore, getRecord,
-  activeTabUid
+  activeTabUid,
+
+  reload: () => void,
 
   renderDefaultTopMenuButton: (tabUid: string) => React.JSX.Element,
   renderDefaultTopMenu: () => React.JSX.Element,
