@@ -208,6 +208,7 @@ export class HubletoReactUi {
     let defaultProps: any = {
       headerClassName: 'dialog-warning-header',
       contentClassName: 'dialog-warning-content',
+      footerClassName: 'dialog-warning-footer',
       header: this.translate('Warning', 'Hubleto\\Erp\\Loader', 'HubletoReactUi') ,
       footer: <div className={"flex w-full justify-start"}>
         <button
@@ -235,6 +236,7 @@ export class HubletoReactUi {
     let defaultProps = {
       headerClassName: 'dialog-confirm-header',
       contentClassName: 'dialog-confirm-content',
+      footerClassName: 'dialog-confirm-footer',
       renderHeader: (dialog: any) => this.translate('Confirm', 'Hubleto\\Erp\\Loader', 'HubletoReactUi'),
       renderFooter: (dialog: any) => <>
         <div className={"flex w-full justify-between"}>

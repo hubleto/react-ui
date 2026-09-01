@@ -444,14 +444,14 @@ const Table = (props: TableProps) => {
                     }}
                   ><span className='icon'><i className='fas fa-arrow-up-right-from-square'></i></span></button>
                 : null}
-                <button
-                  className='btn btn-small btn-primary-outline'
+                <i
+                  className='fas fa-copy text-primary/20 hover:text-primary'
                   title={T.translate('Copy cell content to clipboard')}
                   onClick={(e) => {
                     navigator.clipboard.writeText(cellText);
                     e.stopPropagation();
                   }}
-                ><span className='icon'><i className='fas fa-copy'></i></span></button>
+                ></i>
                 {editMode == '' || column.readonly || column.type == 'virtual' ? null :
                   <button
                     className="btn btn-small btn-primary-outline"
@@ -1293,8 +1293,8 @@ const Table = (props: TableProps) => {
       T.translate('Are you sure you want to delete this record?'),
       {
         headerClassName: 'dialog-danger-header',
-        footerClassName: 'dialog-danger-footer',
         contentClassName: 'dialog-danger-content',
+        footerClassName: 'dialog-danger-footer',
         header: T.translate('Delete record'),
         yesText: T.translate('Delete'),
         yesButtonClass: 'btn-danger',
@@ -1462,8 +1462,15 @@ const Table = (props: TableProps) => {
             if (enumValues) cellValueElement = enumValues[cellContent];
           break;
           case 'boolean':
-            if (cellContent) cellValueElement = <span className="text-green-600" style={{fontSize: '1.2em'}}>✓</span>
-            else cellValueElement = <span className="text-red-600" style={{fontSize: '1.2em'}}>✕</span>
+            if (cellContent) {
+              cellValueElement = column.yesText !== null
+                ? <span className="badge badge-small">{column.yesText}</span>
+                : <span className="text-green-600" style={{fontSize: '1.2em'}}>✓</span>
+            } else {
+              cellValueElement = column.noText !== null
+                ? <span className="badge badge-small">{column.noText}</span>
+                : <span className="text-red-600" style={{fontSize: '1.2em'}}>✕</span>
+            }
           break;
           case 'date':
             cellValueElement = <span className='text-stone-700'>
@@ -2002,7 +2009,7 @@ const Table = (props: TableProps) => {
     view, setView,
 
     reload, loadData, loadDescription,
-    openForm, closeForm,
+    openForm, closeForm, setRecordFormUrl,
 
     getDefaultEndpointParams,
     getDefaultEndpointUrl,

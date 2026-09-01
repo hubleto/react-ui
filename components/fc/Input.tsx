@@ -133,6 +133,7 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   const refInput = useRef(null);
 
   useEffect(() => { if (props.onInit) props.onInit(myself); }, []);
+  useEffect(() => { setField(props.field); }, [props.field]);
   useEffect(() => { setValue(props.value); }, [props.value]);
   useEffect(() => { setChanged(props.changed ?? false); }, [props.changed]);
   useEffect(() => { setCssClass(props.cssClass ?? ''); }, [props.cssClass]);

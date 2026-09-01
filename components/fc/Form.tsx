@@ -136,7 +136,6 @@ const Form = (props: FormProps) => {
       }
     }
 
-    console.log('gettabs', tabs);
     return tabs;
   }
 
@@ -428,7 +427,7 @@ const Form = (props: FormProps) => {
       { ...getEndpointParams(), record: recordToSave },
       {},
       (saveResponse: any) => {
-        if (creatingRecord && parentTable && parentTable.setRecordFormUrl) {
+        if (creatingRecord && parentTable) {
           parentTable.setRecordFormUrl(saveResponse.savedRecord?.id);
         }
 

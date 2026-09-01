@@ -974,6 +974,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         {
           headerClassName: 'dialog-danger-header',
           contentClassName: 'dialog-danger-content',
+          footerClassName: 'dialog-danger-footer',
           header: this.translate('Delete record', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
           yesText: this.translate('Delete', 'Hubleto\\Erp\\Loader', 'Components\\Table'),
           yesButtonClass: 'btn-danger',

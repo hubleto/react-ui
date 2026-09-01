@@ -237,6 +237,7 @@ export interface TableMeta {
   getDefaultMinColumnValue?: (columnName: string) => any,
   getDefaultMaxColumnValue?: (columnName: string) => any,
   getDefaultRowClassName?: (rowData: any) => any,
+  setRecordFormUrl?: (id: number) => void,
 
   renderDefaultAddButton?: () => React.JSX.Element,
   renderDefaultMoreActionsButton?: () => React.JSX.Element,

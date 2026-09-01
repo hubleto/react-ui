@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import AsyncSelect from 'react-select/async'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 import request from '../../../core/Request'
@@ -84,6 +84,10 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
 
   const urlAdd = props.inputProps?.urlAdd;
 
+  useEffect(() => {
+    loadData(props, input, '');
+  }, [])
+
   if (props.uiStyle == 'select') {
     return <>
       <select
@@ -135,7 +139,7 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
         }}
         isClearable={true}
         isDisabled={input.readonly || !input.isInitialized}
-        loadOptions={(searchValue: string, callback: any) => loadData(props, searchValue, callback)}
+        loadOptions={(searchValue: string, callback: any) => loadData(props, input, searchValue)}
         defaultOptions={Object.values(input.data ?? {})}
         getOptionLabel={(option: any) => { return option._LOOKUP }}
         getOptionValue={(option: any) => { return option.id }}
@@ -159,13 +163,10 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
   }
 }
 
-
 const LookupInput = (props: LookupInputProps) => {
   return <Input
     inputClassName='lookup'
-    onInit={(input: any) => {
-      loadData(props, input, '');
-    }}
+    isInitialized={true}
     renderLoadingComponent={(input: InputMeta) => <div className='hubleto component input lookup'>
       <div className='inner fc'>
         <div className='input-element'>
@@ -176,7 +177,7 @@ const LookupInput = (props: LookupInputProps) => {
           :
             <AsyncSelect
               isDisabled={true}
-              loadOptions={(searchValue: string, callback: any) => loadData(props, searchValue, callback)}
+              // loadOptions={(searchValue: string, callback: any) => loadData(props, searchValue, callback)}
               placeholder={<LoaderBar size="xs"></LoaderBar>}
               className="hubleto-lookup"
             />
