@@ -173,6 +173,8 @@ export interface FormMeta {
   changeField, setReadonly,
   recordStore, getRecord,
   activeTabUid,
+  openNextRecord, openPrevRecord,
+
 
   reload: () => void,
 

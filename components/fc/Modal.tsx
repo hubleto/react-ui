@@ -17,7 +17,6 @@ const Modal = (props: ModalProps) => {
 
   useEffect(() => {
     globalThis.hubleto.reactElements[props.uid] = this;
-    globalThis.hubleto.addModalToStack(myself);
   }, []);
 
   const onClose = () => {
@@ -38,6 +37,8 @@ const Modal = (props: ModalProps) => {
     setForm,
     setIsFullscreen
   }
+
+  globalThis.hubleto.updateModalStack(myself);
 
   return <ModalMetaContext.Provider value={myself}>
     {isOpen ? <div

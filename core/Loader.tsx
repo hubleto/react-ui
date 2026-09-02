@@ -14,7 +14,7 @@ export class HubletoReactUi {
   reactComponents: any = {};
   reactElementsWaitingForRender: number = 0;
   reactElements: Object = {};
-  renderedModals: Array<ModalMeta> = [];
+  renderedModals: any = {};
 
   dictionary: any = null;
   lastShownDialogRef: any;
@@ -45,55 +45,22 @@ export class HubletoReactUi {
   }
 
   translate(orig: string, context?: string, contextInner?: string): string {
-    return orig; // to be overridden
+    return orig;
   }
 
-  addModalToStack(modal: ModalMeta) {
-    this.renderedModals.map((m) => m.setIsActive(false));
-    this.renderedModals.push(modal);
-    if (modal && modal.setIsActive) modal.setIsActive(true);
+  updateModalStack(modal: ModalMeta) {
+    this.renderedModals[modal.uid] = modal;
   }
 
-  removeModalFromStack(modalToDelete: ModalMeta) {
-    let keyToDelete = null;
-    this.renderedModals.map((modal, key) => {
-      if (modal.stackUid === modalToDelete.stackUid) {
-        keyToDelete = key;
-      }
-    })
-    if (keyToDelete !== null) {
-      delete this.renderedModals[keyToDelete];
-      this.activateLastModalInStack();
-    }
+  removeModalFromStack(modal: ModalMeta) {
+    delete this.renderedModals[modal.uid];
   }
 
   getLastModalInStack() {
-     return this.renderedModals[this.renderedModals.length - 1] ?? null;
-  }
+    const uids = Object.keys(this.renderedModals);
+    const lastUid = uids[uids.length - 1] ?? null;
 
-  getActiveModalInStack() {
-    let lastModal = null;
-    this.renderedModals.map((modal, key) => {
-      if (modal.isActive) lastModal = modal;
-    });
-
-    return lastModal;
-  }
-
-  activateLastModalInStack() {
-    let lastModal = null;
-    this.renderedModals.map((modal, key) => {
-      if (modal) lastModal = modal;
-    });
-
-    if (lastModal) {
-      this.renderedModals.map((modal, key) => {
-        if (modal.stackUid != lastModal.stackUid) {
-          this.renderedModals[key].setIsActive(false);
-        }
-      })
-      if (lastModal && lastModal.setIsActive) lastModal.setIsActive(true);
-    }
+    return this.renderedModals[lastUid] ?? null;
   }
 
   registerModalShortcuts() {
@@ -108,22 +75,6 @@ export class HubletoReactUi {
         const lastModal = globalThis.hubleto.getLastModalInStack();
         if (lastModal && lastModal.form) {
           lastModal.form.saveRecord();
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      }
-      if (e.ctrlKey && e.shiftKey && e.key === 'PageDown') {
-        const lastModal = globalThis.hubleto.getLastModalInStack();
-        if (lastModal && lastModal.form) {
-          lastModal.form.openNextRecord();
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      }
-      if (e.ctrlKey && e.shiftKey && e.key === 'PageUp') {
-        const lastModal = globalThis.hubleto.getLastModalInStack();
-        if (lastModal && lastModal.form) {
-          lastModal.form.openPrevRecord();
           e.stopPropagation();
           e.preventDefault();
         }

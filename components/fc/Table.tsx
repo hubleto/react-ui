@@ -724,7 +724,7 @@ const Table = (props: TableProps) => {
 
     if (!canRead) return;
 
-    if (id <= 0) {
+    if (id > 0) {
       for (i in data?.records) {
         const row = data?.records[i];
         if (row && row.id) {

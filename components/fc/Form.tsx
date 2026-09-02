@@ -814,6 +814,7 @@ const Form = (props: FormProps) => {
         <span className="icon">
           <i className="fas fa-angle-left"></i>
         </span>
+        <span className="text">#{prevId}</span>
         {/* <span className="shortcut">Ctrl+Shift+PgUp</span> */}
       </button>
     );
@@ -828,6 +829,7 @@ const Form = (props: FormProps) => {
         <span className="icon">
           <i className="fas fa-angle-right"></i>
         </span>
+        <span className="text">#{nextId}</span>
         {/* <span className="shortcut">Ctrl+Shift+PgDn</span> */}
       </button>
     );
@@ -1044,6 +1046,7 @@ const Form = (props: FormProps) => {
     changeField, setReadonly, recordStore, getRecord,
     activeTabUid,
     reload,
+    openNextRecord, openPrevRecord,
 
     renderDefaultTopMenuButton,
     renderDefaultTopMenu,
