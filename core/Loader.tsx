@@ -71,6 +71,12 @@ export class HubletoReactUi {
         e.preventDefault();
       }
 
+      if (e.ctrlKey && e.key === ' ') {
+        $('.app-launcher').addClass('visible');
+        $('.app-launcher > div .app-launcher-header input').focus();
+        e.preventDefault();
+      }
+
       if (e.ctrlKey && e.key === 's') {
         const lastModal = globalThis.hubleto.getLastModalInStack();
         if (lastModal && lastModal.form) {
