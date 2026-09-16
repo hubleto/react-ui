@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import ModalSimple from "../../cc/ModalSimple";
+import Modal from "../Modal";
 import Translator from "@hubleto/react-ui/core/Translator";
 import Input from "./Input";
 import HtmlFrame from "../../cc/HtmlFrame";
 import { FormMetaContext } from "../Form";
 import request from "@hubleto/react-ui/core/Request";
+import { ModalMeta } from "../ModalInterfaces";
 
 export interface PrintPreviewUiProps {}
 
@@ -58,13 +59,16 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
           form.changeRecord({
             idDocument: result.idDocument,
             pdf: result.pdfFile,
-          }, () => { form.saveRecord(); });
+          }, () => {
+            form.setShowPreviewUi(false);
+            form.saveRecord();
+          });
         }
       }
     );
   }
 
-  return (form.showPreviewUi ? <ModalSimple
+  return (form.showPreviewUi ? <Modal
     uid='projects_table_discussions_modal'
     isOpen={true}
     type='centered large theme-secondary'
@@ -72,7 +76,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
     title={<>
       <h2>{T.translate("Print", 'Hubleto\\Erp\\Loader', 'Components\\Form')}</h2>
     </>}
-    onClose={(modal: ModalSimple) => { form.setShowPreviewUi(false); }}
+    onClose={(modal: ModalMeta) => { form.setShowPreviewUi(false); }}
   >
     <div className='flex gap-2 h-full'>
       <div className='flex-1 w-72 flex flex-col gap-2'>
@@ -119,7 +123,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
           </div>
         </div>
         <div className='w-full h-full card mt-2'>
-          <div className="card-body">
+          <div className="card-body" style={{height: "calc(100% - 5em)"}}>
             <HtmlFrame
               uid={form.uid + '_preview'}
               className='w-full h-full'
@@ -138,7 +142,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
         </div>
       </div>
     </div>
-  </ModalSimple> : null);
+  </Modal> : null);
 }, () => true);
 
 export default PrintPreviewUi;

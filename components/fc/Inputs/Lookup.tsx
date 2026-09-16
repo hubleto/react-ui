@@ -57,6 +57,10 @@ const loadData = (props: any, input: any, searchValue: string|null = null) => {
 const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
+  useEffect(() => {
+    loadData(props, input, '');
+  }, [])
+
   if (input.data && input.data[input.value]?._LOOKUP) {
     let value = input.data[input.value];
     let urlDetail = value._URL_DETAIL ?? '';
@@ -65,15 +69,19 @@ const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
     if (value._LOOKUP_COLOR) style['borderLeft'] = '0.5em solid ' + value._LOOKUP_COLOR;
 
     return <>
-      <a className="btn btn-transparent" style={style}>
+      <a
+        className="btn btn-transparent"
+        style={style}
+        target="_blank"
+        href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}
+      >
         <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
       </a>
-      {urlDetail && input.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}>
-        <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
-      </a> : null}
     </>;
   } else {
-    return <span className='no-value'></span>;
+    return <button className='btn btn-transparent'>
+      <span className='icon min-w-8'><Spinner size="xs"></Spinner></span>
+    </button>;
   }
 }
 

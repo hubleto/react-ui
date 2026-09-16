@@ -459,15 +459,10 @@ const Form = (props: FormProps) => {
 
     setId(-1);
     recordStore.setRecord(prev => (newRecord));
-    setUpdatingRecord(false);
+    setUpdatingRecord(true);
     setCreatingRecord(false);
     setRecordChanged(true);
   
-    const formUrl = getRecordFormUrl();
-    if (formUrl != '') {
-      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + formUrl);
-    }
-
     getCallback('onAfterCopyRecord')(myself, newRecord);
   }
 
@@ -923,11 +918,13 @@ const Form = (props: FormProps) => {
             <span className='icon'><i className='fas fa-wand-magic-sparkles'></i></span>
             <span className='text'>{T.translate('Help with AI')}</span>
           </a> : null}
-          {inputs && inputs.date_created ? <Input field='date_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
-          {inputs && inputs.datetime_created ? <Input field='datetime_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
+          <div className='gap-2 items-center hidden md:flex'>
+            {inputs && inputs.date_created ? <Input field='date_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
+            {inputs && inputs.datetime_created ? <Input field='datetime_created' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
+          </div>
           {/* {recordChanged ? <div className='block'><i className='fas fa-pencil'></i></div> : null} */}
         </div>
-        <div className='flex gap-2 items-center'>
+        <div className='gap-2 items-center hidden md:flex'>
           {inputs && inputs.id_created_by ? <Input field='id_created_by' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
           {inputs && inputs.date_updated ? <Input field='date_updated' renderOnlyInputField customInputProps={{readonly: true}} /> : null}
           {inputs && inputs.id_updated_by ? <Input field='id_updated_by' renderOnlyInputField customInputProps={{readonly: true}} /> : null}

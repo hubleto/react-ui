@@ -133,7 +133,7 @@ export interface TableProps {
   junctionDestinationColumn?: string,
   junctionSourceRecordId?: number,
   junctionSaveEndpoint?: string,
-  formUrlSlug?: string,
+  baseUrlSlug?: string,
 
   getEndpointParams?: (table: TableMeta) => object,
   getEndpointUrl?: (table: TableMeta, action: string) => string,

@@ -26,8 +26,6 @@ const T = new Translator('Hubleto\\ReactUi', 'Components\\Table');
 
 const Table = (props: TableProps) => {
 
-  const myRootUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-
   const refFulltextSearchInput = React.createRef();
   const refForm = React.createRef();
   const refFormModal = React.createRef();
@@ -362,17 +360,17 @@ const Table = (props: TableProps) => {
         if (columnSearchValue instanceof Array) {
           columnSearchValuePrettyfied =
             <div className='flex w-full gap-2 justify-items'>
-              <div className='grow'>
+              <div className='flex gap-2'>
                 {columnSearchValue.map((item, index) => {
                   if (index == 0) return null;
                   return <>
                     <button
-                      className='btn btn-small btn-warning'
+                      className='btn btn-small btn-warning p-0.5'
                       onClick={() => {
                         columnSearchDelete(columnName, index);
                       }}
                     >
-                      <span className='text'>{item}</span>
+                      <span className='text p-0.5'>{item}</span>
                     </button>
                   </>;
                 })}
@@ -385,7 +383,7 @@ const Table = (props: TableProps) => {
                       let newColumnSearch = columnSearch;
                       let glue = newColumnSearch[columnName][0];
                       newColumnSearch[columnName][0] = (glue == 'OR' ? 'AND' : 'OR');
-                      setColumnSearch(newColumnSearch);
+                      columnSearchApplyNew(newColumnSearch);
                     }}
                   >
                     <span className='icon'><i className='fas fa-align-justify'></i></span>
@@ -406,7 +404,7 @@ const Table = (props: TableProps) => {
         showFilterMenu: false,
         alignHeader: alignHeader,
         filter: (data: any, options: any) => {
-          return <>
+          return <div className="h-full">
             <div className="column-search input-wrapper">
               <div className="input-body"><div className="hubleto component input">
                 <div className="input-element grow">
@@ -415,7 +413,7 @@ const Table = (props: TableProps) => {
               </div></div>
             </div>
             {columnSearchValuePrettyfied}
-          </>;
+          </div>;
         },
         body: (data: any, options: any) => {
           if (data._PERMISSIONS && !data._PERMISSIONS[1]) { // can not read
@@ -705,11 +703,11 @@ const Table = (props: TableProps) => {
 
   const setRecordFormUrl = (id: number) => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (!props.parentForm && !props.formUrlSlug) {
+    if (!props.parentForm && !props.baseUrlSlug) {
       urlParams.set('recordId', id.toString());
       window.history.pushState({}, "", '?' + urlParams.toString());
     } else {
-      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + props.formUrlSlug + '/' + (id > 0 ? id : 'add'));
+      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + props.baseUrlSlug + '/' + (id > 0 ? id : 'add'));
     }
   }
 
@@ -758,10 +756,12 @@ const Table = (props: TableProps) => {
     urlParams.delete('recordId');
     urlParams.delete('recordTitle');
 
-    if (Array.from(urlParams).length == 0) {
-      window.history.pushState({}, '', myRootUrl);
-    } else {
-      window.history.pushState({}, '', myRootUrl + '?' + urlParams.toString());
+    if (props.baseUrlSlug) {
+      if (Array.from(urlParams).length == 0) {
+        window.history.pushState({}, '', globalThis.hubleto.config.projectUrl + '/' + props.baseUrlSlug);
+      } else {
+        window.history.pushState({}, '', globalThis.hubleto.config.projectUrl + '/' + props.baseUrlSlug + '?' + urlParams.toString());
+      }
     }
 
     setRecordId(null);
@@ -857,6 +857,8 @@ const Table = (props: TableProps) => {
         setUrlParam('search', newColumnSearch);
       }
     }
+
+    reload();
 
     setColumnSearch(newColumnSearch);
   }

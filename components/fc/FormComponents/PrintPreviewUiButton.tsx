@@ -11,7 +11,7 @@ const PrintPreviewUiButton = ({ content }: any) => {
   const pdf = useRecordField('pdf');
   const available = description.inputs && description.inputs.pdf;
 
-  if (!available) return <></>;
+  if (!available || form.id <= 0) return <></>;
 
   return <>
     <button
