@@ -35,7 +35,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
       {},
       (data: any) => {
         // changeRecord({...R, WORKFLOW_HISTORY: data.history});
-        form.changeRecord({WORKFLOW_HISTORY: data.history});
+        // form.changeRecord({WORKFLOW_HISTORY: data.history});
         setIsInitialized(true);
         setWorkflows(data.workflows);
         setHistory(data.history);

@@ -21,7 +21,7 @@ import {
   FormMeta,
 } from "./FormInterfaces"
 
-import { FormRecordStore, FormRecordStoreContext, createRecordStore, useRecordField } from './FormRecordStore';
+import { FormRecordStore, FormRecordStoreContext, createRecordStore, useRecord, useRecordField } from './FormRecordStore';
 import PrintPreviewUi from './FormComponents/PrintPreviewUi';
 import { ModalMetaContext } from './Modal';
 import { deepObjectMerge } from '@hubleto/react-ui/core/Helper';
@@ -245,8 +245,10 @@ const Form = (props: FormProps) => {
   useEffect(() => { setTabs(getTabs()); }, []);
   useEffect(() => {
     globalThis.hubleto.reactElements[props.uid] = myself;
-    if (modal) modal.setForm(myself);
   }, [props.uid]);
+  useEffect(() => {
+    if (modal) modal.setForm(myself);
+  }, [props.uid, recordChanged]);
   useEffect(() => {
     setId(props.id);
     setCreatingRecord(isCreatingRecord(props.id));
