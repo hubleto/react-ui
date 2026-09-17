@@ -404,7 +404,7 @@ const Table = (props: TableProps) => {
         showFilterMenu: false,
         alignHeader: alignHeader,
         filter: (data: any, options: any) => {
-          return <div className="h-full">
+          return <>
             <div className="column-search input-wrapper">
               <div className="input-body"><div className="hubleto component input">
                 <div className="input-element grow">
@@ -413,7 +413,7 @@ const Table = (props: TableProps) => {
               </div></div>
             </div>
             {columnSearchValuePrettyfied}
-          </div>;
+          </>;
         },
         body: (data: any, options: any) => {
           if (data._PERMISSIONS && !data._PERMISSIONS[1]) { // can not read
@@ -1143,7 +1143,7 @@ const Table = (props: TableProps) => {
         <input
           //@ts-ignore
           ref={refFulltextSearchInput}
-          className={"bg-white !p-2 " + (fulltextSearch == "" ? "" : "active")}
+          className={fulltextSearch == "" ? "" : "active"}
           type="search"
           placeholder={T.translate('Search...')}
           value={fulltextSearch}
@@ -1157,7 +1157,7 @@ const Table = (props: TableProps) => {
           }}
         />
         <button
-          className="btn btn-white"
+          className="btn btn-transparent"
           onClick={() => loadData()}
         >
           <span className="icon"><i className="fas fa-magnifying-glass"></i></span>
@@ -1721,13 +1721,15 @@ const Table = (props: TableProps) => {
           let orderBy = description?.ui?.orderBy ?? null;
           if (!orderBy) orderBy = {field: '', direction: ''};
 
+          if (records.length <= 0) return null;
+
           return <div className="table-container">
             <table>
               <thead>
                 <tr>
                   {columnKeys.map((columnKey, key) => {
                     const column = columns[columnKey];
-                    return <th key={key}><div>
+                    return <th key={key} className={orderBy.field == columnKey ? "sorted" : ""}><div>
                       <div className="title">{column.header}</div>
                       <div
                         className="btn btn-transparent btn-small"

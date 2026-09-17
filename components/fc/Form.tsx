@@ -230,8 +230,8 @@ const Form = (props: FormProps) => {
   const [recordLoaded, setRecordLoaded] = useState(false);
   const [savedSuccessfully, setSavedSuccessfully] = useState(false);
   const [saveError, setSaveError] = useState(null);
-  const [showFooter, setShowFooter] = useState(true);
-  const [showHeader, setShowHeader] = useState(true);
+  const [showFooter, setShowFooter] = useState(props.showFooter ?? true);
+  const [showHeader, setShowHeader] = useState(props.showHeader ?? true);
   const [showPreviewUi, setShowPreviewUi] = useState(false);
   const [tag, setTag] = useState(props.tag ?? '');
   const [tabs, setTabs] = useState(null);
@@ -245,7 +245,7 @@ const Form = (props: FormProps) => {
   useEffect(() => { setTabs(getTabs()); }, []);
   useEffect(() => {
     globalThis.hubleto.reactElements[props.uid] = myself;
-    modal.setForm(myself);
+    if (modal) modal.setForm(myself);
   }, [props.uid]);
   useEffect(() => {
     setId(props.id);
@@ -693,8 +693,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultContent = (): React.JSX.Element => {
-    if (props.children) return props.children;
-    else return <div className={cssClassNamePrefix + "-body " + getContentClassName()}>
+    return <div className={cssClassNamePrefix + "-body " + getContentClassName()}>
       <RenderTab tab={activeTabUid}></RenderTab>
       <RenderPrintPreviewUi></RenderPrintPreviewUi>
     </div>;
@@ -801,7 +800,7 @@ const Form = (props: FormProps) => {
   };
 
   const renderDefaultPrevRecordButton = (): React.JSX.Element => {
-    return (
+    return prevId && prevId > 0 ?
       <button
         onClick={() => { openPrevRecord(); }}
         className={"btn btn-transparent" + (prevId ? "" : " btn-disabled")}
@@ -812,11 +811,11 @@ const Form = (props: FormProps) => {
         <span className="text">#{prevId}</span>
         {/* <span className="shortcut">Ctrl+Shift+PgUp</span> */}
       </button>
-    );
+    : null;
   };
 
   const renderDefaultNextRecordButton = (): React.JSX.Element => {
-    return (
+    return nextId && nextId > 0 ?
       <button
         onClick={() => { openNextRecord() }}
         className={"btn btn-transparent" + (nextId ? "" : " btn-disabled")}
@@ -827,7 +826,7 @@ const Form = (props: FormProps) => {
         <span className="text">#{nextId}</span>
         {/* <span className="shortcut">Ctrl+Shift+PgDn</span> */}
       </button>
-    );
+    : null;
   };
 
   const renderDefaultFullscreenButton = (): React.JSX.Element => {
@@ -887,8 +886,8 @@ const Form = (props: FormProps) => {
     return <div className={cssClassNamePrefix + "-footer"}>
       <div className='w-full flex justify-between flex-col md:flex-row'>
         <div className="flex gap-2 items-center dark:text-white">
-          <div><RenderPrevRecordButton /></div>
-          <div><RenderNextRecordButton /></div>
+          <RenderPrevRecordButton />
+          <RenderNextRecordButton />
           {getRecordFormUrl() ? <>
             <a
               className='btn btn-white'
@@ -1094,6 +1093,10 @@ const Form = (props: FormProps) => {
       </> : <div className="p-8 m-auto">
         <Spinner>{T.translate('Loading record, please wait.')}</Spinner>
       </div>);
+
+      if (!modal) {
+        finalContent = <div className='form'>{finalContent}</div>;
+      }
     } catch(e) {
       console.error('Failed to render form.');
       console.error(e);

@@ -100,6 +100,8 @@ export interface FormProps {
   junctionTitle?: string,
   modal?: any,
   model?: string,
+  showHeader?: boolean,
+  showFooter?: boolean,
   nextId?: any,
   onAfterCopyRecord?: (form: FormMeta, record: FormRecord) => void,
   onAfterDeleteRecord?: (form: FormMeta, saveResponse: any) => void,
