@@ -34,6 +34,7 @@ export default class Image extends Input<InputProps, ImageInputState> {
 
   onImageChange(images: Array<ImageType>, addUpdateIndex: any) {
     let image: any = images[0];
+    console.log(image);
 
     this.onChange({
       fileName: image ? image.file.name : null,
@@ -105,40 +106,17 @@ export default class Image extends Input<InputProps, ImageInputState> {
           onImageRemove,
           isDragging,
           dragProps,
-        }) => (
-            <div className="upload__image-wrapper">
-              {/* {this.state.value && this.state.value['fileData'] != null
-                ? ''
-                : ( */}
-                  <button
-                    className="btn btn-small btn-transparent"
-                    style={isDragging ? { color: 'red' } : undefined}
-                    onClick={onImageUpload}
-                    {...dragProps}
-                  >
-                    <span className="icon"><i className="fas fa-image"></i></span>
-                    <span className="text">{this.translate("Choose image", 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\Image')}</span>
-                  </button>
-                {/* )
-              } */}
-
-              {/* {imageList.map((image, index) => (
-                <div key={index} className="image-item">
-                  <img src={image['fileData']} alt="" width="100" />
-                  <div className="image-item__btn-wrapper text-left">
-                    <button 
-                      className="btn btn-light btn-sm text-info"
-                      onClick={() => onImageUpdate(index)}
-                    ><i className="fas fa-exchange-alt"></i></button>
-                    <button 
-                      className="btn btn-light btn-sm text-danger"
-                      onClick={() => onImageRemove(index)}
-                    ><i className="fas fa-trash-alt"></i></button>
-                  </div>
-                </div>
-              ))} */}
-            </div>
-          )}
+        }) => <div className="upload__image-wrapper">
+          <button
+            className="btn btn-small btn-transparent"
+            style={isDragging ? { color: 'red' } : undefined}
+            onClick={onImageUpload}
+            {...dragProps}
+          >
+            <span className="icon"><i className="fas fa-image"></i></span>
+            <span className="text">{this.translate("Choose image", 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\Image')}</span>
+          </button>
+        </div>}
       </ImageUploading>
     </>;
   }

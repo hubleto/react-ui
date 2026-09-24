@@ -73,7 +73,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
   }
 
  
-  if (!isInitialized) return <div className='p-1'><Spinner size="xs" /></div>;
+  if (!isInitialized) return <div className='p-2'><Spinner size="xs" /></div>;
 
   const historyForCurrentWorkflow = history.filter((item) => item.id_workflow == idWorkflow);
   const workflow = workflows ? workflows[idWorkflow] : null;
@@ -82,14 +82,14 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
 
   return (id <= 0 ? null : <div className='input-wrapper'>
     <div className='flex gap-2'>
-      <div
+      {/* <div
         style={{
           borderTop: '1.1em solid transparent',
           borderBottom: '1.1em solid transparent',
           borderLeft: '1.1em solid ' + (currentStep?.color ?? '#aaaaaa'),
         }}
       >
-      </div>
+      </div> */}
       <button
         // onClick={() => onWorkflowStepChange(currentStep.id, currentStep)}
         className="btn btn-white btn-dropdown"
@@ -105,7 +105,7 @@ const WorkflowSelector = (props: WorkflowSelectorProps) => {
           className='text'
           style={{color: (currentStep?.color ?? 'red')}}
         >
-          {idWorkflow <= 0 ? 'Select workflow' : workflow.name + ': ' + (currentStep?.name ?? 'Select step')}
+          {idWorkflow <= 0 ? 'Select workflow' : (currentStep?.name ?? 'Select step')}
         </span>
         <span className='menu'>
           <div className='bg-white p-2 text-primary w-full'>Change workflow</div>

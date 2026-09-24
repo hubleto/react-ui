@@ -4,8 +4,9 @@ import request from '@hubleto/react-ui/core/Request'
 import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
 import Translator from '@hubleto/react-ui/core/Translator';
 
-interface FileInputProps extends InputProps {
+export interface FileInputProps extends InputProps {
   acceptType?: Array<string>,
+  uploadButtonText?: string,
 }
 
 const T = new Translator('Hubleto\\ReactUi', 'Components\\Inputs\\File');
@@ -23,13 +24,13 @@ const getFileUrl = (input: any): string => {
 }
 
 const getFileName = (input: any): string => {
+  let filename = '';
   if (input.value.fileName) {
-    return input.value.fileName;
+    filename = input.value.fileName;
   } else if (input.value) {
-    return input.value;
-  } else {
-    return '';
+    filename = input.value;
   }
+  return filename.split(/[\/]/).pop();
 }
 
 const getFileSize = (input: any): number => {
@@ -41,13 +42,14 @@ const getFileSize = (input: any): number => {
 }
 
 const onFileChange = (input: any, files: Array<any>) => {
-  let file: any = files[0];
-console.log('onFileChange', input, files);
-  input.changeValue({
+  const file: any = files[0];
+  const newValue = {
     fileName: file ? file.file.name : null,
     fileData: file ? file.fileData : null,
-    fileSize: file ? parseInt(file.fileSize) : null,
-  });
+    fileSize: file ? (parseInt(file.file.size) ?? 0) : null,
+  };
+
+  input.changeValue(newValue);
 
 };
 
@@ -60,7 +62,7 @@ export const ValueComponent = (props: FileInputProps) => {
       onClick={(e) => { e.stopPropagation(); }}
       className="btn btn-primary-outline btn-small"
     >
-      <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
+      {/* <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span> */}
       <span className="text">{getFileName(input)}</span>
       {getFileSize(input) > 0 ? <span className="text">({Math.round(getFileSize(input) * 100 / 1024) / 100} kB)</span> : null}
     </a>
@@ -100,7 +102,7 @@ export const InputComponent = (props: FileInputProps) => {
               {...dragProps}
             >
               <span className="icon"><i className="fas fa-cloud-arrow-up"></i></span>
-              <span className="text">{T.translate('Upload file')}</span>
+              <span className="text">{T.translate(props.uploadButtonText ?? 'Upload file')}</span>
             </button>
           </div>
         )}

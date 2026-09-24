@@ -346,6 +346,7 @@ const Table = (props: TableProps) => {
         switch (column.type) {
           default:
             columnSearchInput = <input
+              placeholder={column.title}
               className='w-full'
               onKeyUp={(event: any) => {
                 if (event.keyCode == 13) {
@@ -398,6 +399,7 @@ const Table = (props: TableProps) => {
 
       columns[columnName] = {
         key: columnName,
+        description: description?.columns[columnName],
         field: columnName,
         header: column.title + (column.unit ? ' [' + column.unit + ']' : ''),
         showColumnSearch: showColumnSearch,
@@ -588,7 +590,7 @@ const Table = (props: TableProps) => {
   //////////////////////////////////
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
-  useEffect(() => { reload(); }, []);
+  useEffect(() => { loadDescription(); }, []);
   useEffect(() => { loadData(); }, [page, itemsPerPage, filterBy, columnSearch, fulltextSearch, filters, orderBy]);
   useEffect(() => {
     if (!props.parentForm) {
@@ -1705,6 +1707,12 @@ const Table = (props: TableProps) => {
           const columns = getColumns();
           const columnKeys = Object.keys(columns);
 
+          const typeIcons = {
+            'varchar': 'fas fa-i-cursor',
+            'int': 'fas fa-1',
+            'boolean': 'fas fa-toggle-on',
+          };
+
           const currentPage = data?.current_page ?? 0;
           const lastPage = data?.last_page ?? 0;
           const itemsPerPage = data?.per_page ?? 0;
@@ -1721,7 +1729,7 @@ const Table = (props: TableProps) => {
           let orderBy = description?.ui?.orderBy ?? null;
           if (!orderBy) orderBy = {field: '', direction: ''};
 
-          if (records.length <= 0) return null;
+          if (records.length <= 0) return <div className='alert alert-info'>Nothing to show here.</div>;
 
           return <div className="table-container">
             <table>
@@ -1729,39 +1737,39 @@ const Table = (props: TableProps) => {
                 <tr>
                   {columnKeys.map((columnKey, key) => {
                     const column = columns[columnKey];
-                    return <th key={key} className={orderBy.field == columnKey ? "sorted" : ""}><div>
-                      <div className="title">{column.header}</div>
-                      <div
-                        className="btn btn-transparent btn-small"
-                        onClick={() => {
-                          let newOrderBy = orderBy;
-                          if (newOrderBy.field == columnKey) {
-                            newOrderBy.direction = (newOrderBy.direction == 'asc' ? 'desc' : 'asc');
-                          } else {
-                            newOrderBy = {
-                              field: columnKey,
-                              direction: 'asc',
-                            };
-                          }
 
-                          onOrderByChange(newOrderBy);
-                        }}
-                      >
-                        <span className={"icon " + (orderBy.field == columnKey ? "text-primary" : "text-gray-200")}>
-                          {orderBy.field == columnKey ?
-                            <i className={'fas fa-sort' + (orderBy.direction == 'desc' ? '-down' : orderBy.direction == 'asc' ? '-up' : '')}></i>
-                          : <i className={'fas fa-sort'}></i>}
-                        </span>
+                    return <th key={key} className={orderBy.field == columnKey ? "sorted" : ""}><div>
+                      <div className="title flex gap-2 items-center">
+                        <i className={"text-sm mx-1 text-gray-400 " + (typeIcons[column.description?.type] ?? '')}></i>
+                        {showColumnSearch && column.filter ?
+                          column.filter(records, {})
+                        : column.header}
+                        <div
+                          className="cursor-pointer mr-1"
+                          onClick={() => {
+                            let newOrderBy = orderBy;
+                            if (newOrderBy.field == columnKey) {
+                              newOrderBy.direction = (newOrderBy.direction == 'asc' ? 'desc' : 'asc');
+                            } else {
+                              newOrderBy = {
+                                field: columnKey,
+                                direction: 'asc',
+                              };
+                            }
+
+                            onOrderByChange(newOrderBy);
+                          }}
+                        >
+                          <span className={"icon " + (orderBy.field == columnKey ? "text-primary" : "text-gray-200")}>
+                            {orderBy.field == columnKey ?
+                              <i className={'fas fa-sort' + (orderBy.direction == 'desc' ? '-down' : orderBy.direction == 'asc' ? '-up' : '')}></i>
+                            : <i className={'fas fa-sort'}></i>}
+                          </span>
+                        </div>
                       </div>
                     </div></th>
                   })}
                 </tr>
-                {showColumnSearch ? <tr>
-                  {columnKeys.map((columnKey: any, key: any) => {
-                    const column = columns[columnKey];
-                    return <th key={key}>{column.filter ? column.filter(records, {}) : null}</th>
-                  })}
-                </tr> : null}
               </thead>
               <tbody>
                 {records.map((record: any, key: any) => {

@@ -12,6 +12,20 @@ const translate = new Translator(
   'Components\\Inputs\\TextareaWithHtmlPreview'
 ).translate;
 
+const ValueComponent = ({ parent }) => {
+  const input = React.useContext(InputMetaContext);
+
+  return <div className='card w-full'>
+    <div className='card-body w-full'>
+      <iframe
+        src="about:blank"
+        className='w-full min-h-64'
+        srcDoc={parent.textareaValue}
+      />
+    </div>
+  </div>;
+}
+
 const InputComponent = ({ parent }) => {
   const input = React.useContext(InputMetaContext);
   // const refPreview = React.createRef();
@@ -61,11 +75,11 @@ const InputComponent = ({ parent }) => {
           </button>
         </div> */}
       </div>
-      <div className='card-body min-h-96 w-full'>
+      <div className='card-body w-full'>
         <iframe
           // ref={refPreview}
           src="about:blank"
-          className='w-full min-h-96'
+          className='w-full min-h-64'
           srcDoc={parent.textareaValue}
         />
         {/* <HtmlFrame
@@ -133,6 +147,7 @@ const TextareaWithHtmlPreview = (props: InputProps) => {
   return <Input
     inputClassName='textarea-with-html-preview'
     isInitialized={true}
+    renderValueComponent={(input: InputMeta) => <ValueComponent parent={myself} />}
     renderInputComponent={(input: InputMeta) => <InputComponent parent={myself} />}
     {...props}
   />;

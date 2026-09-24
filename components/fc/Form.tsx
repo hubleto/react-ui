@@ -548,7 +548,6 @@ const Form = (props: FormProps) => {
   const renderDefaultTopInputs = (): React.JSX.Element => {
     const inputs = description.inputs;
     return (inputs ? <div className={cssClassNamePrefix + "-top-inputs"}>
-      {inputs.id_workflow && inputs.id_workflow_step ? <WorkflowSelector /> : null}
       {inputs.is_closed ? <Input
         field='is_closed'
         readonly={false}
@@ -556,6 +555,7 @@ const Form = (props: FormProps) => {
         customInputProps={{yesText: 'Closed', noText: 'Open', yesBtnClass: 'btn-danger', noBtnClass: 'btn-success'}}
         onChange={() => { saveRecord(); }}
       /> : null}
+      {inputs.id_workflow && inputs.id_workflow_step ? <div className='min-w-64'><WorkflowSelector /></div> : null}
       {inputs.id_owner ? <Input field='id_owner' readonly={false} renderOnlyInputField userIcon='fas fa-user' /> : null}
       {inputs.id_manager ? <Input field='id_manager' readonly={false} renderOnlyInputField userIcon='fas fa-user-tie' /> : null}
       {inputs && inputs.color ? <Input field='color' readonly={false} renderOnlyInputField /> : null}

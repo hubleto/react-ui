@@ -14,8 +14,7 @@ import InputEnumValues from "../Inputs/EnumValues";
 import InputDateTime from "../Inputs/DateTime";
 import InputPassword from "../Inputs/Password";
 import InputFile from "../Inputs/File";
-
-import InputImage from "../../cc/Inputs/Image";
+import InputImage from "../Inputs/Image";
 
 const Input = (props: any) => {
   const { field, content, wrapperCssClass, renderOnlyInputField, customInputProps, debug, children } = props;
