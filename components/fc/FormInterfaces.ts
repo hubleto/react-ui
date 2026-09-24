@@ -167,6 +167,7 @@ export interface FormMeta {
   permissions,
   recordChanged,
   savedSuccessfully,
+  savingRecord,
   saveRecord, closeForm,
   loadRecord, id,
   getTitleAsText, setShowPreviewUi, changeRecord,

@@ -1,6 +1,7 @@
 import React from "react";
 import { FormMetaContext } from "../Form";
 import Translator from "@hubleto/react-ui/core/Translator";
+import Spinner from "../Spinner";
 
 const T = new Translator('Hubleto\\ReactUi', 'Components\\Form\\SaveButton');
 
@@ -29,7 +30,9 @@ const SaveButton = ({ content }: any) => {
           if (!e.isFromDropdownMenu) form.saveRecord({closeAfterSave: false});
         }}
         className={
-          "btn btn-square w-20 " + (form.savedSuccessfully ? "btn-success" : form.recordChanged ? "btn-save" : "btn-disabled")}
+          "btn btn-square w-20 "
+          + (form.savedSuccessfully ? "btn-success" : form.recordChanged ? "btn-save" : "btn-disabled")
+        }
         title="Save: Ctrl+S"
       >
         {updatingRecord
@@ -44,7 +47,10 @@ const SaveButton = ({ content }: any) => {
           </> : <>
             <span className="icon"><i className="fas fa-plus"></i></span>
             <span className="text">
-              {description?.ui?.addButtonText ?? T.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form')}
+              {form.savingRecord
+                ? <Spinner size="sm"></Spinner>
+                : (description?.ui?.addButtonText ?? T.translate("Add", 'Hubleto\\Erp\\Loader', 'Components\\Form'))
+              }
             </span>
           </>
         }

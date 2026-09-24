@@ -197,7 +197,6 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
     if (readonly) return;
 
     // if (props.changeValue) props.changeValue(myself, newValue);
-    console.log('changeValue', field, newValue);
     setValue(newValue);
     setChanged(origValue != newValue);
     if (props.onChange) props.onChange(myself, newValue);

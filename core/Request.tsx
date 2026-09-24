@@ -54,44 +54,46 @@ class Request {
     if (res.status == 200) {
       if (successCallback) successCallback(responseData);
     } else {
-      if (errorCallback) errorCallback(responseData);
-
       console.error('HubletoReactUi request @ ' + url + ' failed.');
       console.error(res);
 
-      try {
-        const errorCode = responseData.code;
-        const error = JSON.parse(responseData.message);
+      if (errorCallback) {
+        errorCallback(responseData);
+      } else {
+        try {
+          const errorCode = responseData.code;
+          const error = JSON.parse(responseData.message);
 
-        console.log('errorCode', errorCode);
-        console.log('error', error);
+          console.log('errorCode', errorCode);
+          console.log('error', error);
 
-        switch(errorCode) {
-          // case 87335:
-          //   // globalThis.hubleto.showDialogWarning(globalThis.hubleto.getValidationErrorMessage(error.message));
-          // break;
-          case 23000:
-            globalThis.hubleto.showDialogDanger(globalThis.hubleto.getDuplicateEntryErrorMessage(error.message));
-          break;
-          default:
-            try {
-              globalThis.hubleto.showDialog(
-                <RequestErrorInfo error={error}></RequestErrorInfo>,
-                {
-                  headerClassName: 'dialog-danger-header',
-                  contentClassName: 'dialog-danger-content',
-                  footerClassName: 'dialog-danger-footer',
-                  renderHeader: () => '🥴 Oops! Something went wrong.'
-                }
-              );
-            } catch (ex) {
-              //
-            }
-          break;
+          switch(errorCode) {
+            // case 87335:
+            //   // globalThis.hubleto.showDialogWarning(globalThis.hubleto.getValidationErrorMessage(error.message));
+            // break;
+            case 23000:
+              globalThis.hubleto.showDialogDanger(globalThis.hubleto.getDuplicateEntryErrorMessage(error.message));
+            break;
+            default:
+              try {
+                globalThis.hubleto.showDialog(
+                  <RequestErrorInfo error={error}></RequestErrorInfo>,
+                  {
+                    headerClassName: 'dialog-danger-header',
+                    contentClassName: 'dialog-danger-content',
+                    footerClassName: 'dialog-danger-footer',
+                    renderHeader: () => '🥴 Oops! Something went wrong.'
+                  }
+                );
+              } catch (ex) {
+                //
+              }
+            break;
 
+          }
+        } catch (ex) {
+          globalThis.hubleto.showDialogDanger(JSON.stringify(responseData));
         }
-      } catch (ex) {
-        globalThis.hubleto.showDialogDanger(JSON.stringify(responseData));
       }
     }
 

@@ -228,6 +228,7 @@ const Form = (props: FormProps) => {
   const [recordChanged, setRecordChanged] = useState(false);
   const [recordDeleted, setRecordDeleted] = useState(false);
   const [recordLoaded, setRecordLoaded] = useState(false);
+  const [savingRecord, setSavingRecord] = useState(false);
   const [savedSuccessfully, setSavedSuccessfully] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [showFooter, setShowFooter] = useState(props.showFooter ?? true);
@@ -412,6 +413,9 @@ const Form = (props: FormProps) => {
   }
 
   const saveRecord = (customSaveOptions?: any): void => {
+    if (savingRecord) return;
+
+    setSavingRecord(true);
     setInvalidInputs([]);
 
     let recordToSave = recordStore.getRecord(); 
@@ -433,6 +437,7 @@ const Form = (props: FormProps) => {
           parentTable.setRecordFormUrl(saveResponse.savedRecord?.id);
         }
 
+        setSavingRecord(false);
         setSavedSuccessfully(true);
         setTimeout(() => { setSavedSuccessfully(false); }, 500)
         setSaveError(null);
@@ -448,9 +453,16 @@ const Form = (props: FormProps) => {
         getCallback('onAfterSaveRecord')(myself, saveResponse, customSaveOptions);
       },
       (err: any) => {
-        setSaveError(err.data);
-        if (err.data?.invalidInputs != undefined) {
-          setInvalidInputs(err.data.invalidInputs);
+        setSavingRecord(false);
+        setSavedSuccessfully(false);
+
+        if (err.data) {
+          setSaveError(err.data);
+          if (err.data?.invalidInputs != undefined) {
+            setInvalidInputs(err.data.invalidInputs);
+          }
+        } else {
+          setSaveError(err);
         }
       }
     );
@@ -1037,6 +1049,7 @@ const Form = (props: FormProps) => {
     originalRecord, invalidInputs,
     creatingRecord, updatingRecord,
     permissions, recordChanged, savedSuccessfully,
+    savingRecord,
     saveRecord, closeForm, loadRecord,
     id,
     getTitleAsText, setShowPreviewUi, changeRecord,
