@@ -295,7 +295,6 @@ const Form = (props: FormProps) => {
   const reload = (): void => {
     setDataLoaded(false);
   }
-  
   const loadDescriptionAndRecord = (): void => {
 
     request.post(
@@ -334,14 +333,14 @@ const Form = (props: FormProps) => {
         if (id == -1) {
           // setIsInitialized(true);
           // changeRecord(description.defaultValues ?? {});
-          const record = description.defaultValues ?? {};
+          const record = newDescription.defaultValues ?? {};
 
           setOriginalRecord(JSON.parse(JSON.stringify(record)));
           recordStore.setRecord(prev => ({ ...record }));
 
         } else {
           const record = (creatingRecord
-            ? {...(description.defaultValues ?? {}), ...loadedRecord}
+            ? {...(newDescription.defaultValues ?? {}), ...loadedRecord}
             : loadedRecord
           );
 
@@ -372,7 +371,7 @@ const Form = (props: FormProps) => {
       }
     );
   }
-  
+
   // const loadDescription = (): void => {
 
   //   request.post(
@@ -456,7 +455,7 @@ const Form = (props: FormProps) => {
   //         setRecordLoaded(true);
   //       }
   //     );
-      
+
   //   }
   // }
 
@@ -495,7 +494,7 @@ const Form = (props: FormProps) => {
     setSavingRecord(true);
     setInvalidInputs([]);
 
-    let recordToSave = recordStore.getRecord(); 
+    let recordToSave = recordStore.getRecord();
 
     (recordToSave._RELATIONS ?? []).map((relName: any) => {
       if (!(description?.includeRelations ?? []).includes(relName)) {
@@ -553,7 +552,7 @@ const Form = (props: FormProps) => {
     setUpdatingRecord(true);
     setCreatingRecord(false);
     setRecordChanged(true);
-  
+
     getCallback('onAfterCopyRecord')(myself, newRecord);
   }
 
@@ -722,7 +721,7 @@ const Form = (props: FormProps) => {
 
     timelineConfig.map((aboutEntry: any, key: string) => {
       const entries = aboutEntry.data(this) ?? [];
-      
+
       entries.map((entry: any, key: string) => {
         timelinePointsUnsorted[aboutEntry.timestampFormatter(entry)] = {
           icon: aboutEntry.icon,
