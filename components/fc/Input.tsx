@@ -41,7 +41,7 @@ export interface InputProps {
   renderValueComponent?: (input: InputMeta) => React.JSX.Element,
   renderInputComponent?: (input: InputMeta) => React.JSX.Element,
   serialize?: (input: InputMeta) => string,
-  loadData?: () => void,
+  loadData?: (input: InputMeta, params: any, onDataLoaded: any) => void,
   onChange?: (input: InputMeta, value: any) => void,
   onInit?: (input: InputMeta) => void,
   readonly?: boolean,
@@ -93,6 +93,7 @@ export interface InputMeta {
   renderDefaultLoadingComponent?: () => React.JSX.Element,
   renderDefaultValueComponent?: () => React.JSX.Element,
   renderDefaultInputComponent?: () => React.JSX.Element,
+  loadData?: (params: any, onDataLoaded: any) => void,
 };
 
 export const InputMetaContext = React.createContext<InputMeta>(null);
@@ -132,7 +133,10 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   const refValueElement = useRef(null);
   const refInput = useRef(null);
 
-  useEffect(() => { if (props.onInit) props.onInit(myself); }, []);
+  useEffect(() => {
+    if (props.onInit) props.onInit(myself);
+    if (props.loadData) loadData({}, null);
+  }, []);
   useEffect(() => { setField(props.field); }, [props.field]);
   useEffect(() => { setValue(props.value); }, [props.value]);
   useEffect(() => { setChanged(props.changed ?? false); }, [props.changed]);
@@ -142,6 +146,10 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
   useEffect(() => { setInvalid(props.invalid ?? false); }, [props.invalid]);
   useEffect(() => { setIsModified(props.isModified ?? false); }, [props.isModified]);
   useEffect(() => { setReadonly(props.readonly ?? false); }, [props.readonly]);
+
+  const loadData = (params: any, onDataLoaded: any) => {
+    if (props.loadData) props.loadData(myself, params, onDataLoaded);
+  };
 
   const getMyself = (): InputMeta => {
     return {
@@ -171,6 +179,8 @@ const Input = forwardRef<InputMeta, InputProps>((props, ref) => {
       renderDefaultLoadingComponent,
       renderDefaultValueComponent,
       renderDefaultInputComponent,
+
+      loadData,
 
       ...props.myself,
     };

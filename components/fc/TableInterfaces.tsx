@@ -222,7 +222,7 @@ export interface TableMeta {
   uid, setUid,
   view, setView,
 
-  reload, loadData, loadDescription,
+  reload, loadDescriptionAndData,
   openForm, closeForm,
 
   getDefaultEndpointParams?: () => object,

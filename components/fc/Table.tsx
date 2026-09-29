@@ -145,7 +145,7 @@ const Table = (props: TableProps) => {
        closeForm();
       },
       onAfterSaveRecord: (form: any, saveResponse: any) => {
-        loadData();
+        loadDescriptionAndData();
         if (props.closeFormAfterSave ?? false) {
           closeForm();
         // } else if (saveResponse && saveResponse.savedRecord.id) {
@@ -153,7 +153,7 @@ const Table = (props: TableProps) => {
         }
       },
       onAfterDeleteRecord: () => {
-        loadData();
+        loadDescriptionAndData();
         setRecordId(null);
       },
 
@@ -534,6 +534,7 @@ const Table = (props: TableProps) => {
   const [endpoint, setEndpoint] = useState(props.endpoint ?? (globalThis.hubleto.config.defaultTableEndpoint ?? {
     describeTable: 'api/table/describe',
     loadTableData: 'api/record/load-table-data',
+    describeTableAndLoadData: 'api/table-describe-and-load',
     saveRecord: 'api/record/save',
     deleteRecord: 'api/record/delete',
   }));
@@ -590,8 +591,8 @@ const Table = (props: TableProps) => {
   //////////////////////////////////
 
   useEffect(() => { globalThis.hubleto.reactElements[uid] = myself; }, [uid]);
-  useEffect(() => { loadDescription(); }, []);
-  useEffect(() => { loadData(); }, [page, itemsPerPage, filterBy, columnSearch, fulltextSearch, filters, orderBy]);
+  // useEffect(() => { loadDescriptionAndData(); }, []);
+  useEffect(() => { loadDescriptionAndData(); }, [page, itemsPerPage, filterBy, columnSearch, fulltextSearch, filters, orderBy]);
   useEffect(() => {
     if (!props.parentForm) {
       if (fulltextSearch == '') {
@@ -647,7 +648,7 @@ const Table = (props: TableProps) => {
     request.get(
       getEndpointUrl('deleteRecord'),
       { ...getEndpointParams(), id: id },
-      (response: any) => { setRecordIdToDelete(0); loadData(); },
+      (response: any) => { setRecordIdToDelete(0); loadDescriptionAndData(); },
       (err: any) => setRecordIdToDelete(0)
     );
   }
@@ -657,46 +658,80 @@ const Table = (props: TableProps) => {
   //////////////////////////////////
 
   const reload = (): void => {
-    setLoadingData(true);
-    loadDescription();
-    loadData();
+    // setLoadingData(true);
+    loadDescriptionAndData();
   }
 
-  const loadDescription = (): void => {
-    if (descriptionSource == 'props') return;
+  const loadDescriptionAndData = (): void => {
+    setLoadingData(true);
+
     request.get(
-      getEndpointUrl('describeTable'),
+      getEndpointUrl('describeTableAndLoadData'),
       getEndpointParams(),
-      (loadedDescription: any) => {
-        if (descriptionSource == 'both') {
-          loadedDescription = deepObjectMerge(loadedDescription, description);
+      (result: any) => {
+        let loadedDescription = result.description ?? {};
+        let loadedData = result.data ?? {};
+
+        setLoadingData(false);
+
+        // process description
+        if (descriptionSource != 'props') {
+          if (descriptionSource == 'both') {
+            loadedDescription = deepObjectMerge(loadedDescription, description);
+          }
+
+          setDescription(loadedDescription);
+          if (props.onAfterLoadDescription) props.onAfterLoadDescription(myself);
         }
 
-        setDescription(loadedDescription);
-        if (props.onAfterLoadDescription) props.onAfterLoadDescription(myself);
+        // process data
+        if (props.data) {
+          setData(props.data);
+        } else {
+          setData(loadedData);
+        }
+
+        if (props.onAfterLoadData) props.onAfterLoadData(myself);
+
       }
     );
   }
 
-  const loadData = (): void => {
-    if (props.data) {
-      setData(props.data);
-    } else {
-      setLoadingData(true);
+  // const loadDescription = (): void => {
+  //   if (descriptionSource == 'props') return;
+  //   request.get(
+  //     getEndpointUrl('describeTable'),
+  //     getEndpointParams(),
+  //     (loadedDescription: any) => {
+  //       if (descriptionSource == 'both') {
+  //         loadedDescription = deepObjectMerge(loadedDescription, description);
+  //       }
 
-      request.get(
-        getEndpointUrl('loadTableData'),
-        {
-          ...getEndpointParams(),
-        },
-        (data: any) => {
-          setLoadingData(false);
-          setData(data);
-          if (props.onAfterLoadData) props.onAfterLoadData(myself);
-        }
-      );
-    }
-  }
+  //       setDescription(loadedDescription);
+  //       if (props.onAfterLoadDescription) props.onAfterLoadDescription(myself);
+  //     }
+  //   );
+  // }
+
+  // const loadData = (): void => {
+  //   if (props.data) {
+  //     setData(props.data);
+  //   } else {
+  //     setLoadingData(true);
+
+  //     request.get(
+  //       getEndpointUrl('loadTableData'),
+  //       {
+  //         ...getEndpointParams(),
+  //       },
+  //       (data: any) => {
+  //         setLoadingData(false);
+  //         setData(data);
+  //         if (props.onAfterLoadData) props.onAfterLoadData(myself);
+  //       }
+  //     );
+  //   }
+  // }
 
 
   //////////////////////////////////
@@ -1160,7 +1195,7 @@ const Table = (props: TableProps) => {
         />
         <button
           className="btn btn-transparent"
-          onClick={() => loadData()}
+          onClick={() => loadDescriptionAndData()}
         >
           <span className="icon"><i className="fas fa-magnifying-glass"></i></span>
         </button>
@@ -1729,7 +1764,7 @@ const Table = (props: TableProps) => {
           let orderBy = description?.ui?.orderBy ?? null;
           if (!orderBy) orderBy = {field: '', direction: ''};
 
-          if (records.length <= 0) return <div className='alert alert-info'>Nothing to show here.</div>;
+          if (records.length <= 0) return <div className='alert alert-info m-4'>Nothing to show here.</div>;
 
           return <div className="table-container">
             <table>
@@ -1779,6 +1814,7 @@ const Table = (props: TableProps) => {
                       return <td
                         key={rowIndex}
                         onClick={() => { if (column.onClick) column.onClick(record)} }
+                        className={record && record.is_closed ? 'striped-45' : ''}
                       >
                         {column && column.body ? column.body(
                           record,
@@ -1876,6 +1912,7 @@ const Table = (props: TableProps) => {
 
   const renderDefaultContent = (): React.JSX.Element => {
     const sidebarFilter = renderSidebarFilter();
+    const records = getRecordsToDisplay();
 
     return <>
       {renderFormModal()}
@@ -1902,7 +1939,7 @@ const Table = (props: TableProps) => {
 
           <div className="table-body grow" id={"hubleto-table-body-" + uid}>
             {renderRecords()}
-            {renderFooter()}
+            {records.length > 0 ? renderFooter() : null}
           </div>
         </div>
 
@@ -2020,7 +2057,7 @@ const Table = (props: TableProps) => {
     uid, setUid,
     view, setView,
 
-    reload, loadData, loadDescription,
+    reload, loadDescriptionAndData,
     openForm, closeForm, setRecordFormUrl,
 
     getDefaultEndpointParams,

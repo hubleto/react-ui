@@ -153,7 +153,7 @@ const InputComponent = (args: { parent: any }) => {
             parent.handleChange(newValue);
           }}
         >
-          <span className='icon' style={{color: option.color, borderLeftWidth: '3px', borderLeftColor: option.color ?? ''}}><i className='fas fa-tag'></i></span>
+          <span className='icon' style={{color: option.color}}><i className='fas fa-tag'></i></span>
           <span className='text text-nowrap text-xs'>{option.label ?? '-'}</span>
         </div>;
       })}

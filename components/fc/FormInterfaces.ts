@@ -169,7 +169,7 @@ export interface FormMeta {
   savedSuccessfully,
   savingRecord,
   saveRecord, closeForm,
-  loadRecord, id,
+  id,
   getTitleAsText, setShowPreviewUi, changeRecord,
   showPreviewUi, description,
   changeField, setReadonly,

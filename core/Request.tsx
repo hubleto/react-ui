@@ -107,7 +107,7 @@ class Request {
   ): void {
     document.body.classList.add("app-loading");
     axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {
-      params: queryParams,
+      params: {...queryParams, __IS_AJAX__: '1'},
       validateStatus: () => true
     }).then(res => {
       this.processResponse(url, res, successCallback, errorCallback);
@@ -122,7 +122,7 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     document.body.classList.add("app-loading");
-    axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, postData, {
+    axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {...postData, __IS_AJAX__: 1}, {
       params: queryParams,
       validateStatus: () => true
     }).then(res => {
@@ -137,7 +137,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, putData, {
+    axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {...putData, __IS_AJAX__: 1}, {
       params: queryParams,
       validateStatus: () => true
     }).then(res => {
@@ -152,7 +152,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, patchData, {
+    axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {...patchData, __IS_AJAX__: 1}, {
       params: queryParams,
       validateStatus: () => true
     }).then(res => {
@@ -167,7 +167,7 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     axios.delete<T, AxiosResponse<ApiResponse<T>>>(this.getProjectUrl() + url, {
-      params: queryParams,
+      params: {...queryParams, __IS_AJAX__: '1'},
       validateStatus: () => true
     }).then(res => {
       this.processResponse(url, res, successCallback, errorCallback);

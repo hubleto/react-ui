@@ -42,42 +42,32 @@ const getEndpointParams = (props: any, input: any): object => {
   };
 }
 
-const loadData = (props: any, input: any, searchValue: string|null = null) => {
-  request.post(
-    getEndpoint(props),
-    {...getEndpointParams(props, input), search: searchValue},
-    {},
-    (data: any) => {
-      input.setIsInitialized(true);
-      input.setData(data);
-    }
-  );
-}
-
 const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
-  useEffect(() => {
-    loadData(props, input, '');
-  }, [])
+  if (input.data) {
+    if (input.data[input.value]?._LOOKUP) {
+      let value = input.data[input.value];
+      let urlDetail = value._URL_DETAIL ?? '';
 
-  if (input.data && input.data[input.value]?._LOOKUP) {
-    let value = input.data[input.value];
-    let urlDetail = value._URL_DETAIL ?? '';
+      let style = {};
+      if (value._LOOKUP_COLOR) style['borderLeft'] = '0.5em solid ' + value._LOOKUP_COLOR;
 
-    let style = {};
-    if (value._LOOKUP_COLOR) style['borderLeft'] = '0.5em solid ' + value._LOOKUP_COLOR;
-
-    return <>
-      <a
-        className="btn btn-transparent"
-        style={style}
-        target="_blank"
-        href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}
-      >
-        <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
-      </a>
-    </>;
+      return <>
+        <a
+          className="btn btn-transparent"
+          style={style}
+          target="_blank"
+          href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}
+        >
+          <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
+        </a>
+      </>;
+    } else {
+      return <button className='btn btn-transparent'>
+        <span className='text'>-</span>
+      </button>;
+    }
   } else {
     return <button className='btn btn-transparent'>
       <span className='icon min-w-8'><Spinner size="xs"></Spinner></span>
@@ -91,10 +81,6 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
   let value = input.data[input.value]?.id ?? 0;
 
   const urlAdd = props.inputProps?.urlAdd;
-
-  useEffect(() => {
-    loadData(props, input, '');
-  }, [])
 
   if (props.uiStyle == 'select') {
     return <>
@@ -147,7 +133,9 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
         }}
         isClearable={true}
         isDisabled={input.readonly || !input.isInitialized}
-        loadOptions={(searchValue: string, callback: any) => loadData(props, input, searchValue)}
+        loadOptions={(searchValue: string, callback: any) => input.loadData({search: searchValue}, (data) => {
+          if (callback) callback(Object.values(data ?? {}));
+        })}
         defaultOptions={Object.values(input.data ?? {})}
         getOptionLabel={(option: any) => { return option._LOOKUP }}
         getOptionValue={(option: any) => { return option.id }}
@@ -174,7 +162,20 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
 const LookupInput = (props: LookupInputProps) => {
   return <Input
     inputClassName='lookup'
-    isInitialized={true}
+    isInitialized={false}
+    loadData={(input: InputMeta, params: any, onDataLoaded: ((option: Array<any>) => void)|null = null) => {
+      request.post(
+        getEndpoint(props),
+        {...getEndpointParams(props, input), ...params},
+        {},
+        (data: any) => {
+          input.setIsInitialized(true);
+          input.setData(data);
+
+          if (onDataLoaded) onDataLoaded(data);
+        }
+      );
+    }}
     renderLoadingComponent={(input: InputMeta) => <div className='hubleto component input lookup'>
       <div className='inner fc'>
         <div className='input-element'>

@@ -178,7 +178,7 @@ const Form = (props: FormProps) => {
     const inputs = description.inputs;
 
     if (inputs && inputs.is_closed) {
-      return useRecordField('is_closed') ? 'bg-gray-100 opacity-70' : '';
+      return useRecordField('is_closed') ? 'bg-gray-100 striped-45' : '';
     } else {
       return '';
     }
@@ -205,10 +205,11 @@ const Form = (props: FormProps) => {
     permissions: getPermissions(null),
     ui: {},
   });
-  const [descriptionLoaded, setDescriptionLoaded] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [descriptionSource, setDescriptionSource] = useState(props.descriptionSource ?? 'both');
   const [endpoint, setEndpoint] = useState(props.endpoint ?? props.endpoint ? props.endpoint : (globalThis.hubleto.config.defaultFormEndpoint ?? {
     describeForm: 'api/form/describe',
+    describeFormAndLoadRecord: 'api/form-describe-and-load',
     saveRecord: 'api/record/save',
     deleteRecord: 'api/record/delete',
     getRecord: 'api/record/get',
@@ -227,7 +228,6 @@ const Form = (props: FormProps) => {
   const [readonly, setReadonly] = useState(props.readonly ?? false);
   const [recordChanged, setRecordChanged] = useState(false);
   const [recordDeleted, setRecordDeleted] = useState(false);
-  const [recordLoaded, setRecordLoaded] = useState(false);
   const [savingRecord, setSavingRecord] = useState(false);
   const [savedSuccessfully, setSavedSuccessfully] = useState(false);
   const [saveError, setSaveError] = useState(null);
@@ -254,13 +254,14 @@ const Form = (props: FormProps) => {
     setId(props.id);
     setCreatingRecord(isCreatingRecord(props.id));
     setUpdatingRecord(!isCreatingRecord(props.id));
-    setDescriptionLoaded(false);
-    setRecordLoaded(false);
+    setDataLoaded(false);
   }, [props.id]);
   useEffect(() => setPrevId(props.prevId), [props.prevId]);
   useEffect(() => setNextId(props.nextId), [props.nextId]);
-  useEffect(() => { if (descriptionLoaded) loadRecord(); else loadDescription(); }, [descriptionLoaded]);
-  useEffect(() => { setIsInitialized(descriptionLoaded && recordLoaded); }, [descriptionLoaded, recordLoaded]);
+  useEffect(() => {
+    if (!dataLoaded) loadDescriptionAndRecord();
+    setIsInitialized(dataLoaded);
+  }, [dataLoaded]);
   useEffect(() => {
     if (isInitialized) {
       onTabChange();
@@ -292,27 +293,33 @@ const Form = (props: FormProps) => {
   //////////////////////////////////
 
   const reload = (): void => {
-    setDescriptionLoaded(false);
-    setRecordLoaded(false);
+    setDataLoaded(false);
   }
   
-  const loadDescription = (): void => {
+  const loadDescriptionAndRecord = (): void => {
 
     request.post(
-      getEndpointUrl('describeForm'),
+      getEndpointUrl('describeFormAndLoadRecord'),
       getEndpointParams(),
       {},
-      (loadedDescription: any) => {
-        if (!loadedDescription) return;
+      (result: any) => {
+        if (!result) return;
 
-        let description = loadedDescription;
-        if (descriptionSource == 'both') description = deepObjectMerge(description, props.description);
-        // if (descriptionSource == 'both') description = {...loadedDescription, ...props.description};
+        let loadedDescription = result.description ?? {};
+        let loadedRecord = result.record ?? {};
+
+        // process description
+
+        let newDescription: any = {};
+
+        if (descriptionSource != 'props') {
+          if (descriptionSource == 'both') newDescription = deepObjectMerge(loadedDescription, props.description);
+        }
 
         let permissions = getPermissions(recordStore.getRecord());
 
         let hasCustomColumns = false;
-        let inputs = description?.inputs;
+        let inputs = newDescription?.inputs;
 
         if (inputs) {
           Object.keys(inputs).map((inpName, index) => {
@@ -320,36 +327,19 @@ const Form = (props: FormProps) => {
           });
         }
 
-        setDescription(description);
-        setDescriptionLoaded(true);
+        setDescription(newDescription);
         if (!permissions.canUpdate && !permissions.canCreate) setReadonly(true);
-        // setPermissions(permissions);
 
-      }
-    );
-  }
+        // process record
+        if (id == -1) {
+          // setIsInitialized(true);
+          // changeRecord(description.defaultValues ?? {});
+          const record = description.defaultValues ?? {};
 
-  const loadRecord = (): void => {
-    setIsInitialized(false);
+          setOriginalRecord(JSON.parse(JSON.stringify(record)));
+          recordStore.setRecord(prev => ({ ...record }));
 
-    if (id == -1) {
-      // setIsInitialized(true);
-      // changeRecord(description.defaultValues ?? {});
-      const record = description.defaultValues ?? {};
-
-      setOriginalRecord(JSON.parse(JSON.stringify(record)));
-      recordStore.setRecord(prev => ({ ...record }));
-
-      setRecordLoaded(true);
-
-    } else {
-      request.post(
-        getEndpointUrl('getRecord'),
-        getEndpointParams(),
-        {},
-        (loadedRecord: any) => {
-          if (!loadedRecord) return;
-
+        } else {
           const record = (creatingRecord
             ? {...(description.defaultValues ?? {}), ...loadedRecord}
             : loadedRecord
@@ -372,16 +362,103 @@ const Form = (props: FormProps) => {
             getCallback('onAfterRecordLoaded')(myself, record);
           }
 
-          setRecordLoaded(true);
-        },
-        (error) => {
-          setLoadRecordError(error.data);
-          setRecordLoaded(true);
         }
-      );
-      
-    }
+
+        setDataLoaded(true);
+      },
+      (error) => {
+        setDataLoaded(true);
+        setLoadRecordError(error.data);
+      }
+    );
   }
+  
+  // const loadDescription = (): void => {
+
+  //   request.post(
+  //     getEndpointUrl('describeForm'),
+  //     getEndpointParams(),
+  //     {},
+  //     (loadedDescription: any) => {
+  //       if (!loadedDescription) return;
+
+  //       let description = loadedDescription;
+  //       if (descriptionSource == 'both') description = deepObjectMerge(description, props.description);
+  //       // if (descriptionSource == 'both') description = {...loadedDescription, ...props.description};
+
+  //       let permissions = getPermissions(recordStore.getRecord());
+
+  //       let hasCustomColumns = false;
+  //       let inputs = description?.inputs;
+
+  //       if (inputs) {
+  //         Object.keys(inputs).map((inpName, index) => {
+  //           if (inputs[inpName].isCustom) hasCustomColumns = true;
+  //         });
+  //       }
+
+  //       setDescription(description);
+  //       setDescriptionLoaded(true);
+  //       if (!permissions.canUpdate && !permissions.canCreate) setReadonly(true);
+  //       // setPermissions(permissions);
+
+  //     }
+  //   );
+  // }
+
+  // const loadRecord = (): void => {
+  //   setIsInitialized(false);
+
+  //   if (id == -1) {
+  //     // setIsInitialized(true);
+  //     // changeRecord(description.defaultValues ?? {});
+  //     const record = description.defaultValues ?? {};
+
+  //     setOriginalRecord(JSON.parse(JSON.stringify(record)));
+  //     recordStore.setRecord(prev => ({ ...record }));
+
+  //     setRecordLoaded(true);
+
+  //   } else {
+  //     request.post(
+  //       getEndpointUrl('getRecord'),
+  //       getEndpointParams(),
+  //       {},
+  //       (loadedRecord: any) => {
+  //         if (!loadedRecord) return;
+
+  //         const record = (creatingRecord
+  //           ? {...(description.defaultValues ?? {}), ...loadedRecord}
+  //           : loadedRecord
+  //         );
+
+  //         setOriginalRecord(JSON.parse(JSON.stringify(record)));
+
+  //         if (id != -1 && !record.id) {
+  //           setLoadRecordError('ERROR: Loading failed.');
+  //         } else {
+  //           let p = getPermissions(record);
+  //           setPermissions(p);
+  //           if (!p.canUpdate && !p.canCreate) setReadonly(true);
+
+  //           // changeRecord(record);
+  //           recordStore.setRecord(prev => ({ ...record }));
+
+  //           setReadonly(record.is_closed == 1);
+
+  //           getCallback('onAfterRecordLoaded')(myself, record);
+  //         }
+
+  //         setRecordLoaded(true);
+  //       },
+  //       (error) => {
+  //         setLoadRecordError(error.data);
+  //         setRecordLoaded(true);
+  //       }
+  //     );
+      
+  //   }
+  // }
 
   //////////////////////////////////
   // form*()
@@ -437,6 +514,7 @@ const Form = (props: FormProps) => {
           parentTable.setRecordFormUrl(saveResponse.savedRecord?.id);
         }
 
+        setId(saveResponse.savedRecord?.id ?? 0);
         setSavingRecord(false);
         setSavedSuccessfully(true);
         setTimeout(() => { setSavedSuccessfully(false); }, 500)
@@ -446,8 +524,7 @@ const Form = (props: FormProps) => {
         setRecordChanged(false);
         setUpdatingRecord(true);
         setCreatingRecord(false);
-        setRecordLoaded(false);
-        setDescriptionLoaded(false);
+        setDataLoaded(false);
         // loadRecord();
 
         getCallback('onAfterSaveRecord')(myself, saveResponse, customSaveOptions);
@@ -676,7 +753,7 @@ const Form = (props: FormProps) => {
           {days <= 0 ? null : <div className='badge text-xs'>{days} day(s)</div>}
           <div
             className='
-              flex items-center p-2 border-l border-l-4 overflow-hidden hover:shadow-sm
+              flex items-center p-2 border-l-4 overflow-hidden hover:shadow-sm
               justify-center bg-white
             '
             style={{borderColor: entry.color}}
@@ -1050,7 +1127,7 @@ const Form = (props: FormProps) => {
     creatingRecord, updatingRecord,
     permissions, recordChanged, savedSuccessfully,
     savingRecord,
-    saveRecord, closeForm, loadRecord,
+    saveRecord, closeForm,
     id,
     getTitleAsText, setShowPreviewUi, changeRecord,
     showPreviewUi, description,
