@@ -5,8 +5,7 @@ import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
 import { isValidJson, kebabToPascal } from './Helper';
 import Dialog from "../components/fc/Dialog";
-import Modal from "../components/fc/Modal";
-import { ModalMeta } from '../components/fc/ModalInterfaces';
+import { type ModalMeta } from '../components/fc/ModalInterfaces';
 
 export class HubletoReactUi {
   config: object = {};
