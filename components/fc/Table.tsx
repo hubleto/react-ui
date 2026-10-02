@@ -793,7 +793,7 @@ const Table = (props: TableProps) => {
     urlParams.delete('recordId');
     urlParams.delete('recordTitle');
 
-    if (props.baseUrlSlug) {
+    if (!props.parentForm && props.baseUrlSlug) {
       if (Array.from(urlParams).length == 0) {
         window.history.pushState({}, '', globalThis.hubleto.config.projectUrl + '/' + props.baseUrlSlug);
       } else {
