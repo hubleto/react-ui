@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import * as uuid from 'uuid';
 
 export default class Textarea extends Input<InputProps, InputState> {

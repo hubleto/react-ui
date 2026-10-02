@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
-import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
+import Input, { type InputProps, type InputMeta, InputMetaContext } from '../Input'
 import request from '../../../core/Request'
 import LoaderBar from '../LoaderBar';
 import Dialog, { DialogMetaContext } from '../Dialog';

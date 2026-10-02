@@ -1,6 +1,6 @@
 import HtmlFrame from "../HtmlFrame";
 import React, { Component } from 'react'
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import * as uuid from 'uuid';
 import DOMPurify from 'dompurify';
 import Editor from 'react-simple-code-editor';

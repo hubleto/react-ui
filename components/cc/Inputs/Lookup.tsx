@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import AsyncSelect from 'react-select/async'
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import request from '../../../core/Request'
 import * as uuid from 'uuid';
 

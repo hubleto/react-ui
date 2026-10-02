@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import Table, { TableProps, TableState } from './Table';
-import Form, { FormProps } from '../fc/Form';
+import Table, { type TableProps, type TableState } from './Table';
+import Form from '../fc/Form';
+import { type FormProps } from '../fc/FormInterfaces';
 import TableExtendedExportCsvForm from './TableExtendedExportCsvForm';
 import TableExtendedImportCsvForm from './TableExtendedImportCsvForm';
 import { getUrlParam } from '../../core/Helper';

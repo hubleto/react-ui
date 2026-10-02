@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import Flatpickr from "react-flatpickr";
 import moment, { Moment } from "moment";
 import * as uuid from 'uuid';

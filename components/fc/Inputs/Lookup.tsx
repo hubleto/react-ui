@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import AsyncSelect from 'react-select/async'
-import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
+import Input, { type InputProps, type InputMeta, InputMetaContext } from '../Input'
 import request from '../../../core/Request'
 import LoaderBar from '../LoaderBar'
 import Spinner from '../Spinner'

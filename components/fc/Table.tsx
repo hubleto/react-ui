@@ -7,7 +7,7 @@ import { setUrlParam, deleteUrlParam } from "../../core/Helper";
 import ErrorBoundary from "../cc/ErrorBoundary";
 import Modal from "./Modal";
 import Form from "./Form";
-import { FormProps } from './FormInterfaces';
+import { type FormProps } from './FormInterfaces';
 import Spinner from "./Spinner";
 import Translator from '../../core/Translator';
 
@@ -15,7 +15,7 @@ import { InputFactory } from "../../core/InputFactory";
 import { dateToEUFormat } from "./Inputs/DateTime";
 import { deepObjectMerge } from "../../core/Helper";
 import request from "../../core/Request";
-import { TableData, TableDescription, TableEndpoint, TableMeta, TableOrderBy, TableProps, TableSelectionMode } from './TableInterfaces';
+import { type TableData, type TableDescription, type TableEndpoint, type TableMeta, type TableOrderBy, type TableProps, type TableSelectionMode } from './TableInterfaces';
 import TableExtendedExportCsvForm from '../cc/TableExtendedExportCsvForm';
 import TableExtendedImportCsvForm from '../cc/TableExtendedImportCsvForm';
 import TableExtendedColumnsCustomize from '../cc/TableExtendedColumnsCustomize';

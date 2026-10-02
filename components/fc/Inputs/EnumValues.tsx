@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
+import Input, { type InputProps, type InputMeta, InputMetaContext } from '../Input'
 
 export interface EnumValuesInputProps extends InputProps {
   enumValues?: {};

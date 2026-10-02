@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import request from '../../../core/Request'
 import * as uuid from 'uuid';
 import CreatableSelect from "react-select/creatable";

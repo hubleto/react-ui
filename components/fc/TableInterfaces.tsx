@@ -1,5 +1,5 @@
-import { FormEndpoint, FormProps } from "./FormInterfaces";
-import { ModalProps } from "../cc/Modal";
+import { type FormEndpoint, type FormProps } from "./FormInterfaces";
+import { type ModalProps } from "../cc/Modal";
 import React from "react";
 
 export interface TableEndpoint {

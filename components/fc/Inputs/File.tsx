@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ImageUploading, { ImageType } from 'react-images-uploading';
 import request from '@hubleto/react-ui/core/Request'
-import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
+import Input, { type InputProps, type InputMeta, InputMetaContext } from '../Input'
 import Translator from '@hubleto/react-ui/core/Translator';
 
 export interface FileInputProps extends InputProps {

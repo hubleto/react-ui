@@ -1,7 +1,7 @@
 import React, { createRef } from 'react'
 import ImageUploading, { ImageType } from 'react-images-uploading';
 import * as uuid from 'uuid';
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 
 interface FileInputProps extends InputProps {
   uploadButtonText?: string,

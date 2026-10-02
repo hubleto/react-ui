@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
+import Input, { type InputProps, type InputMeta, InputMetaContext } from '../Input'
 import Flatpickr from "react-flatpickr";
 import moment, { Moment } from "moment";
 import Translator from "../../../core/Translator";

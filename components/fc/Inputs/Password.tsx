@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import Input, { InputProps, InputMeta, InputMetaContext } from '../Input'
+import Input, { type InputProps, type InputMeta, InputMetaContext } from '../Input'
 import Translator from '@hubleto/react-ui/core/Translator';
 
 const T = new Translator('Hubleto\\ReactUi', 'Components\\Inputs\\Password');

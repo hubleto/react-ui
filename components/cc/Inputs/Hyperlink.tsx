@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import Varchar from './Varchar'
 import * as uuid from 'uuid';
 

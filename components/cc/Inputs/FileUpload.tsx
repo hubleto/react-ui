@@ -1,6 +1,6 @@
 import React from 'react';
 import * as uuid from 'uuid';
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import Swal from "sweetalert2";
 import request from "../../../core/Request";
 import { errorJsx } from "../../../core/Helper";

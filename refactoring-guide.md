@@ -10,8 +10,8 @@
 ```
 import React from 'react';
 import Translator from '@hubleto/react-ui/core/Translator';
-import { FormProps } from '@hubleto/react-ui/components/fc/FormInterfaces';
-import Form, { FormMetaContext } from '@hubleto/react-ui/components/fc/Form';
+import { type FormProps } from '@hubleto/react-ui/components/fc/FormInterfaces';
+import Form, { type FormMetaContext } from '@hubleto/react-ui/components/fc/Form';
 import Input from '@hubleto/react-ui/components/fc/FormComponents/Input';
 
 export interface FormXXXProps extends FormProps {}
@@ -77,7 +77,7 @@ export default FormXXX;
 import React from 'react'
 import Translator from '@hubleto/react-ui/core/Translator';
 import Table from '@hubleto/react-ui/components/fc/Table';
-import { TableMeta, TableProps } from '@hubleto/react-ui/components/fc/TableInterfaces';
+import { type TableMeta, type TableProps } from '@hubleto/react-ui/components/fc/TableInterfaces';
 import FormXXX, { FormXXXProps } from './FormXXX';
 
 interface TableXXXProps extends TableProps {

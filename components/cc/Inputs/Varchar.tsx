@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 import * as uuid from 'uuid';
 import AsyncSelect from 'react-select/async'
 import AsyncCreatable from 'react-select/async-creatable'

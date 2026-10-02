@@ -7,7 +7,7 @@ import Spinner from "./Spinner";
 import { deepObjectMerge } from "../../core/Helper";
 
 import TranslatedComponent from "./TranslatedComponent";
-import { InputProps } from "./Input";
+import { type InputProps } from "./Input";
 
 import InputLookup from "./Inputs/Lookup";
 import InputVarchar from "./Inputs/Varchar";

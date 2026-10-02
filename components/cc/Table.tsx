@@ -4,10 +4,11 @@ import React, { Component, ChangeEvent, createRef } from 'react';
 
 // 
 import { setUrlParam, deleteUrlParam } from "../../core/Helper";
-import { ModalProps } from "./Modal";
+import { type ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
 import ModalForm from "./ModalForm";
-import Form, { FormEndpoint, FormProps } from "../fc/Form";
+import Form from "../fc/Form";
+import { type FormEndpoint, type FormProps } from "../fc/FormInterfaces";
 import TranslatedComponent from "./TranslatedComponent";
 import Spinner from "../fc/Spinner";
 

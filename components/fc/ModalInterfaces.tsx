@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { FormMeta } from "./FormInterfaces";
+import { type FormMeta } from "./FormInterfaces";
 
 export interface ModalProps {
   uid?: string,

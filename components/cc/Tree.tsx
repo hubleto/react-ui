@@ -1,9 +1,9 @@
 import React, { Component, ChangeEvent, createRef } from 'react';
 
 import ErrorBoundary from "./ErrorBoundary";
-import { ModalProps } from "./Modal";
+import { type ModalProps } from "./Modal";
 import ModalForm from "./ModalForm";
-import Form, { FormEndpoint, FormProps, FormState } from "./Form";
+import Form, { type FormEndpoint, type FormProps, type FormState } from "./Form";
 import TranslatedComponent from "./TranslatedComponent";
 import Spinner from './Spinner';
 

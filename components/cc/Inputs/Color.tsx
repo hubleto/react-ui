@@ -1,6 +1,6 @@
 import React from 'react'
 import * as uuid from 'uuid';
-import { Input, InputProps, InputState } from '../Input'
+import { Input, type InputProps, type InputState } from '../Input'
 
 interface ColorInputProps extends InputProps { }
 

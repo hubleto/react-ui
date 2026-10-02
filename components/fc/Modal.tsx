@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as uuid from 'uuid';
-import { ModalMeta, ModalProps } from './ModalInterfaces';
+import { type ModalMeta, type ModalProps } from './ModalInterfaces';
 
 export const ModalMetaContext = React.createContext<ModalMeta>(null);
 

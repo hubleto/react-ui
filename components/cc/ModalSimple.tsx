@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
-import Modal, { ModalProps } from "./Modal";
+import Modal from "./Modal";
 
 export default class ModalSimple extends Modal {
   static defaultProps = {
