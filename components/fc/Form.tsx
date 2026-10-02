@@ -13,15 +13,15 @@ import PrintPreviewUiButton from './FormComponents/PrintPreviewUiButton';
 import Input from './FormComponents/Input';
 
 import {
-  FormEndpoint,
-  FormRecord,
-  FormDescription,
-  FormProps,
-  FormTabs,
-  FormMeta,
+  type FormEndpoint,
+  type FormRecord,
+  type FormDescription,
+  type FormProps,
+  type FormTabs,
+  type FormMeta,
 } from "./FormInterfaces"
 
-import { FormRecordStore, FormRecordStoreContext, createRecordStore, useRecord, useRecordField } from './FormRecordStore';
+import { type FormRecordStore, FormRecordStoreContext, createRecordStore, useRecord, useRecordField } from './FormRecordStore';
 import PrintPreviewUi from './FormComponents/PrintPreviewUi';
 import { ModalMetaContext } from './Modal';
 import { deepObjectMerge } from '@hubleto/react-ui/core/Helper';

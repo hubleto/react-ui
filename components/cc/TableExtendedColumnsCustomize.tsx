@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import request from '../../core/Request';
-import TableExtended, { TableExtendedProps, TableExtendedState } from './TableExtended';
+import TableExtended, { type TableExtendedProps, type TableExtendedState } from './TableExtended';
 import TranslatedComponent from ".//TranslatedComponent";
 
 export interface TableExtendedColumnsCustomizeProps {
