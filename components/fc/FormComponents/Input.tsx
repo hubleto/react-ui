@@ -2,7 +2,7 @@ import React from "react";
 import { FormMetaContext } from "../Form";
 import { useRecordField } from "../FormRecordStore";
 
-import { InputProps } from "../Input";
+import { type InputProps } from "../Input";
 
 import InputLookup from "../Inputs/Lookup";
 import InputInt from "../Inputs/Int";

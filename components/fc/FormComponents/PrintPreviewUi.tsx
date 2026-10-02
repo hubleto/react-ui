@@ -5,7 +5,7 @@ import Input from "./Input";
 import HtmlFrame from "../../cc/HtmlFrame";
 import { FormMetaContext } from "../Form";
 import request from "@hubleto/react-ui/core/Request";
-import { ModalMeta } from "../ModalInterfaces";
+import { type ModalMeta } from "../ModalInterfaces";
 
 export interface PrintPreviewUiProps {}
 
