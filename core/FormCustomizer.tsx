@@ -1,4 +1,4 @@
-import { FormMeta, FormTab } from "../components/fc/FormInterfaces";
+import { type FormMeta, type FormTab } from "../components/fc/FormInterfaces";
 
 export interface FormExtraButton {
   title: string,

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import * as uuid from 'uuid';
 import Modal, { ModalProps, ModalState } from "./Modal";
-import Form, { FormProps, FormState } from "./Form"
+import Form, { type FormProps, type FormState } from "./Form"
 
 export interface ModalFormProps extends ModalProps {
   form: any,

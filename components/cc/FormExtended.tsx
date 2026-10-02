@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Form, { FormDescription, FormProps, FormState } from "./Form";
+import Form, { type FormDescription, type FormProps, type FormState } from "./Form";
 import request from '../../core/Request';
 import App from '../../core/App';
 import ModalSimple from "./ModalSimple";

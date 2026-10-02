@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import Input, { InputMeta, InputMetaContext } from '../Input'
-import LookupInput, { LookupInputProps } from './Lookup'
+import Input, { type InputMeta, InputMetaContext } from '../Input'
+import LookupInput, { type LookupInputProps } from './Lookup'
 import ModalSimple from '../../cc/ModalSimple';
 import request from '@hubleto/react-ui/core/Request';
 import Translator from '@hubleto/react-ui/core/Translator';

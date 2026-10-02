@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { InputProps, InputMeta, InputMetaContext } from '../Input';
+import { type InputProps, type InputMeta, InputMetaContext } from '../Input';
 import Varchar, { InputComponent as VarcharInputComponent } from './Varchar'
 
 const ValueComponent = (props: InputProps) => {

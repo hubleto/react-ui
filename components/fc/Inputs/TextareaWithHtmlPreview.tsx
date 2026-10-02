@@ -5,7 +5,7 @@ import 'prismjs/components/prism-markup';
 //@ts-ignore
 import 'prismjs/themes/prism.css'; //Example style, you can use another
 import Translator from "@hubleto/react-ui/core/Translator";
-import Input, { InputMeta, InputMetaContext, InputProps } from "../Input";
+import Input, { type InputMeta, InputMetaContext, type InputProps } from "../Input";
 
 const translate = new Translator(
   'Hubleto\\ReactUi',

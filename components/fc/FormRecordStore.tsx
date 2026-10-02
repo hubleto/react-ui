@@ -1,5 +1,5 @@
 import React from "react";
-import { FormRecord } from "./FormInterfaces";
+import { type FormRecord } from "./FormInterfaces";
 
 type Listener = () => void;
 

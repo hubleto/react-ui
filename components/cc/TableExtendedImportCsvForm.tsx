@@ -1,5 +1,5 @@
 import React, { Component, createRef } from "react";
-import Form, { FormProps, FormState } from "./Form";
+import Form, { type FormProps, type FormState } from "./Form";
 import InputFile from "./Inputs/File";
 import request from "../../core/Request";
 

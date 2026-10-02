@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Form, { FormDescription, FormProps, FormState } from "./Form";
+import Form, { type FormDescription, type FormProps, type FormState } from "./Form";
 
 export interface TableExtendedExportCsvFormProps extends FormProps {}
 export interface TableExtendedExportCsvFormState extends FormState {
