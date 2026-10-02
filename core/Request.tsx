@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { type AxiosResponse } from "axios";
 
 interface ApiResponse<T> {
   data: T;
