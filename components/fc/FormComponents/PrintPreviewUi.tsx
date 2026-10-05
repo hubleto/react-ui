@@ -117,10 +117,11 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
         <Input field='id_document' readonly={true} />
       </div>
       <div className='flex-3 flex flex-col'>
-        <div className='flex gap-2 align-center justify-end'>
-          <div>
-            <Input field='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
-          </div>
+        <div className="flex flex-row justify-end m-2">
+          <Input field='pdf' renderOnlyInputField customInputProps={{readonly: true}} />
+          <button className="btn btn-close" onClick={() => form.setShowPreviewUi(false)}>
+            <span className="icon"><i className="fas fa-xmark"></i></span>
+          </button>
         </div>
         <div className='w-full h-full card mt-2'>
           <div className="card-body" style={{height: "calc(100% - 5em)"}}>
