@@ -57,7 +57,7 @@ const PrintPreviewUi = React.memo((props: PrintPreviewUiProps) => {
       (result: any) => {
         if (result && result.pdfFile) {
           form.changeRecord({
-            idDocument: result.idDocument,
+            id_document: result.idDocument,
             pdf: result.pdfFile,
           }, () => {
             form.setShowPreviewUi(false);
