@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import Input, { type InputMeta, InputMetaContext } from '../Input'
 import LookupInput, { type LookupInputProps } from './Lookup'
-import ModalSimple from '../../cc/ModalSimple';
+import Modal from "../Modal";
+import { type ModalMeta } from "../ModalInterfaces";
 import request from '@hubleto/react-ui/core/Request';
 import Translator from '@hubleto/react-ui/core/Translator';
 import { FormRecordStoreContext } from '../FormRecordStore';
@@ -51,7 +52,7 @@ const InputComponent = (props: SharedWithInputProps) => {
       onClick={() => { setShowModal(true) }}
     >
       <span className="icon"><i className="fas fa-share-nodes"></i></span>
-      {Object.keys(valuesPerUser).length == 0 ? <span className="text">Not shared</span> 
+      {Object.keys(valuesPerUser).length == 0 ? <span className="text">Not shared</span>
         : Object.keys(valuesPerUser).length == 1 ?
           Object.keys(valuesPerUser).map((idUser: any) => {
 
@@ -69,7 +70,7 @@ const InputComponent = (props: SharedWithInputProps) => {
       }
     </button>
     {showModal ?
-      <ModalSimple
+      <Modal
         uid='projects_table_discussions_modal'
         isOpen={true}
         type='right'
@@ -77,8 +78,13 @@ const InputComponent = (props: SharedWithInputProps) => {
         title={<>
           <h2>{translate('Share', 'Hubleto\\Erp\\Loader', 'Components\\Inputs\\SharedWith')}</h2>
         </>}
-        onClose={(modal: ModalSimple) => { setShowModal(false); }}
+        onClose={(modal: ModalMeta) => { setShowModal(false); }}
       >
+        <div className='w-100 flex flex-row justify-end m-2'>
+          <button className="btn btn-close" onClick={() => setShowModal(false)}>
+            <span className="icon"><i className="fas fa-xmark"></i></span>
+          </button>
+        </div>
         <table ref={input.refInput} className="table-default dense"><tbody>
           {Object.keys(input.data).map((key: any) => {
             const user = input.data[key] ?? null;
@@ -148,7 +154,7 @@ const InputComponent = (props: SharedWithInputProps) => {
           </button>
           <div className='badge badge-info'>Sharing overrides default ownership permissions.</div>
         </div>
-      </ModalSimple>
+      </Modal>
     : null}
   </div>;
 }
