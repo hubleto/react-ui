@@ -18,7 +18,7 @@ export default class FormCustomizer {
     mount: (form: FormMeta) => boolean|FormTab,
   ) {
     if (!this.tabs[componentName]) {
-      this.tabs[componentName] = [];
+      this.tabs[componentName] = {};
     }
     this.tabs[componentName][tabUid] = {mount: mount};
   }
