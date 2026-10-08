@@ -169,6 +169,7 @@ export interface TableProps {
   renderRecordsAsTree?: (table: TableMeta, nodes: any, idParent: number, level: number) => React.JSX.Element,
   renderRecords?: (table: TableMeta) => any,
   renderContent?: (table: TableMeta) => any,
+  renderCsvExportForm?: (table: TableMeta) => any,
 
   onAddClick?: (table: TableMeta) => void,
   onRowEdited?: (table: TableMeta, input: any, value: any) => void,

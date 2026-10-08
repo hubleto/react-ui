@@ -16,7 +16,7 @@ import { dateToEUFormat } from "./Inputs/DateTime";
 import { deepObjectMerge } from "../../core/Helper";
 import request from "../../core/Request";
 import { type TableData, type TableDescription, type TableEndpoint, type TableMeta, type TableOrderBy, type TableProps, type TableSelectionMode } from './TableInterfaces';
-import TableExtendedExportCsvForm from '../cc/TableExtendedExportCsvForm';
+import ModalHeader from '@hubleto/react-ui/components/fc/ModalComponents/Header';
 import TableExtendedImportCsvForm from '../cc/TableExtendedImportCsvForm';
 import TableExtendedColumnsCustomize from '../cc/TableExtendedColumnsCustomize';
 
@@ -542,6 +542,7 @@ const Table = (props: TableProps) => {
   const [async, setAsync] = useState(props.async ?? true);
   const [columnSearch, setColumnSearch] = useState(props.columnSearch ?? {});
   const [crudController, setCrudController] = useState(props.crudController ?? '');
+  const [csvExportSeparator, setCsvExportSeparator] = useState(',');
   const [context, setContext] = useState(props.context ?? '');
   const [data, setData] = useState(props.data ?? null);
   const [description, setDescription] = useState(props.description ?? {} as TableDescription);
@@ -1039,6 +1040,11 @@ const Table = (props: TableProps) => {
   const renderContent = (): React.JSX.Element => {
     if (props.renderContent) return props.renderContent(myself);
     else return renderDefaultContent();
+  }
+
+  const renderCsvExportForm = (): React.JSX.Element => {
+    if (props.renderCsvExportForm) return props.renderCsvExportForm(myself);
+    else return renderDefaultCsvExportForm();
   }
 
   //////////////////////////////////
@@ -1712,22 +1718,39 @@ const Table = (props: TableProps) => {
         return renderRecordsAsTree(data?.tree);
       break;
       default:
+        const records = getRecordsToDisplay();
+        const columns = getColumns();
+        const columnKeys = Object.keys(columns);
+
+        const typeIcons = {
+          'varchar': 'fas fa-i-cursor',
+          'int': 'fas fa-1',
+          'boolean': 'fas fa-toggle-on',
+        };
+
+        const currentPage = data?.current_page ?? 0;
+        const lastPage = data?.last_page ?? 0;
+        const itemsPerPage = data?.per_page ?? 0;
+        const itemsFrom = data?.from ?? 0;
+        const itemsTo = data?.to ?? 0;
+        const itemsTotal = data?.total ?? 0;
+
         if (showAsPlainTable) {
           const columns = description?.columns ?? {};
 
           return <table className='table-default dense'>
             <thead>
               <tr>
-                {Object.keys(columns).map((colName, columnIndex) => {
+                {columnKeys.map((colName, columnIndex) => {
                   const column = description?.columns[colName];
                   return <th className='border-none'>{column.title}</th>;
                 })}
               </tr>
             </thead>
             <tbody>
-              {data?.records.map((row, rowIndex) => {
+              {records.map((row, rowIndex) => {
                 return <tr key={rowIndex}>
-                  {Object.keys(columns).map((colName, columnIndex) => {
+                  {columnKeys.map((colName, columnIndex) => {
                     const val = row['_LOOKUP[' + colName + ']'] ?? row[colName];
                     return <td className='border-none'>{
                       (typeof val === 'object' && val !== null) ? val['_LOOKUP'] : val
@@ -1738,23 +1761,6 @@ const Table = (props: TableProps) => {
             </tbody>
           </table>;
         } else {
-          const records = getRecordsToDisplay();
-          const columns = getColumns();
-          const columnKeys = Object.keys(columns);
-
-          const typeIcons = {
-            'varchar': 'fas fa-i-cursor',
-            'int': 'fas fa-1',
-            'boolean': 'fas fa-toggle-on',
-          };
-
-          const currentPage = data?.current_page ?? 0;
-          const lastPage = data?.last_page ?? 0;
-          const itemsPerPage = data?.per_page ?? 0;
-          const itemsFrom = data?.from ?? 0;
-          const itemsTo = data?.to ?? 0;
-          const itemsTotal = data?.total ?? 0;
-
           let previousPages: any = [];
           for (let i = Math.max(currentPage - 5, 1); i < currentPage; i++) previousPages.push(i);
 
@@ -1763,8 +1769,6 @@ const Table = (props: TableProps) => {
 
           let orderBy = description?.ui?.orderBy ?? null;
           if (!orderBy) orderBy = {field: '', direction: ''};
-
-          if (records.length <= 0) return <div className='alert alert-info m-4'>Nothing to show here.</div>;
 
           return <div className="table-container">
             <table>
@@ -1807,7 +1811,13 @@ const Table = (props: TableProps) => {
                 </tr>
               </thead>
               <tbody>
-                {records.map((record: any, key: any) => {
+                {records.length == 0 ?
+                  <tr>
+                    <td colSpan={10000}>
+                      <div className='alert alert-info m-4'>Nothing to show here.</div>
+                    </td>
+                  </tr>
+                : records.map((record: any, key: any) => {
                   return <tr key={key} className={getRowClassName(record)}>
                     {columnKeys.map((key: any, rowIndex: number) => {
                       const column = columns[key];
@@ -1910,6 +1920,63 @@ const Table = (props: TableProps) => {
     }
   }
 
+  const renderDefaultCsvExportForm = (): React.JSX.Element => {
+    const records = getRecordsToDisplay();
+    const columns = getColumns();
+    const columnKeys = Object.keys(columns);
+
+    return <div className="p-2">
+      <table className="table-default dense mt-2">
+        <thead>
+          <th>{T.translate('Column')}</th>
+          <th>{T.translate('Type')}</th>
+        </thead>
+        <tbody>
+          {columnKeys.map((columnName) => {
+            const column = columns[columnName];
+            return <tr>
+              <td>{columnName}</td>
+              <td>{column.description?.type}</td>
+            </tr>;
+          })}
+        </tbody>
+      </table>
+      <div className='card mt-2'>
+        <div className='card-header'>
+          {T.translate('Separator')}
+        </div>
+        <div className='card-body'>
+          <input
+            type='text'
+            value={csvExportSeparator}
+            onChange={(e) => { setCsvExportSeparator(e.currentTarget.value); }}
+          />
+        </div>
+      </div>
+      <a
+        className="btn btn-large mt-2"
+        href={
+          globalThis.hubleto.config.projectUrl
+          + '/api/table-export-csv'
+          + '?cfg=' + btoa(JSON.stringify({separator: csvExportSeparator, ...getEndpointParams()}))
+        }
+        target="_blank"
+      >
+        <span className="icon"><i className="fas fa-download"></i></span>
+        <span className="text">{T.translate('Export to CSV')}</span>
+      </a>
+    </div>;
+    // <TableExtendedExportCsvForm
+    //   //@ts-ignore
+    //   ref={refExportCsvForm}
+    //   modal={refExportCsvModal}
+    //   model={model}
+    //   parentTable={myself}
+    //   onClose={() => { setShowExportCsvScreen(false); }}
+    // ></TableExtendedExportCsvForm>;
+
+  }
+
   const renderDefaultContent = (): React.JSX.Element => {
     const sidebarFilter = renderSidebarFilter();
     const records = getRecordsToDisplay();
@@ -1947,22 +2014,14 @@ const Table = (props: TableProps) => {
 
       {showExportCsvScreen ?
         <Modal
-          //@ts-ignore
-          ref={refExportCsvModal}
-          form={refExportCsvForm}
           uid={uid + '_export_csv_modal'}
           isOpen={true}
-          type='centered large'
+          type='right'
+          title={'Export to CSV'}
           onClose={() => { setShowExportCsvScreen(false); }}
         >
-          <TableExtendedExportCsvForm
-            //@ts-ignore
-            ref={refExportCsvForm}
-            modal={refExportCsvModal}
-            model={model}
-            parentTable={myself}
-            onClose={() => { setShowExportCsvScreen(false); }}
-          ></TableExtendedExportCsvForm>
+          <ModalHeader></ModalHeader>
+          {renderCsvExportForm()}
         </Modal>
       : null}
       {showImportCsvScreen ?
