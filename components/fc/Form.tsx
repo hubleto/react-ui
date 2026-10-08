@@ -58,28 +58,7 @@ const Form = (props: FormProps) => {
     onAfterDeleteRecord: (form: FormMeta, saveResponse: any) => {},
     onAfterFormInitialized: (form: FormMeta) => {},
     onAfterRecordLoaded: (form: FormMeta, record: FormRecord): void => {},
-    onAfterSaveRecord: (form: FormMeta, saveResponse: any, customSaveOptions?: any) => {
-      if (
-        props.junctionSaveEndpoint
-        && props.junctionModel
-        && props.junctionSourceColumn
-        && props.junctionDestinationColumn
-        && props.junctionSourceRecordId
-      ) {
-        request.post(
-          props.junctionSaveEndpoint,
-          {
-            junctionModel: props.junctionModel,
-            junctionSourceColumn: props.junctionSourceColumn,
-            junctionDestinationColumn: props.junctionDestinationColumn,
-            junctionSourceRecordId: props.junctionSourceRecordId,
-            junctionDestinationRecordId: saveResponse.savedRecord['id'],
-          },
-          {},
-          (data: any) => { /* */ }
-        );
-      }
-    },
+    onAfterSaveRecord: (form: FormMeta, saveResponse: any, customSaveOptions?: any) => {},
     onBeforeCopyRecord: (form: any, record: FormRecord) => { return { ...record, id: -1 }; },
     onBeforeSaveRecord: (form: any, record: FormRecord) => { return record; },
     onTabChange: (form: any) => {},
@@ -524,6 +503,8 @@ const Form = (props: FormProps) => {
         setUpdatingRecord(true);
         setCreatingRecord(false);
         setDataLoaded(false);
+
+        saveJunction(saveResponse)
         // loadRecord();
 
         getCallback('onAfterSaveRecord')(myself, saveResponse, customSaveOptions);
@@ -599,6 +580,33 @@ const Form = (props: FormProps) => {
       parentTable.openForm(prevId);
     }
   };
+
+  //////////////////////////////////
+  // junction*()
+  //////////////////////////////////
+
+  function saveJunction(saveResponse: any) {
+    if (
+        props.junctionSaveEndpoint
+        && props.junctionModel
+        && props.junctionSourceColumn
+        && props.junctionDestinationColumn
+        && props.junctionSourceRecordId
+      ) {
+        request.post(
+          props.junctionSaveEndpoint,
+          {
+            junctionModel: props.junctionModel,
+            junctionSourceColumn: props.junctionSourceColumn,
+            junctionDestinationColumn: props.junctionDestinationColumn,
+            junctionSourceRecordId: props.junctionSourceRecordId,
+            junctionDestinationRecordId: saveResponse.savedRecord['id'],
+          },
+          {},
+          (data: any) => {}
+        );
+      }
+  }
 
   //////////////////////////////////
   // render*()
