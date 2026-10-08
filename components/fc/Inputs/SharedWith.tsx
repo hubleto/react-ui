@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Input, { type InputMeta, InputMetaContext } from '../Input'
 import LookupInput, { type LookupInputProps } from './Lookup'
 import Modal from "../Modal";
+import Header from "../ModalComponents/Header";
 import { type ModalMeta } from "../ModalInterfaces";
 import request from '@hubleto/react-ui/core/Request';
 import Translator from '@hubleto/react-ui/core/Translator';
@@ -80,11 +81,7 @@ const InputComponent = (props: SharedWithInputProps) => {
         </>}
         onClose={(modal: ModalMeta) => { setShowModal(false); }}
       >
-        <div className='w-100 flex flex-row justify-end m-2'>
-          <button className="btn btn-close" onClick={() => setShowModal(false)}>
-            <span className="icon"><i className="fas fa-xmark"></i></span>
-          </button>
-        </div>
+        <Header></Header>
         <table ref={input.refInput} className="table-default dense"><tbody>
           {Object.keys(input.data).map((key: any) => {
             const user = input.data[key] ?? null;
