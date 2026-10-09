@@ -6,6 +6,7 @@ import * as uuid from 'uuid';
 import { isValidJson, kebabToPascal } from './Helper';
 import Dialog from "../components/fc/Dialog";
 import { type ModalMeta } from '../components/fc/ModalInterfaces';
+import { type FormMeta } from '../components/fc/FormInterfaces';
 
 export class HubletoReactUi {
   config: object = {};
@@ -14,6 +15,7 @@ export class HubletoReactUi {
   reactElementsWaitingForRender: number = 0;
   reactElements: Object = {};
   renderedModals: any = {};
+  renderedForms: any = {};
 
   dictionary: any = null;
   lastShownDialogRef: any;
@@ -47,6 +49,32 @@ export class HubletoReactUi {
     return orig;
   }
 
+  registerShortcuts() {
+    this.registerGlobalShortcuts();
+    this.registerModalShortcuts();
+    this.registerFormShortcuts();
+  }
+
+  // global shortcuts
+  registerGlobalShortcuts() {
+    document.addEventListener('keydown', function(e) {
+
+      if (e.ctrlKey && e.key === 'k') {
+        globalThis.hubleto.reactElements['global-fulltext-search'].searchRef.current.focus();
+        e.preventDefault();
+      }
+
+      if (e.ctrlKey && e.key === ' ') {
+        $('.app-launcher').addClass('visible');
+        $('.app-launcher > div .app-launcher-header input').focus();
+        e.preventDefault();
+      }
+
+    });
+  }
+
+  // modal stack & shortcuts
+
   updateModalStack(modal: ModalMeta) {
     this.renderedModals[modal.uid] = modal;
   }
@@ -65,25 +93,6 @@ export class HubletoReactUi {
   registerModalShortcuts() {
     document.addEventListener('keydown', function(e) {
 
-      if (e.ctrlKey && e.key === 'k') {
-        globalThis.hubleto.reactElements['global-fulltext-search'].searchRef.current.focus();
-        e.preventDefault();
-      }
-
-      if (e.ctrlKey && e.key === ' ') {
-        $('.app-launcher').addClass('visible');
-        $('.app-launcher > div .app-launcher-header input').focus();
-        e.preventDefault();
-      }
-
-      if (e.ctrlKey && e.key === 's') {
-        const lastModal = globalThis.hubleto.getLastModalInStack();
-        if (lastModal && lastModal.form) {
-          lastModal.form.saveRecord();
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      }
       if (e.key === 'Escape') {
         const lastModal = globalThis.hubleto.getLastModalInStack();
         if (lastModal && lastModal.form) lastModal.form.closeForm();
@@ -91,6 +100,44 @@ export class HubletoReactUi {
       }
     });
   }
+
+  // form stack & shortcuts
+
+  updateFormStack(form: FormMeta) {
+    this.renderedForms[form.uid] = form;
+  }
+
+  removeFormFromStack(form: FormMeta) {
+    delete this.renderedForms[form.uid];
+  }
+
+  getLastFormInStack() {
+    const uids = Object.keys(this.renderedForms);
+    const lastUid = uids[uids.length - 1] ?? null;
+
+    return this.renderedForms[lastUid] ?? null;
+  }
+
+  registerFormShortcuts() {
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 's') {
+        const lastForm = globalThis.hubleto.getLastFormInStack();
+        if (lastForm) {
+          lastForm.saveRecord();
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }
+    });
+  }
+
+
+
+
+
+
+
+  // error messages
 
   getValidationErrorMessage(messageString: string): React.JSX.Element {
     return <>
@@ -117,6 +164,8 @@ export class HubletoReactUi {
       </div>
     </>;
   }
+
+  // dialogs
 
   showDialog(content: React.JSX.Element, props?: any) {
     const root = createRoot(document.getElementById('app-dialogs'));
@@ -222,6 +271,8 @@ export class HubletoReactUi {
 
     this.showDialog(content, props);
   }
+
+  // miscellaneous
 
   registerReactComponent(elementName: string, elementObject: any) {
     this.reactComponents[elementName] = elementObject;
