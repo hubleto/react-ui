@@ -469,21 +469,19 @@ const Form = (props: FormProps) => {
 
   const saveRecord = (customSaveOptions?: any): void => {
     if (savingRecord) return;
-console.log('saveRecord');
+
     setSavingRecord(true);
     setInvalidInputs([]);
 
     let recordToSave = recordStore.getRecord();
-console.log('recordToSave1', recordToSave);
 
     (recordToSave._RELATIONS ?? []).map((relName: any) => {
       if (!(description?.includeRelations ?? []).includes(relName)) {
         delete recordToSave[relName];
       }
     });
-console.log('recordToSave2', recordToSave);
+
     recordToSave = getCallback('onBeforeSaveRecord')(myself, recordToSave);
-console.log('recordToSave3', recordToSave);
 
     request.post(
       getEndpointUrl('saveRecord'),

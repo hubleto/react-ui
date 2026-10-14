@@ -57,6 +57,8 @@ class Request {
       console.error('HubletoReactUi request @ ' + url + ' failed.');
       console.error(res);
 
+      if (res.status == 0) return; // in FireFox, status==0 would cause showDialogDanger with empty string
+
       if (errorCallback) {
         errorCallback(responseData);
       } else {

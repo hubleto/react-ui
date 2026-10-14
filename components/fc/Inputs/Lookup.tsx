@@ -77,16 +77,12 @@ const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
 
 const InputComponent = (props: LookupInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
-  let urlDetail = input.data[input.value]?._URL_DETAIL ?? '';
-  let value = input.data[input.value]?.id ?? 0;
-
-  const urlAdd = props.inputProps?.urlAdd;
 
   if (props.uiStyle == 'select') {
     return <>
       <select
         ref={input.refInput}
-        value={value}
+        value={input.value}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => input.changeValue(e.target.value)}
         className={
           (input.invalid ? 'is-invalid' : '')
@@ -97,7 +93,7 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
       >
         {Object.keys(input.data).map((key: any): React.JSX.Element => {
           if (input.data == undefined) return <></>;
-          return <option key={key} value={key}>{input.data[key]?._LOOKUP ?? ''}</option>
+          return <option key={key} value={input.data[key]?.id}>{input.data[key]?._LOOKUP ?? ''}</option>
         })}
       </select>
     </>;
@@ -106,30 +102,36 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
       ref={input.refInput}
       className={"btn-group gap-1 flex-wrap " + (props.uiStyle == 'buttons-vertical' ? " flex-col w-full" : "")}
     >{Object.keys(input.data).map((key: any) => {
-      const value = input.data ? (input.data[key]?.id ?? 0) : 0;
+      const id = input.data ? (input.data[key]?.id ?? 0) : 0;
       const lookup = input.data ? (input.data[key]?._LOOKUP ?? '') : '';
       const color = input.data ? (input.data[key]?._LOOKUP_COLOR ?? '') : '';
       return <button
         key={key}
         className={
-          "btn " + (input.readonly && input.value != value ? "btn-disabled" : "")
-          + " " + (input.value == value ? "btn-primary" : "btn-transparent")
+          "btn " + (input.readonly && input.value != id ? "btn-disabled" : "")
+          + " " + (input.value == id ? "btn-primary" : "btn-transparent")
         }
         style={{borderLeft: (color ? "0.5em solid " + color : "")}}
         onClick={() => { 
-          if (!input.readonly) input.changeValue(value);
+          if (!input.readonly) {
+            input.changeValue(input.value == id ? 0 : id);
+          }
         }}
       >
         <span className="text">{lookup}</span>
       </button>;
     })}</div>;
   } else {
+    const selectedValue = input.data?.filter((item) => item.id == input.value)[0];
+    const urlDetail = selectedValue?._URL_DETAIL ?? '';
+    const urlAdd = props.inputProps?.urlAdd;
+
     return <>
       <AsyncSelect
         ref={input.refInput}
         value={{
-          id: value,
-          _LOOKUP: input.data[input.value]?._LOOKUP ?? '',
+          id: selectedValue?.id ?? 0,
+          _LOOKUP: selectedValue?._LOOKUP ?? '',
         }}
         isClearable={true}
         isDisabled={input.readonly || !input.isInitialized}
