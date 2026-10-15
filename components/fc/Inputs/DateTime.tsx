@@ -149,147 +149,186 @@ const DateInput = (props: DateTimeInputProps): React.JSX.Element => {
   const daysInMonth = moment(input.value, "YYYY-MM").daysInMonth() ?? 30;
   const { year, month, day, hour, minute, second } = getValues(props, input.value);
 
-  return <div 
-    className={
-      "flex gap-1"
-      + " " + (input.invalid ? 'is-invalid' : '')
-      + " " + (input.cssClass ?? "")
-      + " " + (input.readonly ? "bg-muted" : "")
-    }
-  >
-    {input.readonly ? null : <button
-      className="btn btn-small btn-transparent"
-      onClick={() => input.changeValue(moment().format('yyyy-MM-DD'))}
-      title='Today'
-    >
-      <span className="icon"><i className="fas fa-calendar-day"></i></span>
-    </button>}
-    <select
-      value={month}
-      className='w-16 border-none'
-      onChange={(e) => setValue(input, props, year, e.currentTarget.value, day, hour, minute, second)}
-      disabled={input.readonly}
-    >
-      <option value='01'>Jan</option>
-      <option value='02'>Feb</option>
-      <option value='03'>Mar</option>
-      <option value='04'>Apr</option>
-      <option value='05'>May</option>
-      <option value='06'>Jun</option>
-      <option value='07'>Jul</option>
-      <option value='08'>Aug</option>
-      <option value='09'>Sep</option>
-      <option value='10'>Oct</option>
-      <option value='11'>Nov</option>
-      <option value='12'>Dec</option>
-    </select>
+  return <div className='flex gap-2'>
     <input
-      type='number'
-      min='1'
-      max={isNaN(daysInMonth) ? 30 : daysInMonth}
-      className='w-12 border-none'
-      value={day}
-      onChange={(e) => setValue(input, props, year, month, e.currentTarget.value, hour, minute, second)}
+      type="date"
+      value={input.value}
+      onChange={(e) => input.changeValue(e.currentTarget.value)}
+      placeholder={input.description?.placeholder}
+      className={
+        "form-control"
+        + " " + (input.invalid ? 'is-invalid' : '')
+        + " " + (input.cssClass ?? "")
+        + " " + (input.readonly ? "bg-muted" : "")
+      }
       disabled={input.readonly}
-      placeholder='Day'
     />
-    <input
-      type='number'
-      value={year}
-      className='w-16 border-none'
-      onChange={(e) => setValue(input, props, e.currentTarget.value, month, day, hour, minute, second)}
-      disabled={input.readonly}
-      placeholder='Year'
-    />
-    {input.readonly ? null : <button
-      className="btn btn-small btn-transparent"
-      onClick={() => input.changeValue('')}
-      title='Clear'
-    >
-      <span className="icon"><i className="fas fa-times"></i></span>
-    </button>}
   </div>;
+
+// return <div 
+  //   className={
+  //     "flex gap-1"
+  //     + " " + (input.invalid ? 'is-invalid' : '')
+  //     + " " + (input.cssClass ?? "")
+  //     + " " + (input.readonly ? "bg-muted" : "")
+  //   }
+  // >
+  //   {input.readonly ? null : <button
+  //     className="btn btn-small btn-transparent"
+  //     onClick={() => input.changeValue(moment().format('yyyy-MM-DD'))}
+  //     title='Today'
+  //   >
+  //     <span className="icon"><i className="fas fa-calendar-day"></i></span>
+  //   </button>}
+  //   <select
+  //     value={month}
+  //     className='w-16 border-none'
+  //     onChange={(e) => setValue(input, props, year, e.currentTarget.value, day, hour, minute, second)}
+  //     disabled={input.readonly}
+  //   >
+  //     <option value='01'>Jan</option>
+  //     <option value='02'>Feb</option>
+  //     <option value='03'>Mar</option>
+  //     <option value='04'>Apr</option>
+  //     <option value='05'>May</option>
+  //     <option value='06'>Jun</option>
+  //     <option value='07'>Jul</option>
+  //     <option value='08'>Aug</option>
+  //     <option value='09'>Sep</option>
+  //     <option value='10'>Oct</option>
+  //     <option value='11'>Nov</option>
+  //     <option value='12'>Dec</option>
+  //   </select>
+  //   <input
+  //     type='number'
+  //     min='1'
+  //     max={isNaN(daysInMonth) ? 30 : daysInMonth}
+  //     className='w-12 border-none'
+  //     value={day}
+  //     onChange={(e) => setValue(input, props, year, month, e.currentTarget.value, hour, minute, second)}
+  //     disabled={input.readonly}
+  //     placeholder='Day'
+  //   />
+  //   <input
+  //     type='number'
+  //     value={year}
+  //     className='w-16 border-none'
+  //     onChange={(e) => setValue(input, props, e.currentTarget.value, month, day, hour, minute, second)}
+  //     disabled={input.readonly}
+  //     placeholder='Year'
+  //   />
+  //   {input.readonly ? null : <button
+  //     className="btn btn-small btn-transparent"
+  //     onClick={() => input.changeValue('')}
+  //     title='Clear'
+  //   >
+  //     <span className="icon"><i className="fas fa-times"></i></span>
+  //   </button>}
+  // </div>;
 }
 
 const TimeInput = (props: DateTimeInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
   const { year, month, day, hour, minute, second } = getValues(props, input.value);
 
-  return <div 
-    className={
-      "flex gap-1"
-      + " " + (input.invalid ? 'is-invalid' : '')
-      + " " + (input.cssClass ?? "")
-      + " " + (input.readonly ? "bg-muted" : "")
-    }
-  >
-    {input.readonly ? null : <button
-      className="btn btn-small btn-transparent"
-      onClick={() => input.changeValue(moment().format('HH:mm'))}
-      title='Now'
-    >
-      <span className="icon"><i className="fas fa-clock"></i></span>
-    </button>}
+  return <div className='flex gap-2'>
     <input
-      type='number'
-      min='1'
-      max='24'
-      className='w-12 border-none'
-      value={hour}
-      onChange={(e) => setValue(input, props, year, month, day, e.currentTarget.value, minute, second)}
+      type="time"
+      value={input.value}
+      onChange={(e) => input.changeValue(e.currentTarget.value)}
+      placeholder={input.description?.placeholder}
+      className={
+        "form-control"
+        + " " + (input.invalid ? 'is-invalid' : '')
+        + " " + (input.cssClass ?? "")
+        + " " + (input.readonly ? "bg-muted" : "")
+      }
       disabled={input.readonly}
-      placeholder='Hour'
     />
-    <input
-      type='number'
-      min='1'
-      max='60'
-      value={minute}
-      className='w-16 border-none'
-      onChange={(e) => setValue(input, props, year, month, day, hour, e.currentTarget.value, second)}
-      disabled={input.readonly}
-      placeholder='Minute'
-    />
-    {props.hideSeconds ? null :
-      <input
-        type='number'
-        min='1'
-        max='60'
-        value={second}
-        className='w-16 border-none'
-        onChange={(e) => setValue(input, props, year, month, day, hour, minute, e.currentTarget.value)}
-        disabled={input.readonly}
-        placeholder='Second'
-      />
+  </div>;
+
+//   return <div 
+//     className={
+//       "flex gap-1"
+//       + " " + (input.invalid ? 'is-invalid' : '')
+//       + " " + (input.cssClass ?? "")
+//       + " " + (input.readonly ? "bg-muted" : "")
+//     }
+//   >
+//     {input.readonly ? null : <button
+//       className="btn btn-small btn-transparent"
+//       onClick={() => input.changeValue(moment().format('HH:mm'))}
+//       title='Now'
+//     >
+//       <span className="icon"><i className="fas fa-clock"></i></span>
+//     </button>}
+//     <input
+//       type='number'
+//       min='1'
+//       max='24'
+//       className='w-12 border-none'
+//       value={hour}
+//       onChange={(e) => setValue(input, props, year, month, day, e.currentTarget.value, minute, second)}
+//       disabled={input.readonly}
+//       placeholder='Hour'
+//     />
+//     <input
+//       type='number'
+//       min='1'
+//       max='60'
+//       value={minute}
+//       className='w-16 border-none'
+//       onChange={(e) => setValue(input, props, year, month, day, hour, e.currentTarget.value, second)}
+//       disabled={input.readonly}
+//       placeholder='Minute'
+//     />
+//     {props.hideSeconds ? null :
+//       <input
+//         type='number'
+//         min='1'
+//         max='60'
+//         value={second}
+//         className='w-16 border-none'
+//         onChange={(e) => setValue(input, props, year, month, day, hour, minute, e.currentTarget.value)}
+//         disabled={input.readonly}
+//         placeholder='Second'
+//       />
+// }
+//     {input.readonly ? null : <button
+//       className="btn btn-small btn-transparent"
+//       onClick={() => input.changeValue('')}
+//       title='Clear'
+//     >
+//       <span className="icon"><i className="fas fa-times"></i></span>
+//     </button>}
+//   </div>;
 }
-    {input.readonly ? null : <button
-      className="btn btn-small btn-transparent"
-      onClick={() => input.changeValue('')}
-      title='Clear'
-    >
-      <span className="icon"><i className="fas fa-times"></i></span>
-    </button>}
+
+const DateAndTimeInput = (props: DateTimeInputProps): React.JSX.Element => {
+  const input = React.useContext(InputMetaContext);
+
+  return <div className='flex gap-2'>
+    <input
+      type="datetime-local"
+      value={input.value}
+      onChange={(e) => input.changeValue(e.currentTarget.value)}
+      placeholder={input.description?.placeholder}
+      className={
+        "form-control"
+        + " " + (input.invalid ? 'is-invalid' : '')
+        + " " + (input.cssClass ?? "")
+        + " " + (input.readonly ? "bg-muted" : "")
+      }
+      disabled={input.readonly}
+    />
   </div>;
 }
 
 const InputComponent = (props: DateTimeInputProps): React.JSX.Element => {
   switch (props.type) {
-    case 'datetime':
-      return <div className='flex-dyn'>
-        <DateInput {...props}></DateInput>
-        <TimeInput {...props}></TimeInput>
-      </div>;
-    break;
-    case 'date':
-      return <>
-        <DateInput {...props}></DateInput>
-      </>;
-    break;
-    case 'time':
-      return <>
-        <TimeInput {...props}></TimeInput>
-      </>;
-    break;
+    case 'datetime': return <DateAndTimeInput {...props}></DateAndTimeInput>; break;
+    case 'date': return <DateInput {...props}></DateInput>; break;
+    case 'time': return <TimeInput {...props}></TimeInput>; break;
   }
 }
 

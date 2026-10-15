@@ -46,12 +46,12 @@ const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
   const input = React.useContext(InputMetaContext);
 
   if (input.data) {
-    if (input.data[input.value]?._LOOKUP) {
-      let value = input.data[input.value];
-      let urlDetail = value._URL_DETAIL ?? '';
+    const selectedValue = input.data?.filter((item) => item.id == input.value)[0];
+    const urlDetail = selectedValue?._URL_DETAIL ?? '';
 
+    if (selectedValue && selectedValue._LOOKUP) {
       let style = {};
-      if (value._LOOKUP_COLOR) style['borderLeft'] = '0.5em solid ' + value._LOOKUP_COLOR;
+      if (selectedValue._LOOKUP_COLOR) style['borderLeft'] = '0.5em solid ' + selectedValue._LOOKUP_COLOR;
 
       return <>
         <a
@@ -60,7 +60,9 @@ const ValueComponent = (props: LookupInputProps): React.JSX.Element => {
           target="_blank"
           href={globalThis.hubleto.config.projectUrl + "/" + urlDetail}
         >
-          <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
+          <span className={"text " + (selectedValue._LOOKUP_CLASS ? selectedValue._LOOKUP_CLASS : "text-primary")}>
+            {selectedValue._LOOKUP}
+          </span>
         </a>
       </>;
     } else {
