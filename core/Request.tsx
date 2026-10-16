@@ -13,20 +13,22 @@ const RequestErrorInfo = ({ error }) => {
   const [showDebug, setShowDebug] = useState(false);
   return <>
     <div className='text-red-800'>
-      {error.readableText}
+      {error.readableText || error.message}
     </div>
-    <a type="button" className='mt-2 cursor-pointer text-xs' onClick={() => setShowDebug(!showDebug)}>
-      Show error details
-    </a>
-    {showDebug ?
-      <div className='mt-4 text-xs'>
-        <div>{error.errorHash}</div>
-        <div>{error.dbError}</div>
-        <div>{error.dbQuery}</div>
-        <div>{error.exceptionClass}</div>
-        <div>{error.traceLog}</div>
-      </div>
-    : null}
+    {error.errorHash ? <>
+      <a type="button" className='mt-2 cursor-pointer text-xs' onClick={() => setShowDebug(!showDebug)}>
+        Show error details
+      </a>
+      {showDebug ?
+        <div className='mt-4 text-xs'>
+          <div>{error.errorHash}</div>
+          <div>{error.dbError}</div>
+          <div>{error.dbQuery}</div>
+          <div>{error.exceptionClass}</div>
+          <div>{error.traceLog}</div>
+        </div>
+      : null}
+    </> : null}
   </>;
 }
 
@@ -44,6 +46,23 @@ class Request {
 
   alertOnError(responseData: any) {
     globalThis.hubleto.showDialogWarning(responseData.message);
+  }
+
+  showDefaultRequestErrorDialog(error: any) {
+    console.log('HubletoReactUi request error', error);
+    try {
+      globalThis.hubleto.showDialog(
+        <RequestErrorInfo error={error}></RequestErrorInfo>,
+        {
+          headerClassName: 'dialog-danger-header',
+          contentClassName: 'dialog-danger-content',
+          footerClassName: 'dialog-danger-footer',
+          renderHeader: () => '🥴 Oops! Something went wrong.'
+        }
+      );
+    } catch (ex) {
+      //
+    }
   }
 
   processResponse(url: any, res: any, successCallback: any, errorCallback: any) {
@@ -77,19 +96,7 @@ class Request {
               globalThis.hubleto.showDialogDanger(globalThis.hubleto.getDuplicateEntryErrorMessage(error.message));
             break;
             default:
-              try {
-                globalThis.hubleto.showDialog(
-                  <RequestErrorInfo error={error}></RequestErrorInfo>,
-                  {
-                    headerClassName: 'dialog-danger-header',
-                    contentClassName: 'dialog-danger-content',
-                    footerClassName: 'dialog-danger-footer',
-                    renderHeader: () => '🥴 Oops! Something went wrong.'
-                  }
-                );
-              } catch (ex) {
-                //
-              }
+              this.showDefaultRequestErrorDialog(error);
             break;
 
           }

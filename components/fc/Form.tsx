@@ -552,6 +552,7 @@ const Form = (props: FormProps) => {
       },
       (err: any) => {
         setDeletingRecord(false);
+        request.showDefaultRequestErrorDialog(err);
       }
     );
   }
