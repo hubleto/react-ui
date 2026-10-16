@@ -71,7 +71,7 @@ const Table = (props: TableProps) => {
       dataView: description?.ui?.dataView,
       view: view,
       __IS_AJAX__: '1',
-      
+
       junctionTitle: props.junctionTitle,
       junctionModel: props.junctionModel,
       junctionSourceColumn: props.junctionSourceColumn,
@@ -116,7 +116,7 @@ const Table = (props: TableProps) => {
     if (formDefaultValues) {
       description.defaultValues = { ...description.defaultValues, ...formDefaultValues };
     }
-    
+
     let formProps = {
       // isInitialized: false,
       // ref: refForm,
@@ -952,6 +952,11 @@ const Table = (props: TableProps) => {
     else return renderDefaultHeaderButtons();
   }
 
+  const renderReloadButton = (): React.JSX.Element => {
+    if (props.renderReloadButton) return props.renderReloadButton(myself);
+    else return renderDefaultReloadButton();
+  }
+
   const renderFulltextSearch = (): React.JSX.Element => {
     if (props.renderFulltextSearch) return props.renderFulltextSearch(myself);
     else return renderDefaultFulltextSearch();
@@ -1076,8 +1081,8 @@ const Table = (props: TableProps) => {
         }
       },
       showAsPlainTable: {
-        title: (showAsPlainTable ? 
-          T.translate('Show as standard table') 
+        title: (showAsPlainTable ?
+          T.translate('Show as standard table')
           : T.translate('Show as plain table')),
         icon: 'fas fa-table',
         type: 'onclick',
@@ -1162,6 +1167,17 @@ const Table = (props: TableProps) => {
     </button>;
   }
 
+  const renderDefaultReloadButton = (): React.JSX.Element => {
+    return (
+      <button
+        className="btn btn-transparent"
+        onClick={() => reload()}
+      >
+        <span className="icon"><i className="fas fa-arrow-rotate-left"></i></span>
+      </button>
+    );
+  }
+
   const renderDefaultHeaderButtons = (): React.JSX.Element => {
     let buttons: Array<React.JSX.Element> = [];
     let showAddButton = false;
@@ -1231,6 +1247,9 @@ const Table = (props: TableProps) => {
   const renderDefaultHeaderRight = (): React.JSX.Element => {
     let buttons: Array<React.JSX.Element> = [];
     let showMoreActionsButton = description?.ui?.showMoreActionsButton ?? false;
+    let showReloadButton = description?.ui?.showReloadButton ?? false;
+
+    if (showReloadButton) buttons.push(renderReloadButton());
     if (showMoreActionsButton) buttons.push(renderMoreActionsButton());
     return <>{buttons.map((button) => button)}</>;
   }
@@ -1712,7 +1731,7 @@ const Table = (props: TableProps) => {
 
   const renderDefaultRecords = (): React.JSX.Element => {
     const showColumnSearch = description?.ui?.showColumnSearch ?? false;
-    
+
     switch (description.ui?.dataView) {
       case 'tree':
         return renderRecordsAsTree(data?.tree);
