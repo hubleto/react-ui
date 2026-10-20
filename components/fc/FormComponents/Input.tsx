@@ -21,9 +21,7 @@ const Input = (props: any) => {
 
   const form = React.useContext(FormMetaContext);
   const description = form.description;
-  const value = useRecordField(field);
   const inputDescription = description?.inputs?.[field] ?? {};
-  const isModified = value !== form.originalRecord[field];
 
   const readonly =
     (props.hasOwnProperty('readonly') ? props.readonly
@@ -50,6 +48,15 @@ const Input = (props: any) => {
     : ''))
   ;
 
+  const defaultValue =
+    (props.hasOwnProperty('defaultValue') ? props.defaultValue
+    : (inputDescription.hasOwnProperty('defaultValue') ? inputDescription.defaultValue
+    : null))
+  ;
+
+  const value = (form.creatingRecord ? defaultValue : useRecordField(field));
+  const isModified = value !== form.originalRecord[field];
+
   const inputProps: InputProps = {
     ...props,
     field: field,
@@ -59,6 +66,7 @@ const Input = (props: any) => {
     isModified,
     uid: form.uid + '_' + name, // stable, no uuid.v4() per render
     invalid: false,
+    defaultValue: defaultValue,
     onChange: (input: any, newValue: any) => {
       form.changeField(input, newValue);
       if (props.onChange) props.onChange(input, newValue);

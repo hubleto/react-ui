@@ -346,7 +346,7 @@ const Table = (props: TableProps) => {
         switch (column.type) {
           default:
             columnSearchInput = <input
-              placeholder={column.title}
+              placeholder={column?.title}
               className='w-full'
               onKeyUp={(event: any) => {
                 if (event.keyCode == 13) {
@@ -401,7 +401,7 @@ const Table = (props: TableProps) => {
         key: columnName,
         description: description?.columns[columnName],
         field: columnName,
-        header: column.title + (column.unit ? ' [' + column.unit + ']' : ''),
+        header: column?.title + (column?.unit ? ' [' + column?.unit + ']' : ''),
         showColumnSearch: showColumnSearch,
         showFilterMenu: false,
         alignHeader: alignHeader,
@@ -1755,14 +1755,13 @@ const Table = (props: TableProps) => {
         const itemsTotal = data?.total ?? 0;
 
         if (showAsPlainTable) {
-          const columns = description?.columns ?? {};
-
           return <table className='table-default dense'>
             <thead>
               <tr>
                 {columnKeys.map((colName, columnIndex) => {
                   const column = description?.columns[colName];
-                  return <th className='border-none'>{column.title}</th>;
+                  console.log(column);
+                  return <th className='border-none'>{column?.title}</th>;
                 })}
               </tr>
             </thead>
@@ -1858,7 +1857,7 @@ const Table = (props: TableProps) => {
                 })}
               </tbody>
             </table>
-            <div className="table-paginator justify-start bg-primary/5 p-1 mb-0">
+            <div className="table-paginator">
               {currentPage > 1 ?
                 <div
                   className="btn btn-white"
