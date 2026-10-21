@@ -103,6 +103,8 @@ const Form = (props: FormProps) => {
   }
 
   const getTabs = (): FormTabs => {
+    if (props.getTabs) return props.getTabs(myself);
+
     let tabs = {
       ...(props.tabs ?? {}),
       ...(FormCustomizer.getTabs(props.componentName) ?? {})
@@ -234,6 +236,7 @@ const Form = (props: FormProps) => {
     setCreatingRecord(isCreatingRecord(props.id));
     setUpdatingRecord(!isCreatingRecord(props.id));
     setDataLoaded(false);
+    setTabs(getTabs());
   }, [props.id]);
   useEffect(() => setPrevId(props.prevId), [props.prevId]);
   useEffect(() => setNextId(props.nextId), [props.nextId]);
@@ -310,9 +313,13 @@ const Form = (props: FormProps) => {
 
         // process record
         if (id == -1) {
-          // setIsInitialized(true);
-          // changeRecord(description.defaultValues ?? {});
-          const record = newDescription.defaultValues ?? {};
+          let record = newDescription.defaultValues ?? {};
+
+          Object.keys(newDescription.inputs).map((i) => {
+            if (newDescription.inputs[i].defaultValue) {
+              record[i] = newDescription.inputs[i].defaultValue;
+            }
+          })
 
           setOriginalRecord(JSON.parse(JSON.stringify(record)));
           recordStore.setRecord(prev => ({ ...record }));

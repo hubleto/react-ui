@@ -50,8 +50,9 @@ const Input = (props: any) => {
 
   const defaultValue =
     (props.hasOwnProperty('defaultValue') ? props.defaultValue
+    : (description?.defaultValues[field] ? description?.defaultValues[field]
     : (inputDescription.hasOwnProperty('defaultValue') ? inputDescription.defaultValue
-    : null))
+    : null)))
   ;
 
   const value = (form.creatingRecord ? defaultValue : useRecordField(field));
@@ -66,7 +67,6 @@ const Input = (props: any) => {
     isModified,
     uid: form.uid + '_' + name, // stable, no uuid.v4() per render
     invalid: false,
-    defaultValue: defaultValue,
     onChange: (input: any, newValue: any) => {
       form.changeField(input, newValue);
       if (props.onChange) props.onChange(input, newValue);
