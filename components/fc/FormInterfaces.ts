@@ -182,6 +182,7 @@ export interface FormMeta {
 
   renderDefaultTopMenuButton: (tabUid: string) => React.JSX.Element,
   renderDefaultTopMenu: () => React.JSX.Element,
+  renderDefaultTopInputs: () => React.JSX.Element,
   renderDefaultTimeline: (timelineConfig: any) => React.JSX.Element,
   renderDefaultTab: (tab: string) => React.JSX.Element,
   renderDefaultContent: () => React.JSX.Element,

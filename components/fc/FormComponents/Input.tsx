@@ -17,7 +17,7 @@ import InputFile from "../Inputs/File";
 import InputImage from "../Inputs/Image";
 
 const Input = (props: any) => {
-  const { field, content, wrapperCssClass, renderOnlyInputField, customInputProps, debug, children } = props;
+  const { field, content, renderOnlyInputField, customInputProps, debug, children } = props;
 
   const form = React.useContext(FormMetaContext);
   const description = form.description;
@@ -38,8 +38,16 @@ const Input = (props: any) => {
 
   const title =
     (props.hasOwnProperty('title') ? props.title
+    : (customInputProps && customInputProps.title ? customInputProps.title
     : (inputDescription.hasOwnProperty('title') ? inputDescription.title
-    : ''))
+    : '')))
+  ;
+
+  const wrapperCssClass =
+    (props.hasOwnProperty('wrapperCssClass') ? props.wrapperCssClass
+    : (customInputProps && customInputProps.wrapperCssClass ? customInputProps.wrapperCssClass
+    : (inputDescription.hasOwnProperty('wrapperCssClass') ? inputDescription.wrapperCssClass
+    : '')))
   ;
 
   const icon =
@@ -50,7 +58,7 @@ const Input = (props: any) => {
 
   const defaultValue =
     (props.hasOwnProperty('defaultValue') ? props.defaultValue
-    : (description?.defaultValues[field] ? description?.defaultValues[field]
+    : (description?.defaultValues && description?.defaultValues[field] ? description?.defaultValues[field]
     : (inputDescription.hasOwnProperty('defaultValue') ? inputDescription.defaultValue
     : null)))
   ;

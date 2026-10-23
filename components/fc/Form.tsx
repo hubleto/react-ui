@@ -1153,6 +1153,7 @@ const Form = (props: FormProps) => {
 
     renderDefaultTopMenuButton,
     renderDefaultTopMenu,
+    renderDefaultTopInputs,
     renderDefaultTimeline,
     renderDefaultTab,
     renderDefaultContent,
