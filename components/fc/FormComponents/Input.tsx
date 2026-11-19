@@ -82,6 +82,7 @@ const Input = (props: any) => {
       if (props.onChange) props.onChange(input, newValue);
     },
     ...inputDescription,
+    ...inputDescription.inputProps,
     ...customInputProps,
   };
 
