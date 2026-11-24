@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import AsyncSelect from 'react-select/async'
 import Input, { type InputProps, type InputMeta, InputMetaContext } from '../Input'
+import { FormMetaContext } from '../Form'
 import request from '../../../core/Request'
 import LoaderBar from '../LoaderBar'
 import Spinner from '../Spinner'
@@ -22,12 +23,15 @@ const getEndpoint = (props: any): string => {
   );
 }
 
-const getEndpointParams = (props: any, input: any): object => {
+const getEndpointParams = (props: any, input: any, form: any): object => {
   let formRecord: any = null;
 
-  if (input.parentForm) {
-    formRecord = {...input.parentForm.record};
-    (input.parentForm.record._RELATIONS ?? []).map((relName) => {
+  // The lookup endpoint gets the record of the form, e.g. to offer the record already chosen in it.
+  const record = input.parentForm ? input.parentForm.record : form?.getRecord();
+
+  if (record) {
+    formRecord = {...record};
+    (record._RELATIONS ?? []).map((relName) => {
       delete formRecord[relName];
     })
   }
@@ -164,13 +168,15 @@ const InputComponent = (props: LookupInputProps): React.JSX.Element => {
 }
 
 const LookupInput = (props: LookupInputProps) => {
+  const form = React.useContext(FormMetaContext);
+
   return <Input
     inputClassName='lookup'
     isInitialized={false}
     loadData={(input: InputMeta, params: any, onDataLoaded: ((option: Array<any>) => void)|null = null) => {
       request.post(
         getEndpoint(props),
-        {...getEndpointParams(props, input), ...params},
+        {...getEndpointParams(props, input, form), ...params},
         {},
         (data: any) => {
           input.setIsInitialized(true);
